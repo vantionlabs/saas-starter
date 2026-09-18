@@ -1,12 +1,12 @@
-import { AuditLog } from "@/AuditLog.js";
-import { Auth } from "@/Auth.js";
-import { AuthMiddlewareLive } from "@/AuthMiddlewareLive.js";
-import { IamRpcLive } from "@/IamRpcLive.js";
-import type { AuthSession } from "@/Options.js";
-import { PermissionResolver } from "@/PermissionResolver.js";
+import { PermissionResolver } from "@/access/PermissionResolver.js";
+import { AuditLog } from "@/audit/AuditLog.js";
+import { Auth } from "@/auth/Auth.js";
+import { AuthMiddlewareLive } from "@/auth/AuthMiddlewareLive.js";
+import type { AuthSession } from "@/auth/Options.js";
+import { IamRpcLive } from "@/session/IamRpcLive.js";
 import { describe, expect, it } from "@effect/vitest";
-import { IamRpcs } from "@vantion/module-iam/IamRpc";
-import { permissionsFor } from "@vantion/module-iam/Permission";
+import { permissionsFor } from "@vantion/module-iam/identity/Permission";
+import { IamRpcs } from "@vantion/module-iam/session/IamRpc";
 import { Effect, Layer } from "effect";
 import { RpcTest } from "effect/unstable/rpc";
 

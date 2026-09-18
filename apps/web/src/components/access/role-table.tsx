@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table.js";
 import { useAtomSet } from "@effect/atom-react";
-import type { CustomRole } from "@vantion/module-iam/AccessRpc";
+import type { CustomRole } from "@vantion/module-iam/access/AccessRpc";
 import { ShieldCheck } from "lucide-react";
 
 export const RoleTable = (props: {

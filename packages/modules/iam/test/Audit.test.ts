@@ -1,4 +1,4 @@
-import { auditableFields, isReadOnlyAction } from "@vantion/module-iam/Audit";
+import { auditableFields, isReadOnlyAction } from "@vantion/module-iam/audit/Audit";
 import { describe, expect, it } from "vitest";
 
 describe("isReadOnlyAction", () => {

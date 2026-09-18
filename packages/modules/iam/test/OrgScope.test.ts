@@ -1,5 +1,5 @@
-import { CurrentUser, Identity, OrgId, UserId } from "@/Identity.js";
-import { withOrgScope } from "@/OrgScope.js";
+import { CurrentUser, Identity, OrgId, UserId } from "@/identity/Identity.js";
+import { withOrgScope } from "@/identity/OrgScope.js";
 import { describe, expect, it } from "@effect/vitest";
 import { PgTest, testDbUrl } from "@vantion/database/PgTest";
 import { Effect, Layer } from "effect";

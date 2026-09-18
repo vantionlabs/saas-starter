@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@effect/vitest";
-import type { Role } from "@vantion/module-iam/Permission";
-import { grantsFor, permissionsFor, statements } from "@vantion/module-iam/Permission";
+import type { Role } from "@vantion/module-iam/identity/Permission";
+import { grantsFor, permissionsFor, statements } from "@vantion/module-iam/identity/Permission";
 import { defaultRoles, defaultStatements } from "better-auth/plugins/organization/access";
 
 const ourStatements: Record<string, ReadonlyArray<string>> = statements;

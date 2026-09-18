@@ -2,9 +2,9 @@ import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { Context, Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
+import type { Identity } from "../identity/Identity.js";
 import { auditableFields } from "./Audit.js";
 import type { AuditOutcome } from "./Audit.js";
-import type { Identity } from "./Identity.js";
 
 export interface AuditLogService {
   /**

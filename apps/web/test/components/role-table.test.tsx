@@ -2,7 +2,7 @@ import { RoleTable } from "@/components/access/role-table.js";
 import { RegistryProvider } from "@effect/atom-react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CustomRole } from "@vantion/module-iam/AccessRpc";
+import { CustomRole } from "@vantion/module-iam/access/AccessRpc";
 import { describe, expect, it, vi } from "vitest";
 
 const renderTable = (roles: ReadonlyArray<CustomRole>, onEdit = vi.fn()) => {

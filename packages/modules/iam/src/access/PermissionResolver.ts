@@ -1,8 +1,8 @@
 import { PgPool } from "@vantion/database/PgPool";
 import { Context, Effect, Layer, Schema } from "effect";
 import * as Pg from "pg";
-import type { Override, Permission } from "./Permission.js";
-import { resolvePermissions } from "./Permission.js";
+import type { Override, Permission } from "../identity/Permission.js";
+import { resolvePermissions } from "../identity/Permission.js";
 
 /** Shape better-auth stores in `organizationRole.permission`. */
 const CustomRoleGrants = Schema.Record(Schema.String, Schema.Array(Schema.String));

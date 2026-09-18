@@ -1,4 +1,4 @@
-import { clientAddress } from "@/ClientAddress.js";
+import { clientAddress } from "@/auth/ClientAddress.js";
 import { Option } from "effect";
 import type { HttpServerRequest } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";

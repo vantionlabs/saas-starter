@@ -5,8 +5,8 @@ import { emailOTP, magicLink, organization } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { randomUUID } from "node:crypto";
 import type * as Pg from "pg";
+import { grantsFor, statements } from "../identity/Permission.js";
 import * as Templates from "./EmailTemplates.js";
-import { grantsFor, statements } from "./Permission.js";
 
 /**
  * Everything better-auth needs, resolved before it is constructed.

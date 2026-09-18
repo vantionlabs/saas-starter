@@ -1,6 +1,6 @@
-import { AccessRpcs } from "@vantion/module-iam/AccessRpc";
-import { IamRpcs } from "@vantion/module-iam/IamRpc";
-import { OrganizationRpcs } from "@vantion/module-iam/OrganizationRpc";
+import { AccessRpcs } from "@vantion/module-iam/access/AccessRpc";
+import { OrganizationRpcs } from "@vantion/module-iam/organization/OrganizationRpc";
+import { IamRpcs } from "@vantion/module-iam/session/IamRpc";
 import { ContactRpcs } from "./contact/ContactRpc.js";
 import { HealthRpcs } from "./health/HealthRpc.js";
 

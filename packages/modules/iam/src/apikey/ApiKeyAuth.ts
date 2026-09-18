@@ -2,9 +2,9 @@ import { withWorkerScope } from "@vantion/database/OrgScope";
 import { Context, Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { createHash } from "node:crypto";
+import { PermissionResolver } from "../access/PermissionResolver.js";
+import { Identity, OrgId, UserId } from "../identity/Identity.js";
 import { looksLikeApiKey } from "./ApiKey.js";
-import { Identity, OrgId, UserId } from "./Identity.js";
-import { PermissionResolver } from "./PermissionResolver.js";
 
 /**
  * Turns an `Authorization: Bearer vantion_live_…` header into the same `Identity`

@@ -1,7 +1,7 @@
 import { Effect } from "effect";
+import { CurrentUser } from "../identity/Identity.js";
+import { permissionsFor } from "../identity/Permission.js";
 import { IamRpcs } from "./IamRpc.js";
-import { CurrentUser } from "./Identity.js";
-import { permissionsFor } from "./Permission.js";
 
 /**
  * `CurrentUser` is a service key, and in v4 a service key *is* an

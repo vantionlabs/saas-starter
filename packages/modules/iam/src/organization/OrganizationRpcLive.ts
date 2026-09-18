@@ -1,10 +1,12 @@
 import { DateTime, Effect } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { ApiKey, CreatedApiKey, hint, KEY_PREFIX } from "./ApiKey.js";
-import { AuditEntry } from "./Audit.js";
-import type { AuditOutcome } from "./Audit.js";
-import { CurrentUser, OrgId } from "./Identity.js";
+import { ApiKey, CreatedApiKey, hint, KEY_PREFIX } from "../apikey/ApiKey.js";
+import { AuditEntry } from "../audit/Audit.js";
+import type { AuditOutcome } from "../audit/Audit.js";
+import { CurrentUser, OrgId } from "../identity/Identity.js";
+import { withOrgScope } from "../identity/OrgScope.js";
+import { permission, withPolicy } from "../identity/Policy.js";
 import {
   LastOrganization,
   Membership,
@@ -12,8 +14,6 @@ import {
   NotAMember,
   OrganizationRpcs,
 } from "./OrganizationRpc.js";
-import { withOrgScope } from "./OrgScope.js";
-import { permission, withPolicy } from "./Policy.js";
 
 const slugify = (name: string) =>
   `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${

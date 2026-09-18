@@ -1,8 +1,8 @@
 import { Schema } from "effect";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
-import { AuthMiddleware } from "./AuthMiddleware.js";
-import { PermissionSchema } from "./Permission.js";
-import { Forbidden } from "./Policy.js";
+import { AuthMiddleware } from "../identity/AuthMiddleware.js";
+import { PermissionSchema } from "../identity/Permission.js";
+import { Forbidden } from "../identity/Policy.js";
 
 /**
  * A role defined by an organization rather than by us.

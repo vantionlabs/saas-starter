@@ -1,4 +1,4 @@
-import { PermissionResolver } from "@/PermissionResolver.js";
+import { PermissionResolver } from "@/access/PermissionResolver.js";
 import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";

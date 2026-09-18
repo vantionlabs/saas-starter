@@ -1,11 +1,11 @@
-import { AccessRpcLive } from "@/AccessRpcLive.js";
+import { AccessRpcLive } from "@/access/AccessRpcLive.js";
 import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
-import { AccessRpcs, CustomRole, MemberOverride } from "@vantion/module-iam/AccessRpc";
-import { AuthMiddleware } from "@vantion/module-iam/AuthMiddleware";
-import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/Identity";
-import { permissionsFor } from "@vantion/module-iam/Permission";
+import { AccessRpcs, CustomRole, MemberOverride } from "@vantion/module-iam/access/AccessRpc";
+import { AuthMiddleware } from "@vantion/module-iam/identity/AuthMiddleware";
+import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
+import { permissionsFor } from "@vantion/module-iam/identity/Permission";
 import { Effect, Layer } from "effect";
 import { RpcTest } from "effect/unstable/rpc";
 import { SqlClient } from "effect/unstable/sql";

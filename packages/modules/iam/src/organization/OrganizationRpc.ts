@@ -1,11 +1,11 @@
 import { Schema } from "effect";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
-import { ApiKey, CreatedApiKey } from "./ApiKey.js";
-import { AuditEntry } from "./Audit.js";
-import { AuthMiddleware } from "./AuthMiddleware.js";
-import { OrgId } from "./Identity.js";
-import { Role } from "./Permission.js";
-import { Forbidden } from "./Policy.js";
+import { ApiKey, CreatedApiKey } from "../apikey/ApiKey.js";
+import { AuditEntry } from "../audit/Audit.js";
+import { AuthMiddleware } from "../identity/AuthMiddleware.js";
+import { OrgId } from "../identity/Identity.js";
+import { Role } from "../identity/Permission.js";
+import { Forbidden } from "../identity/Policy.js";
 
 /** An organization the caller belongs to, with their role in it. */
 export class Membership extends Schema.Class<Membership>("Membership")({

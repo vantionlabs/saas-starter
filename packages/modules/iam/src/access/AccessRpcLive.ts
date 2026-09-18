@@ -1,12 +1,12 @@
 import { Effect, Schema } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
+import { CurrentUser } from "../identity/Identity.js";
+import { withOrgScope } from "../identity/OrgScope.js";
+import type { Permission } from "../identity/Permission.js";
+import { fromGrants, toGrants } from "../identity/Permission.js";
+import { permission, withPolicy } from "../identity/Policy.js";
 import { AccessRpcs, CustomRole, MemberOverride, OrganizationMember } from "./AccessRpc.js";
-import { CurrentUser } from "./Identity.js";
-import { withOrgScope } from "./OrgScope.js";
-import type { Permission } from "./Permission.js";
-import { fromGrants, toGrants } from "./Permission.js";
-import { permission, withPolicy } from "./Policy.js";
 
 /** The shape better-auth stores in `organizationRole.permission`. */
 const StoredGrants = Schema.Record(Schema.String, Schema.Array(Schema.String));

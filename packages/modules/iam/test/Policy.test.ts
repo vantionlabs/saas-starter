@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@effect/vitest";
-import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/Identity";
-import type { Role } from "@vantion/module-iam/Permission";
-import { permissionsFor, resolvePermissions } from "@vantion/module-iam/Permission";
-import { all, any, Forbidden, permission } from "@vantion/module-iam/Policy";
+import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
+import type { Role } from "@vantion/module-iam/identity/Permission";
+import { permissionsFor, resolvePermissions } from "@vantion/module-iam/identity/Permission";
+import { all, any, Forbidden, permission } from "@vantion/module-iam/identity/Policy";
 import { Effect, Layer } from "effect";
 
 const as = (role: Role) =>

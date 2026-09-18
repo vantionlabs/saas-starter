@@ -22,7 +22,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
-import type { Role } from "@vantion/module-iam/Permission";
+import type { Role } from "@vantion/module-iam/identity/Permission";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { Copy, Plus } from "lucide-react";

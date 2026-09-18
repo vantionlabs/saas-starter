@@ -1,9 +1,9 @@
-import { AuditLog } from "@/AuditLog.js";
+import { AuditLog } from "@/audit/AuditLog.js";
 import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
-import { Identity, OrgId, UserId } from "@vantion/module-iam/Identity";
-import { permissionsFor } from "@vantion/module-iam/Permission";
+import { Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
+import { permissionsFor } from "@vantion/module-iam/identity/Permission";
 import { Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 

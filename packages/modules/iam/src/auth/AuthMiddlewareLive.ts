@@ -1,10 +1,10 @@
 import { Cause, Effect, Layer } from "effect";
-import { isReadOnlyAction } from "./Audit.js";
-import { AuditLog } from "./AuditLog.js";
+import { PermissionResolver } from "../access/PermissionResolver.js";
+import { isReadOnlyAction } from "../audit/Audit.js";
+import { AuditLog } from "../audit/AuditLog.js";
+import { AuthMiddleware } from "../identity/AuthMiddleware.js";
+import { CurrentUser, Identity, OrgId, Unauthenticated, UserId } from "../identity/Identity.js";
 import { Auth } from "./Auth.js";
-import { AuthMiddleware } from "./AuthMiddleware.js";
-import { CurrentUser, Identity, OrgId, Unauthenticated, UserId } from "./Identity.js";
-import { PermissionResolver } from "./PermissionResolver.js";
 
 /**
  * Turns request headers into a `CurrentUser`, and records what they did.

@@ -8,8 +8,8 @@ import {
 } from "@vantion/domain/api/v1/Wire";
 import type { Contact } from "@vantion/domain/contact/ContactRpc";
 import { ContactId } from "@vantion/domain/contact/ContactRpc";
-import { ApiKeyAuth, bearerToken, denialMessage } from "@vantion/module-iam/ApiKeyAuth";
-import { CurrentUser } from "@vantion/module-iam/Identity";
+import { ApiKeyAuth, bearerToken, denialMessage } from "@vantion/module-iam/apikey/ApiKeyAuth";
+import { CurrentUser } from "@vantion/module-iam/identity/Identity";
 import { Effect } from "effect";
 import { HttpServerRequest } from "effect/unstable/http";
 import { HttpApiBuilder } from "effect/unstable/httpapi";

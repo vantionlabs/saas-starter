@@ -1,8 +1,8 @@
 import { Schema } from "effect";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
-import { AuthMiddleware } from "./AuthMiddleware.js";
-import { Identity } from "./Identity.js";
-import { PermissionSchema } from "./Permission.js";
+import { AuthMiddleware } from "../identity/AuthMiddleware.js";
+import { Identity } from "../identity/Identity.js";
+import { PermissionSchema } from "../identity/Permission.js";
 
 /**
  * Identity procedures. `AuthMiddleware` provides `CurrentUser` to every handler

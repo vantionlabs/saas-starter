@@ -1,8 +1,8 @@
 import { PermissionPicker } from "@/components/access/permission-picker.js";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { statements } from "@vantion/module-iam/Permission";
-import type { Permission } from "@vantion/module-iam/Permission";
+import { statements } from "@vantion/module-iam/identity/Permission";
+import type { Permission } from "@vantion/module-iam/identity/Permission";
 import { describe, expect, it, vi } from "vitest";
 
 const allPermissions = Object.entries(statements).flatMap(([resource, actions]) =>

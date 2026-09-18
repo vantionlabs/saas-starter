@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.js";
-import { KEY_PREFIX } from "@vantion/module-iam/ApiKey";
-import type { ApiKey } from "@vantion/module-iam/ApiKey";
+import { KEY_PREFIX } from "@vantion/module-iam/apikey/ApiKey";
+import type { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
 import { DateTime } from "effect";
 import { KeyRound } from "lucide-react";
 

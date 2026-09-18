@@ -1,5 +1,5 @@
-import { AuthMiddleware } from "@vantion/module-iam/AuthMiddleware";
-import { Forbidden } from "@vantion/module-iam/Policy";
+import { AuthMiddleware } from "@vantion/module-iam/identity/AuthMiddleware";
+import { Forbidden } from "@vantion/module-iam/identity/Policy";
 import { Schema } from "effect";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
 

@@ -3,16 +3,8 @@ import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
-import { AccessRpcLive } from "@vantion/module-iam/AccessRpcLive";
-import { ApiKeyAuth } from "@vantion/module-iam/ApiKeyAuth";
-import { AuditLog } from "@vantion/module-iam/AuditLog";
-import { Auth } from "@vantion/module-iam/Auth";
-import { AuthHttp } from "@vantion/module-iam/AuthHttp";
-import { AuthMiddlewareLive } from "@vantion/module-iam/AuthMiddlewareLive";
-import { IamRpcLive } from "@vantion/module-iam/IamRpcLive";
-import { OrganizationRpcLive } from "@vantion/module-iam/OrganizationRpcLive";
-import { PermissionResolver } from "@vantion/module-iam/PermissionResolver";
-import { Mailer } from "@vantion/module-notifications/Mailer";
+import { IamHttp, IamModule } from "@vantion/module-iam/Module";
+import { NotificationsModule } from "@vantion/module-notifications/Module";
 import { Config, Effect, Layer } from "effect";
 import { HttpRouter } from "effect/unstable/http";
 import { HttpApiBuilder, HttpApiScalar } from "effect/unstable/httpapi";
@@ -26,15 +18,19 @@ import { HealthHttp } from "./health/HealthHttp.js";
 import { HealthRpcLive } from "./health/HealthRpcLive.js";
 import { TelemetryLive } from "./Telemetry.js";
 
+/**
+ * `IamModule` appears three times in this file, and is built once.
+ *
+ * It carries handlers the RPC server needs and services the public API needs —
+ * two places a layer is required, not two layers. Effect memoises by reference
+ * within a build, so naming it wherever it is needed is the intended way to say
+ * that, rather than something to factor out.
+ */
 const RpcLive = RpcServer.layer(AppRpcs).pipe(
+  Layer.provide(IamModule),
   Layer.provide(HealthRpcLive),
-  Layer.provide(IamRpcLive),
-  Layer.provide(OrganizationRpcLive),
-  Layer.provide(AccessRpcLive),
   Layer.provide(ContactRpcLive),
   Layer.provide(ContactStore.layer),
-  Layer.provide(AuthMiddlewareLive),
-  Layer.provide(AuditLog.layer),
   Layer.provide(RpcServer.layerProtocolHttp({ path: "/rpc" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );
@@ -70,7 +66,7 @@ const CorsLive = Layer.unwrap(
   }),
 );
 
-const Routes = Layer.mergeAll(RpcLive, AuthHttp, HealthHttp, ApiLive, CorsLive);
+const Routes = Layer.mergeAll(RpcLive, IamHttp, HealthHttp, ApiLive, CorsLive);
 
 const HttpLive = Layer.unwrap(
   Effect.gen(function*() {
@@ -81,15 +77,13 @@ const HttpLive = Layer.unwrap(
     // provided once for the whole tree, so layer memoisation guarantees the
     // SqlClient and better-auth share a single connection pool.
     return HttpRouter.serve(Routes).pipe(
-      Layer.provide(Auth.layer),
-      Layer.provide(ApiKeyAuth.layer),
+      Layer.provide(IamModule),
       Layer.provide(ContactStore.layer),
-      Layer.provide(PermissionResolver.layer),
       // Swap `layerStoreMemory` for `layerStoreRedis` to share limits across workers.
       Layer.provide(RateLimiter.layer),
       Layer.provide(RateLimiter.layerStoreMemory),
       Layer.provide(PgLive),
-      Layer.provide(Mailer.layer),
+      Layer.provide(NotificationsModule),
       Layer.provide(PgPool.layer),
       Layer.provide(NodeHttpServer.layer(() => Http.createServer(), { port })),
     );
