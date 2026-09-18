@@ -86,6 +86,9 @@
       ],
       "@vantion/module-files/*": [
         "./packages/modules/files/src/*.js"
+      ],
+      "@vantion/module-agent/*": [
+        "./packages/modules/agent/src/*.js"
       ]
     }
   }

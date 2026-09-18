@@ -1,0 +1,62 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "test"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/database"
+    },
+    {
+      "path": "../../packages/modules/iam"
+    },
+    {
+      "path": "../../packages/modules/contact"
+    },
+    {
+      "path": "../../packages/modules/files"
+    },
+    {
+      "path": "../../packages/modules/billing"
+    },
+    {
+      "path": "../../packages/modules/agent"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/database/*": [
+        "../../packages/database/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../../packages/modules/files/src/*.js"
+      ],
+      "@vantion/module-billing/*": [
+        "../../packages/modules/billing/src/*.js"
+      ],
+      "@vantion/module-agent/*": [
+        "../../packages/modules/agent/src/*.js"
+      ],
+      "@test/*": [
+        "./test/*"
+      ]
+    }
+  }
+}

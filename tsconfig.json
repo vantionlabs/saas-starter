@@ -4,6 +4,9 @@
   "files": [],
   "references": [
     {
+      "path": "packages/modules/agent"
+    },
+    {
       "path": "packages/modules/files"
     },
     {
@@ -23,6 +26,9 @@
     },
     {
       "path": "packages/tokens"
+    },
+    {
+      "path": "packages/telemetry"
     },
     {
       "path": "packages/modules/notifications"
@@ -53,6 +59,9 @@
     },
     {
       "path": "apps/worker"
+    },
+    {
+      "path": "apps/mcp"
     }
   ]
 }

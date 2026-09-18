@@ -1,0 +1,51 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [
+    "test",
+    "src/**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../database"
+    },
+    {
+      "path": "../iam"
+    },
+    {
+      "path": "../contact"
+    },
+    {
+      "path": "../files"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@test/*": [
+        "./test/*"
+      ],
+      "@vantion/database/*": [
+        "../../../packages/database/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../../../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../../../packages/modules/files/src/*.js"
+      ]
+    }
+  }
+}

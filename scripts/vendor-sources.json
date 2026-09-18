@@ -2,15 +2,15 @@
   "effect": {
     "prefix": "repos/effect",
     "url": "https://github.com/Effect-TS/effect.git",
-    "ref": "main",
+    "ref": "effect@4.0.0-rc.109",
     "catalogPin": "effect",
-    "why": "The whole Effect monorepo, including @effect/atom-react, @effect/vitest, @effect/sql-pg, @effect/platform-node and the AI packages."
+    "why": "The whole Effect monorepo, including @effect/atom-react, @effect/vitest, @effect/sql-pg, @effect/platform-node and the AI packages. The ref is the release tag, never `main`: between releases the package version still reads as the last one while the source has moved on, so a `main` copy claims to be the installed version and is not. That is the one failure this whole arrangement cannot survive, because AGENTS.md tells every reader the vendored source outranks their own recall."
   },
   "effect-form": {
     "prefix": "repos/effect-form",
     "url": "https://github.com/lucas-barake/effect-form.git",
-    "ref": "main",
+    "ref": "@lucas-barake/effect-form@0.25.0-beta.6",
     "catalogPin": "@lucas-barake/effect-form",
-    "why": "The v4 form API has no published docs, so the source is the only reference."
+    "why": "The v4 form API has no published docs, so the source is the only reference. Tagged at the installed version for the same reason as Effect above; the effect-form-react tag at 0.26.0-beta.5 is the same commit."
   }
 }

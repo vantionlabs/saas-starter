@@ -29,6 +29,11 @@ the services behind them.
 | --------------- | ---------------------------------------------------------------------- |
 | `iam`           | identity, organizations, roles and policies, API keys, the audit trail |
 | `contact`       | the worked example of a tenant-owned feature                           |
+| `billing`       | subscriptions, Stripe, the entitlement behind every plan gate          |
+| `files`         | uploads, object storage, expiring links                                |
+| `jobs`          | the transactional outbox and the queue behind it                       |
+| `webhooks`      | outbound delivery, signed and retried                                  |
+| `agent`         | the toolkit an MCP client or a model drives, over the modules above    |
 | `notifications` | the mail transport                                                     |
 | `health`        | liveness and readiness                                                 |
 
@@ -75,6 +80,26 @@ Beneath them, `packages/database` owns the connection and the schema, and `packa
 is now only an aggregator: `AppRpcs`, which composes the modules' RPC groups into the one both
 apps import, and the frozen `api/v1` wire types.
 
+`packages/modules/agent` is the odd one out and deliberately so: it owns no tables and no
+transport, only the binding between a set of tool declarations and the stores that already
+implement them. `AgentToolkit` is five tools — identity, two reads, a search and one write —
+and each handler calls the same `ContactStore` or file query the RPC handlers and the public
+API call, through the same policy, under the same row-level security. A tool is a fourth
+transport over one implementation, never a fourth implementation.
+
+Tools declare their `dependencies` rather than letting the handler's requirements be inferred,
+so the toolkit's layer states what it needs the way every other layer here does. The one write
+carries `needsApproval`, which is the model's own machinery: a client proposes it and runs it
+only once the person agrees. The permission check decides whether they _may_; approval decides
+whether they meant to, and a model that misreads an instruction is acting entirely within its
+permissions while doing the wrong thing.
+
+`apps/mcp` is that toolkit over stdio, which is how an editor starts an MCP server: a
+subprocess with credentials in its own configuration and no port to expose. It resolves
+`VANTION_API_KEY` once at boot through the same `ApiKeyAuth` the public API uses, so the
+process runs as one identity for its lifetime — no per-request authentication, and the key is
+the blast radius. `docs/mcp.md` has the editor configuration and says so plainly.
+
 `apps/server/src` is three files — `Main.ts`, `Telemetry.ts` and the `api/v1` handlers. That
 is the measure of whether this is working: an application composes modules and owns almost
 nothing itself.
@@ -105,7 +130,14 @@ implementation instead of two.
 ## Read the vendored Effect source before writing Effect code
 
 `repos/effect` is the full Effect monorepo, vendored with `git subtree` at exactly the version
-this repo depends on (`effect` in `pnpm-workspace.yaml`, currently `4.0.0-rc.109`). It also
+this repo depends on (`effect` in `pnpm-workspace.yaml`, currently `4.0.0-rc.109`).
+
+That word _exactly_ is load-bearing, and it was briefly untrue. Both sources were vendored from
+`main`, where a package's version field still reads as the last release while the source has
+already moved past it — so the copy claimed to be rc.109 and carried APIs rc.109 does not have.
+Writing this repository's own MCP server against it produced calls to `McpProtocol.v2025_11_25`
+and an option that does not exist. The refs in `scripts/vendor-sources.json` are release tags
+now, and `tooling/test/vendor-sources.test.ts` fails if one is ever a branch again. It also
 covers `@effect/atom-react`, `@effect/vitest`, `@effect/sql-pg`, `@effect/platform-node`, and
 the AI packages.
 
