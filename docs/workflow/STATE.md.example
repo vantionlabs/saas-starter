@@ -1,0 +1,26 @@
+# Project state
+
+Copy this to `STATE.md` when you start. It is gitignored: it describes one
+product rather than the starter, and `SessionStart` reads it back so the thread
+survives a context window closing.
+
+```
+Product:     <name>
+Started:     <date>
+Phase:       discover | prototype | build | ship | closed
+
+Riskiest assumption:
+  <one sentence, or UNWRITTEN — discovery does not end until this is filled in>
+
+Feature list (cut to what the time allows):
+  - [ ] …
+
+Slices landed:
+  - …
+
+Cut, and why:
+  - …
+
+Open questions:
+  - …
+```

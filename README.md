@@ -8,7 +8,7 @@
 
 <p align="center">
   <b>The agentic engineering workflow, with the product already built.</b><br />
-  A multi-tenant B2B SaaS you can deploy today — and the skills, hooks, commands and process that take a team from a written spec to a shipped product in thirty days.
+  A multi-tenant B2B SaaS you can deploy today — and the skills, hooks, commands and workflow that take a team from a written idea to a product in production.
 </p>
 
 <p align="center">
@@ -46,15 +46,14 @@
 
 ---
 
-Most starters give you a codebase. This one gives you the codebase **and the way
-of working** — because on an AI-native team the second is what actually decides
-how fast the first moves.
+Most starters give you a codebase. This one also gives you the way of working,
+because on an AI-native team that is what decides how fast the codebase moves.
 
 The product half is a multi-tenant B2B SaaS that deploys today: sign-in,
 organizations, roles, tenant isolation proven twice, an audit trail, billing, a
-public API, background jobs, outbound webhooks. The method half is committed
-beside it in `.claude/` and `docs/sprint/` — the hooks that keep an agent honest,
-the commands that drive each phase, and the thirty-day process the two are for.
+public API, background jobs, outbound webhooks. The method half sits beside it in
+`.claude/` and `docs/workflow/`: hooks that keep an agent honest, commands that
+drive each phase, and the process both exist for.
 
 Both are MIT. Nothing is held back for a paid tier.
 
@@ -84,23 +83,24 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **Tests that gate** — 210 unit, 30 browser, testcontainers Postgres, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry, a Dockerfile per app, Railway IaC
 
-**The method** — committed in `.claude/` and `docs/sprint/`.
+**The method** — committed in `.claude/` and `docs/workflow/`.
 
 - ✅ **Hooks** — format, type-check, lint and the repo's rules, on every agent edit
-- ✅ **Commands** — `/sprint-*` for each phase, `/figma-*` for the design loop
-- ✅ **Skills** — the thirty-day sprint written as a skill, installable as a plugin
+- ✅ **Commands** — `/product-*` for each phase, `/figma-*` for the design loop
+- ✅ **Skills** — the workflow as a skill, plus vendored `impeccable` for design and
+  the marketing skills for launch; installable as a plugin
 - ✅ **Vendored sources** — `repos/effect` so an agent reads real signatures, not recall
 
 ### What that buys you
 
-|                                               |                                                                                                                                      |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Week one is a feature, not a login screen** | The four weeks a B2B product usually spends on auth, tenancy, roles and billing are already spent.                                   |
-| **An agent that is checked, not trusted**     | Every edit runs the gate. Every merge runs the browser. The loop closes without you reading each diff.                               |
-| **One contract, every surface**               | Web, mobile, the public API and an MCP server compile against the same types — a change is a compile error, not a support ticket.    |
-| **A design process, not a handoff**           | Designers work on the real components in `apps/design` and Figma, and what they change comes back as tokens rather than screenshots. |
-| **Multi-tenancy you can defend**              | Isolation is enforced twice and demonstrated by two real users in a browser, which is what a security review actually asks for.      |
-| **Nothing held back**                         | MIT, no paid tier, no telemetry, no vendor account needed to run the whole thing locally.                                            |
+|                                               |                                                                                                                                           |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Week one is a feature, not a login screen** | The four weeks a B2B product usually spends on auth, tenancy, roles and billing are already spent.                                        |
+| **An agent that is checked, not trusted**     | Every edit runs the gate. Every merge runs the browser. The loop closes without you reading each diff.                                    |
+| **One contract, every surface**               | Web, mobile, the public API and an MCP server compile against the same types. A breaking change is a compile error, not a support ticket. |
+| **A design process, not a handoff**           | Designers work on the real components, in `apps/design` and in Figma, and what they change comes back as tokens instead of screenshots.   |
+| **Multi-tenancy you can defend**              | Isolation is enforced twice and demonstrated by two real users in a browser, which is what a security review asks for.                    |
+| **Nothing held back**                         | MIT, no paid tier, no telemetry, and no vendor account needed to run the whole thing locally.                                             |
 
 ## Why Effect
 
@@ -109,7 +109,7 @@ team that is a throughput argument rather than a taste one.
 
 **Failures are in the signature.** `Effect<Contact, Forbidden, CurrentUser>` says
 what it returns, how it can fail, and what it needs. An agent cannot quietly
-swallow an error it did not know about, because the compiler names it — and a
+swallow an error it did not know about, because the compiler names it. A
 reviewer reading a diff sees the failure modes without opening the body.
 
 **Dependencies are in the type, not in the imports.** Forgetting to provide
@@ -122,8 +122,8 @@ it.
 **Swapping a boundary is a one-line change.** Every external service here is a
 service with two layers, one needing no credentials: Resend or the log, BullMQ or
 memory, Stripe or refusal. That is why a fresh clone can follow a magic link,
-deliver a webhook and run every test with no accounts at all — and why tests
-replace the boundary rather than mocking a module.
+deliver a webhook and run every test with no accounts at all, and why tests
+replace the boundary instead of mocking a module.
 
 **One idiom covers the stack.** HTTP, SQL, streams, retries, concurrency,
 scheduling and the RPC layer are the same library, so there is one set of
@@ -132,8 +132,8 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps — which is what lets a suite of 210 be a gate an agent
-runs between every slice rather than something a human runs before lunch.
+the edges, and no sleeps. That is what lets a suite of 210 be a gate an agent
+runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
 and `RULES.md` exists because the idioms are worth stating rather than absorbing.
@@ -179,7 +179,7 @@ whole point: nothing is re-derived from a conversation somebody half remembers.
 ```
  discovery  ──▶   design   ──▶    build    ──▶    ship
      │               │               │               │
-/sprint-discover  /sprint-prototype  /sprint-build  /sprint-ship
+/product-discover /product-prototype /product-build  /product-ship 
      │               │               │               │
 a written        real screens    vertical slices  deployed, with
 riskiest         in apps/design, each green       the isolation
@@ -188,17 +188,17 @@ and a cut        for designers    next starts     passing
 feature list     to refine
 ```
 
-| Days  | Phase         | Produces                                                                       | Refuses to advance until           |
-| ----- | ------------- | ------------------------------------------------------------------------------ | ---------------------------------- |
-| 1–5   | **Discover**  | the riskiest assumption, written down; a feature list cut to twelve build days | the assumption is written          |
-| 6–12  | **Prototype** | real screens against the real shell, no new tables                             | no migration was needed            |
-| 13–24 | **Build**     | vertical slices — schema, handler, screen, tests                               | each slice passes the whole gate   |
-| 25–30 | **Ship**      | deployed, documented, with tenant isolation proven                             | nothing on the checklist is untrue |
+| Phase         | Produces                                                      | Refuses to advance until           |
+| ------------- | ------------------------------------------------------------- | ---------------------------------- |
+| **Discover**  | the riskiest assumption, written down, and a cut feature list | the assumption is written          |
+| **Prototype** | real screens against the real shell, no new tables            | no migration was needed            |
+| **Build**     | vertical slices — schema, handler, screen, tests              | each slice passes the whole gate   |
+| **Ship**      | deployed, documented, with tenant isolation proven            | nothing on the checklist is untrue |
 
-The gates are the method; everything else is detail. `docs/sprint/` has each
-phase written out, and `STATE.md` is where a phase records what it did — read
-back at the start of the next session, because a thirty-day sprint outlives any
-context window.
+The gates are the method; everything else is detail. `docs/workflow/` has each
+phase written out, and `STATE.md` is where a phase records what it did. That
+file is read back at the start of the next session, because product work outlives
+any context window.
 
 ## Docs to design to dev
 
@@ -206,7 +206,7 @@ The path an idea takes, and where each artefact lives.
 
 **1 · Written first.** Discovery produces prose, not tickets: who this is for,
 what they do instead today, and the one assumption that makes the rest pointless
-if it is false. It lands in `docs/sprint/01-discovery.md`.
+if it is false. It lands in `docs/workflow/01-discovery.md`.
 
 **2 · Designed against the real components.** `apps/design` renders the product's
 own screens — the same `@vantion/ui` the app uses — fed by **persona fixtures**
@@ -231,7 +231,7 @@ getting it wrong is how a one-off colour ends up hardcoded in a route.
 
 **4 · Built in slices.** `pnpm new:module <name>` scaffolds a feature package and
 registers it. Each slice is schema, handler, screen and tests, and does not start
-until the previous one passes `pnpm check && pnpm lint && pnpm test` — plus
+until the previous one passes `pnpm check && pnpm lint && pnpm test`, plus
 `pnpm e2e` when it touched a route.
 
 **5 · Shipped.** `railway config plan` shows the diff before `railway config
@@ -239,19 +239,21 @@ apply` performs it, so a deployment is reviewable the way a pull request is.
 
 ## The agent layer
 
-`.claude/` is committed, so a fresh clone gets it. These are plain Node scripts
-with no network access and no `npx`: read them before you trust them, which is
-the point of shipping them in the tree rather than asking you to install
-something. **Delete `.claude/settings.json` to turn all of it off.**
+`.claude/` is committed, so a fresh clone gets it. The hooks are plain Node
+scripts with no network access and no `npx`: read them before you trust them,
+which is the point of shipping them in the tree rather than asking you to
+install something. The one exception is named as such — the design pass calls
+the vendored `impeccable` launcher, which fetches its own binary the first time
+it runs. **Delete `.claude/settings.json` to turn all of it off.**
 
 ### Hooks
 
-| Event                  | What it does                                                                                                           |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `SessionStart`         | prints the pinned Effect version, whether `repos/` is vendored, whether Postgres is up, and the sprint's current phase |
-| `PreToolUse` on Bash   | refuses force pushes, `--no-verify`, hand-edits to `repos/`, and an `rm -rf` naming a root                             |
-| `PostToolUse` on edits | `dprint`, `oxlint`, and `tsc -b` scoped to the one package that changed — about a second, warm                         |
-| `PostToolUse` on edits | the part of `RULES.md` a regex can decide                                                                              |
+| Event                  | What it does                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `SessionStart`         | prints the pinned Effect version, whether `repos/` is vendored, whether Postgres is up, and the current phase |
+| `PreToolUse` on Bash   | refuses force pushes, `--no-verify`, hand-edits to `repos/`, and an `rm -rf` naming a root                    |
+| `PostToolUse` on edits | `dprint`, `oxlint`, and `tsc -b` scoped to the one package that changed — about a second, warm                |
+| `PostToolUse` on edits | the part of `RULES.md` a regex can decide                                                                     |
 
 They report by exiting 2 and writing to stderr, because a `PostToolUse` hook's
 stdout goes to the debug log and the model never sees it. And `check-rules`
@@ -262,26 +264,41 @@ first hour, taking the working ones with it.
 
 ### Commands
 
-| Command             | For                                                            |
-| ------------------- | -------------------------------------------------------------- |
-| `/sprint-discover`  | days 1–5: the assumption, the evidence, the cut list           |
-| `/sprint-prototype` | days 6–12: real screens, no migrations                         |
-| `/sprint-build`     | days 13–24: vertical slices against the repo's own conventions |
-| `/sprint-ship`      | days 25–30: the checklist, the Railway plan, the changelog     |
-| `/figma-tokens`     | sync the design system's variables into a Figma file           |
-| `/figma-screen`     | push a screen from `apps/design`, built from those variables   |
-| `/figma-journey`    | draw a user journey into FigJam                                |
-| `/figma-pull`       | bring a designer's change back into the right file             |
+| Command              | For                                                          |
+| -------------------- | ------------------------------------------------------------ |
+| `/product-discover`  | the assumption, the evidence, the cut list                   |
+| `/product-prototype` | real screens, no migrations                                  |
+| `/product-build`     | vertical slices against the repo's own conventions           |
+| `/product-ship`      | the checklist, the Railway plan, the changelog               |
+| `/figma-tokens`      | sync the design system's variables into a Figma file         |
+| `/figma-screen`      | push a screen from `apps/design`, built from those variables |
+| `/figma-journey`     | draw a user journey into FigJam                              |
+| `/figma-pull`        | bring a designer's change back into the right file           |
 
-### Skills and the plugin
+### Skills
 
-`.claude/skills/vantion-sprint` is the method as a skill. `.claude-plugin/`
-publishes the commands and the skill so the workflow can be taken **without**
-taking the starter:
+`.claude/skills/product-development` is the method as a skill: the four phases,
+their gates, and what to cut first when the list will not fit.
+
+Two third-party skill sets are vendored beside it rather than named in a
+paragraph you have to go and install, so a fresh clone has the design and launch
+halves of the work as well as the engineering one:
+
+| Skill                                                                                                                                          | For                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| [`impeccable`](https://impeccable.style)                                                                                                       | the design work itself — shape, critique, polish, audit |
+| `draft-content`, `campaign-plan`, `brand-review`, `competitive-brief`, `email-sequence`, `seo-audit`, `content-creation`, `performance-report` | launch: positioning, copy, campaigns, reporting         |
+
+Both are Apache-2.0 and unmodified except for one link path; [NOTICE](NOTICE)
+records them. `impeccable`'s launcher fetches its own binary on first use, which
+is why `.claude/skills/*/scripts/bin/` is gitignored rather than committed.
+
+`.claude-plugin/` publishes the commands and the repo's own skill, so the
+workflow can be taken **without** taking the starter:
 
 ```
 /plugin marketplace add vantionlabs/saas-starter
-/plugin install vantion-sprint@vantion
+/plugin install vantion-product-development@vantion
 ```
 
 The hooks stay out of the plugin deliberately: they run _this_ repository's
@@ -294,7 +311,7 @@ Three things, and they matter more than the hooks:
 **`repos/` is vendored.** The whole Effect monorepo, at exactly the version
 installed, so an agent reads a real signature instead of recalling a v3 one.
 `AGENTS.md` states the precedence: `repos/effect`, then `RULES.md`, then
-`knowledge/`, then recall — never authoritative. Writing one HTTP client in this
+`knowledge/`, then recall, which is never authoritative. Writing one HTTP client in this
 repo took four passes against that source; every wrong recall would have compiled
 a year ago.
 
@@ -320,7 +337,7 @@ system to represent or handle.
 `owner`/`admin`/`member` roles, plus custom roles and per-member overrides
 editable in the UI. One permission model, declared once in
 `packages/modules/iam/src/identity/Permission.ts`, is what both our RPC policies and
-better-auth's own endpoint checks are built from — so the two cannot quietly
+better-auth's own endpoint checks are built from, so the two cannot quietly
 disagree about who may do what.
 
 **Tenant isolation, twice** — Postgres row-level security on tenant tables, and
@@ -371,7 +388,7 @@ The API is on `http://localhost:3000` and the front end on
 sign-in on verification, so you are straight in with your own organization.
 
 Email needs no setup to try. Without `RESEND_API_KEY`, the mailer writes each
-message to the server log instead of sending it — so a magic link is a link you
+message to the server log instead of sending it, so a magic link is a link you
 can follow out of your terminal, and every auth flow works on a fresh clone.
 Set the key when you want mail to actually leave.
 
@@ -400,7 +417,7 @@ packages/ui/src/contact/
 apps/web/src/routes/_protected/contacts.tsx
 ```
 
-Read it before you delete it — it is the shortest description of how a feature
+Read it before you delete it. It is the shortest description of how a feature
 is put together here.
 
 **Adjust permissions.** `packages/modules/iam/src/identity/Permission.ts` declares the
@@ -481,7 +498,7 @@ Each app has its own Dockerfile, built from the repo root:
 docker build -f apps/server/Dockerfile -t acme-api .
 ```
 
-Migrations are applied by a script, never at boot — two instances starting
+Migrations are applied by a script, never at boot, because two instances starting
 together would both migrate. On Railway that is the `preDeployCommand`.
 
 `.railway/railway.ts` describes the whole project: database, both services,
@@ -515,17 +532,17 @@ schedule and fills the log.
 
 ## Reading further
 
-`AGENTS.md` is the map — layout, commands, and the deployment story, written for
+`AGENTS.md` is the map: layout, commands, and the deployment story, written for
 whoever (or whatever) picks the repo up cold. `RULES.md` holds the hard rules on
 Effect style, architecture, forms, observability and testing; read it before
 changing much. `knowledge/README.md` indexes the per-topic guides.
 
-`docs/sprint/` is the thirty-day method, written out phase by phase, and
-`docs/figma.md` is the design workflow and its one account caveat.
+`docs/workflow/` is the method, written out phase by phase, and `docs/figma.md`
+is the design workflow and its one account caveat.
 
 `repos/` vendors the Effect and effect-form sources at exactly the versions this
 repo depends on. Effect v4 is a release candidate whose APIs moved recently, so
-read the real signature there rather than trusting recall — including your own.
+read the real signature there instead of trusting recall, including your own.
 
 ## Status
 
@@ -543,8 +560,8 @@ are named in the table above because that is the shape, not because they exist.
 
 ## Roadmap
 
-What is missing, in the order it is likely to land. Everything here is tracked in
-the open; nothing is waiting behind a paid tier.
+What is missing, in the order it is likely to land. All of it is tracked in the
+open, and none of it is waiting behind a paid tier.
 
 |           | What                                                           | Why it is not here yet                                                                                                                    |
 | --------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -555,7 +572,7 @@ the open; nothing is waiting behind a paid tier.
 | **Then**  | `apps/marketing` and `apps/brand`                              | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                                    |
 | **Then**  | `apps/mcp`                                                     | The same handlers as an MCP server, so per-tool scopes are the existing permissions rather than a second vocabulary.                      |
 | **Then**  | AI, with evals                                                 | One worked feature that exercises tool-calling, extraction, org-scoped retrieval and a human approval gate — plus an eval baseline in CI. |
-| **Then**  | A spec template for the discovery phase                        | `/sprint-discover` describes the thinking; what is missing is the artefact it produces and `/sprint-build` consumes.                      |
+| **Then**  | A spec template for the discovery phase                        | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.                    |
 | **Later** | SSO and SAML                                                   | The heaviest remaining item, and the one enterprise deals actually ask for.                                                               |
 | **Later** | An admin panel                                                 | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path.                   |
 

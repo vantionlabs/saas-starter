@@ -14,7 +14,7 @@ result-*
 .env
 .env.local
 
-# The agent layer is committed on purpose: the hooks, the sprint commands and
+# The agent layer is committed on purpose: the hooks, the phase commands and
 # the method are half of what this repository is. Only what is personal or
 # ephemeral is ignored.
 .claude/settings.local.json
@@ -30,4 +30,5 @@ e2e/.e2e-env.json
 e2e/test-results/
 e2e/playwright-report/
 e2e/blob-report/
-docs/sprint/STATE.md
+docs/workflow/STATE.md
+docs/workflow/prototype/

@@ -6,9 +6,9 @@
   },
   "plugins": [
     {
-      "name": "vantion-sprint",
+      "name": "vantion-product-development",
       "source": ".",
-      "description": "The four-phase sprint method: discover, prototype, build, ship. Takes the method without taking the starter."
+      "description": "The four-phase product development workflow: discover, prototype, build, ship. Takes the method without taking the starter."
     }
   ]
 }

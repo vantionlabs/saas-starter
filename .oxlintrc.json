@@ -184,6 +184,7 @@
     "**/dist/**",
     "**/routeTree.gen.ts",
     "**/vite.config.ts",
-    "repos/**"
+    "repos/**",
+    ".claude/skills/impeccable/**"
   ]
 }

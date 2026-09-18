@@ -45,17 +45,17 @@ const lines = [
 ];
 
 /**
- * A thirty-day sprint outlives any context window. `docs/sprint/STATE.md` is
- * where each phase writes what it did, and this is the half that reads it back —
+ * Product work outlives any context window. `docs/workflow/STATE.md` is where
+ * each phase writes what it did, and this is the half that reads it back —
  * without it the loop restarts every time a session does.
  */
-const sprint = path.join(root, "docs", "sprint", "STATE.md");
-if (fs.existsSync(sprint)) {
+const state = path.join(root, "docs", "workflow", "STATE.md");
+if (fs.existsSync(state)) {
   lines.push(
     "",
-    "Sprint in progress — `docs/sprint/STATE.md` says:",
+    "Work in progress — `docs/workflow/STATE.md` says:",
     "",
-    fs.readFileSync(sprint, "utf8").trim(),
+    fs.readFileSync(state, "utf8").trim(),
   );
 }
 

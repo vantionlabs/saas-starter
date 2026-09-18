@@ -8,13 +8,13 @@ asking you to install something.
 **To turn all of it off, delete `.claude/settings.json`.** Nothing else in the
 repository depends on these.
 
-| Event                          | Script                 | What it does                                                                                                                                         |
-| ------------------------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SessionStart`                 | `session-context.mjs`  | Prints the pinned Effect version, whether `repos/` is vendored, and whether Postgres is up. Three facts that otherwise cost a session several turns. |
-| `PreToolUse` on `Bash`         | `guard-bash.mjs`       | Refuses force pushes, `--no-verify`, hand-edits to `repos/`, and an `rm -rf` naming a root or home directory.                                        |
-| `PostToolUse` on `Edit\|Write` | `check-rules.mjs`      | Checks the part of `RULES.md` a regex can decide, on the file just written.                                                                          |
-| `PostToolUse` on `Edit\|Write` | `format-and-check.mjs` | `dprint fmt`, `oxlint`, and `tsc -b` on the one package the file belongs to.                                                                         |
-| `PostToolUse`, `Stop`          | impeccable             | The design pass, if the skill is installed. Guarded, so it is a no-op when it is not.                                                                |
+| Event                          | Script                 | What it does                                                                                                                                                                            |
+| ------------------------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SessionStart`                 | `session-context.mjs`  | Prints the pinned Effect version, whether `repos/` is vendored, and whether Postgres is up. Three facts that otherwise cost a session several turns.                                    |
+| `PreToolUse` on `Bash`         | `guard-bash.mjs`       | Refuses force pushes, `--no-verify`, hand-edits to `repos/`, and an `rm -rf` naming a root or home directory.                                                                           |
+| `PostToolUse` on `Edit\|Write` | `check-rules.mjs`      | Checks the part of `RULES.md` a regex can decide, on the file just written.                                                                                                             |
+| `PostToolUse` on `Edit\|Write` | `format-and-check.mjs` | `dprint fmt`, `oxlint`, and `tsc -b` on the one package the file belongs to.                                                                                                            |
+| `PostToolUse`, `Stop`          | impeccable             | The design pass. The skill is vendored at `.claude/skills/impeccable`; the call is still guarded on its launcher, so deleting the directory turns it off rather than breaking the hook. |
 
 ## How they report
 

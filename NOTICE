@@ -26,20 +26,32 @@ read-only reference material. Nothing in this repository imports from them.
 Agent skills under .claude/
 --------------------------------------------------------------------------
 
-Everything under .claude/ is this repository's own work and is covered by the
-MIT licence above. No third-party skill is vendored here.
+Except for the two sets below, everything under .claude/ is this repository's
+own work and is covered by the MIT licence above.
 
-Two are referred to by name and are installed separately, by you, if you want
-them:
+.claude/skills/impeccable
+    impeccable — https://github.com/pbakaus/impeccable · https://impeccable.style
+    Copyright (c) Paul Bakaus
+    Apache Licence, Version 2.0. Full text at
+    .claude/skills/impeccable/LICENSE.
 
-impeccable — the design skill the prototype phase uses
-    Apache Licence, Version 2.0. Referenced by .claude/settings.json, which
-    guards every call so it is a no-op when the skill is absent.
+    Vendored at version 4.3.1 (launcher 0.1.5), unmodified, except that
+    scripts/bin/ is omitted: it holds a per-platform binary the launcher
+    fetches on first use, and committing one platform's copy would be both
+    wrong for most readers and large.
 
-Marketing skills (github.com/coreyhaines31/marketingskills)
-    Copyright (c) Corey Haines. MIT Licence.
-    Install with `npx skills add coreyhaines31/marketingskills`.
+.claude/skills/{brand-review,campaign-plan,competitive-brief,content-creation,
+                draft-content,email-sequence,performance-report,seo-audit}
+    Marketing skills, from Anthropic's knowledge-work-plugins marketplace.
+    Apache Licence, Version 2.0. Full text at .claude/marketing/LICENSE,
+    alongside the upstream README and CONNECTORS reference they cite.
 
-Should either ever be vendored into this tree, its licence text and a record of
-any modifications belong here, beside its files — Apache 2.0 §4(b) requires the
-second.
+    Vendored unmodified but for one path: each SKILL.md links to CONNECTORS.md
+    relative to its plugin root, and that file now sits at
+    .claude/marketing/CONNECTORS.md, so the link was repointed there. Nothing
+    else was changed.
+
+Both are redistributed under Apache 2.0 §4, which is why their licence text
+travels with them and the modifications above are recorded rather than
+summarised. Neither is required for the repository to build, test or run:
+delete either directory and nothing else breaks.

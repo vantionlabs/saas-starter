@@ -3,6 +3,6 @@ contact_links:
   - name: Security report
     url: https://github.com/vantionlabs/saas-starter/blob/main/SECURITY.md
     about: Please email hello@vantion.co rather than opening a public issue.
-  - name: The 30-day sprint
-    url: https://vantion.co/sprint
-    about: The process this starter is built for, and help running one.
+  - name: Product engineering with Vantion Labs
+    url: https://vantion.co
+    about: The workflow this starter is built for, and help running it.
