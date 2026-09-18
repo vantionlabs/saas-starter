@@ -24,6 +24,9 @@
     },
     {
       "path": "../../packages/modules/health"
+    },
+    {
+      "path": "../../packages/modules/billing"
     }
   ],
   "compilerOptions": {
@@ -57,6 +60,9 @@
       ],
       "@vantion/module-health/*": [
         "../../packages/modules/health/src/*.js"
+      ],
+      "@vantion/module-billing/*": [
+        "../../packages/modules/billing/src/*.js"
       ]
     }
   }

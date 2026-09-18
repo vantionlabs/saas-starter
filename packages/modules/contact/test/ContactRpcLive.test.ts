@@ -5,6 +5,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { AuthMiddleware } from "@vantion/module-iam/identity/AuthMiddleware";
+import { CurrentEntitlement, free } from "@vantion/module-iam/identity/Entitlement";
 import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
 import { permissionsFor } from "@vantion/module-iam/identity/Permission";
 import { Effect, Layer } from "effect";
@@ -18,7 +19,10 @@ const as = (org: string) =>
       Layer.succeed(AuthMiddleware)(
         AuthMiddleware.of((effect) =>
           Effect.provideService(
-            effect,
+            // Contacts are on every plan, so the free one is the honest default
+            // here — and proves the feature gating does not reach past what it
+            // was put in front of.
+            Effect.provideService(effect, CurrentEntitlement, free),
             CurrentUser,
             new Identity({
               userId: UserId.make(`user_${org}`),

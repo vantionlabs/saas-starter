@@ -3,7 +3,7 @@ import { SqlClient } from "effect/unstable/sql";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { CurrentUser } from "../identity/Identity.js";
 import { withOrgScope } from "../identity/OrgScope.js";
-import { permission, withPolicy } from "../identity/Policy.js";
+import { all, feature, permission, withPolicy } from "../identity/Policy.js";
 import { OrganizationRpcs } from "../organization/OrganizationRpc.js";
 import { ApiKey, CreatedApiKey, hint, KEY_PREFIX } from "./ApiKey.js";
 
@@ -28,7 +28,7 @@ export const CreateApiKey = OrganizationRpcs.toLayerHandler(
         ${createHash("sha256").update(secret).digest("hex")},
         ${hint(secret)}, ${payload.role}
       )
-    `).pipe(Effect.orDie, withPolicy(permission("organization:update")));
+    `).pipe(Effect.orDie, withPolicy(all(permission("organization:update"), feature("api_keys"))));
 
     return new CreatedApiKey({
       key: new ApiKey({

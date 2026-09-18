@@ -77,6 +77,9 @@
       ],
       "@vantion/module-webhooks/*": [
         "./packages/modules/webhooks/src/*.js"
+      ],
+      "@vantion/module-billing/*": [
+        "./packages/modules/billing/src/*.js"
       ]
     }
   }

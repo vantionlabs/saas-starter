@@ -33,6 +33,7 @@
     "@opentelemetry/semantic-conventions": "catalog:",
     "@vantion/database": "workspace:*",
     "@vantion/domain": "workspace:*",
+    "@vantion/module-billing": "workspace:*",
     "@vantion/module-contact": "workspace:*",
     "@vantion/module-health": "workspace:*",
     "@vantion/module-iam": "workspace:*",

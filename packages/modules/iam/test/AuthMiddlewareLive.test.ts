@@ -3,6 +3,7 @@ import { AuditLog } from "@/audit/AuditLog.js";
 import { Auth } from "@/auth/Auth.js";
 import { AuthMiddlewareLive } from "@/auth/AuthMiddlewareLive.js";
 import type { AuthSession } from "@/auth/Options.js";
+import { EntitlementResolver } from "@/identity/EntitlementResolver.js";
 import { IamRpcLive } from "@/session/IamRpcLive.js";
 import { describe, expect, it } from "@effect/vitest";
 import { permissionsFor } from "@vantion/module-iam/identity/Permission";
@@ -38,6 +39,8 @@ const testLayer = (session: AuthSession | null) =>
     // This test is about resolving an identity, not about auditing, and it
     // deliberately runs without a database.
     Layer.provide(AuditLog.layerNoop),
+    // Nothing here is about plans; everyone is on the free one.
+    Layer.provide(EntitlementResolver.layerFree),
   );
 
 describe("AuthMiddlewareLive", () => {

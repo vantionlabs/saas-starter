@@ -3,6 +3,8 @@ import { PermissionResolver } from "../access/PermissionResolver.js";
 import { isReadOnlyAction } from "../audit/Audit.js";
 import { AuditLog } from "../audit/AuditLog.js";
 import { AuthMiddleware } from "../identity/AuthMiddleware.js";
+import { CurrentEntitlement } from "../identity/Entitlement.js";
+import { EntitlementResolver } from "../identity/EntitlementResolver.js";
 import { CurrentUser, Identity, OrgId, Unauthenticated, UserId } from "../identity/Identity.js";
 import { Auth } from "./Auth.js";
 
@@ -20,7 +22,7 @@ import { Auth } from "./Auth.js";
 export const AuthMiddlewareLive: Layer.Layer<
   AuthMiddleware,
   never,
-  Auth | PermissionResolver | AuditLog
+  Auth | PermissionResolver | AuditLog | EntitlementResolver
 > = Layer.effect(
   AuthMiddleware,
 )(
@@ -28,6 +30,7 @@ export const AuthMiddlewareLive: Layer.Layer<
     const auth = yield* Auth;
     const resolver = yield* PermissionResolver;
     const audit = yield* AuditLog;
+    const entitlements = yield* EntitlementResolver;
 
     return AuthMiddleware.of((effect, options) =>
       Effect.gen(function*() {
@@ -62,8 +65,21 @@ export const AuthMiddlewareLive: Layer.Layer<
 
         const action = options.rpc._tag;
 
+        /**
+         * Resolved once here rather than inside each policy. A handler guarded
+         * by both a permission and a feature must not cost two round trips to
+         * find out it is allowed.
+         */
+        const entitlement = yield* entitlements.resolve(identity.orgId);
+
+        const withCaller = <A, E, R>(guarded: Effect.Effect<A, E, R>) =>
+          guarded.pipe(
+            Effect.provideService(CurrentUser, identity),
+            Effect.provideService(CurrentEntitlement, entitlement),
+          );
+
         if (isReadOnlyAction(action)) {
-          return yield* Effect.provideService(effect, CurrentUser, identity);
+          return yield* withCaller(effect);
         }
 
         /**
@@ -72,7 +88,7 @@ export const AuthMiddlewareLive: Layer.Layer<
          * what their role does not allow — and a log of successes only cannot
          * show it.
          */
-        return yield* Effect.provideService(effect, CurrentUser, identity).pipe(
+        return yield* withCaller(effect).pipe(
           Effect.onExit((exit) =>
             audit.record({
               identity,

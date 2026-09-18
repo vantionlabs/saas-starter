@@ -4,6 +4,9 @@
   "files": [],
   "references": [
     {
+      "path": "packages/modules/billing"
+    },
+    {
       "path": "packages/modules/webhooks"
     },
     {

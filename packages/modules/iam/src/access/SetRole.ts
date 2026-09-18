@@ -3,7 +3,7 @@ import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
 import { CurrentUser } from "../identity/Identity.js";
 import { toGrants } from "../identity/Permission.js";
-import { permission, withPolicy } from "../identity/Policy.js";
+import { all, feature, permission, withPolicy } from "../identity/Policy.js";
 import { AccessRpcs } from "./AccessRpc.js";
 
 export const SetRole = AccessRpcs.toLayerHandler(
@@ -21,6 +21,6 @@ export const SetRole = AccessRpcs.toLayerHandler(
                      ("id", "organizationId", "role", "permission", "createdAt")
                    values (${randomUUID()}, ${orgId}, ${payload.role.role}, ${stored}, now())`;
       }),
-    ).pipe(Effect.orDie, withPolicy(permission("ac:create")));
+    ).pipe(Effect.orDie, withPolicy(all(permission("ac:create"), feature("custom_roles"))));
   }),
 );

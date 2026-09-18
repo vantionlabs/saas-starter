@@ -269,6 +269,25 @@ a duplicate a handler can tolerate is a better failure than a job that silently 
 Without `REDIS_URL` the queue is in-memory, the same way the mailer writes to the log without
 a Resend key. The outbox is still transactional; nothing survives a restart.
 
+Plans do not live in `Permission.ts`. That object is also handed to better-auth's
+access-control builder, and a plan is not a capability a _person_ has — it is one the
+organization has, and some of it is quantities rather than booleans. So `Permission` answers
+"may this person" and `Entitlement` answers "may this organization", and `Policy.all`
+composes them: `all(permission("ac:create"), feature("custom_roles"))`. Nothing new was needed
+to make that work, because `Policy` was already generic over its requirements.
+
+`AuthMiddleware` provides both, resolved once per request, so a handler guarded by a
+permission _and_ a feature costs one resolution rather than two. Where the entitlement comes
+from is a port: `EntitlementResolver` lives in iam with a `layerFree` default, and
+`@vantion/module-billing` implements it against the `subscription` table. Registering
+`BillingModule` instead of `EntitlementResolver.layerFree` is the whole of turning billing on.
+iam therefore knows nothing about subscriptions, Stripe, or where a plan is stored.
+
+Which feature sits on which plan is an example and meant to be changed; the tests assert the
+structural properties instead — that the plans nest, that every limit rises, and that between
+them they carry everything. A plan set that stopped nesting would let an upgrade silently take
+something away.
+
 Outbound webhooks ride on that. `ContactStore.create` writes the contact and its
 `contact.created` event in one `withOrgScope`, so a subscriber never hears about a row that
 was rolled back and a row that exists always had its event written. `Outbox.enqueue`

@@ -4,6 +4,7 @@ import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { AccessRpcs, CustomRole, MemberOverride } from "@vantion/module-iam/access/AccessRpc";
 import { AuthMiddleware } from "@vantion/module-iam/identity/AuthMiddleware";
+import { CurrentEntitlement, Entitlement } from "@vantion/module-iam/identity/Entitlement";
 import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
 import { permissionsFor } from "@vantion/module-iam/identity/Permission";
 import { Effect, Layer } from "effect";
@@ -30,7 +31,15 @@ const as = (org: string, role: string) =>
     Layer.provideMerge(
       Layer.succeed(AuthMiddleware)(
         AuthMiddleware.of((effect) =>
-          Effect.provideService(effect, CurrentUser, identity(org, role))
+          effect.pipe(
+            Effect.provideService(CurrentUser, identity(org, role)),
+            // These tests are about roles, so the plan must not be what refuses
+            // them: `pro` carries every feature the access group is gated on.
+            Effect.provideService(
+              CurrentEntitlement,
+              new Entitlement({ plan: "pro", status: "active", seats: 25 }),
+            ),
+          )
         ),
       ),
     ),

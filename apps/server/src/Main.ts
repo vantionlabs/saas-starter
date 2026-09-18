@@ -3,6 +3,7 @@ import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
+import { BillingModule } from "@vantion/module-billing/Module";
 import { ContactModule } from "@vantion/module-contact/Module";
 import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
@@ -76,6 +77,13 @@ const HttpLive = Layer.unwrap(
     return HttpRouter.serve(Routes).pipe(
       Layer.provide(IamModule),
       Layer.provide(ContactModule),
+      /**
+       * Registering this is the whole of turning billing on: it satisfies the
+       * `EntitlementResolver` that iam's middleware asks for, and every
+       * `feature()` policy starts reading real subscriptions. Swap it for
+       * `EntitlementResolver.layerFree` to run the product with billing off.
+       */
+      Layer.provide(BillingModule),
       // Swap `layerStoreMemory` for `layerStoreRedis` to share limits across workers.
       Layer.provide(RateLimiter.layer),
       Layer.provide(RateLimiter.layerStoreMemory),

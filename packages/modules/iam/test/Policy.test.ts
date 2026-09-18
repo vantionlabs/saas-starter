@@ -1,8 +1,9 @@
 import { describe, expect, it } from "@effect/vitest";
+import { CurrentEntitlement, Entitlement, free } from "@vantion/module-iam/identity/Entitlement";
 import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
 import type { Role } from "@vantion/module-iam/identity/Permission";
 import { permissionsFor, resolvePermissions } from "@vantion/module-iam/identity/Permission";
-import { all, any, Forbidden, permission } from "@vantion/module-iam/identity/Policy";
+import { all, any, feature, Forbidden, permission } from "@vantion/module-iam/identity/Policy";
 import { Effect, Layer } from "effect";
 
 const as = (role: Role) =>
@@ -107,4 +108,62 @@ describe("resolvePermissions", () => {
 
     expect(resolved.has("contact:delete")).toBe(false);
   });
+});
+
+const onPlan = (plan: "free" | "pro" | "scale") =>
+  Layer.succeed(CurrentEntitlement)(
+    plan === "free" ? free : new Entitlement({ plan, status: "active", seats: 25 }),
+  );
+
+describe("feature", () => {
+  it.effect("allows what the organization's plan carries", () =>
+    feature("custom_roles").pipe(Effect.provide(Layer.mergeAll(as("owner"), onPlan("pro")))));
+
+  it.effect("refuses what it does not, naming the plan rather than the permission", () =>
+    Effect.gen(function*() {
+      const outcome = yield* Effect.flip(feature("custom_roles"));
+
+      expect(outcome).toBeInstanceOf(Forbidden);
+      expect(outcome.required).toBe("plan:custom_roles");
+    }).pipe(Effect.provide(Layer.mergeAll(as("owner"), onPlan("free")))));
+
+  /**
+   * The composition the whole design rests on. An owner has every permission and
+   * still cannot use a feature their organization has not paid for — and a payer
+   * on the top plan still cannot do what their role forbids.
+   */
+  it.effect("is not satisfied by a permission, however senior", () =>
+    Effect.gen(function*() {
+      const outcome = yield* Effect.flip(
+        all(permission("ac:create"), feature("custom_roles")),
+      );
+
+      expect(outcome.required).toBe("plan:custom_roles");
+    }).pipe(Effect.provide(Layer.mergeAll(as("owner"), onPlan("free")))));
+
+  it.effect("does not satisfy a permission either", () =>
+    Effect.gen(function*() {
+      const outcome = yield* Effect.flip(
+        all(permission("organization:delete"), feature("custom_roles")),
+      );
+
+      expect(outcome.required).toBe("organization:delete");
+    }).pipe(Effect.provide(Layer.mergeAll(as("member"), onPlan("scale")))));
+
+  /** An ended subscription falls back to free, so the gate closes with it. */
+  it.effect("closes when the subscription is no longer entitled", () =>
+    Effect.gen(function*() {
+      const outcome = yield* Effect.flip(feature("custom_roles"));
+
+      expect(outcome.required).toBe("plan:custom_roles");
+    }).pipe(
+      Effect.provide(
+        Layer.mergeAll(
+          as("owner"),
+          Layer.succeed(CurrentEntitlement)(
+            new Entitlement({ plan: "scale", status: "canceled", seats: 250 }),
+          ),
+        ),
+      ),
+    ));
 });

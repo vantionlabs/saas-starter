@@ -1,5 +1,7 @@
 import type { Array as Arr } from "effect";
 import { Effect, Schema } from "effect";
+import type { Feature } from "./Entitlement.js";
+import { CurrentEntitlement, has } from "./Entitlement.js";
 import { CurrentUser, type Identity } from "./Identity.js";
 import type { Permission } from "./Permission.js";
 
@@ -43,6 +45,22 @@ export const all = <E, R>(...policies: Arr.NonEmptyReadonlyArray<Policy<E, R>>):
 /** At least one policy must pass. */
 export const any = <E, R>(...policies: Arr.NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
   Effect.firstSuccessOf(policies);
+
+/**
+ * Does the caller's *organization* carry this feature?
+ *
+ * The counterpart to `permission`, and the reason nothing new was needed to
+ * combine them: `Policy` is already generic over its requirements, so
+ * `all(permission("ac:create"), feature("custom_roles"))` is an ordinary
+ * composition. One asks whether this person may; the other asks whether this
+ * organization has paid for it. A handler that checks only the first is a
+ * handler that gives the feature away.
+ */
+export const feature = (required: Feature): Policy<never, CurrentEntitlement> =>
+  policy(
+    `plan:${required}`,
+    () => Effect.map(CurrentEntitlement, (entitlement) => has(entitlement.effectivePlan, required)),
+  );
 
 /** The common case: does the caller's role carry this permission? */
 export const permission = (required: Permission): Policy =>

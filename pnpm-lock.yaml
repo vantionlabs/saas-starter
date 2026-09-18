@@ -288,6 +288,9 @@ importers:
       '@vantion/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@vantion/module-billing':
+        specifier: workspace:*
+        version: link:../../packages/modules/billing
       '@vantion/module-contact':
         specifier: workspace:*
         version: link:../../packages/modules/contact
@@ -556,6 +559,25 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../modules/iam
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(vitest@4.1.10)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+
+  packages/modules/billing:
+    dependencies:
+      '@vantion/database':
+        specifier: workspace:*
+        version: link:../../database
+      '@vantion/module-iam':
+        specifier: workspace:*
+        version: link:../iam
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
