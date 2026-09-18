@@ -20,6 +20,15 @@ create table if not exists "subscription" (
     check ("status" in ('trialing', 'active', 'past_due', 'canceled', 'incomplete'))
 );
 
+-- Stripe's own timestamp for the event that last wrote this row.
+--
+-- Webhooks arrive out of order as well as more than once. The `stripeEvent`
+-- ledger handles redelivery; this handles ordering, by letting a handler drop an
+-- event older than the state it is looking at. Added with `alter` rather than in
+-- the table above so the migration stays idempotent on a database that already
+-- has it.
+alter table "subscription" add column if not exists "lastEventCreated" bigint;
+
 create unique index if not exists "subscription_stripeCustomerId_key"
   on "subscription" ("stripeCustomerId");
 

@@ -1,6 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import type { Entitlement } from "./Entitlement.js";
 import { free } from "./Entitlement.js";
+import type { Identity } from "./Identity.js";
 
 /**
  * How the session finds out what an organization is entitled to.
@@ -15,7 +16,21 @@ import { free } from "./Entitlement.js";
  * key: the feature degrades to something honest rather than refusing to start.
  */
 export interface EntitlementResolverService {
-  readonly resolve: (organizationId: string) => Effect.Effect<Entitlement>;
+  /**
+   * Takes the whole caller, not just their organization.
+   *
+   * Plans are per-organization in this starter, which is the B2B shape and the
+   * only one the bundled implementation reads. Passing the identity rather than
+   * an org id costs nothing and leaves the other shapes open: a plan that
+   * follows a *user* across the organizations they belong to needs a different
+   * implementation of this interface and nothing else.
+   *
+   * Two things that look like per-user plans already work without that. A
+   * personal plan is a subscription on the personal organization every user gets
+   * at sign-up; and members of one organization differing in what they may do is
+   * `memberPermission`, which is a permission question rather than a billing one.
+   */
+  readonly resolve: (identity: Identity) => Effect.Effect<Entitlement>;
 }
 
 export class EntitlementResolver

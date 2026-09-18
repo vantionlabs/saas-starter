@@ -20,10 +20,12 @@
   "dependencies": {
     "@vantion/database": "workspace:*",
     "@vantion/module-iam": "workspace:*",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "stripe": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
     "vitest": "catalog:"
   }
 }

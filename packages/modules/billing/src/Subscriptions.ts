@@ -23,11 +23,11 @@ export const layerDatabase: Layer.Layer<EntitlementResolver, never, SqlClient.Sq
       const sql = yield* SqlClient.SqlClient;
 
       return {
-        resolve: (organizationId) =>
+        resolve: (identity) =>
           withWorkerScope(
             sql<{ plan: string; status: string; seats: number; }>`
               select "plan", "status", "seats" from "subscription"
-              where "organizationId" = ${organizationId}
+              where "organizationId" = ${identity.orgId}
             `,
           ).pipe(
             Effect.map((rows) => {

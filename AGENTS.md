@@ -288,6 +288,19 @@ structural properties instead — that the plans nest, that every limit rises, a
 them they carry everything. A plan set that stopped nesting would let an upgrade silently take
 something away.
 
+Stripe writes that subscription and nothing else does: the table's `with check` is
+worker-only, so a customer cannot change their own plan by asking the API nicely. Three
+things have to hold for the webhook to be safe and each is handled separately because each
+fails separately — `stripeEvent` is the ledger against redelivery, `lastEventCreated` holds
+Stripe's own timestamp so an event older than the state it is looking at is dropped, and the
+organization arrives on the subscription's metadata because the first event for a customer has
+no row to look one up from. Guessing would mean writing somebody else's plan onto a tenant.
+
+The plan a price maps to is read from its metadata, never a hard-coded price id: ids differ
+between every account, so hard-coding one makes the build wrong everywhere except where it was
+written. Without `STRIPE_SECRET_KEY` checkout and the portal refuse rather than returning a
+fake URL that leads nowhere.
+
 Outbound webhooks ride on that. `ContactStore.create` writes the contact and its
 `contact.created` event in one `withOrgScope`, so a subscriber never hears about a row that
 was rolled back and a row that exists always had its event written. `Outbox.enqueue`

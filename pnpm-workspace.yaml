@@ -59,6 +59,7 @@ catalog:
   "tailwind-merge": ^3.6.0
   react: ^19.2.8
   resend: ^6.20.0
+  stripe: ^19.2.0
   react-dom: ^19.2.8
   scheduler: ^0.27.0
   tailwindcss: ^4.3.3

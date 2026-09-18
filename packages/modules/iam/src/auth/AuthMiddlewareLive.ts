@@ -70,7 +70,7 @@ export const AuthMiddlewareLive: Layer.Layer<
          * by both a permission and a feature must not cost two round trips to
          * find out it is allowed.
          */
-        const entitlement = yield* entitlements.resolve(identity.orgId);
+        const entitlement = yield* entitlements.resolve(identity);
 
         const withCaller = <A, E, R>(guarded: Effect.Effect<A, E, R>) =>
           guarded.pipe(

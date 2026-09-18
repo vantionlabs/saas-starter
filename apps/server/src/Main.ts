@@ -3,7 +3,7 @@ import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
-import { BillingModule } from "@vantion/module-billing/Module";
+import { BillingHttp, BillingModule } from "@vantion/module-billing/Module";
 import { ContactModule } from "@vantion/module-contact/Module";
 import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
@@ -64,7 +64,14 @@ const CorsLive = Layer.unwrap(
   }),
 );
 
-const Routes = Layer.mergeAll(RpcLive, IamHttp, HealthHttpRoutes, ApiLive, CorsLive);
+const Routes = Layer.mergeAll(
+  RpcLive,
+  IamHttp,
+  BillingHttp,
+  HealthHttpRoutes,
+  ApiLive,
+  CorsLive,
+);
 
 const HttpLive = Layer.unwrap(
   Effect.gen(function*() {
