@@ -6,6 +6,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
+import { withOrgScope } from "@vantion/module-iam/identity/OrgScope";
 import { Effect, Layer, Schema } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 
@@ -61,7 +62,7 @@ describe.skipIf(testDbUrl() === undefined)("outbox", () => {
       Effect.gen(function*() {
         yield* reset();
 
-        yield* enqueue(SendWelcome, { email: "ada@example.test" });
+        yield* withOrgScope(enqueue(SendWelcome, { email: "ada@example.test" }));
 
         const written = yield* rows(ORG);
         expect(written).toHaveLength(1);
@@ -81,9 +82,8 @@ describe.skipIf(testDbUrl() === undefined)("outbox", () => {
     it.effect("leaves nothing behind when the transaction rolls back", () =>
       Effect.gen(function*() {
         yield* reset();
-        const sql = yield* SqlClient.SqlClient;
 
-        yield* sql.withTransaction(
+        yield* withOrgScope(
           Effect.gen(function*() {
             yield* enqueue(SendWelcome, { email: "rolled-back@example.test" });
 
@@ -98,7 +98,7 @@ describe.skipIf(testDbUrl() === undefined)("outbox", () => {
       Effect.gen(function*() {
         yield* reset();
 
-        yield* enqueue(SendWelcome, { email: "ours@example.test" });
+        yield* withOrgScope(enqueue(SendWelcome, { email: "ours@example.test" }));
 
         expect(yield* rows(ORG)).toHaveLength(1);
         expect(yield* rows(OTHER)).toHaveLength(0);
@@ -109,8 +109,8 @@ describe.skipIf(testDbUrl() === undefined)("outbox", () => {
     it.effect("pushes pending events and marks them relayed", () =>
       Effect.gen(function*() {
         yield* reset();
-        yield* enqueue(SendWelcome, { email: "first@example.test" });
-        yield* enqueue(SendWelcome, { email: "second@example.test" });
+        yield* withOrgScope(enqueue(SendWelcome, { email: "first@example.test" }));
+        yield* withOrgScope(enqueue(SendWelcome, { email: "second@example.test" }));
 
         const moved = yield* relayOnce();
         const queue = yield* JobQueue;
@@ -125,7 +125,7 @@ describe.skipIf(testDbUrl() === undefined)("outbox", () => {
     it.effect("does not push the same event twice", () =>
       Effect.gen(function*() {
         yield* reset();
-        yield* enqueue(SendWelcome, { email: "once@example.test" });
+        yield* withOrgScope(enqueue(SendWelcome, { email: "once@example.test" }));
 
         yield* relayOnce();
         const queue = yield* JobQueue;
@@ -139,7 +139,7 @@ describe.skipIf(testDbUrl() === undefined)("outbox", () => {
     it.effect("carries the attempt policy the job was enqueued under", () =>
       Effect.gen(function*() {
         yield* reset();
-        yield* enqueue(SendWelcome, { email: "policy@example.test" });
+        yield* withOrgScope(enqueue(SendWelcome, { email: "policy@example.test" }));
 
         yield* relayOnce();
         const queue = yield* JobQueue;

@@ -1,47 +1,35 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": [
-    "test",
+    "src"
+  ],
+  "exclude": [
     "src/**/*.test.ts"
   ],
   "references": [
-    {
-      "path": "tsconfig.src.json"
-    },
     {
       "path": "../../database"
     },
     {
       "path": "../iam"
-    },
-    {
-      "path": "../jobs"
     }
   ],
   "compilerOptions": {
     "types": [
       "node"
     ],
-    "noEmit": true,
-    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
     "paths": {
       "@/*": [
-        "./src/*"
-      ],
-      "@test/*": [
-        "./test/*"
+        "${configDir}/src/*"
       ],
       "@vantion/database/*": [
         "../../../packages/database/src/*.js"
       ],
       "@vantion/module-iam/*": [
         "../../../packages/modules/iam/src/*.js"
-      ],
-      "@vantion/module-notifications/*": [
-        "../../../packages/modules/notifications/src/*.js"
-      ],
-      "@vantion/module-jobs/*": [
-        "../../../packages/modules/jobs/src/*.js"
       ]
     }
   }

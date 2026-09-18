@@ -4,6 +4,9 @@
   "files": [],
   "references": [
     {
+      "path": "packages/modules/webhooks"
+    },
+    {
       "path": "packages/modules/jobs"
     },
     {

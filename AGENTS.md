@@ -261,6 +261,23 @@ a duplicate a handler can tolerate is a better failure than a job that silently 
 Without `REDIS_URL` the queue is in-memory, the same way the mailer writes to the log without
 a Resend key. The outbox is still transactional; nothing survives a restart.
 
+Outbound webhooks ride on that. `ContactStore.create` writes the contact and its
+`contact.created` event in one `withOrgScope`, so a subscriber never hears about a row that
+was rolled back and a row that exists always had its event written. `Outbox.enqueue`
+deliberately does not open a transaction of its own — one that did would commit separately,
+which is the failure the outbox exists to prevent. Called outside a scoped transaction it is
+refused by the table's `with check` rather than writing something unscoped.
+
+Deliveries are signed with Stripe's scheme — `Webhook-Signature: t=…,v1=…` over
+`${timestamp}.${body}` — because customers already have code for it and there is a document to
+point at. `sign` and `verify` live in the same file so the tests verify with the function a
+customer will write against, and the delivery tests run a real HTTP receiver rather than a
+stub: the thing worth proving is that somebody else's server accepts what we send.
+
+`Webhook-Id` carries the outbox row's id, stable across retries, which is what lets a receiver
+deduplicate an at-least-once delivery. An endpoint that fails ten times consecutively is
+switched off, so a receiver that has been gone for a week stops costing an attempt a minute.
+
 The auth endpoints are rate-limited per caller, and who the caller _is_ depends on
 `TRUST_PROXY`: the number of reverse proxies in front of this process, `0` by default and
 `1` on Railway. At `0` the socket address is used and `X-Forwarded-For` is ignored. Above it

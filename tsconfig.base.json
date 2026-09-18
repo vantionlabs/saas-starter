@@ -74,6 +74,9 @@
       ],
       "@vantion/module-jobs/*": [
         "./packages/modules/jobs/src/*.js"
+      ],
+      "@vantion/module-webhooks/*": [
+        "./packages/modules/webhooks/src/*.js"
       ]
     }
   }

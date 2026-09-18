@@ -37,6 +37,35 @@ const as = (org: string) =>
   );
 
 describe.skipIf(testDbUrl() === undefined)("ContactRpcLive", () => {
+  it.layer(as("org_events"))("events", (it) => {
+    /**
+     * The insert and its outbox row commit together, so a subscriber never hears
+     * about a contact that was rolled back and a contact that exists always had
+     * its event written. This asserts the second half; the first is in the jobs
+     * module, which rolls a transaction back and finds nothing left behind.
+     */
+    it.effect("records contact.created in the same transaction as the contact", () =>
+      Effect.gen(function*() {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
+                   values ('org_events', 'org_events', 'org_events', now())
+                   on conflict ("id") do nothing`;
+        yield* sql`delete from "outboxEvent" where "organizationId" = 'org_events'`;
+        yield* sql`delete from "contact" where "organizationId" = 'org_events'`;
+
+        const client = yield* RpcTest.makeClient(ContactRpcs);
+        yield* client.CreateContact({ email: "subscribed@example.com", fullName: "Subscribed" });
+
+        const events = yield* sql<{ kind: string; payload: { email: string; }; }>`
+          select "kind", "payload" from "outboxEvent" where "organizationId" = 'org_events'
+        `;
+
+        expect(events).toHaveLength(1);
+        expect(events[0]?.kind).toBe("contact.created");
+        expect(events[0]?.payload.email).toBe("subscribed@example.com");
+      }));
+  });
+
   it.layer(as("org_mine"))("tenant isolation", (it) => {
     /**
      * This is a regression test for a leak found in the running app.

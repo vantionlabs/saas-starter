@@ -1,9 +1,11 @@
 import { CurrentUser } from "@vantion/module-iam/identity/Identity";
 import { withOrgScope } from "@vantion/module-iam/identity/OrgScope";
 import { Forbidden, permission, withPolicy } from "@vantion/module-iam/identity/Policy";
+import { enqueue } from "@vantion/module-jobs/Outbox";
 import { Context, Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
+import { ContactCreated } from "./ContactCreated.js";
 import { Contact, ContactId } from "./ContactRpc.js";
 
 /**
@@ -66,10 +68,23 @@ export class ContactStore extends Context.Service<ContactStore, ContactStoreServ
             const { orgId } = yield* CurrentUser;
             const id = ContactId.make(randomUUID());
 
-            yield* withOrgScope(sql`
-              insert into "contact" ("id", "organizationId", "email", "fullName")
-              values (${id}, ${orgId}, ${input.email}, ${input.fullName})
-            `).pipe(Effect.orDie);
+            // The insert and the event it describes commit together. A
+            // subscriber therefore never hears about a contact that was rolled
+            // back, and a contact that exists always had its event written.
+            yield* withOrgScope(
+              Effect.gen(function*() {
+                yield* sql`
+                  insert into "contact" ("id", "organizationId", "email", "fullName")
+                  values (${id}, ${orgId}, ${input.email}, ${input.fullName})
+                `;
+
+                yield* enqueue(ContactCreated, {
+                  id,
+                  email: input.email,
+                  fullName: input.fullName,
+                });
+              }),
+            ).pipe(Effect.orDie);
 
             return new Contact({ id, email: input.email, fullName: input.fullName });
           }).pipe(

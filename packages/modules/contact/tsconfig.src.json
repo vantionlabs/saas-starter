@@ -12,6 +12,9 @@
     },
     {
       "path": "../iam"
+    },
+    {
+      "path": "../jobs"
     }
   ],
   "compilerOptions": {
@@ -33,6 +36,9 @@
       ],
       "@vantion/module-notifications/*": [
         "../../../packages/modules/notifications/src/*.js"
+      ],
+      "@vantion/module-jobs/*": [
+        "../../../packages/modules/jobs/src/*.js"
       ]
     }
   }
