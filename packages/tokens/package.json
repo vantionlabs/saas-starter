@@ -1,0 +1,28 @@
+{
+  "name": "@vantion/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./package.json": "./package.json",
+    "./tokens.css": "./src/tokens.css",
+    "./*": {
+      "development": "./src/*.ts",
+      "types": "./src/*.ts",
+      "default": "./build/src/*.js"
+    }
+  },
+  "scripts": {
+    "build:css": "tsx build.mjs",
+    "check:css": "tsx build.mjs --check",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -b tsconfig.json"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
+  }
+}

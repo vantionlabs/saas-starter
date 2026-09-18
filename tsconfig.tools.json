@@ -19,6 +19,7 @@
     "e2e/*.ts",
     "e2e/tests/*.ts",
     "tooling/*.ts",
-    "tooling/test/*.ts"
+    "tooling/test/*.ts",
+    "packages/tokens/*.ts"
   ]
 }

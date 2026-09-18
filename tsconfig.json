@@ -4,6 +4,9 @@
   "files": [],
   "references": [
     {
+      "path": "packages/tokens"
+    },
+    {
       "path": "packages/modules/notifications"
     },
     {

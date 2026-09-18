@@ -65,6 +65,9 @@
       ],
       "@vantion/module-health/*": [
         "./packages/modules/health/src/*.js"
+      ],
+      "@vantion/tokens/*": [
+        "./packages/tokens/src/*.js"
       ]
     }
   }
