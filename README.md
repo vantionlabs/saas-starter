@@ -232,6 +232,27 @@ changing much. `knowledge/README.md` indexes the per-topic guides.
 repo depends on. Effect v4 is a release candidate whose APIs moved recently, so
 read the real signature there rather than trusting recall — including your own.
 
+## The agent layer
+
+`.claude/` is committed, so a fresh clone gets it. Four hooks run while an agent
+works: one prints the pinned Effect version and whether Postgres is up at session
+start, one refuses force pushes and hand-edits to `repos/`, and two run after
+every file write — the repository's own formatter, linter and type-checker on the
+file that changed, and the part of `RULES.md` a regex can decide.
+
+`.claude/hooks/README.md` says what each one runs, and they are plain Node
+scripts with no network access: read them before you trust them. **Delete
+`.claude/settings.json` to turn all of it off** — nothing else depends on them.
+
+`docs/sprint/` is the 30-day method the four `/sprint-*` commands drive, and
+`.claude-plugin/` publishes those commands as a plugin, so the method can be
+taken without taking the starter:
+
+```
+/plugin marketplace add vantionlabs/saas-starter
+/plugin install vantion-sprint@vantion
+```
+
 ## Status
 
 Effect v4 is a release candidate. This repo pins one exact version

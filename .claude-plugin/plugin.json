@@ -1,0 +1,15 @@
+{
+  "name": "vantion-sprint",
+  "displayName": "Vantion 30-day sprint",
+  "description": "The four-phase sprint method this SaaS starter is built for: discover, prototype, build, ship.",
+  "author": {
+    "name": "Vantion Labs",
+    "url": "https://vantion.co"
+  },
+  "homepage": "https://vantion.co/sprint",
+  "repository": "https://github.com/vantionlabs/saas-starter",
+  "license": "MIT",
+  "keywords": ["saas", "sprint", "effect", "b2b"],
+  "commands": "./.claude/commands/",
+  "skills": "./.claude/skills/"
+}

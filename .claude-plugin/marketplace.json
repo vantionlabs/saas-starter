@@ -1,0 +1,14 @@
+{
+  "name": "vantion",
+  "owner": {
+    "name": "Vantion Labs",
+    "url": "https://vantion.co"
+  },
+  "plugins": [
+    {
+      "name": "vantion-sprint",
+      "source": ".",
+      "description": "The four-phase sprint method: discover, prototype, build, ship. Takes the method without taking the starter."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+# Sprint state
+
+Copy this to `STATE.md` on day one. It is gitignored: it describes one client's
+sprint rather than the starter, and `SessionStart` reads it back so a thirty-day
+sprint survives a context window closing.
+
+```
+Client:      <name>
+Started:     <date>
+Phase:       discover | prototype | build | ship | closed
+Day:         <n> of 30
+
+Riskiest assumption:
+  <one sentence, or UNWRITTEN — discovery does not end until this is filled in>
+
+Feature list (cut to twelve build days):
+  - [ ] …
+
+Slices landed:
+  - …
+
+Cut, and why:
+  - …
+
+Open questions for the client:
+  - …
+```

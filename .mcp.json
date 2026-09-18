@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "railway": {
+      "command": "npx",
+      "args": ["-y", "@railway/mcp-server"],
+      "env": {
+        "RAILWAY_API_TOKEN": "${RAILWAY_API_TOKEN}"
+      }
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"]
+    },
+    "stripe": {
+      "command": "npx",
+      "args": ["-y", "@stripe/mcp", "--tools=all"],
+      "env": {
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
+      }
+    }
+  }
+}

@@ -26,16 +26,20 @@ read-only reference material. Nothing in this repository imports from them.
 Agent skills under .claude/
 --------------------------------------------------------------------------
 
-.claude/skills/impeccable, .claude/agents/impeccable-*
-    impeccable — design skill for coding agents
-    Licensed under the Apache Licence, Version 2.0.
-    You may obtain a copy of the Licence at
-    http://www.apache.org/licenses/LICENSE-2.0
-    Full text at .claude/skills/impeccable/LICENSE.
-    Redistributed unmodified; see scripts/sync-agent-skills.mjs for how this
-    copy is kept in step with upstream.
+Everything under .claude/ is this repository's own work and is covered by the
+MIT licence above. No third-party skill is vendored here.
 
-Marketing skills (coreyhaines31/marketingskills)
-    Copyright (c) Corey Haines
-    MIT Licence. Installed on demand rather than vendored; see
-    docs/sprint/ for how they are used.
+Two are referred to by name and are installed separately, by you, if you want
+them:
+
+impeccable — the design skill the prototype phase uses
+    Apache Licence, Version 2.0. Referenced by .claude/settings.json, which
+    guards every call so it is a no-op when the skill is absent.
+
+Marketing skills (github.com/coreyhaines31/marketingskills)
+    Copyright (c) Corey Haines. MIT Licence.
+    Install with `npx skills add coreyhaines31/marketingskills`.
+
+Should either ever be vendored into this tree, its licence text and a record of
+any modifications belong here, beside its files — Apache 2.0 §4(b) requires the
+second.
