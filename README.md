@@ -1,8 +1,36 @@
-# SaaS starter
+<p align="center">
+  <a href="https://vantion.co">
+    <img src="https://raw.githubusercontent.com/vantionlabs/.github/main/profile/banner.png" alt="Vantion Labs" width="100%" />
+  </a>
+</p>
+
+<h1 align="center">SaaS starter</h1>
+
+<p align="center">
+  <b>Multi-tenant B2B SaaS, already wired together.</b><br />
+  Sign-in, organizations, roles, tenant isolation proven twice, an audit trail and a public API — plus the 30-day method that builds on it.
+</p>
+
+<p align="center">
+  <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://effect.website"><img alt="Effect 4" src="https://img.shields.io/badge/Effect_4-2233f0?style=flat-square" /></a>
+  <a href="https://www.typescriptlang.org"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" /></a>
+  <a href="https://www.postgresql.org"><img alt="Postgres" src="https://img.shields.io/badge/Postgres-4169E1?style=flat-square&logo=postgresql&logoColor=white" /></a>
+  <a href="https://tanstack.com/start"><img alt="TanStack Start" src="https://img.shields.io/badge/TanStack_Start-EF4444?style=flat-square" /></a>
+  <a href="https://playwright.dev"><img alt="28 browser tests" src="https://img.shields.io/badge/browser_tests-28-2EAD33?style=flat-square&logo=playwright&logoColor=white" /></a>
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
+  <a href="https://vantion.co"><img alt="Vantion Labs" src="https://img.shields.io/badge/by-Vantion_Labs-2233f0?style=flat-square" /></a>
+</p>
+
+---
 
 A starting point for multi-tenant SaaS: sign-in, organizations, roles and
 permissions, an audit trail, API keys and a public HTTP API — already wired
 together, already tested, already deployable.
+
+**The method ships with the code.** `.claude/` and `docs/sprint/` are the agent
+workflow and the 30-day process this is built for, committed alongside it rather
+than sold separately.
 
 It is deliberately not a framework. There is no `starter.config.ts` to learn and
 nothing generates code. It is an ordinary Effect v4 monorepo with one worked

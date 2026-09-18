@@ -1,0 +1,33 @@
+name: Bug
+description: Something in the starter does not work as described.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The README claims a fresh clone works with one secret filled in. If that
+        was not your experience, that is a bug and worth reporting.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the exact error if it is short.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+      description: "`git rev-parse --short HEAD`"
+  - type: checkboxes
+    id: isolation
+    attributes:
+      label: Does it involve tenant isolation?
+      options:
+        - label: This is about one organization seeing another's data — I have read SECURITY.md and will email instead

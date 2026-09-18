@@ -1,0 +1,31 @@
+name: Sprint assumption
+description: Something the sprint is betting on that is not yet known to be true.
+labels: ["assumption"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Discovery produces one of these per unproven belief. The riskiest one
+        blocks the phase until it is written down — see `docs/sprint/01-discover.md`.
+  - type: textarea
+    id: assumption
+    attributes:
+      label: The assumption
+      description: One sentence. What are we taking on faith?
+      placeholder: Operations managers will move their approvals out of email.
+    validations:
+      required: true
+  - type: textarea
+    id: consequence
+    attributes:
+      label: If it is false
+      description: What stops being worth building?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How we would know
+      description: The cheapest thing that would move this from belief to fact.
+    validations:
+      required: true

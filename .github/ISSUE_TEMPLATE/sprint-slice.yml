@@ -1,0 +1,33 @@
+name: Sprint slice
+description: One vertical slice of the build phase — schema, handler, screen and tests.
+labels: ["slice"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A slice works end to end. "The backend for X" is half a thing, and half a
+        thing cannot be demonstrated or cut. See `docs/sprint/03-build.md`.
+  - type: input
+    id: outcome
+    attributes:
+      label: What a person can do when this lands
+      placeholder: Invite a teammate and choose their role.
+    validations:
+      required: true
+  - type: checkboxes
+    id: parts
+    attributes:
+      label: Parts
+      options:
+        - label: Migration, with a row-level security policy if the table is tenant-owned
+        - label: Handler, one file per operation, with its policy
+        - label: Screen
+        - label: Tests, including a browser test if it touched a route or handler
+  - type: checkboxes
+    id: gate
+    attributes:
+      label: Gate
+      description: The slice is not done until all of these pass.
+      options:
+        - label: "`pnpm check && pnpm lint && pnpm test`"
+        - label: "`pnpm e2e`"
