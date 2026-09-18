@@ -92,6 +92,14 @@ const host = (name: string, subdomain: string, domain: string | undefined) => ({
 const shared = {
   DATABASE_SSL: "true",
   EMAIL_FROM: "vantion@example.com",
+  /**
+   * Railway's edge terminates the connection and forwards, so exactly one proxy
+   * stands in front of the container and appends the caller's real address to
+   * `X-Forwarded-For`. Leaving this unset would key every auth rate limit on
+   * that edge instead, putting the whole internet in one bucket; setting it
+   * higher than the truth would let a caller forge the entry that is counted.
+   */
+  TRUST_PROXY: "1",
 } as const;
 
 export default defineRailway((ctx) => {

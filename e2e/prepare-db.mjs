@@ -37,6 +37,9 @@ const freePort = () =>
 
 const docker = (...args) => execFileSync("docker", args, { encoding: "utf8" }).trim();
 
+/** Same, but never prints — for calls whose failure is an expected outcome. */
+const dockerQuietly = (...args) => execFileSync("docker", args, { stdio: "ignore" });
+
 const migrate = (url) =>
   execFileSync("pnpm", ["--filter", "@vantion/database", "migrate"], {
     cwd: ROOT,
@@ -66,7 +69,7 @@ try {
 
 // A container left behind by an interrupted run holds its port and its data.
 try {
-  docker("rm", "-f", CONTAINER);
+  dockerQuietly("rm", "-f", CONTAINER);
 } catch {
   // Nothing to remove, which is the normal case.
 }

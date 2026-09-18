@@ -55,6 +55,13 @@ const serverEnv = {
   WEB_URL,
   VITE_AUTH_BASE_URL: API_URL,
   PORT: String(API_PORT),
+  /**
+   * Nothing stands in front of the API here, but the suite presents a distinct
+   * `X-Forwarded-For` per test so each gets its own rate-limit bucket. Declaring
+   * one trusted hop is what makes the server read that header — and it is the
+   * honest setting, because Playwright is the one hop appending it.
+   */
+  TRUST_PROXY: "1",
   // An exporter pointed at nothing retries on a schedule and floods the output.
   OTEL_EXPORTER_OTLP_ENDPOINT: "",
 };

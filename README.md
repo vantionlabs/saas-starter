@@ -231,3 +231,35 @@ changing much. `knowledge/README.md` indexes the per-topic guides.
 `repos/` vendors the Effect and effect-form sources at exactly the versions this
 repo depends on. Effect v4 is a release candidate whose APIs moved recently, so
 read the real signature there rather than trusting recall — including your own.
+
+## Status
+
+Effect v4 is a release candidate. This repo pins one exact version
+(`4.0.0-rc.109`, in `pnpm-workspace.yaml`) and vendors its source under `repos/`
+so the APIs you read are the APIs you have. That is a stronger position than
+most, but it is still an RC: `effect/unstable/*` means unstable, and a bump is a
+deliberate step rather than a background one.
+
+## What it deliberately does not do
+
+- **No i18n.** Strings are English and inline. Cheap to add early and expensive
+  to retrofit, so this is a stated choice rather than an oversight.
+- **No compliance tooling.** No data export, right-to-erasure or retention
+  policies. The audit trail is the raw material for them, not a substitute.
+- **No billing, background jobs, file storage or outbound webhooks** — yet.
+  They are the next things to land, and they are tracked in the open.
+- **No arithmetic or authorisation by model.** There is no AI in the request
+  path deciding who may do what.
+
+## Contributing
+
+Issues and pull requests are welcome, especially tests that catch a real
+failure. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md);
+security reports go to hello@vantion.co, see [SECURITY.md](SECURITY.md).
+
+## Licence
+
+MIT. See [LICENSE](LICENSE). The vendored sources under `repos/` keep their own
+licences, and [NOTICE](NOTICE) records them. Built by
+[Vantion Labs](https://vantion.co); if you want help getting a B2B SaaS product
+into production, [talk to the founder](https://vantion.co/book-a-call).

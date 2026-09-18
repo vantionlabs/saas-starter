@@ -168,6 +168,15 @@ public suffix, so two generated `*.up.railway.app` hosts can never share one: sp
 services on Railway needs a domain of your own. Sharing a host instead — one origin, a reverse
 proxy in front — works with `AUTH_COOKIE_DOMAIN` left empty.
 
+The auth endpoints are rate-limited per caller, and who the caller _is_ depends on
+`TRUST_PROXY`: the number of reverse proxies in front of this process, `0` by default and
+`1` on Railway. At `0` the socket address is used and `X-Forwarded-For` is ignored. Above it
+the header is read from the **right**, because each hop appends and only the rightmost entries
+were written by something we trust — the leftmost is whatever the client sent. Reading that
+one, as this code once did, lets a caller mint a fresh rate-limit bucket per request, and on
+the OTP path the limit is the security boundary rather than a politeness measure.
+`apps/server/src/iam/ClientAddress.ts` is the whole of it, and it is tested directly.
+
 The API allows exactly one CORS origin, `WEB_URL`, which is already the origin better-auth
 trusts. Widening it would only let a request through that better-auth then refuses.
 
