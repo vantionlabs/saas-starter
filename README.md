@@ -7,48 +7,309 @@
 <h1 align="center">SaaS starter</h1>
 
 <p align="center">
-  <b>Multi-tenant B2B SaaS, already wired together.</b><br />
-  Sign-in, organizations, roles, tenant isolation proven twice, an audit trail and a public API — plus the 30-day method that builds on it.
+  <b>The agentic engineering workflow, with the product already built.</b><br />
+  A multi-tenant B2B SaaS you can deploy today — and the skills, hooks, commands and process that take a team from a written spec to a shipped product in thirty days.
 </p>
 
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://effect.website"><img alt="Effect 4" src="https://img.shields.io/badge/Effect_4-2233f0?style=flat-square" /></a>
-  <a href="https://www.typescriptlang.org"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" /></a>
-  <a href="https://www.postgresql.org"><img alt="Postgres" src="https://img.shields.io/badge/Postgres-4169E1?style=flat-square&logo=postgresql&logoColor=white" /></a>
-  <a href="https://tanstack.com/start"><img alt="TanStack Start" src="https://img.shields.io/badge/TanStack_Start-EF4444?style=flat-square" /></a>
-  <a href="https://playwright.dev"><img alt="28 browser tests" src="https://img.shields.io/badge/browser_tests-28-2EAD33?style=flat-square&logo=playwright&logoColor=white" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <a href="https://vantion.co"><img alt="Vantion Labs" src="https://img.shields.io/badge/by-Vantion_Labs-2233f0?style=flat-square" /></a>
+  <img alt="210 unit tests" src="https://img.shields.io/badge/tests-210-2EAD33?style=flat-square" />
+  <img alt="30 browser tests" src="https://img.shields.io/badge/browser-30-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+</p>
+
+<p align="center">
+  <img alt="Effect 4" src="https://img.shields.io/badge/Effect_4-2233f0?style=flat-square" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="Node 22" src="https://img.shields.io/badge/Node_22-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
+  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white" />
+  <img alt="Postgres" src="https://img.shields.io/badge/Postgres-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
+  <img alt="Redis" src="https://img.shields.io/badge/Redis-FF4438?style=flat-square&logo=redis&logoColor=white" />
+  <img alt="React 19" src="https://img.shields.io/badge/React_19-149ECA?style=flat-square&logo=react&logoColor=white" />
+  <img alt="TanStack Start" src="https://img.shields.io/badge/TanStack_Start-EF4444?style=flat-square&logo=reactquery&logoColor=white" />
+  <img alt="Tailwind 4" src="https://img.shields.io/badge/Tailwind_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+  <img alt="Base UI" src="https://img.shields.io/badge/Base_UI-18181B?style=flat-square" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" />
+  <img alt="Vitest" src="https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white" />
+  <img alt="Playwright" src="https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+  <img alt="better-auth" src="https://img.shields.io/badge/better--auth-000000?style=flat-square" />
+  <img alt="Stripe" src="https://img.shields.io/badge/Stripe-635BFF?style=flat-square&logo=stripe&logoColor=white" />
+  <img alt="Resend" src="https://img.shields.io/badge/Resend-000000?style=flat-square&logo=resend&logoColor=white" />
+  <img alt="React Email" src="https://img.shields.io/badge/React_Email-000000?style=flat-square&logo=react&logoColor=white" />
+  <img alt="BullMQ" src="https://img.shields.io/badge/BullMQ-C82829?style=flat-square" />
+  <img alt="OpenTelemetry" src="https://img.shields.io/badge/OpenTelemetry-425CC7?style=flat-square&logo=opentelemetry&logoColor=white" />
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" />
+  <img alt="Railway" src="https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white" />
+  <img alt="Figma" src="https://img.shields.io/badge/Figma-F24E1E?style=flat-square&logo=figma&logoColor=white" />
+  <img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-D97757?style=flat-square&logo=claude&logoColor=white" />
 </p>
 
 ---
 
-A starting point for multi-tenant SaaS: sign-in, organizations, roles and
-permissions, an audit trail, API keys and a public HTTP API — already wired
-together, already tested, already deployable.
+Most starters give you a codebase. This one gives you the codebase **and the way
+of working** — because on an AI-native team the second is what actually decides
+how fast the first moves.
 
-**The method ships with the code.** `.claude/` and `docs/sprint/` are the agent
-workflow and the 30-day process this is built for, committed alongside it rather
-than sold separately.
+The product half is a multi-tenant B2B SaaS that deploys today: sign-in,
+organizations, roles, tenant isolation proven twice, an audit trail, billing, a
+public API, background jobs, outbound webhooks. The method half is committed
+beside it in `.claude/` and `docs/sprint/` — the hooks that keep an agent honest,
+the commands that drive each phase, and the thirty-day process the two are for.
 
-It is deliberately not a framework. There is no `starter.config.ts` to learn and
-nothing generates code. It is an ordinary Effect v4 monorepo with one worked
-example of a tenant-owned feature (`Contact`), which you delete and replace with
-your own.
+Both are MIT. Nothing is held back for a paid tier.
+
+## What's in it
+
+**The product** — built, tested, deploys today.
+
+- ✅ **Auth** — password, magic link, email OTP, Google; sessions resolved server-side
+- ✅ **Organizations** — members, invitations, seats, org switcher, a personal org per user
+- ✅ **Access control** — built-in roles, custom roles, per-member overrides, one permission model
+- ✅ **Tenant isolation** — Postgres RLS _and_ `withOrgScope`, proven by browser tests
+- ✅ **Audit trail** — who did what, browsable at `/settings/audit`
+- ✅ **Billing** — Stripe subscriptions, plan entitlements composed into the policy layer
+- ✅ **Public API** — `/api/v1` on API keys, OpenAPI document and browsable docs
+- ✅ **Background jobs** — a transactional outbox in Postgres, BullMQ for delivery
+- ✅ **Outbound webhooks** — signed, retried, deduplicated, auto-disabled when dead
+- ✅ **Transactional email** — React Email templates through Resend, HTML and text
+- ✅ **Realtime** — the same RPC procedures over a websocket, with a worked stream
+- ✅ **App shell** — sidebar, command palette, breadcrumbs, empty states, light and dark
+
+**The platform** — what you build the next feature on.
+
+- ✅ **Feature modules** — `pnpm new:module <name>` scaffolds and registers a vertical slice
+- ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
+- ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
+- ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
+- ✅ **Tests that gate** — 210 unit, 30 browser, testcontainers Postgres, all in CI
+- ✅ **Operations** — `/health`, `/ready`, OpenTelemetry, a Dockerfile per app, Railway IaC
+
+**The method** — committed in `.claude/` and `docs/sprint/`.
+
+- ✅ **Hooks** — format, type-check, lint and the repo's rules, on every agent edit
+- ✅ **Commands** — `/sprint-*` for each phase, `/figma-*` for the design loop
+- ✅ **Skills** — the thirty-day sprint written as a skill, installable as a plugin
+- ✅ **Vendored sources** — `repos/effect` so an agent reads real signatures, not recall
+
+### What that buys you
+
+|                                               |                                                                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Week one is a feature, not a login screen** | The four weeks a B2B product usually spends on auth, tenancy, roles and billing are already spent.                                   |
+| **An agent that is checked, not trusted**     | Every edit runs the gate. Every merge runs the browser. The loop closes without you reading each diff.                               |
+| **One contract, every surface**               | Web, mobile, the public API and an MCP server compile against the same types — a change is a compile error, not a support ticket.    |
+| **A design process, not a handoff**           | Designers work on the real components in `apps/design` and Figma, and what they change comes back as tokens rather than screenshots. |
+| **Multi-tenancy you can defend**              | Isolation is enforced twice and demonstrated by two real users in a browser, which is what a security review actually asks for.      |
+| **Nothing held back**                         | MIT, no paid tier, no telemetry, no vendor account needed to run the whole thing locally.                                            |
+
+## Why Effect
+
+Because it is the most agent-legible way to write TypeScript, and on an AI-native
+team that is a throughput argument rather than a taste one.
+
+**Failures are in the signature.** `Effect<Contact, Forbidden, CurrentUser>` says
+what it returns, how it can fail, and what it needs. An agent cannot quietly
+swallow an error it did not know about, because the compiler names it — and a
+reviewer reading a diff sees the failure modes without opening the body.
+
+**Dependencies are in the type, not in the imports.** Forgetting to provide
+something is a compile error rather than a `undefined is not a function` at three
+in the morning. It is also what makes the module layout enforceable: an
+application composes `IamModule`, and what that module still _needs_ —
+`SqlClient`, `Mailer`, `RateLimiter` — is written down where the checker can see
+it.
+
+**Swapping a boundary is a one-line change.** Every external service here is a
+service with two layers, one needing no credentials: Resend or the log, BullMQ or
+memory, Stripe or refusal. That is why a fresh clone can follow a magic link,
+deliver a webhook and run every test with no accounts at all — and why tests
+replace the boundary rather than mocking a module.
+
+**One idiom covers the stack.** HTTP, SQL, streams, retries, concurrency,
+scheduling and the RPC layer are the same library, so there is one set of
+conventions for an agent to learn and far less surface to guess at. It is also
+what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
+the tree gives an agent ground truth for nearly everything it will write.
+
+**Tests are deterministic by construction.** Logical clocks, layers swapped at
+the edges, and no sleeps — which is what lets a suite of 210 be a gate an agent
+runs between every slice rather than something a human runs before lunch.
+
+The cost is honest: Effect v4 is a release candidate, the learning curve is real,
+and `RULES.md` exists because the idioms are worth stating rather than absorbing.
+See **Status** below.
+
+## One repo, the whole product
+
+A product is not only its application. The pieces that usually scatter across
+four repositories and two agencies live here, sharing one design system — so a
+colour changes in `packages/tokens` and moves the app, the marketing site, the
+emails and the Figma library at once.
+
+|                  |                                                                                                          |           |
+| ---------------- | -------------------------------------------------------------------------------------------------------- | --------- |
+| `apps/server`    | the Effect API: RPC, the public `/api/v1`, auth, websockets                                              | **built** |
+| `apps/web`       | the product itself, TanStack Start                                                                       | **built** |
+| `apps/worker`    | the outbox relay and the jobs it feeds                                                                   | **built** |
+| `apps/design`    | the product's screens on persona fixtures, no backend — what designers work on, and what pushes to Figma | **built** |
+| `apps/marketing` | the landing page and marketing site                                                                      | planned   |
+| `apps/brand`     | the brand kit: typography, colour, voice, motion, ad creative, email footers, business cards             | planned   |
+| `apps/mobile`    | Expo, sharing the contract and the tokens                                                                | planned   |
+
+Underneath, `packages/tokens` is the single source the whole lot reads —
+TypeScript, not CSS, because only one of its consumers speaks CSS:
 
 ```
-apps/server     Effect API — RPC for the app, HTTP for the public API and auth
-apps/web        TanStack Start front end
-packages/domain the contract both ends compile against
-packages/database   connection, row-level security, migrations
+packages/tokens ──┬──▶ packages/ui        the web design system
+                  ├──▶ packages/emails    React Email, converted to hex
+                  ├──▶ Figma variables    via /figma-tokens
+                  └──▶ NativeWind         when apps/mobile lands
 ```
 
-Dependencies point one way, from `apps/` into `packages/`. Both apps compile
-against the same schemas, so a change to a payload breaks the client at build
-time rather than in production.
+A test asserts every colour survives conversion to sRGB without clipping. It
+earned itself on the first run: one token was outside the gamut, so what rendered
+had never been what was written.
 
-## What you get
+## The flow
+
+Four phases, each with a command that drives it and a file it reads. The
+artefact one phase produces is the input the next one consumes, which is the
+whole point: nothing is re-derived from a conversation somebody half remembers.
+
+```
+ discovery  ──▶   design   ──▶    build    ──▶    ship
+     │               │               │               │
+/sprint-discover  /sprint-prototype  /sprint-build  /sprint-ship
+     │               │               │               │
+a written        real screens    vertical slices  deployed, with
+riskiest         in apps/design, each green       the isolation
+assumption       pushed to Figma  before the      tests still
+and a cut        for designers    next starts     passing
+feature list     to refine
+```
+
+| Days  | Phase         | Produces                                                                       | Refuses to advance until           |
+| ----- | ------------- | ------------------------------------------------------------------------------ | ---------------------------------- |
+| 1–5   | **Discover**  | the riskiest assumption, written down; a feature list cut to twelve build days | the assumption is written          |
+| 6–12  | **Prototype** | real screens against the real shell, no new tables                             | no migration was needed            |
+| 13–24 | **Build**     | vertical slices — schema, handler, screen, tests                               | each slice passes the whole gate   |
+| 25–30 | **Ship**      | deployed, documented, with tenant isolation proven                             | nothing on the checklist is untrue |
+
+The gates are the method; everything else is detail. `docs/sprint/` has each
+phase written out, and `STATE.md` is where a phase records what it did — read
+back at the start of the next session, because a thirty-day sprint outlives any
+context window.
+
+## Docs to design to dev
+
+The path an idea takes, and where each artefact lives.
+
+**1 · Written first.** Discovery produces prose, not tickets: who this is for,
+what they do instead today, and the one assumption that makes the rest pointless
+if it is false. It lands in `docs/sprint/01-discovery.md`.
+
+**2 · Designed against the real components.** `apps/design` renders the product's
+own screens — the same `@vantion/ui` the app uses — fed by **persona fixtures**
+instead of a backend. A persona is a whole tenant's worth of data, chosen so the
+screens are seen under the conditions that break them:
+
+| Persona     | What it shows                                                             |
+| ----------- | ------------------------------------------------------------------------- |
+| `first-day` | every list empty — the state most designs forget                          |
+| `settled`   | the ordinary case                                                         |
+| `crowded`   | forty-character names and two dozen rows — the state that breaks a layout |
+
+The persona travels in the query string, so a designer can send a link to exactly
+the state they mean rather than describing it. `pnpm design`.
+
+**3 · Into Figma, as a design system.** `/figma-tokens` syncs `@vantion/tokens`
+into a file's variables; `/figma-screen` assembles a screen _from those
+variables_ rather than pasting hex. Designers refine there, and `/figma-pull`
+brings the change back — deciding first whether it is a **token**, a
+**component**, or a **screen**, because those are three different files and
+getting it wrong is how a one-off colour ends up hardcoded in a route.
+
+**4 · Built in slices.** `pnpm new:module <name>` scaffolds a feature package and
+registers it. Each slice is schema, handler, screen and tests, and does not start
+until the previous one passes `pnpm check && pnpm lint && pnpm test` — plus
+`pnpm e2e` when it touched a route.
+
+**5 · Shipped.** `railway config plan` shows the diff before `railway config
+apply` performs it, so a deployment is reviewable the way a pull request is.
+
+## The agent layer
+
+`.claude/` is committed, so a fresh clone gets it. These are plain Node scripts
+with no network access and no `npx`: read them before you trust them, which is
+the point of shipping them in the tree rather than asking you to install
+something. **Delete `.claude/settings.json` to turn all of it off.**
+
+### Hooks
+
+| Event                  | What it does                                                                                                           |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `SessionStart`         | prints the pinned Effect version, whether `repos/` is vendored, whether Postgres is up, and the sprint's current phase |
+| `PreToolUse` on Bash   | refuses force pushes, `--no-verify`, hand-edits to `repos/`, and an `rm -rf` naming a root                             |
+| `PostToolUse` on edits | `dprint`, `oxlint`, and `tsc -b` scoped to the one package that changed — about a second, warm                         |
+| `PostToolUse` on edits | the part of `RULES.md` a regex can decide                                                                              |
+
+They report by exiting 2 and writing to stderr, because a `PostToolUse` hook's
+stdout goes to the debug log and the model never sees it. And `check-rules`
+enforces six rules rather than twenty: **every one holds across the whole
+repository today**, asserted by a test that runs the hook over every tracked
+source file. A check that fires on existing code is one somebody disables in its
+first hour, taking the working ones with it.
+
+### Commands
+
+| Command             | For                                                            |
+| ------------------- | -------------------------------------------------------------- |
+| `/sprint-discover`  | days 1–5: the assumption, the evidence, the cut list           |
+| `/sprint-prototype` | days 6–12: real screens, no migrations                         |
+| `/sprint-build`     | days 13–24: vertical slices against the repo's own conventions |
+| `/sprint-ship`      | days 25–30: the checklist, the Railway plan, the changelog     |
+| `/figma-tokens`     | sync the design system's variables into a Figma file           |
+| `/figma-screen`     | push a screen from `apps/design`, built from those variables   |
+| `/figma-journey`    | draw a user journey into FigJam                                |
+| `/figma-pull`       | bring a designer's change back into the right file             |
+
+### Skills and the plugin
+
+`.claude/skills/vantion-sprint` is the method as a skill. `.claude-plugin/`
+publishes the commands and the skill so the workflow can be taken **without**
+taking the starter:
+
+```
+/plugin marketplace add vantionlabs/saas-starter
+/plugin install vantion-sprint@vantion
+```
+
+The hooks stay out of the plugin deliberately: they run _this_ repository's
+formatter, linter and type-checker, and a plugin's paths resolve somewhere else.
+
+### What keeps an agent honest
+
+Three things, and they matter more than the hooks:
+
+**`repos/` is vendored.** The whole Effect monorepo, at exactly the version
+installed, so an agent reads a real signature instead of recalling a v3 one.
+`AGENTS.md` states the precedence: `repos/effect`, then `RULES.md`, then
+`knowledge/`, then recall — never authoritative. Writing one HTTP client in this
+repo took four passes against that source; every wrong recall would have compiled
+a year ago.
+
+**Tenant isolation is tested end to end.** `e2e/tests/tenancy.spec.ts` signs up
+two real users and proves neither sees the other's rows. Unit tests cover RLS and
+`withOrgScope` separately; only that file shows the whole stack, session to SQL,
+keeping two people apart.
+
+**The gate includes the browser.** A green compiler is not evidence the thing
+runs. Running the full gate between slices has already caught a Node subpath
+import that `tsc` resolved and Node could not, a lint fix that satisfied the
+linter while breaking Playwright, and an export map that type-checked perfectly
+while resolving to nothing at run time.
+
+## The product, in detail
 
 **Identity** — email and password, magic link, email OTP, and Google, via
 [better-auth](https://better-auth.com). Every new user gets a personal
@@ -58,7 +319,7 @@ system to represent or handle.
 **Organizations and access control** — members, invitations, the built-in
 `owner`/`admin`/`member` roles, plus custom roles and per-member overrides
 editable in the UI. One permission model, declared once in
-`packages/domain/src/iam/Permission.ts`, is what both our RPC policies and
+`packages/modules/iam/src/identity/Permission.ts`, is what both our RPC policies and
 better-auth's own endpoint checks are built from — so the two cannot quietly
 disagree about who may do what.
 
@@ -132,17 +393,17 @@ and nothing else depends on it being contacts specifically. It is these files,
 plus its rows in `Permission.ts` and its route in the sidebar:
 
 ```
-packages/domain/src/contact/ContactRpc.ts
-apps/server/src/contact/
+packages/modules/contact/src/ContactRpc.ts
+packages/modules/contact/src/
 apps/web/src/atom/contact-atoms.ts
-apps/web/src/components/contact/
+packages/ui/src/contact/
 apps/web/src/routes/_protected/contacts.tsx
 ```
 
 Read it before you delete it — it is the shortest description of how a feature
 is put together here.
 
-**Adjust permissions.** `packages/domain/src/iam/Permission.ts` declares the
+**Adjust permissions.** `packages/modules/iam/src/identity/Permission.ts` declares the
 resources and actions, and `grantsFor` says which role gets what. The
 `organization`, `member`, `invitation` and `team` entries are better-auth's own
 vocabulary and should stay as they are; add yours alongside `contact`. The
@@ -182,6 +443,29 @@ To expose it publicly as well, add it to `packages/domain/src/api/v1/Api.ts` and
 implement it in `apps/server/src/api/v1/Handlers.ts` over the same store. Read
 `Wire.ts` first — it is the frozen contract and it explains what may change in
 it.
+
+## Commands
+
+|                                |                                                     |
+| ------------------------------ | --------------------------------------------------- |
+| `pnpm dev`                     | API, front end and worker together                  |
+| `pnpm design`                  | the design app, on persona fixtures                 |
+| `pnpm new:module <name>`       | scaffold a feature package and register it          |
+| `pnpm build`                   | deployable artifacts for every package              |
+| `pnpm check`                   | `tsc -b` across all project references              |
+| `pnpm lint`                    | oxlint, including Effect type-aware and local rules |
+| `pnpm format` / `format:check` | dprint                                              |
+| `pnpm test`                    | vitest across `apps/*` and `packages/*`             |
+| `pnpm e2e`                     | Playwright, driving both servers in a browser       |
+| `pnpm vendor`                  | re-vendor the upstream source under `repos/`        |
+
+Postgres-backed tests skip without a database. Either `docker compose up -d`, or
+point at an existing instance with `TEST_DB_URL=postgresql://...`.
+
+`pnpm e2e` runs the browser suite in `e2e/`. It needs no setup and no running
+app: it starts its own Postgres on a free port, applies the migrations, runs
+both servers on ports of their own, and cleans up after itself. Run
+`pnpm --filter @vantion/e2e install-browsers` once first.
 
 ## Deploying
 
@@ -229,26 +513,6 @@ Tracing exports only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Leaving it unset
 installs no exporter at all, because one pointed at nothing retries on a
 schedule and fills the log.
 
-## Commands
-
-|                                |                                                     |
-| ------------------------------ | --------------------------------------------------- |
-| `pnpm dev`                     | API and front end together                          |
-| `pnpm build`                   | deployable artifacts for every package              |
-| `pnpm check`                   | `tsc -b` across all project references              |
-| `pnpm lint`                    | oxlint, including Effect type-aware and local rules |
-| `pnpm format` / `format:check` | dprint                                              |
-| `pnpm test`                    | vitest across `apps/*` and `packages/*`             |
-| `pnpm e2e`                     | Playwright, driving both servers in a browser       |
-
-Postgres-backed tests skip without a database. Either `docker compose up -d`, or
-point at an existing instance with `TEST_DB_URL=postgresql://...`.
-
-`pnpm e2e` runs the browser suite in `e2e/`. It needs no setup and no running
-app: it starts its own Postgres on a free port, applies the migrations, runs
-both servers on ports of their own, and cleans up after itself. Run
-`pnpm --filter @vantion/e2e install-browsers` once first.
-
 ## Reading further
 
 `AGENTS.md` is the map — layout, commands, and the deployment story, written for
@@ -256,47 +520,53 @@ whoever (or whatever) picks the repo up cold. `RULES.md` holds the hard rules on
 Effect style, architecture, forms, observability and testing; read it before
 changing much. `knowledge/README.md` indexes the per-topic guides.
 
+`docs/sprint/` is the thirty-day method, written out phase by phase, and
+`docs/figma.md` is the design workflow and its one account caveat.
+
 `repos/` vendors the Effect and effect-form sources at exactly the versions this
 repo depends on. Effect v4 is a release candidate whose APIs moved recently, so
 read the real signature there rather than trusting recall — including your own.
 
-## The agent layer
-
-`.claude/` is committed, so a fresh clone gets it. Four hooks run while an agent
-works: one prints the pinned Effect version and whether Postgres is up at session
-start, one refuses force pushes and hand-edits to `repos/`, and two run after
-every file write — the repository's own formatter, linter and type-checker on the
-file that changed, and the part of `RULES.md` a regex can decide.
-
-`.claude/hooks/README.md` says what each one runs, and they are plain Node
-scripts with no network access: read them before you trust them. **Delete
-`.claude/settings.json` to turn all of it off** — nothing else depends on them.
-
-`docs/sprint/` is the 30-day method the four `/sprint-*` commands drive, and
-`.claude-plugin/` publishes those commands as a plugin, so the method can be
-taken without taking the starter:
-
-```
-/plugin marketplace add vantionlabs/saas-starter
-/plugin install vantion-sprint@vantion
-```
-
 ## Status
 
-Effect v4 is a release candidate. This repo pins one exact version
+**Effect v4 is a release candidate.** This repo pins one exact version
 (`4.0.0-rc.109`, in `pnpm-workspace.yaml`) and vendors its source under `repos/`
 so the APIs you read are the APIs you have. That is a stronger position than
 most, but it is still an RC: `effect/unstable/*` means unstable, and a bump is a
 deliberate step rather than a background one.
 
+**Some of this is newer than the rest.** Auth, organizations, access control,
+tenant isolation and the public API came from production work and have been
+exercised. Billing, jobs, webhooks, the design app and the Figma path are newer,
+tested but not yet weathered. `apps/marketing`, `apps/brand` and `apps/mobile`
+are named in the table above because that is the shape, not because they exist.
+
+## Roadmap
+
+What is missing, in the order it is likely to land. Everything here is tracked in
+the open; nothing is waiting behind a paid tier.
+
+|           | What                                                           | Why it is not here yet                                                                                                                    |
+| --------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Next**  | Checkout and billing settings                                  | Stripe writes subscriptions and entitlements gate features — the screen that sends somebody to pay is the missing half.                   |
+| **Next**  | Error tracking, and telemetry for `apps/worker` and `apps/web` | Traces are not aggregation. Only the API is instrumented, so the part most likely to fail quietly is the part with no spans.              |
+| **Then**  | File storage                                                   | Uploads, object storage and signed URLs, tenant-scoped like everything else.                                                              |
+| **Then**  | `packages/core` + `apps/mobile`                                | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                                       |
+| **Then**  | `apps/marketing` and `apps/brand`                              | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                                    |
+| **Then**  | `apps/mcp`                                                     | The same handlers as an MCP server, so per-tool scopes are the existing permissions rather than a second vocabulary.                      |
+| **Then**  | AI, with evals                                                 | One worked feature that exercises tool-calling, extraction, org-scoped retrieval and a human approval gate — plus an eval baseline in CI. |
+| **Then**  | A spec template for the discovery phase                        | `/sprint-discover` describes the thinking; what is missing is the artefact it produces and `/sprint-build` consumes.                      |
+| **Later** | SSO and SAML                                                   | The heaviest remaining item, and the one enterprise deals actually ask for.                                                               |
+| **Later** | An admin panel                                                 | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path.                   |
+
 ## What it deliberately does not do
+
+Distinct from the roadmap above: these are choices rather than gaps.
 
 - **No i18n.** Strings are English and inline. Cheap to add early and expensive
   to retrofit, so this is a stated choice rather than an oversight.
 - **No compliance tooling.** No data export, right-to-erasure or retention
   policies. The audit trail is the raw material for them, not a substitute.
-- **No billing, background jobs, file storage or outbound webhooks** — yet.
-  They are the next things to land, and they are tracked in the open.
 - **No arithmetic or authorisation by model.** There is no AI in the request
   path deciding who may do what.
 
