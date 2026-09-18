@@ -321,9 +321,6 @@ importers:
       pg:
         specifier: 'catalog:'
         version: 8.23.0
-      resend:
-        specifier: 'catalog:'
-        version: 6.20.0(@react-email/render@2.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
     devDependencies:
       '@effect/vitest':
         specifier: 'catalog:'
