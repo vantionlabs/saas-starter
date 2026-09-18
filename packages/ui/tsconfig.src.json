@@ -9,6 +9,9 @@
   ],
   "references": [
     {
+      "path": "../modules/billing"
+    },
+    {
       "path": "../modules/contact"
     },
     {
@@ -29,6 +32,9 @@
     "paths": {
       "@/*": [
         "${configDir}/src/*"
+      ],
+      "@vantion/module-billing/*": [
+        "../../packages/modules/billing/src/*.js"
       ],
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"

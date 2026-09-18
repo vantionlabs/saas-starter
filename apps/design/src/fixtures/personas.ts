@@ -1,3 +1,4 @@
+import { BillingState } from "@vantion/module-billing/BillingRpc";
 import { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Contact } from "@vantion/module-contact/ContactRpc";
 import { CustomRole, OrganizationMember } from "@vantion/module-iam/access/AccessRpc";
@@ -23,6 +24,7 @@ export type Persona = {
   readonly members: ReadonlyArray<OrganizationMember>;
   readonly roles: ReadonlyArray<CustomRole>;
   readonly apiKeys: ReadonlyArray<ApiKey>;
+  readonly billing: BillingState;
 };
 
 const at = (iso: string) => DateTime.makeUnsafe(new Date(iso));
@@ -42,6 +44,18 @@ const firstDay: Persona = {
   members: [new OrganizationMember({ memberId: "m1", email: "sam@acme.test", role: "owner" })],
   roles: [],
   apiKeys: [],
+  billing: new BillingState({
+    plan: "free",
+    effectivePlan: "free",
+    status: "active",
+    seats: 3,
+    cancelAtPeriodEnd: false,
+    currentPeriodEnd: null,
+    // The fresh-clone state: no Stripe keys, so the screen has to explain
+    // itself rather than offer a button that fails.
+    configured: false,
+    manageable: false,
+  }),
 };
 
 /** The ordinary case, and the one most screenshots are taken of. */
@@ -73,6 +87,16 @@ const settled: Persona = {
       lastUsedAt: at("2026-09-17T22:14:00Z"),
     }),
   ],
+  billing: new BillingState({
+    plan: "pro",
+    effectivePlan: "pro",
+    status: "active",
+    seats: 25,
+    cancelAtPeriodEnd: false,
+    currentPeriodEnd: "2026-12-01T00:00:00.000Z",
+    configured: true,
+    manageable: true,
+  }),
 };
 
 /**
@@ -118,6 +142,21 @@ const crowded: Persona = {
       createdAt: at("2026-03-11T09:00:00Z"),
       lastUsedAt: index % 3 === 0 ? null : at("2026-09-18T08:00:00Z"),
     })),
+  /**
+   * A card that failed on the biggest customer, which is when the screen has
+   * to be clearest: the plan is still on, the message says why, and the button
+   * that fixes it is the one thing on the page that matters.
+   */
+  billing: new BillingState({
+    plan: "scale",
+    effectivePlan: "scale",
+    status: "past_due",
+    seats: 250,
+    cancelAtPeriodEnd: true,
+    currentPeriodEnd: "2026-10-04T00:00:00.000Z",
+    configured: true,
+    manageable: true,
+  }),
 };
 
 export const personas: ReadonlyArray<Persona> = [firstDay, settled, crowded];

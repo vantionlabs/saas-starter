@@ -48,6 +48,8 @@ export const layerStripe = (options: {
         );
 
       return {
+        configured: true,
+
         checkout: (request) =>
           Effect.gen(function*() {
             const price = yield* priceFor(request.plan);

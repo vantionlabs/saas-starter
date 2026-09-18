@@ -320,6 +320,32 @@ Stripe's own timestamp so an event older than the state it is looking at is drop
 organization arrives on the subscription's metadata because the first event for a customer has
 no row to look one up from. Guessing would mean writing somebody else's plan onto a tenant.
 
+`/settings/billing` is the screen over all of that: what was bought, what is
+effective, what each plan carries, and the two buttons that leave for Stripe's
+own pages. Checkout and the portal return a URL rather than redirecting, and the
+return addresses are built from `WEB_URL` on the server — a return address a
+client chooses is an open redirect with a payment page in front of it.
+
+Billing has permissions of its own rather than borrowing `organization:update`.
+`billing:read` is what the screen needs, `billing:manage` is what sends somebody
+to Stripe, and only the owner holds the second: an admin runs the organization
+and can see the bill, which is the same line `organization:delete` is drawn on.
+
+`currentSubscription` filters by organization _and_ runs in `withOrgScope`,
+which is the house rule rather than belt and braces. A superuser — or any role
+with BYPASSRLS — ignores row-level security even on a FORCEd table, which is
+what the test database is and what a managed Postgres often hands you. The first
+draft relied on the policy alone and every organization read the first
+subscription row in the table; the tests caught it because other blocks in the
+file had already paid.
+
+`BillingErrors.ts` exists for a reason no type-checker can see. The RPC contract
+declares `StripeUnavailable`, both ends compile against the contract, and
+`StripeClient.ts` reaches the SDK through a dynamic `import` — which a bundler
+follows statically. For one commit the browser bundle carried 135 kB of Stripe's
+Node SDK. The errors live in a leaf file now, and a test walks the contract's
+import graph to keep it that way.
+
 The plan a price maps to is read from its metadata, never a hard-coded price id: ids differ
 between every account, so hard-coding one makes the build wrong everywhere except where it was
 written. Without `STRIPE_SECRET_KEY` checkout and the portal refuse rather than returning a

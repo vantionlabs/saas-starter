@@ -15,6 +15,9 @@
     },
     {
       "path": "../../packages/modules/contact"
+    },
+    {
+      "path": "../../packages/modules/billing"
     }
   ],
   "compilerOptions": {
@@ -29,6 +32,9 @@
     "paths": {
       "@/*": [
         "${configDir}/src/*"
+      ],
+      "@vantion/module-billing/*": [
+        "../../packages/modules/billing/src/*.js"
       ],
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"

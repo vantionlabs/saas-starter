@@ -14,8 +14,8 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="210 unit tests" src="https://img.shields.io/badge/tests-210-2EAD33?style=flat-square" />
-  <img alt="30 browser tests" src="https://img.shields.io/badge/browser-30-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+  <img alt="221 unit tests" src="https://img.shields.io/badge/tests-221-2EAD33?style=flat-square" />
+  <img alt="32 browser tests" src="https://img.shields.io/badge/browser-32-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
 <p align="center">
@@ -66,7 +66,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **Access control** — built-in roles, custom roles, per-member overrides, one permission model
 - ✅ **Tenant isolation** — Postgres RLS _and_ `withOrgScope`, proven by browser tests
 - ✅ **Audit trail** — who did what, browsable at `/settings/audit`
-- ✅ **Billing** — Stripe subscriptions, plan entitlements composed into the policy layer
+- ✅ **Billing** — Stripe checkout and portal, subscriptions, plan entitlements in the policy layer
 - ✅ **Public API** — `/api/v1` on API keys, OpenAPI document and browsable docs
 - ✅ **Background jobs** — a transactional outbox in Postgres, BullMQ for delivery
 - ✅ **Outbound webhooks** — signed, retried, deduplicated, auto-disabled when dead
@@ -80,7 +80,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
 - ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 210 unit, 30 browser, testcontainers Postgres, all in CI
+- ✅ **Tests that gate** — 221 unit, 32 browser, testcontainers Postgres, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry, a Dockerfile per app, Railway IaC
 
 **The method** — committed in `.claude/` and `docs/workflow/`.
@@ -132,7 +132,7 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps. That is what lets a suite of 210 be a gate an agent
+the edges, and no sleeps. That is what lets a suite of 221 be a gate an agent
 runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
@@ -565,7 +565,6 @@ open, and none of it is waiting behind a paid tier.
 
 |           | What                                                           | Why it is not here yet                                                                                                                    |
 | --------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Next**  | Checkout and billing settings                                  | Stripe writes subscriptions and entitlements gate features — the screen that sends somebody to pay is the missing half.                   |
 | **Next**  | Error tracking, and telemetry for `apps/worker` and `apps/web` | Traces are not aggregation. Only the API is instrumented, so the part most likely to fail quietly is the part with no spans.              |
 | **Then**  | File storage                                                   | Uploads, object storage and signed URLs, tenant-scoped like everything else.                                                              |
 | **Then**  | `packages/core` + `apps/mobile`                                | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                                       |

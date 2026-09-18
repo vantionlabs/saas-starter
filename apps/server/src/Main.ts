@@ -29,6 +29,7 @@ const RpcLive = RpcServer.layer(AppRpcs).pipe(
   Layer.provide(IamModule),
   Layer.provide(HealthModule),
   Layer.provide(ContactModule),
+  Layer.provide(BillingModule),
   Layer.provide(RpcServer.layerProtocolHttp({ path: "/rpc" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );
@@ -49,6 +50,7 @@ const RpcWebsocketLive = RpcServer.layer(AppRpcs).pipe(
   Layer.provide(IamModule),
   Layer.provide(HealthModule),
   Layer.provide(ContactModule),
+  Layer.provide(BillingModule),
   Layer.provide(RpcServer.layerProtocolWebsocket({ path: "/rpc/ws" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );

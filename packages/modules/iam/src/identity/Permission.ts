@@ -18,6 +18,15 @@ export const statements = {
   ac: ["create", "read", "update", "delete"],
   // Ours, unknown to better-auth, governed only by our policies.
   contact: ["read", "create", "update", "delete"],
+  /**
+   * Money is split from the rest of organization administration on purpose.
+   * `read` is what a settings page needs to show the plan and the limits
+   * somebody is running into; `manage` is what sends a person to Stripe to
+   * change what the organization is charged. An admin runs the organization
+   * and can see both; only the owner can change the bill, which is the same
+   * line `organization:delete` is drawn on.
+   */
+  billing: ["read", "manage"],
 } as const satisfies Record<string, ReadonlyArray<string>>;
 
 export type Statements = typeof statements;
@@ -61,6 +70,7 @@ export const grantsFor: Record<Role, Grants> = {
     team: ["create", "update", "delete"],
     ac: ["create", "read", "update", "delete"],
     contact: ["read", "create", "update", "delete"],
+    billing: ["read", "manage"],
   },
   admin: {
     organization: ["update"],
@@ -69,6 +79,7 @@ export const grantsFor: Record<Role, Grants> = {
     team: ["create", "update", "delete"],
     ac: ["create", "read", "update", "delete"],
     contact: ["read", "create", "update", "delete"],
+    billing: ["read"],
   },
   member: {
     ac: ["read"],

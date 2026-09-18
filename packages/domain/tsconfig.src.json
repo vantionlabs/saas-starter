@@ -23,6 +23,9 @@
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"
       ],
+      "@vantion/module-billing/*": [
+        "../../packages/modules/billing/src/*.js"
+      ],
       "@vantion/module-health/*": [
         "../../packages/modules/health/src/*.js"
       ]
@@ -34,6 +37,9 @@
     },
     {
       "path": "../modules/contact"
+    },
+    {
+      "path": "../modules/billing"
     },
     {
       "path": "../modules/health"

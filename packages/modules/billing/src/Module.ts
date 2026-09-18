@@ -1,4 +1,5 @@
 import { Layer } from "effect";
+import { BillingRpcLive } from "./BillingRpcLive.js";
 import { StripeClient } from "./StripeClient.js";
 import { StripeWebhook } from "./StripeWebhook.js";
 import { layerDatabase } from "./Subscriptions.js";
@@ -11,7 +12,9 @@ import { layerDatabase } from "./Subscriptions.js";
  * `feature()` policy in the codebase starts reading real subscriptions without
  * a line changing anywhere else.
  */
-export const BillingModule = layerDatabase.pipe(Layer.provideMerge(StripeClient.layer));
+export const BillingModule = Layer.mergeAll(layerDatabase, BillingRpcLive).pipe(
+  Layer.provideMerge(StripeClient.layer),
+);
 
 /**
  * Stripe's webhook endpoint, separate for the reason every module's routes are:

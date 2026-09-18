@@ -1,6 +1,7 @@
 import type { Plan } from "@vantion/module-iam/identity/Entitlement";
 import type { SubscriptionStatus } from "@vantion/module-iam/identity/Entitlement";
 import { Config, Context, Effect, Layer, Option, Redacted, Schema } from "effect";
+import { StripeUnavailable, WebhookRejected } from "./BillingErrors.js";
 
 /**
  * What a Stripe webhook tells us, narrowed at the boundary.
@@ -30,19 +31,20 @@ export class SubscriptionEvent extends Schema.Class<SubscriptionEvent>("Subscrip
   seats: Schema.NullOr(Schema.Number),
 }) {}
 
-/** Stripe is unreachable, or refused. Both mean "try again", not "give up". */
-export class StripeUnavailable
-  extends Schema.TaggedError<StripeUnavailable>()("StripeUnavailable", {
-    reason: Schema.Literals(["Unreachable", "Rejected"]),
-  })
-{}
-
-/** A webhook that did not come from Stripe, or did not survive the journey. */
-export class WebhookRejected extends Schema.TaggedError<WebhookRejected>()("WebhookRejected", {
-  reason: Schema.Literals(["BadSignature", "Unreadable"]),
-}) {}
+export { StripeUnavailable, WebhookRejected };
 
 export interface StripeClientService {
+  /**
+   * Whether this process has Stripe credentials.
+   *
+   * On the port rather than read from `Config` by whoever asks, so there is one
+   * answer: the layer that refuses every call is the layer that reports itself
+   * unconfigured, and the two cannot drift. A settings screen uses it to explain
+   * why there is no checkout button, which beats a button that fails when
+   * pressed.
+   */
+  readonly configured: boolean;
+
   /** Where to send someone to start paying. */
   readonly checkout: (options: {
     readonly organizationId: string;
@@ -81,6 +83,7 @@ export class StripeClient extends Context.Service<StripeClient, StripeClientServ
    * worse failure than being told billing is not configured.
    */
   static layerUnconfigured: Layer.Layer<StripeClient> = Layer.succeed(StripeClient)({
+    configured: false,
     checkout: () => Effect.fail(new StripeUnavailable({ reason: "Rejected" })),
     portal: () => Effect.fail(new StripeUnavailable({ reason: "Rejected" })),
     event: () => Effect.fail(new WebhookRejected({ reason: "BadSignature" })),

@@ -18,6 +18,7 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
+    "@vantion/module-billing": "workspace:*",
     "@vantion/module-contact": "workspace:*",
     "@vantion/module-health": "workspace:*",
     "@vantion/module-iam": "workspace:*",

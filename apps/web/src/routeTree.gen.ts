@@ -24,6 +24,7 @@ import { Route as AuthVerifiedRouteImport } from './routes/auth/verified'
 import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
 import { Route as ProtectedSettingsApiKeysRouteImport } from './routes/_protected/settings/api-keys'
 import { Route as ProtectedSettingsAuditRouteImport } from './routes/_protected/settings/audit'
+import { Route as ProtectedSettingsBillingRouteImport } from './routes/_protected/settings/billing'
 import { Route as ProtectedSettingsGeneralRouteImport } from './routes/_protected/settings/general'
 import { Route as ProtectedSettingsMembersRouteImport } from './routes/_protected/settings/members'
 import { Route as ProtectedSettingsRolesRouteImport } from './routes/_protected/settings/roles'
@@ -104,6 +105,12 @@ const ProtectedSettingsAuditRoute = ProtectedSettingsAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => ProtectedSettingsRouteRoute,
 } as any)
+const ProtectedSettingsBillingRoute =
+  ProtectedSettingsBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => ProtectedSettingsRouteRoute,
+  } as any)
 const ProtectedSettingsGeneralRoute =
   ProtectedSettingsGeneralRouteImport.update({
     id: '/general',
@@ -142,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/auth/verified': typeof AuthVerifiedRoute
   '/settings/api-keys': typeof ProtectedSettingsApiKeysRoute
   '/settings/audit': typeof ProtectedSettingsAuditRoute
+  '/settings/billing': typeof ProtectedSettingsBillingRoute
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
@@ -161,6 +169,7 @@ export interface FileRoutesByTo {
   '/': typeof ProtectedIndexRoute
   '/settings/api-keys': typeof ProtectedSettingsApiKeysRoute
   '/settings/audit': typeof ProtectedSettingsAuditRoute
+  '/settings/billing': typeof ProtectedSettingsBillingRoute
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
@@ -183,6 +192,7 @@ export interface FileRoutesById {
   '/_protected/': typeof ProtectedIndexRoute
   '/_protected/settings/api-keys': typeof ProtectedSettingsApiKeysRoute
   '/_protected/settings/audit': typeof ProtectedSettingsAuditRoute
+  '/_protected/settings/billing': typeof ProtectedSettingsBillingRoute
   '/_protected/settings/general': typeof ProtectedSettingsGeneralRoute
   '/_protected/settings/members': typeof ProtectedSettingsMembersRoute
   '/_protected/settings/roles': typeof ProtectedSettingsRolesRoute
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/auth/verified'
     | '/settings/api-keys'
     | '/settings/audit'
+    | '/settings/billing'
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/'
     | '/settings/api-keys'
     | '/settings/audit'
+    | '/settings/billing'
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
@@ -245,6 +257,7 @@ export interface FileRouteTypes {
     | '/_protected/'
     | '/_protected/settings/api-keys'
     | '/_protected/settings/audit'
+    | '/_protected/settings/billing'
     | '/_protected/settings/general'
     | '/_protected/settings/members'
     | '/_protected/settings/roles'
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsAuditRouteImport
       parentRoute: typeof ProtectedSettingsRouteRoute
     }
+    '/_protected/settings/billing': {
+      id: '/_protected/settings/billing'
+      path: '/billing'
+      fullPath: '/settings/billing'
+      preLoaderRoute: typeof ProtectedSettingsBillingRouteImport
+      parentRoute: typeof ProtectedSettingsRouteRoute
+    }
     '/_protected/settings/general': {
       id: '/_protected/settings/general'
       path: '/general'
@@ -424,6 +444,7 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 interface ProtectedSettingsRouteRouteChildren {
   ProtectedSettingsApiKeysRoute: typeof ProtectedSettingsApiKeysRoute
   ProtectedSettingsAuditRoute: typeof ProtectedSettingsAuditRoute
+  ProtectedSettingsBillingRoute: typeof ProtectedSettingsBillingRoute
   ProtectedSettingsGeneralRoute: typeof ProtectedSettingsGeneralRoute
   ProtectedSettingsMembersRoute: typeof ProtectedSettingsMembersRoute
   ProtectedSettingsRolesRoute: typeof ProtectedSettingsRolesRoute
@@ -434,6 +455,7 @@ const ProtectedSettingsRouteRouteChildren: ProtectedSettingsRouteRouteChildren =
   {
     ProtectedSettingsApiKeysRoute: ProtectedSettingsApiKeysRoute,
     ProtectedSettingsAuditRoute: ProtectedSettingsAuditRoute,
+    ProtectedSettingsBillingRoute: ProtectedSettingsBillingRoute,
     ProtectedSettingsGeneralRoute: ProtectedSettingsGeneralRoute,
     ProtectedSettingsMembersRoute: ProtectedSettingsMembersRoute,
     ProtectedSettingsRolesRoute: ProtectedSettingsRolesRoute,

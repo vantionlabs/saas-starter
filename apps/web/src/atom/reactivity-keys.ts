@@ -18,6 +18,8 @@ export const Keys = {
   /** The audit trail. Every mutation adds to it, so it is refreshed broadly. */
   audit: "audit",
   apiKeys: "apiKeys",
+  /** Refreshed when a subscription changes, which only Stripe's webhook does. */
+  billing: "billing",
   roles: "roles",
   members: "members",
   overrides: "overrides",

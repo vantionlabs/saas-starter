@@ -1,6 +1,6 @@
 import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { Building2, KeyRound, ScrollText, ShieldCheck, Users } from "lucide-react";
+import { Building2, CreditCard, KeyRound, ScrollText, ShieldCheck, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
@@ -21,6 +21,7 @@ export const settingsGroups: ReadonlyArray<{
       { to: "/settings/general", label: "General", icon: Building2 },
       { to: "/settings/members", label: "Members", icon: Users },
       { to: "/settings/roles", label: "Roles", icon: ShieldCheck },
+      { to: "/settings/billing", label: "Billing", icon: CreditCard },
     ],
   },
   {

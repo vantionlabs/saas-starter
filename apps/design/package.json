@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tanstack/react-router": "catalog:",
+    "@vantion/module-billing": "workspace:*",
     "@vantion/module-contact": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "@vantion/tokens": "workspace:*",
