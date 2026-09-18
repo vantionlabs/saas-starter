@@ -3,6 +3,8 @@ import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
+import { AgentModule } from "@vantion/module-agent/Module";
+import { AssistantModule } from "@vantion/module-assistant/Module";
 import { BillingHttp, BillingModule } from "@vantion/module-billing/Module";
 import { ContactModule } from "@vantion/module-contact/Module";
 import { FilesHttp, FilesModule } from "@vantion/module-files/Module";
@@ -28,6 +30,13 @@ import { ApiV1Live } from "./api/v1/Handlers.js";
  * that, rather than something to factor out.
  */
 const RpcLive = RpcServer.layer(AppRpcs).pipe(
+  /**
+   * The assistant and its toolkit come first, because `Layer.provide` feeds
+   * everything above it: the tools need `ContactStore`, which `ContactModule`
+   * below supplies, and reversing these two leaves the toolkit unprovidable.
+   */
+  Layer.provide(AssistantModule),
+  Layer.provide(AgentModule),
   Layer.provide(IamModule),
   Layer.provide(HealthModule),
   Layer.provide(ContactModule),
@@ -50,6 +59,8 @@ const RpcLive = RpcServer.layer(AppRpcs).pipe(
  * memoised by reference: naming `IamModule` in both graphs builds it once.
  */
 const RpcWebsocketLive = RpcServer.layer(AppRpcs).pipe(
+  Layer.provide(AssistantModule),
+  Layer.provide(AgentModule),
   Layer.provide(IamModule),
   Layer.provide(HealthModule),
   Layer.provide(ContactModule),

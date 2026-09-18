@@ -22,6 +22,12 @@
     },
     {
       "path": "../modules/health"
+    },
+    {
+      "path": "../modules/assistant"
+    },
+    {
+      "path": "../modules/agent"
     }
   ],
   "compilerOptions": {
@@ -48,6 +54,12 @@
       ],
       "@vantion/module-health/*": [
         "../../packages/modules/health/src/*.js"
+      ],
+      "@vantion/module-assistant/*": [
+        "../../packages/modules/assistant/src/*.js"
+      ],
+      "@vantion/module-agent/*": [
+        "../../packages/modules/agent/src/*.js"
       ]
     }
   }

@@ -15,6 +15,9 @@ catalogs:
     '@base-ui/react':
       specifier: ^1.7.0
       version: 1.7.0
+    '@effect/ai-openrouter':
+      specifier: 4.0.0-rc.109
+      version: 4.0.0-rc.109
     '@effect/atom-react':
       specifier: 4.0.0-rc.109
       version: 4.0.0-rc.109
@@ -337,6 +340,12 @@ importers:
       '@vantion/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@vantion/module-agent':
+        specifier: workspace:*
+        version: link:../../packages/modules/agent
+      '@vantion/module-assistant':
+        specifier: workspace:*
+        version: link:../../packages/modules/assistant
       '@vantion/module-billing':
         specifier: workspace:*
         version: link:../../packages/modules/billing
@@ -617,6 +626,9 @@ importers:
 
   packages/domain:
     dependencies:
+      '@vantion/module-assistant':
+        specifier: workspace:*
+        version: link:../modules/assistant
       '@vantion/module-billing':
         specifier: workspace:*
         version: link:../modules/billing
@@ -679,6 +691,34 @@ importers:
       '@vantion/module-files':
         specifier: workspace:*
         version: link:../files
+      '@vantion/module-iam':
+        specifier: workspace:*
+        version: link:../iam
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(vitest@4.1.10)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+
+  packages/modules/assistant:
+    dependencies:
+      '@effect/ai-openrouter':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)
+      '@vantion/database':
+        specifier: workspace:*
+        version: link:../../database
+      '@vantion/module-agent':
+        specifier: workspace:*
+        version: link:../agent
+      '@vantion/module-contact':
+        specifier: workspace:*
+        version: link:../contact
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../iam
@@ -1405,6 +1445,11 @@ packages:
     resolution: {integrity: sha512-UTiDSShHbrkx+z719/MffgwGYD8PaypdVmG4vVJVjmF5Hoin6EfugHhSoBf8+G6U9rF+uDIIl0idZq+6Bifzwg==}
     cpu: [x64]
     os: [win32]
+
+  '@effect/ai-openrouter@4.0.0-rc.109':
+    resolution: {integrity: sha512-vwC3IFJQ1JYcTAzlTxrR9glk+jV6JFZWxT4ABP5inYTriX3sMNQKw3tsPs8fNIzMgoTtpCG8ppewd66nulTNdg==}
+    peerDependencies:
+      effect: ^4.0.0-rc.109
 
   '@effect/atom-react@4.0.0-rc.109':
     resolution: {integrity: sha512-pMx01t0DnS9rPAR3aFOIoPUmuJjxflxw081ofTzXBlG81+hIaenJTdVJ+X+miRCGbcf00XEn15dHGoM3UjpIZQ==}
@@ -5640,6 +5685,10 @@ snapshots:
 
   '@dprint/win32-x64@0.55.2':
     optional: true
+
+  '@effect/ai-openrouter@4.0.0-rc.109(effect@4.0.0-rc.109)':
+    dependencies:
+      effect: 4.0.0-rc.109
 
   '@effect/atom-react@4.0.0-rc.109(effect@4.0.0-rc.109)(react@19.2.8)(scheduler@0.27.0)':
     dependencies:

@@ -233,6 +233,9 @@ export default defineRailway((ctx) => {
       S3_ENDPOINT: preserve(),
       S3_ACCESS_KEY_ID: preserve(),
       S3_SECRET_ACCESS_KEY: preserve(),
+      OPENROUTER_API_KEY: preserve(),
+      ASSISTANT_MODEL: preserve(),
+      ASSISTANT_MODEL_ID: preserve(),
     },
   });
 

@@ -1,5 +1,5 @@
 {
-  "name": "@vantion/domain",
+  "name": "@vantion/module-assistant",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -18,11 +18,10 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@vantion/module-assistant": "workspace:*",
-    "@vantion/module-billing": "workspace:*",
+    "@effect/ai-openrouter": "catalog:",
+    "@vantion/module-agent": "workspace:*",
     "@vantion/module-contact": "workspace:*",
-    "@vantion/module-files": "workspace:*",
-    "@vantion/module-health": "workspace:*",
+    "@vantion/database": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "effect": "catalog:"
   },

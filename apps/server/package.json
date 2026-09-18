@@ -26,6 +26,8 @@
     "@effect/sql-pg": "catalog:",
     "@vantion/database": "workspace:*",
     "@vantion/domain": "workspace:*",
+    "@vantion/module-agent": "workspace:*",
+    "@vantion/module-assistant": "workspace:*",
     "@vantion/module-billing": "workspace:*",
     "@vantion/module-contact": "workspace:*",
     "@vantion/module-files": "workspace:*",

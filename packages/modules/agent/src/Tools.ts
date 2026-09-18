@@ -52,12 +52,23 @@ export class ToolRefused extends Schema.TaggedError<ToolRefused>()("ToolRefused"
   required: Schema.String,
 }) {}
 
+/**
+ * A refusal comes back as a *result*, not as a failed call.
+ *
+ * `failureMode: "error"` would put it in the effect's error channel, which ends
+ * the turn — so a model that reached for one tool it may not use would be cut
+ * off mid-answer instead of saying "you do not have permission for that" and
+ * carrying on with what it can do. An MCP client wants the same thing: a
+ * refusal it can show, not a protocol error.
+ */
+const returnsRefusals = { failure: ToolRefused, failureMode: "return" } as const;
+
 export const WhoAmI = Tool.make("WhoAmI", {
   description:
     "Identify the current caller: their email, organization, role, plan and permissions. "
     + "Call this first when a request depends on who is asking or on what they are allowed to do.",
   success: Caller,
-  failure: ToolRefused,
+  ...returnsRefusals,
   /**
    * What the handler may reach for. Declared on the tool rather than inferred
    * from the handler, so the toolkit's layer states its requirements the same
@@ -71,7 +82,7 @@ export const ListContacts = Tool.make("ListContacts", {
   description: "List every contact belonging to the caller's organization, newest first. "
     + "Returns only this organization's contacts; there is no way to reach another's.",
   success: Schema.Array(ContactSummary),
-  failure: ToolRefused,
+  ...returnsRefusals,
   dependencies: [ContactStore, CurrentUser],
 });
 
@@ -82,7 +93,7 @@ export const SearchContacts = Tool.make("SearchContacts", {
     query: Schema.String.check(Schema.isNonEmpty()),
   }),
   success: Schema.Array(ContactSummary),
-  failure: ToolRefused,
+  ...returnsRefusals,
   dependencies: [ContactStore, CurrentUser],
 });
 
@@ -96,7 +107,7 @@ export const CreateContact = Tool.make("CreateContact", {
     fullName: Schema.String.check(Schema.isNonEmpty()),
   }),
   success: ContactSummary,
-  failure: ToolRefused,
+  ...returnsRefusals,
   dependencies: [ContactStore, CurrentUser],
   /**
    * The approval gate, and it is the model's own machinery rather than
@@ -116,7 +127,7 @@ export const ListFiles = Tool.make("ListFiles", {
     "List the files uploaded to the caller's organization. Returns metadata only — names, "
     + "types and sizes. Reading a file's contents is not available through this tool.",
   success: Schema.Array(FileSummary),
-  failure: ToolRefused,
+  ...returnsRefusals,
   dependencies: [SqlClient.SqlClient, CurrentUser],
 });
 

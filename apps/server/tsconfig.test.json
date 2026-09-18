@@ -35,6 +35,12 @@
     },
     {
       "path": "../../packages/modules/files"
+    },
+    {
+      "path": "../../packages/modules/assistant"
+    },
+    {
+      "path": "../../packages/modules/agent"
     }
   ],
   "compilerOptions": {
@@ -76,6 +82,12 @@
       ],
       "@vantion/module-billing/*": [
         "../../packages/modules/billing/src/*.js"
+      ],
+      "@vantion/module-assistant/*": [
+        "../../packages/modules/assistant/src/*.js"
+      ],
+      "@vantion/module-agent/*": [
+        "../../packages/modules/agent/src/*.js"
       ]
     }
   }

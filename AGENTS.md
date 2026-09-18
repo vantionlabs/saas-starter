@@ -94,6 +94,36 @@ only once the person agrees. The permission check decides whether they _may_; ap
 whether they meant to, and a model that misreads an instruction is acting entirely within its
 permissions while doing the wrong thing.
 
+`packages/modules/assistant` is the other consumer of that toolkit: a conversation, a model and
+the loop between them. `Chat` owns the history and runs the loop — call the model, execute the
+tools it asks for, feed the results back, ask again — and what the module adds is the
+translation into chunks a screen can render, the product's own record of the turn, and where it
+stops.
+
+Two tables, two jobs. `message` is the record: what was asked, what was answered, which tools
+ran, in order, and it is what the screen reads. `conversation.state` is the provider's encoded
+prompt, opaque and separate, because continuing a conversation means handing back tool calls,
+results and approval responses in the shape the library produced them — reconstructing that
+from our own rows would be a second implementation of somebody else's protocol. It is a cache:
+delete it and the conversation still reads correctly, it just cannot be continued.
+
+**Writes stop and ask.** `CreateContact` carries `needsApproval`, so a turn that wants it emits
+an approval request and ends there, with the history saved. Nothing is written until `Approve`
+says so, and a declined approval goes back into the history as a refusal the model can see —
+so it says what it did not do rather than trying another route to the same write. A test
+asserts the row does not exist before approval and does after.
+
+Tool refusals are **values, not failures**. `failureMode: "return"` means a model that reaches
+for a tool the caller may not use is told "you lack `contact:create`" and carries on with what
+it can do, instead of the turn dying on a policy error.
+
+Without `OPENROUTER_API_KEY` the assistant refuses rather than answering: `AssistantUnavailable`
+distinguishes `NotConfigured` from `ProviderFailed`, because one is your configuration and the
+other is somebody's outage. `ASSISTANT_MODEL=scripted` opts into a deterministic stand-in that
+drives the same tools through the same gate, which is what the tests use — never a silent
+fallback, because a deployment that quietly answers from a lookup table is worse than one that
+says it has no model.
+
 `apps/mcp` is that toolkit over stdio, which is how an editor starts an MCP server: a
 subprocess with credentials in its own configuration and no port to expose. It resolves
 `VANTION_API_KEY` once at boot through the same `ApiKeyAuth` the public API uses, so the

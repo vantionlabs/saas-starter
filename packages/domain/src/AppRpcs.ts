@@ -1,3 +1,4 @@
+import { AssistantRpcs } from "@vantion/module-assistant/AssistantRpc";
 import { BillingRpcs } from "@vantion/module-billing/BillingRpc";
 import { ContactRpcs } from "@vantion/module-contact/ContactRpc";
 import { FilesRpcs } from "@vantion/module-files/FilesRpc";
@@ -24,4 +25,5 @@ export const AppRpcs = HealthRpcs
   .merge(AccessRpcs)
   .merge(ContactRpcs)
   .merge(BillingRpcs)
-  .merge(FilesRpcs);
+  .merge(FilesRpcs)
+  .merge(AssistantRpcs);

@@ -9,7 +9,7 @@ import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identi
 import type { Permission } from "@vantion/module-iam/identity/Permission";
 import { permissionsFor } from "@vantion/module-iam/identity/Permission";
 import { Effect, Layer, Stream } from "effect";
-import type { Tool } from "effect/unstable/ai";
+import type { AiError, Tool } from "effect/unstable/ai";
 import { SqlClient } from "effect/unstable/sql";
 
 const identity = (org: string, role: string, permissions?: ReadonlyArray<Permission>) =>
@@ -47,18 +47,24 @@ const call = <Name extends keyof Tools>(
     const toolkit = yield* AgentToolkit;
     const stream = yield* toolkit.handle(name, params);
     const results = yield* Stream.runCollect(stream);
-    const result = results[results.length - 1]!.result;
 
-    /**
-     * `Tool.Result` is `Success | Failure` whatever the failure mode, but these
-     * tools use the default — `error` — so a refusal is in the error channel
-     * and cannot appear here. The assertion narrows the type and says so out
-     * loud, rather than casting silently.
-     */
-    expect(result, `${String(name)} returned a refusal as a value`).not.toBeInstanceOf(ToolRefused);
-
-    return result as Exclude<typeof result, ToolRefused>;
+    return results[results.length - 1]!.result;
   });
+
+/**
+ * The tools return refusals rather than failing, so the assertions are about
+ * values. These two narrow the union and say which outcome was expected.
+ */
+const succeeded = <A>(result: A): Exclude<A, ToolRefused | AiError.AiError> => {
+  expect(result, "the tool refused").not.toBeInstanceOf(ToolRefused);
+
+  return result as Exclude<A, ToolRefused | AiError.AiError>;
+};
+
+const refused = (result: unknown, required: string) => {
+  expect(result).toBeInstanceOf(ToolRefused);
+  expect(result).toMatchObject({ _tag: "ToolRefused", required });
+};
 
 const seed = Effect.fnUntraced(function*(org: string, contacts: ReadonlyArray<string>) {
   const sql = yield* SqlClient.SqlClient;
@@ -79,7 +85,7 @@ describe.skipIf(testDbUrl() === undefined)("the agent toolkit", () => {
       Effect.gen(function*() {
         yield* seed("agent_a", []);
 
-        const caller = yield* call("WhoAmI");
+        const caller = succeeded(yield* call("WhoAmI"));
 
         expect(caller.organizationId).toBe("agent_a");
         expect(caller.role).toBe("owner");
@@ -97,7 +103,7 @@ describe.skipIf(testDbUrl() === undefined)("the agent toolkit", () => {
         yield* seed("agent_a", ["ada"]);
         yield* seed("agent_b", ["grace"]);
 
-        const contacts = yield* call("ListContacts");
+        const contacts = succeeded(yield* call("ListContacts"));
 
         expect(contacts.map((contact) => contact.fullName)).toEqual(["ada"]);
       }));
@@ -106,22 +112,24 @@ describe.skipIf(testDbUrl() === undefined)("the agent toolkit", () => {
       Effect.gen(function*() {
         yield* seed("agent_a", ["ada", "alan"]);
 
-        expect((yield* call("SearchContacts", { query: "AD" })).map((row) => row.fullName))
+        expect(succeeded(yield* call("SearchContacts", { query: "AD" })).map((row) => row.fullName))
           .toEqual(["ada"]);
-        expect(yield* call("SearchContacts", { query: "nobody" })).toEqual([]);
+        expect(succeeded(yield* call("SearchContacts", { query: "nobody" }))).toEqual([]);
       }));
 
     it.effect("writes through the same store the product uses", () =>
       Effect.gen(function*() {
         yield* seed("agent_a", []);
 
-        const created = yield* call("CreateContact", {
-          email: "katherine@nasa.test",
-          fullName: "Katherine Johnson",
-        });
+        const created = succeeded(
+          yield* call("CreateContact", {
+            email: "katherine@nasa.test",
+            fullName: "Katherine Johnson",
+          }),
+        );
 
         expect(created.email).toBe("katherine@nasa.test");
-        expect((yield* call("ListContacts")).map((row) => row.email))
+        expect(succeeded(yield* call("ListContacts")).map((row) => row.email))
           .toContain("katherine@nasa.test");
       }));
   });
@@ -136,21 +144,17 @@ describe.skipIf(testDbUrl() === undefined)("the agent toolkit", () => {
       Effect.gen(function*() {
         yield* seed("agent_readonly", []);
 
-        expect(
-          yield* Effect.flip(
-            call("CreateContact", { email: "no@example.com", fullName: "No" }),
-          ),
-        ).toMatchObject({ _tag: "ToolRefused", required: "contact:create" });
+        refused(
+          yield* call("CreateContact", { email: "no@example.com", fullName: "No" }),
+          "contact:create",
+        );
       }));
 
     it.effect("is refused the files it may not read", () =>
       Effect.gen(function*() {
         yield* seed("agent_readonly", []);
 
-        expect(yield* Effect.flip(call("ListFiles"))).toMatchObject({
-          _tag: "ToolRefused",
-          required: "file:read",
-        });
+        refused(yield* call("ListFiles"), "file:read");
       }));
   });
 });
