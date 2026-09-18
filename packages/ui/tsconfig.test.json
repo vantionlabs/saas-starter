@@ -15,6 +15,9 @@
       "path": "../modules/contact"
     },
     {
+      "path": "../modules/files"
+    },
+    {
       "path": "../modules/iam"
     },
     {
@@ -40,6 +43,9 @@
       ],
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../../packages/modules/files/src/*.js"
       ],
       "@vantion/module-iam/*": [
         "../../packages/modules/iam/src/*.js"

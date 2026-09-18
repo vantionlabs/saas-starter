@@ -64,6 +64,13 @@ const serverEnv = {
   TRUST_PROXY: "1",
   // An exporter pointed at nothing retries on a schedule and floods the output.
   OTEL_EXPORTER_OTLP_ENDPOINT: "",
+  /**
+   * No S3 credentials, so uploads go to the local store and the API serves them
+   * from here. That is the configuration a fresh clone runs in, which makes it
+   * the one worth having the browser exercise — and it means the upload test
+   * needs no bucket.
+   */
+  FILES_DIR: path.join(import.meta.dirname, "test-results", "uploads"),
 };
 
 export default defineConfig({

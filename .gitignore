@@ -25,6 +25,9 @@ result-*
 .zed/
 .DS_Store
 
+# Where uploads land without S3 credentials. Not durable, and not ours to keep.
+.data/
+
 # playwright
 e2e/.e2e-env.json
 e2e/test-results/

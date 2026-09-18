@@ -228,6 +228,11 @@ export default defineRailway((ctx) => {
       OTEL_EXPORTER_OTLP_HEADERS: preserve(),
       SENTRY_DSN: preserve(),
       SENTRY_ENVIRONMENT: preserve(),
+      S3_BUCKET: preserve(),
+      S3_REGION: preserve(),
+      S3_ENDPOINT: preserve(),
+      S3_ACCESS_KEY_ID: preserve(),
+      S3_SECRET_ACCESS_KEY: preserve(),
     },
   });
 

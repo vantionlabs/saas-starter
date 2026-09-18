@@ -1,5 +1,5 @@
 import type { LinkProps } from "@tanstack/react-router";
-import { LayoutDashboard, Settings, Users } from "lucide-react";
+import { LayoutDashboard, Paperclip, Settings, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
@@ -18,6 +18,7 @@ export const nav: ReadonlyArray<{
 }> = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/contacts", label: "Contacts", icon: Users },
+  { to: "/files", label: "Files", icon: Paperclip },
   // `/settings` rather than a subpage: it redirects to General, and matching
   // non-exactly is what keeps this item lit on every settings page instead of
   // only one of them.

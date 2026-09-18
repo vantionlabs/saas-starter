@@ -83,6 +83,9 @@
       ],
       "@vantion/emails/*": [
         "./packages/emails/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "./packages/modules/files/src/*.js"
       ]
     }
   }

@@ -28,6 +28,7 @@
     "@vantion/domain": "workspace:*",
     "@vantion/module-billing": "workspace:*",
     "@vantion/module-contact": "workspace:*",
+    "@vantion/module-files": "workspace:*",
     "@vantion/module-health": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "@vantion/module-notifications": "workspace:*",

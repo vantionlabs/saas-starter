@@ -5,6 +5,7 @@ import { ApiV1 } from "@vantion/domain/api/v1/Api";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
 import { BillingHttp, BillingModule } from "@vantion/module-billing/Module";
 import { ContactModule } from "@vantion/module-contact/Module";
+import { FilesHttp, FilesModule } from "@vantion/module-files/Module";
 import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
 import { NotificationsModule } from "@vantion/module-notifications/Module";
@@ -31,6 +32,7 @@ const RpcLive = RpcServer.layer(AppRpcs).pipe(
   Layer.provide(HealthModule),
   Layer.provide(ContactModule),
   Layer.provide(BillingModule),
+  Layer.provide(FilesModule),
   Layer.provide(RpcServer.layerProtocolHttp({ path: "/rpc" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );
@@ -52,6 +54,7 @@ const RpcWebsocketLive = RpcServer.layer(AppRpcs).pipe(
   Layer.provide(HealthModule),
   Layer.provide(ContactModule),
   Layer.provide(BillingModule),
+  Layer.provide(FilesModule),
   Layer.provide(RpcServer.layerProtocolWebsocket({ path: "/rpc/ws" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );
@@ -92,6 +95,7 @@ const Routes = Layer.mergeAll(
   RpcWebsocketLive,
   IamHttp,
   BillingHttp,
+  FilesHttp,
   HealthHttpRoutes,
   ApiLive,
   CorsLive,
@@ -115,6 +119,7 @@ const HttpLive = Layer.unwrap(
        * `EntitlementResolver.layerFree` to run the product with billing off.
        */
       Layer.provide(BillingModule),
+      Layer.provide(FilesModule),
       // Swap `layerStoreMemory` for `layerStoreRedis` to share limits across workers.
       Layer.provide(RateLimiter.layer),
       Layer.provide(RateLimiter.layerStoreMemory),

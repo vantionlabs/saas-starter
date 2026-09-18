@@ -368,6 +368,30 @@ stub: the thing worth proving is that somebody else's server accepts what we sen
 deduplicate an at-least-once delivery. An endpoint that fails ten times consecutively is
 switched off, so a receiver that has been gone for a week stops costing an attempt a minute.
 
+Uploads never pass through this application. `RequestUpload` signs a URL, the browser PUTs the
+bytes at it, and `CompleteUpload` asks storage how big the object actually is — because a client
+saying "done" is a claim, and the size in the request was only what somebody intended to send. A
+row is written before the bytes exist, `pending`, since a presigned URL names a key and a key
+nobody has recorded against a tenant is an object with no owner.
+
+Keys are generated and never accepted: `${organizationId}/${uuid}`, with the caller's filename
+kept as display text only. The prefix means a bucket policy can be written against it, so a
+mistake is caught by storage as well as by row-level security.
+
+Without `S3_BUCKET` and `S3_ACCESS_KEY_ID`, uploads go to `FILES_DIR` and the API serves them
+from `/files/*` — signed, expiring, and authorised by the signature alone, since the point of
+such a URL is that it can be given to an `<img>` tag that will not send a cookie. Those routes
+exist only in that configuration; with a bucket they are absent, because the browser talks to
+storage directly and this process should never see a byte of anybody's file.
+
+What the signature covers is the whole of the security: the key, the expiry **and** the content
+type. Leaving the type out would let a caller have their own upload served as `text/html`, which
+is a cross-site scripting hole with an upload form in front of it.
+
+The storage allowance is a plan limit (`limits.storageMb`), checked before a URL is signed
+rather than after the bytes land — the last moment the application can still say no is before it
+hands out permission to write.
+
 The auth endpoints are rate-limited per caller, and who the caller _is_ depends on
 `TRUST_PROXY`: the number of reverse proxies in front of this process, `0` by default and
 `1` on Railway. At `0` the socket address is used and `X-Forwarded-For` is ignored. Above it

@@ -13,6 +13,7 @@ import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ProtectedContactsRouteImport } from './routes/_protected/contacts'
+import { Route as ProtectedFilesRouteImport } from './routes/_protected/files'
 import { Route as ProtectedSettingsRouteRouteImport } from './routes/_protected/settings/route'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthMagicLinkRouteImport } from './routes/auth/magic-link'
@@ -47,6 +48,11 @@ const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
 const ProtectedContactsRoute = ProtectedContactsRouteImport.update({
   id: '/contacts',
   path: '/contacts',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedFilesRoute = ProtectedFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedSettingsRouteRoute = ProtectedSettingsRouteRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
   '/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/contacts': typeof ProtectedContactsRoute
+  '/files': typeof ProtectedFilesRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/magic-link': typeof AuthMagicLinkRoute
   '/auth/otp': typeof AuthOtpRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
   '/contacts': typeof ProtectedContactsRoute
+  '/files': typeof ProtectedFilesRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/magic-link': typeof AuthMagicLinkRoute
   '/auth/otp': typeof AuthOtpRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/_protected/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/_protected/contacts': typeof ProtectedContactsRoute
+  '/_protected/files': typeof ProtectedFilesRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/magic-link': typeof AuthMagicLinkRoute
   '/auth/otp': typeof AuthOtpRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/'
     | '/settings'
     | '/contacts'
+    | '/files'
     | '/auth/forgot-password'
     | '/auth/magic-link'
     | '/auth/otp'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/contacts'
+    | '/files'
     | '/auth/forgot-password'
     | '/auth/magic-link'
     | '/auth/otp'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/_protected/settings'
     | '/_protected/contacts'
+    | '/_protected/files'
     | '/auth/forgot-password'
     | '/auth/magic-link'
     | '/auth/otp'
@@ -298,6 +310,13 @@ declare module '@tanstack/react-router' {
       path: '/contacts'
       fullPath: '/contacts'
       preLoaderRoute: typeof ProtectedContactsRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/files': {
+      id: '/_protected/files'
+      path: '/files'
+      fullPath: '/files'
+      preLoaderRoute: typeof ProtectedFilesRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/settings': {
@@ -470,12 +489,14 @@ const ProtectedSettingsRouteRouteWithChildren =
 interface ProtectedRouteChildren {
   ProtectedSettingsRouteRoute: typeof ProtectedSettingsRouteRouteWithChildren
   ProtectedContactsRoute: typeof ProtectedContactsRoute
+  ProtectedFilesRoute: typeof ProtectedFilesRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedSettingsRouteRoute: ProtectedSettingsRouteRouteWithChildren,
   ProtectedContactsRoute: ProtectedContactsRoute,
+  ProtectedFilesRoute: ProtectedFilesRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
 }
 

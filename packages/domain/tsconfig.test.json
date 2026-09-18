@@ -18,6 +18,9 @@
       "path": "../modules/billing"
     },
     {
+      "path": "../modules/files"
+    },
+    {
       "path": "../modules/health"
     }
   ],
@@ -39,6 +42,9 @@
       ],
       "@vantion/module-billing/*": [
         "../../packages/modules/billing/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../../packages/modules/files/src/*.js"
       ],
       "@vantion/module-health/*": [
         "../../packages/modules/health/src/*.js"

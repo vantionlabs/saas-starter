@@ -50,10 +50,17 @@ describe("access control reconciliation", () => {
 
   it("does not hand a member anything better-auth's default member lacks", () => {
     const theirs = new Set(flattenRole(defaultRoles.member.statements));
+    const knownToBetterAuth = new Set(Object.keys(defaultStatements));
 
     for (const granted of permissionsFor("member")) {
-      // `contact` is ours alone; better-auth has never heard of it.
-      if (granted.startsWith("contact:")) continue;
+      /**
+       * Resources better-auth has never heard of — `contact`, `file`, `billing`
+       * — are governed by our policies alone, so its defaults have nothing to
+       * say about them. Deriving that from `defaultStatements` rather than
+       * listing the exemptions is what stops this test failing every time a
+       * module adds a resource, which is how it would end up deleted.
+       */
+      if (!knownToBetterAuth.has(granted.split(":")[0] ?? "")) continue;
 
       expect(theirs.has(granted), `member gained "${granted}" beyond better-auth's default`).toBe(
         true,

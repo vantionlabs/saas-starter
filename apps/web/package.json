@@ -29,6 +29,7 @@
     "@vantion/module-health": "workspace:*",
     "@sentry/browser": "catalog:",
     "@vantion/module-billing": "workspace:*",
+    "@vantion/module-files": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "@vantion/tokens": "workspace:*",
     "@vantion/ui": "workspace:*",

@@ -1,5 +1,6 @@
 import { BillingRpcs } from "@vantion/module-billing/BillingRpc";
 import { ContactRpcs } from "@vantion/module-contact/ContactRpc";
+import { FilesRpcs } from "@vantion/module-files/FilesRpc";
 import { HealthRpcs } from "@vantion/module-health/HealthRpc";
 import { AccessRpcs } from "@vantion/module-iam/access/AccessRpc";
 import { OrganizationRpcs } from "@vantion/module-iam/organization/OrganizationRpc";
@@ -22,4 +23,5 @@ export const AppRpcs = HealthRpcs
   .merge(OrganizationRpcs)
   .merge(AccessRpcs)
   .merge(ContactRpcs)
-  .merge(BillingRpcs);
+  .merge(BillingRpcs)
+  .merge(FilesRpcs);

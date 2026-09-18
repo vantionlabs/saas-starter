@@ -27,6 +27,7 @@ export const statements = {
    * line `organization:delete` is drawn on.
    */
   billing: ["read", "manage"],
+  file: ["read", "create", "delete"],
 } as const satisfies Record<string, ReadonlyArray<string>>;
 
 export type Statements = typeof statements;
@@ -71,6 +72,7 @@ export const grantsFor: Record<Role, Grants> = {
     ac: ["create", "read", "update", "delete"],
     contact: ["read", "create", "update", "delete"],
     billing: ["read", "manage"],
+    file: ["read", "create", "delete"],
   },
   admin: {
     organization: ["update"],
@@ -80,10 +82,14 @@ export const grantsFor: Record<Role, Grants> = {
     ac: ["create", "read", "update", "delete"],
     contact: ["read", "create", "update", "delete"],
     billing: ["read"],
+    file: ["read", "create", "delete"],
   },
   member: {
     ac: ["read"],
     contact: ["read", "create", "update"],
+    // A member may add a file and read the organization's, but not remove one:
+    // deleting is the only action here that destroys somebody else's work.
+    file: ["read", "create"],
   },
 };
 

@@ -44,12 +44,14 @@ export type Limits = {
   readonly seats: number;
   readonly apiKeys: number;
   readonly webhookEndpoints: number;
+  /** Everything uploaded, in megabytes. Checked before a URL is signed. */
+  readonly storageMb: number;
 };
 
 export const limits: Record<Plan, Limits> = {
-  free: { seats: 3, apiKeys: 2, webhookEndpoints: 0 },
-  pro: { seats: 25, apiKeys: 10, webhookEndpoints: 5 },
-  scale: { seats: 250, apiKeys: 100, webhookEndpoints: 50 },
+  free: { seats: 3, apiKeys: 2, webhookEndpoints: 0, storageMb: 100 },
+  pro: { seats: 25, apiKeys: 10, webhookEndpoints: 5, storageMb: 5_000 },
+  scale: { seats: 250, apiKeys: 100, webhookEndpoints: 50, storageMb: 100_000 },
 };
 
 export const has = (plan: Plan, feature: Feature): boolean => features[plan].has(feature);
@@ -122,6 +124,6 @@ export class CurrentEntitlement
  * needs the number to say anything useful about it.
  */
 export class LimitReached extends Schema.TaggedError<LimitReached>()("LimitReached", {
-  limit: Schema.Literals(["seats", "apiKeys", "webhookEndpoints"]),
+  limit: Schema.Literals(["seats", "apiKeys", "webhookEndpoints", "storageMb"]),
   allowed: Schema.Number,
 }) {}
