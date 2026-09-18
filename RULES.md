@@ -24,7 +24,7 @@
 - Default props, params, and collections to readonly shapes such as `readonly` properties and `ReadonlyArray`.
 - Prefer Effect collection modules such as `Array` for immutable collection transforms.
 - For repeated or complex nested immutable updates, use Effect `Optic`.
-- Prefer flat directory structures. Each module should have its own directory with its files directly inside it instead of extra nesting layers.
+- Prefer flat directory structures. Each module should have its own directory with its files directly inside it instead of extra nesting layers. Inside a feature package a sub-domain is such a module and gets a directory of its own — `identity/`, `apikey/`, `audit/` — but nothing nests deeper than that without a reason.
 - Follow DDD style colocation. Define domain modules inside the directory for that domain, export them there, and import them from that domain location instead of creating global shared domain modules.
 - With TanStack Router, keep each route's file and its page specific code colocated in that route directory.
 - Put non route page files in a nested directory whose name starts with `-` so TanStack Router ignores it recursively.
@@ -34,6 +34,28 @@
 - Do not use optional properties when every consumer passes the value. Reserve them for generic primitive level modules.
 - Pipeable values must use `.pipe(...)`. Non pipeable values must use Effect `pipe()` and `flow()`. Do not write nested application like `f(g(x))`.
 - Named schemas must add `.annotate({ identifier: "MySchemaName" })`.
+
+## Feature Modules
+
+- A feature is a package: `packages/modules/<name>`, published in the workspace as `@vantion/module-<name>`. It owns its whole vertical — the contract both ends compile against, the handlers, the stores and the services behind them.
+- Dependencies point one way: `apps/` to `packages/domain` to `packages/modules/*` to `packages/database`. A module may depend on another module. A module must never depend on `packages/domain` or on an app.
+- Each module exports a root layer from its `Module.ts`, named `<Name>Module`, holding everything an application registers. Adding a handler is a change to that file, not to every `Main.ts` that serves it.
+- A module's root layer must leave infrastructure in its requirements — `SqlClient`, `Mailer`, `RateLimiter` — rather than providing it. Providing it is the host's job, and refusing to is what lets one layer serve an HTTP API, an MCP server and a worker alike.
+- Use `Layer.provideMerge` for a module's own services, so they are both wired into its handlers and re-exported for callers outside it.
+- HTTP routes are exported separately as `<Name>Http`. A route layer requires the `HttpRouter` it adds itself to, and that service only exists inside `HttpRouter.serve`, so folding routes into the root layer makes the module unprovidable anywhere the router is not already open.
+
+## RPC Handlers
+
+- One file per operation, named for the operation: `ListRoles.ts`, `CreateApiKey.ts`. The file lives in the directory of the concern it belongs to, which is not always the directory of its RPC group — a group is a transport grouping, not a domain.
+- Implement each with `RpcGroup.toLayerHandler(tag, handler)`, so a handler declares its own requirements rather than inheriting whatever shares a closure with it.
+- The group's `*RpcLive.ts` is then only a `Layer.mergeAll` of those handlers, and nothing else.
+- Services are layers; operations are effectful functions. Do not make a `Layer` out of something that is only a function.
+
+## External Integrations
+
+- Every external boundary — a payment provider, a mail transport, object storage — is an Effect service with typed errors, and lives in the module that owns the capability. There is no shared adapters package.
+- Each must ship at least two layers, one of which needs no credentials: the live one, and a logging, filesystem or fixture one chosen from configuration rather than from `NODE_ENV`. `Mailer` is the worked example — Resend when `RESEND_API_KEY` is set, the server log when it is not, which is what makes a fresh clone able to follow a magic link with no accounts.
+- If two modules genuinely need the same vendor, that vendor becomes its own module rather than a shared utility.
 
 ## Frontend State
 
