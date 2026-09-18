@@ -1,0 +1,16 @@
+{
+  "effect": {
+    "prefix": "repos/effect",
+    "url": "https://github.com/Effect-TS/effect.git",
+    "ref": "main",
+    "catalogPin": "effect",
+    "why": "The whole Effect monorepo, including @effect/atom-react, @effect/vitest, @effect/sql-pg, @effect/platform-node and the AI packages."
+  },
+  "effect-form": {
+    "prefix": "repos/effect-form",
+    "url": "https://github.com/lucas-barake/effect-form.git",
+    "ref": "main",
+    "catalogPin": "@lucas-barake/effect-form",
+    "why": "The v4 form API has no published docs, so the source is the only reference."
+  }
+}

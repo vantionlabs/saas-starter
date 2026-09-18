@@ -1,0 +1,41 @@
+saas-starter
+Copyright (c) 2026 Vantion Labs
+
+This product includes third-party work redistributed under its own licence.
+The terms below are in addition to, not in place of, the MIT licence in
+LICENSE that covers this repository's own code.
+
+--------------------------------------------------------------------------
+Vendored source under repos/
+--------------------------------------------------------------------------
+
+repos/effect
+    Effect — https://github.com/Effect-TS/effect
+    Copyright (c) 2023 Effectful Technologies Inc
+    MIT Licence. Full text at repos/effect/LICENSE.
+
+repos/effect-form
+    effect-form — https://github.com/lucas-barake/effect-form
+    Copyright (c) 2024 Lucas Barake
+    MIT Licence. Full text at repos/effect-form/LICENSE.
+
+Both are vendored at the versions pinned in pnpm-workspace.yaml and are
+read-only reference material. Nothing in this repository imports from them.
+
+--------------------------------------------------------------------------
+Agent skills under .claude/
+--------------------------------------------------------------------------
+
+.claude/skills/impeccable, .claude/agents/impeccable-*
+    impeccable — design skill for coding agents
+    Licensed under the Apache Licence, Version 2.0.
+    You may obtain a copy of the Licence at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Full text at .claude/skills/impeccable/LICENSE.
+    Redistributed unmodified; see scripts/sync-agent-skills.mjs for how this
+    copy is kept in step with upstream.
+
+Marketing skills (coreyhaines31/marketingskills)
+    Copyright (c) Corey Haines
+    MIT Licence. Installed on demand rather than vendored; see
+    docs/sprint/ for how they are used.
