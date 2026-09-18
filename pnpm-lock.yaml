@@ -233,6 +233,12 @@ importers:
       '@vantion/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@vantion/module-iam':
+        specifier: workspace:*
+        version: link:../../packages/modules/iam
+      '@vantion/module-notifications':
+        specifier: workspace:*
+        version: link:../../packages/modules/notifications
       better-auth:
         specifier: 'catalog:'
         version: 1.6.29(@opentelemetry/api@1.9.1)(@tanstack/react-start@1.168.48(crossws@0.4.10(srvx@0.11.22))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)))(pg@8.23.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.10)
@@ -297,6 +303,9 @@ importers:
       '@vantion/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@vantion/module-iam':
+        specifier: workspace:*
+        version: link:../../packages/modules/iam
       better-auth:
         specifier: 'catalog:'
         version: 1.6.29(@opentelemetry/api@1.9.1)(@tanstack/react-start@1.168.48(crossws@0.4.10(srvx@0.11.22))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)))(pg@8.23.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.10)
@@ -419,9 +428,59 @@ importers:
 
   packages/domain:
     dependencies:
+      '@vantion/module-iam':
+        specifier: workspace:*
+        version: link:../modules/iam
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(vitest@4.1.10)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+
+  packages/modules/iam:
+    dependencies:
+      '@vantion/database':
+        specifier: workspace:*
+        version: link:../../database
+      '@vantion/module-notifications':
+        specifier: workspace:*
+        version: link:../notifications
+      better-auth:
+        specifier: 'catalog:'
+        version: 1.6.29(@opentelemetry/api@1.9.1)(@tanstack/react-start@1.168.48(crossws@0.4.10(srvx@0.11.22))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)))(pg@8.23.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.10)
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
+      pg:
+        specifier: 'catalog:'
+        version: 8.23.0
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(vitest@4.1.10)
+      '@testcontainers/postgresql':
+        specifier: 'catalog:'
+        version: 12.1.0
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.21.0
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+
+  packages/modules/notifications:
+    dependencies:
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
+      resend:
+        specifier: 'catalog:'
+        version: 6.20.0
     devDependencies:
       '@effect/vitest':
         specifier: 'catalog:'

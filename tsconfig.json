@@ -4,6 +4,12 @@
   "files": [],
   "references": [
     {
+      "path": "packages/modules/notifications"
+    },
+    {
+      "path": "packages/modules/iam"
+    },
+    {
       "path": "packages/domain"
     },
     {

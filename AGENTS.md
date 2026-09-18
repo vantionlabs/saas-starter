@@ -3,9 +3,29 @@
 Effect v4 monorepo. pnpm workspace + `tsc -b` project references, oxlint + dprint, vitest.
 
 `apps/` holds what deploys — `apps/server` is the Effect API, `apps/web` is the TanStack Start
-front end, and each owns its `Dockerfile`. `packages/` holds what they share: `packages/domain`
-is the contract both ends compile against, `packages/database` owns the connection and the
-schema. Dependencies point one way, from `apps/` into `packages/`.
+front end, and each owns its `Dockerfile`.
+
+`packages/modules/*` holds one package per feature, `@vantion/module-<name>`. A module owns
+its whole vertical: the contract both ends compile against, the RPC handlers, the stores, and
+the services behind them. `@vantion/module-iam` is identity, organizations, roles, policies,
+API keys and the audit trail; `@vantion/module-notifications` is the mail transport.
+
+Beneath them, `packages/database` owns the connection and the schema, and `packages/domain`
+composes the modules' contracts into the ones both apps import — `AppRpcs`, and the frozen
+`api/v1` wire types.
+
+Dependencies point one way: `apps/` → `packages/domain` → `packages/modules/*` →
+`packages/database`. A module may depend on another module, never on `domain` or on an app.
+
+That direction is what the split of `OrgScope` is about. `withOrgScopeFor` takes a plain org
+id and lives in `packages/database`; `withOrgScope` reads it from `CurrentUser` and lives in
+`@vantion/module-iam`, because reading the caller is an identity concern and `database` would
+otherwise have to depend on the module that depends on it.
+
+For the same reason `ApiKeyAuth.authenticate` takes the presented key rather than an
+`HttpServerRequest`: `bearerToken` pulls it off an `Authorization` header at whichever
+transport is asking, so the public API and anything else — an MCP server, a worker — share one
+implementation instead of two.
 
 ## Read the vendored Effect source before writing Effect code
 

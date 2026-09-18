@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.js";
-import type { OrganizationMember } from "@vantion/domain/iam/AccessRpc";
+import type { OrganizationMember } from "@vantion/module-iam/AccessRpc";
 import { Users } from "lucide-react";
 
 export const MemberTable = (props: {

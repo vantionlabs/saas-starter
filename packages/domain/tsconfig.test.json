@@ -1,10 +1,30 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["test", "src/**/*.test.ts"],
-  "references": [{ "path": "tsconfig.src.json" }],
+  "include": [
+    "test",
+    "src/**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../modules/iam"
+    }
+  ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "noEmit": true,
-    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo"
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "paths": {
+      "@vantion/module-iam/*": [
+        "../modules/iam/src/*.js"
+      ],
+      "@vantion/module-notifications/*": [
+        "../../packages/modules/notifications/src/*.js"
+      ]
+    }
   }
 }

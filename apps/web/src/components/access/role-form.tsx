@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button.js";
 import { Input } from "@/components/ui/input.js";
 import { Label } from "@/components/ui/label.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
-import { CustomRole } from "@vantion/domain/iam/AccessRpc";
-import type { Permission } from "@vantion/domain/iam/Permission";
+import { CustomRole } from "@vantion/module-iam/AccessRpc";
+import type { Permission } from "@vantion/module-iam/Permission";
 import * as React from "react";
 
 /** Creates a role, or replaces one when `editing` is supplied. */

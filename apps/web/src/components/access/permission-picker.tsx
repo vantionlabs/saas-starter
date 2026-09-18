@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox.js";
 import { Label } from "@/components/ui/label.js";
-import type { Permission } from "@vantion/domain/iam/Permission";
-import { statements } from "@vantion/domain/iam/Permission";
+import type { Permission } from "@vantion/module-iam/Permission";
+import { statements } from "@vantion/module-iam/Permission";
 import * as React from "react";
 
 /**

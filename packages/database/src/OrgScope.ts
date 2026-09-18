@@ -1,22 +1,5 @@
-import { CurrentUser } from "@vantion/domain/iam/Identity";
 import { Effect } from "effect";
 import { SqlClient } from "effect/unstable/sql";
-
-/**
- * Runs `self` in a transaction whose `app.current_org` is the caller's org, so
- * the row-level security policies apply.
- *
- * The org is read from `CurrentUser` rather than taken as an argument — a
- * caller can therefore never name a tenant that is not their own. `SET LOCAL`
- * scopes the setting to the transaction, so a pooled connection cannot leak it
- * into the next request.
- */
-export const withOrgScope = <A, E, R>(self: Effect.Effect<A, E, R>) =>
-  Effect.gen(function*() {
-    const identity = yield* CurrentUser;
-
-    return yield* withOrgScopeFor(identity.orgId, self);
-  });
 
 /**
  * The same scope, for code that has no caller to read the org from.

@@ -1,7 +1,7 @@
 import { AppRpc } from "@/atom/app-rpc.js";
 import { Keys } from "@/atom/reactivity-keys.js";
-import type { CustomRole, MemberOverride } from "@vantion/domain/iam/AccessRpc";
-import type { Permission } from "@vantion/domain/iam/Permission";
+import type { CustomRole, MemberOverride } from "@vantion/module-iam/AccessRpc";
+import type { Permission } from "@vantion/module-iam/Permission";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
 

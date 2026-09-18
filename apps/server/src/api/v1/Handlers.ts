@@ -8,10 +8,11 @@ import {
 } from "@vantion/domain/api/v1/Wire";
 import type { Contact } from "@vantion/domain/contact/ContactRpc";
 import { ContactId } from "@vantion/domain/contact/ContactRpc";
-import { CurrentUser } from "@vantion/domain/iam/Identity";
+import { ApiKeyAuth, bearerToken, denialMessage } from "@vantion/module-iam/ApiKeyAuth";
+import { CurrentUser } from "@vantion/module-iam/Identity";
 import { Effect } from "effect";
+import { HttpServerRequest } from "effect/unstable/http";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
-import { ApiKeyAuth, denialMessage } from "../ApiKeyAuth.js";
 
 /**
  * The v1 handlers.
@@ -27,7 +28,11 @@ import { ApiKeyAuth, denialMessage } from "../ApiKeyAuth.js";
 const asKey = <A, E, R>(effect: Effect.Effect<A, E, R | CurrentUser>) =>
   Effect.gen(function*() {
     const auth = yield* ApiKeyAuth;
-    const identity = yield* auth.authenticate.pipe(
+    const request = yield* HttpServerRequest.HttpServerRequest;
+
+    // HTTP is this transport's business, not the service's.
+    const identity = yield* bearerToken(request.headers["authorization"]).pipe(
+      Effect.flatMap(auth.authenticate),
       Effect.mapError((denied) =>
         new Unauthorized({ error: "unauthorized", message: denialMessage(denied) })
       ),

@@ -1,7 +1,7 @@
-import { withOrgScope } from "@vantion/database/OrgScope";
 import { ContactRpcs, Overview } from "@vantion/domain/contact/ContactRpc";
-import { CurrentUser } from "@vantion/domain/iam/Identity";
-import { permission, withPolicy } from "@vantion/domain/iam/Policy";
+import { CurrentUser } from "@vantion/module-iam/Identity";
+import { withOrgScope } from "@vantion/module-iam/OrgScope";
+import { permission, withPolicy } from "@vantion/module-iam/Policy";
 import { Effect } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { ContactStore } from "./ContactStore.js";

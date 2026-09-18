@@ -8,7 +8,11 @@
     "declaration": true,
     "skipLibCheck": true,
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "types": [],
     "verbatimModuleSyntax": true,
     "sourceMap": true,
@@ -35,13 +39,27 @@
       {
         "name": "@effect/language-service",
         "quickinfoEffectParameters": "always",
-        "namespaceImportPackages": ["effect", "@effect/*"],
+        "namespaceImportPackages": [
+          "effect",
+          "@effect/*"
+        ],
         "topLevelNamedReexports": "follow",
         "diagnostics": false
       }
     ],
     "paths": {
-      "@vantion/domain/*": ["./packages/domain/src/*.js"]
+      "@vantion/domain/*": [
+        "./packages/domain/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "./packages/modules/iam/src/*.js"
+      ],
+      "@vantion/module-notifications/*": [
+        "./packages/modules/notifications/src/*.js"
+      ],
+      "@vantion/database/*": [
+        "./packages/database/src/*.js"
+      ]
     }
   }
 }

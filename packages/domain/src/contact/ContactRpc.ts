@@ -1,7 +1,7 @@
+import { AuthMiddleware } from "@vantion/module-iam/AuthMiddleware";
+import { Forbidden } from "@vantion/module-iam/Policy";
 import { Schema } from "effect";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
-import { AuthMiddleware } from "../iam/AuthMiddleware.js";
-import { Forbidden } from "../iam/Policy.js";
 
 export const ContactId = Schema.String.pipe(Schema.brand("ContactId")).annotate({
   identifier: "ContactId",

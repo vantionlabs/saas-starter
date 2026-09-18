@@ -6,7 +6,7 @@ import {
 import { Button } from "@/components/ui/button.js";
 import { Input } from "@/components/ui/input.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
-import type { Membership } from "@vantion/domain/iam/OrganizationRpc";
+import type { Membership } from "@vantion/module-iam/OrganizationRpc";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";

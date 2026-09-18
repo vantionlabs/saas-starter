@@ -1,18 +1,51 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src"],
-  "exclude": ["src/**/*.test.ts"],
-  "references": [{ "path": "../../packages/domain" }, { "path": "../../packages/database" }],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/domain"
+    },
+    {
+      "path": "../../packages/database"
+    },
+    {
+      "path": "../../packages/modules/iam"
+    },
+    {
+      "path": "../../packages/modules/notifications"
+    }
+  ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
     "paths": {
-      "@/*": ["${configDir}/src/*"],
-      "#src/*": ["${configDir}/src/*"],
-      "@vantion/database/*": ["../../packages/database/src/*.js"],
-      "@vantion/domain/*": ["../../packages/domain/src/*.js"]
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "#src/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/database/*": [
+        "../../packages/database/src/*.js"
+      ],
+      "@vantion/domain/*": [
+        "../../packages/domain/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/module-notifications/*": [
+        "../../packages/modules/notifications/src/*.js"
+      ]
     }
   }
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button.js";
 import { Skeleton } from "@/components/ui/skeleton.js";
 import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
-import type { CustomRole } from "@vantion/domain/iam/AccessRpc";
+import type { CustomRole } from "@vantion/module-iam/AccessRpc";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
 

@@ -3,9 +3,9 @@ import { PermissionPicker } from "@/components/access/permission-picker.js";
 import { Badge } from "@/components/ui/badge.js";
 import { Button } from "@/components/ui/button.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
-import { MemberOverride } from "@vantion/domain/iam/AccessRpc";
-import type { Permission } from "@vantion/domain/iam/Permission";
-import { permissionsFor } from "@vantion/domain/iam/Permission";
+import { MemberOverride } from "@vantion/module-iam/AccessRpc";
+import type { Permission } from "@vantion/module-iam/Permission";
+import { permissionsFor } from "@vantion/module-iam/Permission";
 import { AsyncResult } from "effect/unstable/reactivity";
 
 /**

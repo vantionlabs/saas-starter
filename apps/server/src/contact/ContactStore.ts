@@ -1,7 +1,7 @@
-import { withOrgScope } from "@vantion/database/OrgScope";
 import { Contact, ContactId } from "@vantion/domain/contact/ContactRpc";
-import { CurrentUser } from "@vantion/domain/iam/Identity";
-import { Forbidden, permission, withPolicy } from "@vantion/domain/iam/Policy";
+import { CurrentUser } from "@vantion/module-iam/Identity";
+import { withOrgScope } from "@vantion/module-iam/OrgScope";
+import { Forbidden, permission, withPolicy } from "@vantion/module-iam/Policy";
 import { Context, Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";

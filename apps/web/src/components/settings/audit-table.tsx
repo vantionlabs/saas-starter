@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.js";
-import type { AuditEntry, AuditOutcome } from "@vantion/domain/iam/Audit";
+import type { AuditEntry, AuditOutcome } from "@vantion/module-iam/Audit";
 import { DateTime } from "effect";
 import { ScrollText } from "lucide-react";
 

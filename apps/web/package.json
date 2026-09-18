@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "license": "ISC",
+  "license": "MIT",
   "exports": {
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
@@ -20,11 +20,12 @@
     "@base-ui/react": "catalog:",
     "@effect/atom-react": "catalog:",
     "@effect/platform-browser": "catalog:",
-    "@vantion/domain": "workspace:*",
     "@lucas-barake/effect-form": "catalog:",
     "@lucas-barake/effect-form-react": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
+    "@vantion/domain": "workspace:*",
+    "@vantion/module-iam": "workspace:*",
     "better-auth": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
