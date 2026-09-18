@@ -115,6 +115,26 @@ describe("check-rules", () => {
     expect(fire("check-rules.mjs", { tool_input: { file_path: file } }).code).toBe(0);
   });
 
+  it("rejects the global Error in app code", () => {
+    const file = sourceFile("Store.ts", "throw new Error(\"nope\");\n");
+
+    expect(fire("check-rules.mjs", { tool_input: { file_path: file } }).stderr)
+      .toContain("Schema.TaggedError");
+  });
+
+  /**
+   * A test fixture constructing a failure to test against is not modelling a
+   * domain error. `PgTest.ts` is the reason the exemption is on the file name
+   * rather than the directory: it is test infrastructure living in `src/`.
+   */
+  it("exempts test fixtures and test infrastructure from that", () => {
+    for (const name of ["Thing.test.ts", "PgTest.ts"]) {
+      const file = sourceFile(name, "const boom = new Error(\"connection lost\");\n");
+
+      expect(fire("check-rules.mjs", { tool_input: { file_path: file } }).code, name).toBe(0);
+    }
+  });
+
   it("rejects a barrel outright", () => {
     const file = sourceFile("index.ts", "export const a = 1;\n");
 

@@ -5,8 +5,11 @@
 - Yieldables are Effects. Pipe them directly outside generators. There is no conversion step.
 - All streaming implementations, including SSE and WebSockets, must use Effect `Stream`. SSE must use `effect/unstable/encoding/Sse` for framing. WebSockets must use first party Effect socket abstractions.
 - Final live layers (`Rpc.toLayer`, service layers, middleware layers) must be typed as `Layer.Layer<ProvidedServices>`. Intermediate and test-exported layers must infer naturally. Use `Layer.orDie` only on final live compositions whose remaining errors are truly unrecoverable.
-- Never use `Effect.orDie`. Handle typed errors explicitly with `Effect.catchTag` or `Effect.catchTags`, then `Effect.die` only when the failure is genuinely unrecoverable.
+- `Effect.orDie` converts every typed failure into a defect at once, so it is correct only where none of them is actionable. That is the ordinary case for a SQL statement whose failure modes are the database being unreachable, the query being wrong, or a row-level security check refusing it — all bugs, and none of them something a caller can act on.
+- Where a failure *is* actionable — a unique constraint a user can trip, a check constraint on their input — catch that case with `Effect.catchTag` and return a typed error, then die on the rest. Adding a constraint to a table is a reason to revisit the `orDie` on every statement that writes to it, because it is the moment a defect becomes a message somebody needed.
+- Never reach for `orDie` to make a type error go away. Widening `Effect<A, E>` to `Effect<A, never>` because a signature would not line up is how an actionable failure becomes a 500.
 - Do not use the global `Error` class in app code. Use `Schema.TaggedError` with a `_tag` discriminator. Reuse an existing tagged error when one already fits.
+- Test fixtures and test infrastructure are exempt: a `new Error("connection lost")` handed to `Stream.fail` is constructing a failure to test against, not modelling a domain one.
 - Do not probe errors with checks like `if ("_tag" in error)`. That is an anti pattern. All app errors must already be `Schema.TaggedError` values with a typed `_tag`, so match on the typed error channel instead.
 - Yield services from context inside effect bodies. Do not pass service instances as function arguments.
 - Services must expose typed errors, not defects.
