@@ -27,6 +27,7 @@ import { Route as ProtectedSettingsAuditRouteImport } from './routes/_protected/
 import { Route as ProtectedSettingsGeneralRouteImport } from './routes/_protected/settings/general'
 import { Route as ProtectedSettingsMembersRouteImport } from './routes/_protected/settings/members'
 import { Route as ProtectedSettingsRolesRouteImport } from './routes/_protected/settings/roles'
+import { Route as AuthAcceptInvitationInvitationIdRouteImport } from './routes/auth/accept-invitation/$invitationId'
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
@@ -120,6 +121,12 @@ const ProtectedSettingsRolesRoute = ProtectedSettingsRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => ProtectedSettingsRouteRoute,
 } as any)
+const AuthAcceptInvitationInvitationIdRoute =
+  AuthAcceptInvitationInvitationIdRouteImport.update({
+    id: '/accept-invitation/$invitationId',
+    path: '/accept-invitation/$invitationId',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
+  '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/settings/': typeof ProtectedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -156,6 +164,7 @@ export interface FileRoutesByTo {
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
+  '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/settings': typeof ProtectedSettingsIndexRoute
 }
 export interface FileRoutesById {
@@ -177,6 +186,7 @@ export interface FileRoutesById {
   '/_protected/settings/general': typeof ProtectedSettingsGeneralRoute
   '/_protected/settings/members': typeof ProtectedSettingsMembersRoute
   '/_protected/settings/roles': typeof ProtectedSettingsRolesRoute
+  '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
 }
 export interface FileRouteTypes {
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
+    | '/auth/accept-invitation/$invitationId'
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
+    | '/auth/accept-invitation/$invitationId'
     | '/settings'
   id:
     | '__root__'
@@ -236,6 +248,7 @@ export interface FileRouteTypes {
     | '/_protected/settings/general'
     | '/_protected/settings/members'
     | '/_protected/settings/roles'
+    | '/auth/accept-invitation/$invitationId'
     | '/_protected/settings/'
   fileRoutesById: FileRoutesById
 }
@@ -372,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsRolesRouteImport
       parentRoute: typeof ProtectedSettingsRouteRoute
     }
+    '/auth/accept-invitation/$invitationId': {
+      id: '/auth/accept-invitation/$invitationId'
+      path: '/accept-invitation/$invitationId'
+      fullPath: '/auth/accept-invitation/$invitationId'
+      preLoaderRoute: typeof AuthAcceptInvitationInvitationIdRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
   }
 }
 
@@ -383,6 +403,7 @@ interface AuthRouteRouteChildren {
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
   AuthVerifiedRoute: typeof AuthVerifiedRoute
+  AuthAcceptInvitationInvitationIdRoute: typeof AuthAcceptInvitationInvitationIdRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -393,6 +414,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
   AuthVerifiedRoute: AuthVerifiedRoute,
+  AuthAcceptInvitationInvitationIdRoute: AuthAcceptInvitationInvitationIdRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

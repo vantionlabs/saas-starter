@@ -5,21 +5,13 @@ import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { EntitlementResolver } from "@vantion/module-iam/identity/EntitlementResolver";
-import { Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
 import { Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 
 const ORG = "org_billing";
 const CUSTOMER = "cus_test_billing";
 
-const caller = new Identity({
-  userId: UserId.make("user_billing"),
-  orgId: OrgId.make(ORG),
-  email: "payer@example.com",
-  emailVerified: true,
-  role: "owner",
-  permissions: [],
-});
+const caller = { organizationId: ORG, userId: "user_billing" };
 
 const event = (overrides: Partial<ConstructorParameters<typeof SubscriptionEvent>[0]>) =>
   new SubscriptionEvent({

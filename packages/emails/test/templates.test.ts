@@ -1,5 +1,6 @@
 import { renderEmail } from "@/Render.js";
 import { EmailOtp } from "@/templates/EmailOtp.js";
+import { Invitation } from "@/templates/Invitation.js";
 import { MagicLink } from "@/templates/MagicLink.js";
 import { ResetPassword } from "@/templates/ResetPassword.js";
 import { VerifyEmail } from "@/templates/VerifyEmail.js";
@@ -65,6 +66,23 @@ describe("transactional emails", () => {
     expect(rendered.subject).toBe("417293 is your Acme code");
     expect(rendered.html).toContain("417293");
     expect(rendered.text).toContain("417293");
+  });
+
+  /**
+   * Named after the organization, not the product: that is what the reader
+   * recognises, having usually never heard of the product.
+   */
+  it("names the organization in the invitation subject", async () => {
+    const rendered = await render(Invitation, {
+      url,
+      organization: "Northwind",
+      role: "admin",
+      product,
+    });
+
+    expect(rendered.subject).toBe("You have been invited to Northwind");
+    expect(rendered.html).toContain("admin");
+    expect(rendered.text).toContain(url);
   });
 
   it("escapes what it is given rather than trusting it", async () => {

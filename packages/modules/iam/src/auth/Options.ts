@@ -1,5 +1,6 @@
 import { renderEmail } from "@vantion/emails/Render";
 import { EmailOtp } from "@vantion/emails/templates/EmailOtp";
+import { Invitation } from "@vantion/emails/templates/Invitation";
 import { MagicLink } from "@vantion/emails/templates/MagicLink";
 import { ResetPassword } from "@vantion/emails/templates/ResetPassword";
 import { VerifyEmail } from "@vantion/emails/templates/VerifyEmail";
@@ -23,6 +24,16 @@ export interface MakeAuthOptions {
   readonly pool: Pg.Pool;
   /** What the emails call this product. */
   readonly product: string;
+  /** Where an invitation link points. The web app, not the API. */
+  readonly webUrl: string;
+  /**
+   * How many members the organization's plan allows.
+   *
+   * A function rather than a number because it is a property of the
+   * subscription, and better-auth asks per invitation rather than once at
+   * startup — which is what makes an upgrade take effect immediately.
+   */
+  readonly seatsFor: (organizationId: string) => Promise<number>;
   readonly baseURL: string;
   readonly secret: string;
   readonly trustedOrigins: ReadonlyArray<string>;
@@ -175,6 +186,25 @@ const authOptions = (options: MakeAuthOptions) => ({
       // Custom per-organization roles, stored in `organizationRole` and merged
       // over the static roles above when better-auth checks a permission.
       dynamicAccessControl: { enabled: true },
+      /**
+       * The seat limit, asked per invitation rather than read once, so an
+       * upgrade takes effect on the next invite rather than the next deploy.
+       *
+       * Enforced here rather than in a policy because better-auth owns the
+       * invitation endpoints — a check on our side would be one an invitation
+       * created through its own API walks straight past.
+       */
+      membershipLimit: (_user, organization) => options.seatsFor(organization.id),
+      sendInvitationEmail: async (data) => {
+        await send(options, data.email, Invitation, {
+          // The web app resolves this, not the API: the link is something a
+          // person clicks, and what they need is a page.
+          url: `${options.webUrl}/auth/accept-invitation/${data.id}`,
+          organization: data.organization.name,
+          role: data.role,
+          product: options.product,
+        });
+      },
     }),
     magicLink({
       sendMagicLink: async ({ email, url }) => {

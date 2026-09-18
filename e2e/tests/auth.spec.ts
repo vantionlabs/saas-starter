@@ -88,3 +88,22 @@ test.describe("protected routes", () => {
     await expect(signedIn.getByRole("heading", { name: "Contacts" })).toBeVisible();
   });
 });
+
+test.describe("invitations", () => {
+  /**
+   * The invitation email links here, and a link to a page that does not exist is
+   * worse than no email at all — which is what this nearly shipped as.
+   *
+   * Signed out is the ordinary path, not the error: somebody is invited
+   * precisely because they do not have an account yet.
+   */
+  test("the emailed link lands somewhere, even signed out", async ({ page }) => {
+    await page.goto("/auth/accept-invitation/inv_does_not_exist");
+
+    // `getByText`, not `getByRole("heading")`: shadcn's `CardTitle` renders a
+    // div, so the auth cards have no heading role. Those primitives are
+    // generated and not ours to redesign, so the test matches what is there.
+    await expect(page.getByText("You have been invited")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Create an account" })).toBeVisible();
+  });
+});

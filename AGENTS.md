@@ -288,6 +288,11 @@ a duplicate a handler can tolerate is a better failure than a job that silently 
 Without `REDIS_URL` the queue is in-memory, the same way the mailer writes to the log without
 a Resend key. The outbox is still transactional; nothing survives a restart.
 
+The seat limit is enforced inside better-auth rather than by a policy of ours. It owns the
+invitation endpoints, so a check on our side is one an invitation created through its own API
+walks straight past — `membershipLimit` asks per invitation, which is also what makes an
+upgrade take effect on the next invite rather than the next deploy.
+
 Plans do not live in `Permission.ts`. That object is also handed to better-auth's
 access-control builder, and a plan is not a capability a _person_ has — it is one the
 organization has, and some of it is quantities rather than booleans. So `Permission` answers
