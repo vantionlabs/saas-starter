@@ -1,7 +1,20 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "test"],
-  "references": [{ "path": "../../packages/domain" }],
+  "include": [
+    "src",
+    "test"
+  ],
+  "references": [
+    {
+      "path": "../../packages/domain"
+    },
+    {
+      "path": "../../packages/modules/contact"
+    },
+    {
+      "path": "../../packages/modules/health"
+    }
+  ],
   "compilerOptions": {
     "composite": false,
     "declaration": false,
@@ -9,12 +22,27 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
-    "types": ["node", "vite/client"],
+    "types": [
+      "node",
+      "vite/client"
+    ],
     "tsBuildInfoFile": ".tsbuildinfo/app.tsbuildinfo",
     "paths": {
-      "@/*": ["${configDir}/src/*"],
-      "@test/*": ["${configDir}/test/*"],
-      "@vantion/domain/*": ["../../packages/domain/src/*.js"]
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@test/*": [
+        "${configDir}/test/*"
+      ],
+      "@vantion/domain/*": [
+        "../../packages/domain/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-health/*": [
+        "../../packages/modules/health/src/*.js"
+      ]
     }
   }
 }

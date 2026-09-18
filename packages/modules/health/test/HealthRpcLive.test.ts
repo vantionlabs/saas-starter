@@ -1,7 +1,7 @@
+import { HealthRpcs } from "@/HealthRpc.js";
+import { HealthRpcLive } from "@/HealthRpcLive.js";
 import { describe, expect, it } from "@effect/vitest";
 import { PgTest, testDbUrl, withTransactionRollback } from "@vantion/database/PgTest";
-import { HealthRpcs } from "@vantion/domain/health/HealthRpc";
-import { HealthRpcLive } from "@vantion/server/health/HealthRpcLive";
 import { Effect, Layer } from "effect";
 import { RpcTest } from "effect/unstable/rpc";
 

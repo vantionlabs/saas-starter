@@ -1,5 +1,5 @@
 {
-  "name": "@vantion/domain",
+  "name": "@vantion/module-health",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -18,9 +18,7 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@vantion/module-contact": "workspace:*",
-    "@vantion/module-health": "workspace:*",
-    "@vantion/module-iam": "workspace:*",
+    "@vantion/database": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {

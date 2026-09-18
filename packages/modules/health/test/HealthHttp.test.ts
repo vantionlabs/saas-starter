@@ -1,4 +1,4 @@
-import { HealthHttp } from "@/health/HealthHttp.js";
+import { HealthHttp } from "@/HealthHttp.js";
 import { PgTest, testDbUrl } from "@vantion/database/PgTest";
 import { Effect, Layer } from "effect";
 import { HttpRouter } from "effect/unstable/http";

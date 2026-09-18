@@ -1,4 +1,3 @@
-import { ContactStore } from "#src/contact/ContactStore.js";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
 import {
   ContactV1,
@@ -6,8 +5,9 @@ import {
   NotFound,
   Unauthorized,
 } from "@vantion/domain/api/v1/Wire";
-import type { Contact } from "@vantion/domain/contact/ContactRpc";
-import { ContactId } from "@vantion/domain/contact/ContactRpc";
+import type { Contact } from "@vantion/module-contact/ContactRpc";
+import { ContactId } from "@vantion/module-contact/ContactRpc";
+import { ContactStore } from "@vantion/module-contact/ContactStore";
 import { ApiKeyAuth, bearerToken, denialMessage } from "@vantion/module-iam/apikey/ApiKeyAuth";
 import { CurrentUser } from "@vantion/module-iam/identity/Identity";
 import { Effect } from "effect";

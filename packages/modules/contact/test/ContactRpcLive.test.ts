@@ -1,12 +1,12 @@
+import { ContactRpcs } from "@/ContactRpc.js";
+import { ContactRpcLive } from "@/ContactRpcLive.js";
+import { ContactStore } from "@/ContactStore.js";
 import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
-import { ContactRpcs } from "@vantion/domain/contact/ContactRpc";
 import { AuthMiddleware } from "@vantion/module-iam/identity/AuthMiddleware";
 import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
 import { permissionsFor } from "@vantion/module-iam/identity/Permission";
-import { ContactRpcLive } from "@vantion/server/contact/ContactRpcLive";
-import { ContactStore } from "@vantion/server/contact/ContactStore";
 import { Effect, Layer } from "effect";
 import { RpcTest } from "effect/unstable/rpc";
 import { SqlClient } from "effect/unstable/sql";

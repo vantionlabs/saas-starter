@@ -1,5 +1,5 @@
+import { DatabaseUnreachable, HealthReport } from "@/Health.js";
 import { describe, expect, it } from "@effect/vitest";
-import { DatabaseUnreachable, HealthReport } from "@vantion/domain/health/Health";
 import { Effect, Schema } from "effect";
 
 describe("HealthReport", () => {

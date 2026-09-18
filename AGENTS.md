@@ -7,12 +7,35 @@ front end, and each owns its `Dockerfile`.
 
 `packages/modules/*` holds one package per feature, `@vantion/module-<name>`. A module owns
 its whole vertical: the contract both ends compile against, the RPC handlers, the stores, and
-the services behind them. `@vantion/module-iam` is identity, organizations, roles, policies,
-API keys and the audit trail; `@vantion/module-notifications` is the mail transport.
+the services behind them.
+
+| Module          | What it owns                                                           |
+| --------------- | ---------------------------------------------------------------------- |
+| `iam`           | identity, organizations, roles and policies, API keys, the audit trail |
+| `contact`       | the worked example of a tenant-owned feature                           |
+| `notifications` | the mail transport                                                     |
+| `health`        | liveness and readiness                                                 |
+
+Inside a module, a sub-domain gets a directory — iam has `identity/`, `auth/`, `access/`,
+`organization/`, `apikey/`, `audit/`, `session/` — and each RPC operation gets a file named
+after it, built with `RpcGroup.toLayerHandler`. A handler therefore declares its own
+requirements instead of inheriting whatever shares a closure with it, and the group's
+`*RpcLive.ts` is a `Layer.mergeAll` and nothing else. Handlers live with their concern, not
+with their transport group: `CreateApiKey` is in `apikey/` though its procedure belongs to the
+organization group.
+
+Every module exports a root layer from `Module.ts` — `IamModule`, `ContactModule` — which is
+what an application registers. HTTP routes are exported separately (`IamHttp`,
+`HealthHttpRoutes`) because a route layer requires the `HttpRouter` it adds itself to, and
+that service only exists inside `HttpRouter.serve`.
 
 Beneath them, `packages/database` owns the connection and the schema, and `packages/domain`
-composes the modules' contracts into the ones both apps import — `AppRpcs`, and the frozen
-`api/v1` wire types.
+is now only an aggregator: `AppRpcs`, which composes the modules' RPC groups into the one both
+apps import, and the frozen `api/v1` wire types.
+
+`apps/server/src` is three files — `Main.ts`, `Telemetry.ts` and the `api/v1` handlers. That
+is the measure of whether this is working: an application composes modules and owns almost
+nothing itself.
 
 Dependencies point one way: `apps/` → `packages/domain` → `packages/modules/*` →
 `packages/database`. A module may depend on another module, never on `domain` or on an app.

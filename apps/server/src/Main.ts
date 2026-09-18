@@ -3,6 +3,8 @@ import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
+import { ContactModule } from "@vantion/module-contact/Module";
+import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
 import { NotificationsModule } from "@vantion/module-notifications/Module";
 import { Config, Effect, Layer } from "effect";
@@ -12,10 +14,6 @@ import { RateLimiter } from "effect/unstable/persistence";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import * as Http from "node:http";
 import { ApiV1Live } from "./api/v1/Handlers.js";
-import { ContactRpcLive } from "./contact/ContactRpcLive.js";
-import { ContactStore } from "./contact/ContactStore.js";
-import { HealthHttp } from "./health/HealthHttp.js";
-import { HealthRpcLive } from "./health/HealthRpcLive.js";
 import { TelemetryLive } from "./Telemetry.js";
 
 /**
@@ -28,9 +26,8 @@ import { TelemetryLive } from "./Telemetry.js";
  */
 const RpcLive = RpcServer.layer(AppRpcs).pipe(
   Layer.provide(IamModule),
-  Layer.provide(HealthRpcLive),
-  Layer.provide(ContactRpcLive),
-  Layer.provide(ContactStore.layer),
+  Layer.provide(HealthModule),
+  Layer.provide(ContactModule),
   Layer.provide(RpcServer.layerProtocolHttp({ path: "/rpc" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );
@@ -66,7 +63,7 @@ const CorsLive = Layer.unwrap(
   }),
 );
 
-const Routes = Layer.mergeAll(RpcLive, IamHttp, HealthHttp, ApiLive, CorsLive);
+const Routes = Layer.mergeAll(RpcLive, IamHttp, HealthHttpRoutes, ApiLive, CorsLive);
 
 const HttpLive = Layer.unwrap(
   Effect.gen(function*() {
@@ -78,7 +75,7 @@ const HttpLive = Layer.unwrap(
     // SqlClient and better-auth share a single connection pool.
     return HttpRouter.serve(Routes).pipe(
       Layer.provide(IamModule),
-      Layer.provide(ContactStore.layer),
+      Layer.provide(ContactModule),
       // Swap `layerStoreMemory` for `layerStoreRedis` to share limits across workers.
       Layer.provide(RateLimiter.layer),
       Layer.provide(RateLimiter.layerStoreMemory),

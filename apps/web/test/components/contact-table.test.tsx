@@ -1,7 +1,7 @@
 import { ContactTable } from "@/components/contact/contact-table.js";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Contact, ContactId } from "@vantion/domain/contact/ContactRpc";
+import { Contact, ContactId } from "@vantion/module-contact/ContactRpc";
 import { describe, expect, it, vi } from "vitest";
 
 const contact = new Contact({

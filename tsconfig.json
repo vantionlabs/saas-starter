@@ -10,10 +10,16 @@
       "path": "packages/modules/iam"
     },
     {
-      "path": "packages/domain"
+      "path": "packages/modules/health"
+    },
+    {
+      "path": "packages/modules/contact"
     },
     {
       "path": "packages/database"
+    },
+    {
+      "path": "packages/domain"
     },
     {
       "path": "apps/server"

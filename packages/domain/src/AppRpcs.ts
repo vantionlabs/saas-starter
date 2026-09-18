@@ -1,8 +1,8 @@
+import { ContactRpcs } from "@vantion/module-contact/ContactRpc";
+import { HealthRpcs } from "@vantion/module-health/HealthRpc";
 import { AccessRpcs } from "@vantion/module-iam/access/AccessRpc";
 import { OrganizationRpcs } from "@vantion/module-iam/organization/OrganizationRpc";
 import { IamRpcs } from "@vantion/module-iam/session/IamRpc";
-import { ContactRpcs } from "./contact/ContactRpc.js";
-import { HealthRpcs } from "./health/HealthRpc.js";
 
 /**
  * Every RPC the application serves, as one group.

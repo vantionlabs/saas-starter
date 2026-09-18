@@ -1,10 +1,10 @@
-import { Contact, ContactId } from "@vantion/domain/contact/ContactRpc";
 import { CurrentUser } from "@vantion/module-iam/identity/Identity";
 import { withOrgScope } from "@vantion/module-iam/identity/OrgScope";
 import { Forbidden, permission, withPolicy } from "@vantion/module-iam/identity/Policy";
 import { Context, Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
+import { Contact, ContactId } from "./ContactRpc.js";
 
 /**
  * Contact reads and writes, shared by both transports.

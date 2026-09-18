@@ -1,5 +1,5 @@
 {
-  "name": "@vantion/domain",
+  "name": "@vantion/module-contact",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -18,13 +18,13 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@vantion/module-contact": "workspace:*",
-    "@vantion/module-health": "workspace:*",
+    "@vantion/database": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
     "vitest": "catalog:"
   }
 }

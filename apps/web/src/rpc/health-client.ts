@@ -1,4 +1,4 @@
-import { HealthRpcs } from "@vantion/domain/health/HealthRpc";
+import { HealthRpcs } from "@vantion/module-health/HealthRpc";
 import { Context, Layer } from "effect";
 import { FetchHttpClient, HttpClient } from "effect/unstable/http";
 import { RpcClient, RpcGroup, RpcSerialization } from "effect/unstable/rpc";

@@ -1,6 +1,6 @@
 import { AppRpc } from "@/atom/app-rpc.js";
 import { Keys } from "@/atom/reactivity-keys.js";
-import type { ContactId } from "@vantion/domain/contact/ContactRpc";
+import type { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Effect } from "effect";
 
 /**

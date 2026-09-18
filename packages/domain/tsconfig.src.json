@@ -19,12 +19,24 @@
       ],
       "@vantion/module-notifications/*": [
         "../../packages/modules/notifications/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-health/*": [
+        "../../packages/modules/health/src/*.js"
       ]
     }
   },
   "references": [
     {
       "path": "../modules/iam"
+    },
+    {
+      "path": "../modules/contact"
+    },
+    {
+      "path": "../modules/health"
     }
   ]
 }

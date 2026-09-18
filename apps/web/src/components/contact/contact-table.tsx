@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.js";
-import type { Contact, ContactId } from "@vantion/domain/contact/ContactRpc";
+import type { Contact, ContactId } from "@vantion/module-contact/ContactRpc";
 import { Users } from "lucide-react";
 
 export const ContactTable = (props: {

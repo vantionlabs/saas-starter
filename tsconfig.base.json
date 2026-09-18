@@ -59,6 +59,12 @@
       ],
       "@vantion/database/*": [
         "./packages/database/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "./packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-health/*": [
+        "./packages/modules/health/src/*.js"
       ]
     }
   }
