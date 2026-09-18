@@ -1,0 +1,32 @@
+{
+  "name": "@vantion/design",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "catalog:",
+    "@vantion/module-contact": "workspace:*",
+    "@vantion/module-iam": "workspace:*",
+    "@vantion/tokens": "workspace:*",
+    "@vantion/ui": "workspace:*",
+    "effect": "catalog:",
+    "lucide-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:"
+  }
+}

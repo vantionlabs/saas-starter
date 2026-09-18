@@ -26,7 +26,8 @@
     "clean": "rm -rf apps/*/build apps/*/.tsbuildinfo packages/*/build packages/*/.tsbuildinfo packages/modules/*/build packages/modules/*/.tsbuildinfo apps/web/dist apps/web/.output apps/web/.tanstack coverage",
     "sync:skills": "node scripts/sync-effect-skills.mjs",
     "vendor": "node scripts/vendor.mjs",
-    "new:module": "node tooling/new-module.mjs"
+    "new:module": "node tooling/new-module.mjs",
+    "design": "pnpm --filter @vantion/design dev"
   },
   "devDependencies": {
     "@effect/tsgo": "0.36.5",

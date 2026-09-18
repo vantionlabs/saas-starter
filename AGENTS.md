@@ -5,6 +5,14 @@ Effect v4 monorepo. pnpm workspace + `tsc -b` project references, oxlint + dprin
 `apps/` holds what deploys — `apps/server` is the Effect API, `apps/web` is the TanStack Start
 front end, and each owns its `Dockerfile`.
 
+`apps/design` deploys nothing. It renders the same components from `@vantion/ui` against
+persona fixtures, with no backend, no session and no network — the surface product designers
+work on, and the one that pushes to Figma. A persona is a whole tenant's worth of data rather
+than a card on a wall: `first-day` where every list is empty, `settled` for the ordinary case,
+and `crowded` for the long names and many rows that actually break a layout. The persona
+travels in the query string, so a designer can link to exactly the state they mean. `pnpm
+design`.
+
 `packages/modules/*` holds one package per feature, `@vantion/module-<name>`. A module owns
 its whole vertical: the contract both ends compile against, the RPC handlers, the stores, and
 the services behind them.
@@ -158,6 +166,7 @@ which works in any history and does not conflict the way a pull across 3,500 fil
 | `pnpm test`                    | vitest across `apps/*` and `packages/*`                            |
 | `pnpm e2e`                     | Playwright, driving both servers in a browser                      |
 | `pnpm new:module <name>`       | scaffolds `packages/modules/<name>` and registers it               |
+| `pnpm design`                  | the product-design app, on persona fixtures                        |
 
 The second half of `pnpm check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,
