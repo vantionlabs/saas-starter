@@ -12,6 +12,38 @@ test.describe("operations", () => {
   });
 });
 
+test.describe("transports", () => {
+  /**
+   * The websocket endpoint serves the same procedures as `/rpc`.
+   *
+   * This asserts the upgrade rather than a round trip: hand-rolling the RPC
+   * envelope here would be testing a copy of the wire format instead of the
+   * server. What it catches is the thing that actually breaks — the endpoint not
+   * being mounted, which types cannot tell you.
+   */
+  test("accepts a websocket upgrade on /rpc/ws", async ({ page }) => {
+    await page.goto("/");
+
+    const opened = await page.evaluate(
+      (url) =>
+        new Promise<string>((resolve) => {
+          const socket = new WebSocket(url);
+          const settle = (outcome: string) => {
+            socket.close();
+            resolve(outcome);
+          };
+
+          socket.onopen = () => settle("open");
+          socket.onerror = () => settle("error");
+          setTimeout(() => settle("timeout"), 5000);
+        }),
+      `${API_URL.replace(/^http/, "ws")}/rpc/ws`,
+    );
+
+    expect(opened).toBe("open");
+  });
+});
+
 test.describe("app shell", () => {
   test("navigates between sections by real links", async ({ signedIn }) => {
     await expect(signedIn.getByRole("heading", { name: "Dashboard" })).toBeVisible();

@@ -215,6 +215,13 @@ parallel suite arriving from one address would exhaust the bucket rather than te
 and `withOrgScope` separately; only that file shows two real users, session to SQL, failing to
 see each other's rows.
 
+The same procedures are served over a websocket at `/rpc/ws` as well as over HTTP at `/rpc`.
+Most products do not need one, and it costs nothing until a client opens it: same `AppRpcs`,
+same handlers, same modules, a different protocol underneath. What it buys is streaming —
+`Health.Watch` is one connection producing reports rather than a poll — and a lower per-call
+cost once a page is making many. `RULES.md` requires Effect's own socket abstractions for
+this, which `RpcServer.layerProtocolWebsocket` is.
+
 The server also exposes a versioned public HTTP API at `/api/v1`, authenticated by API key
 rather than by session, with its OpenAPI document at `/api/v1/openapi.json` and browsable docs
 at `/api/v1/docs`. Both transports run over the same stores, so a handler is not written twice;

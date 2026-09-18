@@ -34,6 +34,26 @@ const RpcLive = RpcServer.layer(AppRpcs).pipe(
 );
 
 /**
+ * The same procedures again, over a websocket.
+ *
+ * Most products do not need one, and this costs nothing until a client opens it:
+ * it is the same `AppRpcs`, the same handlers and the same modules, with a
+ * different protocol underneath. What it buys is streaming — `Health.Watch` is
+ * one connection producing reports rather than a poll — and a lower per-call
+ * cost once a page is making many.
+ *
+ * The modules are named twice rather than factored out because a layer is
+ * memoised by reference: naming `IamModule` in both graphs builds it once.
+ */
+const RpcWebsocketLive = RpcServer.layer(AppRpcs).pipe(
+  Layer.provide(IamModule),
+  Layer.provide(HealthModule),
+  Layer.provide(ContactModule),
+  Layer.provide(RpcServer.layerProtocolWebsocket({ path: "/rpc/ws" })),
+  Layer.provide(RpcSerialization.layerNdjson),
+);
+
+/**
  * The public API, mounted beside the RPC router rather than inside it.
  *
  * `HttpApiBuilder.layer` also serves the OpenAPI document generated from the
@@ -66,6 +86,7 @@ const CorsLive = Layer.unwrap(
 
 const Routes = Layer.mergeAll(
   RpcLive,
+  RpcWebsocketLive,
   IamHttp,
   BillingHttp,
   HealthHttpRoutes,
