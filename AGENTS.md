@@ -418,6 +418,26 @@ what remains is the deliberate `Effect.logError`s and whatever the runtime repor
 fiber dies. `layerReporting(source)` forwards every entry at `Error` or above and nothing
 below, because a tracker that also collected `info` would report a deploy as an incident.
 
+The browser half lives in `apps/web/src/telemetry/` rather than in that package, because it is
+application wiring rather than a shared boundary: listeners on `window`, the root route's error
+component, and four web vitals. It reports through the same shape — a reporter with a
+credential-free implementation and a vendor-backed one behind `VITE_SENTRY_DSN`.
+
+Two differences from the server are deliberate. The credential-free reporter _does_ write to the
+console, because a React error boundary swallows what it catches: without that line the crash a
+user just saw leaves no trace anywhere. And it drops vitals rather than printing them, since
+three numbers from one page load on one machine are not data — they are only worth anything
+aggregated.
+
+`installClientTelemetry` returns its own undo, which is what makes it safe as a React effect:
+effects run twice in development, and a second pair of listeners would report every error twice,
+which is indistinguishable from a bug happening twice.
+
+`VITE_` matters here for the same reason it does for `VITE_AUTH_BASE_URL`: Vite substitutes
+these at build time, so the browser DSN is a build argument for the web image and not a runtime
+variable. The SDK is behind a dynamic import either way, so a build without a DSN never fetches
+the 447 kB chunk.
+
 Without `SENTRY_DSN` the tracker is a no-op that deliberately logs nothing: whatever reached
 it was already logged by the logger that called it, and a second line saying the same thing
 teaches people to ignore both. The SDK is loaded through a dynamic import, so a process

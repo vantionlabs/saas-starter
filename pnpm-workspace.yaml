@@ -25,6 +25,7 @@ catalog:
   "@opentelemetry/sdk-trace-base": ^2.10.0
   "@opentelemetry/sdk-trace-node": ^2.10.0
   "@opentelemetry/semantic-conventions": ^1.43.0
+  "@sentry/browser": ^10.75.0
   "@sentry/node": ^10.75.0
   "@effect/sql-pg": 4.0.0-rc.109
   "@effect/vitest": 4.0.0-rc.109
@@ -63,6 +64,7 @@ catalog:
   "@react-email/render": ^2.1.0
   resend: ^6.20.0
   stripe: ^19.2.0
+  "web-vitals": ^6.2.2
   react-dom: ^19.2.8
   scheduler: ^0.27.0
   tailwindcss: ^4.3.3

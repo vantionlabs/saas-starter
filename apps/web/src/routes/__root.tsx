@@ -1,10 +1,12 @@
 import "@/app.css";
+import { installClientTelemetry } from "@/telemetry/install.js";
+import { reporter } from "@/telemetry/Reporter.js";
 import { RegistryProvider } from "@effect/atom-react";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { NotFound } from "@vantion/ui/app/not-found";
 import { RouteCrash } from "@vantion/ui/app/route-crash";
 import { Toaster } from "@vantion/ui/ui/sonner";
-import type * as React from "react";
+import * as React from "react";
 
 /**
  * The whole document, not a subtree.
@@ -16,6 +18,22 @@ import type * as React from "react";
  * `errorComponent` is declared here so it covers every page: routes are lazy, so
  * a boundary on each one would miss the failure that stops a route loading at all.
  */
+/**
+ * The crash screen, with the crash also written down.
+ *
+ * An error boundary swallows what it catches: without this the page a user is
+ * staring at leaves no record anywhere, which is the one failure worth hearing
+ * about first. `RouteCrash` stays presentational and `apps/design` keeps
+ * rendering it without a telemetry pipeline behind it.
+ */
+const ReportedCrash = (props: { readonly error: Error; }) => {
+  React.useEffect(() => {
+    reporter.error(props.error, { kind: "route-boundary" });
+  }, [props.error]);
+
+  return <RouteCrash error={props.error} />;
+};
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -24,7 +42,7 @@ export const Route = createRootRoute({
       { title: "vantion" },
     ],
   }),
-  errorComponent: RouteCrash,
+  errorComponent: ReportedCrash,
   notFoundComponent: NotFound,
   component: () => (
     <RootDocument>
@@ -33,14 +51,21 @@ export const Route = createRootRoute({
   ),
 });
 
-const RootDocument = ({ children }: Readonly<{ children: React.ReactNode; }>) => (
-  <html lang="en">
-    <head>
-      <HeadContent />
-    </head>
-    <body>
-      {
-        /*
+const RootDocument = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
+  // Client-only, and after hydration: installing during render would run on the
+  // server too, where there is no window to listen to. The returned undo is the
+  // effect's cleanup, which is what keeps a development remount from installing
+  // a second pair of listeners.
+  React.useEffect(() => installClientTelemetry(), []);
+
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {
+          /*
         Atoms are disposed the moment their last subscriber unmounts, unless the
         registry has an idle window — `AtomRegistry` only schedules a node for a
         timed removal when an idle TTL exists, and deletes it outright otherwise.
@@ -52,12 +77,13 @@ const RootDocument = ({ children }: Readonly<{ children: React.ReactNode; }>) =>
         reactivity keys immediately regardless, so the only thing this can hold on
         to is a change somebody else made in the last half-minute.
       */
-      }
-      <RegistryProvider defaultIdleTTL={30_000}>
-        <div className="h-dvh flex flex-col overflow-hidden">{children}</div>
-        <Toaster position="bottom-right" />
-      </RegistryProvider>
-      <Scripts />
-    </body>
-  </html>
-);
+        }
+        <RegistryProvider defaultIdleTTL={30_000}>
+          <div className="h-dvh flex flex-col overflow-hidden">{children}</div>
+          <Toaster position="bottom-right" />
+        </RegistryProvider>
+        <Scripts />
+      </body>
+    </html>
+  );
+};

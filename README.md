@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="226 unit tests" src="https://img.shields.io/badge/tests-226-2EAD33?style=flat-square" />
+  <img alt="233 unit tests" src="https://img.shields.io/badge/tests-233-2EAD33?style=flat-square" />
   <img alt="32 browser tests" src="https://img.shields.io/badge/browser-32-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -80,9 +80,10 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
 - ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 226 unit, 32 browser, testcontainers Postgres, all in CI
-- ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in both
-  processes, a Dockerfile per app, Railway IaC covering all of it
+- ✅ **Tests that gate** — 233 unit, 32 browser, testcontainers Postgres, all in CI
+- ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
+  three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
+  covering all of it
 
 **The method** — committed in `.claude/` and `docs/workflow/`.
 
@@ -133,7 +134,7 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps. That is what lets a suite of 226 be a gate an agent
+the edges, and no sleeps. That is what lets a suite of 233 be a gate an agent
 runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
@@ -358,9 +359,10 @@ on [Base UI](https://base-ui.com). Server-rendered auth: `beforeLoad` resolves
 the session before the page renders, so protected routes never flash.
 
 **Operations** — `/health` and `/ready`, OpenTelemetry tracing from both the API
-and the worker, error tracking behind `SENTRY_DSN`, a Dockerfile per app, and
-Railway infrastructure as code that describes the database, the queue and all
-three services.
+and the worker, error tracking behind `SENTRY_DSN`, client errors and web vitals
+from the browser behind `VITE_SENTRY_DSN`, a Dockerfile per app, and Railway
+infrastructure as code that describes the database, the queue and all three
+services.
 
 Both boundaries follow the same rule as every other one here: unset, no SDK is
 loaded and nothing is reported. Error tracking is a logger rather than a call at
@@ -574,8 +576,7 @@ open, and none of it is waiting behind a paid tier.
 
 |           | What                                    | Why it is not here yet                                                                                                                    |
 | --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Next**  | Browser telemetry                       | The API and the worker report errors and export spans; `apps/web` still has nothing — no client errors, no web vitals.                    |
-| **Then**  | File storage                            | Uploads, object storage and signed URLs, tenant-scoped like everything else.                                                              |
+| **Next**  | File storage                            | Uploads, object storage and signed URLs, tenant-scoped like everything else.                                                              |
 | **Then**  | `packages/core` + `apps/mobile`         | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                                       |
 | **Then**  | `apps/marketing` and `apps/brand`       | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                                    |
 | **Then**  | `apps/mcp`                              | The same handlers as an MCP server, so per-tool scopes are the existing permissions rather than a second vocabulary.                      |
