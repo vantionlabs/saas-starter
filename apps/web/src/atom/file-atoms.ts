@@ -1,6 +1,7 @@
 import { AppRpc } from "@/atom/app-rpc.js";
 import { Keys } from "@/atom/reactivity-keys.js";
 import type { FileId } from "@vantion/module-files/FilesRpc";
+import { StorageUnavailable } from "@vantion/module-files/ObjectStore";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
 
@@ -34,17 +35,20 @@ export const uploadFileAtom = AppRpc.runtime.fn<File>()(
         size: file.size,
       });
 
-      yield* Effect.tryPromise({
+      const response = yield* Effect.tryPromise({
         try: () =>
           fetch(ticket.url, {
             method: ticket.method,
             headers: ticket.headers,
             body: file,
           }),
-        // Storage refusing is not our error channel's business beyond "it did
-        // not work": the ticket was valid, the bytes did not land.
-        catch: () => new Error("upload failed"),
-      }).pipe(Effect.orDie);
+        catch: () => new StorageUnavailable({ reason: "Unreachable" }),
+      });
+
+      // `fetch` rejects only on a network failure, so a refusal from storage
+      // arrives as an ordinary response. Without this check the upload would
+      // look fine until `CompleteUpload` found nothing there.
+      if (!response.ok) return yield* new StorageUnavailable({ reason: "Rejected" });
 
       return yield* client("CompleteUpload", { id: ticket.fileId });
     }),

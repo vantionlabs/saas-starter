@@ -154,10 +154,17 @@ describe("check-rules", () => {
    * that fires on existing code is one somebody disables within the hour.
    */
   it("is silent on every source file in this repository", () => {
-    const listed = execFileSync("git", ["ls-files", "apps", "packages"], {
-      cwd: ROOT,
-      encoding: "utf8",
-    });
+    /**
+     * `--others --exclude-standard` as well as the tracked files, so a source
+     * file that has been written but not yet committed is checked too. Without
+     * it this test passed locally and failed in CI on the commit that added the
+     * file — which is the one moment the check exists to be useful.
+     */
+    const listed = execFileSync(
+      "git",
+      ["ls-files", "--cached", "--others", "--exclude-standard", "apps", "packages"],
+      { cwd: ROOT, encoding: "utf8" },
+    );
 
     const sources = listed.split("\n")
       .filter((file) => /\.tsx?$/.test(file) && !file.startsWith("repos/"));
