@@ -47,6 +47,8 @@ catalog:
   "@lucas-barake/effect-form-react": 0.26.0-beta.5
   nitro: ^3.0.260610-beta
   pg: ^8.23.0
+  bullmq: ^5.68.0
+  ioredis: ^5.9.0
   railway: ^3.10.0
   "class-variance-authority": ^0.7.1
   clsx: ^2.1.1

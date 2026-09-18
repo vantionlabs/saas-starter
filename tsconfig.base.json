@@ -71,6 +71,9 @@
       ],
       "@vantion/ui/*": [
         "./packages/ui/src/*.tsx"
+      ],
+      "@vantion/module-jobs/*": [
+        "./packages/modules/jobs/src/*.js"
       ]
     }
   }

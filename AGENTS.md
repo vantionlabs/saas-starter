@@ -246,6 +246,21 @@ public suffix, so two generated `*.up.railway.app` hosts can never share one: sp
 services on Railway needs a domain of your own. Sharing a host instead — one origin, a reverse
 proxy in front — works with `AUTH_COOKIE_DOMAIN` left empty.
 
+Background work goes through an outbox rather than straight to a queue. `Outbox.enqueue`
+writes a row inside whatever transaction the caller is already in, so the job and the change
+it describes commit together or not at all — no job fires for a write that rolled back, and no
+committed write loses its job. Redis cannot offer that, because enqueueing there is a second
+system and a crash between the two leaves one of them wrong.
+
+`Relay.run` then moves committed rows into BullMQ, which owns scheduling, retries, concurrency
+and the dashboard. It claims a batch with `for update skip locked`, pushes, and marks relayed
+in one transaction: a failed push rolls back and is retried, and a crash between push and
+commit relays twice. **Delivery is therefore at-least-once and handlers must be idempotent** —
+a duplicate a handler can tolerate is a better failure than a job that silently never ran.
+
+Without `REDIS_URL` the queue is in-memory, the same way the mailer writes to the log without
+a Resend key. The outbox is still transactional; nothing survives a restart.
+
 The auth endpoints are rate-limited per caller, and who the caller _is_ depends on
 `TRUST_PROXY`: the number of reverse proxies in front of this process, `0` by default and
 `1` on Railway. At `0` the socket address is used and `X-Forwarded-For` is ignored. Above it

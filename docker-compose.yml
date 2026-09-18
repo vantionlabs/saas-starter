@@ -16,6 +16,20 @@ services:
       timeout: 5s
       retries: 10
 
+  # BullMQ's backing store. The queue degrades to in-memory without it — see
+  # JobQueue.layer — so this is part of the full local stack rather than a
+  # requirement for the app to start.
+  redis:
+    image: redis:7-alpine
+    container_name: vantion-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   # RULES.md leans on OTEL spans rather than manual logging, so the collector is
   # part of the default local stack. UI on http://localhost:16686.
   jaeger:
