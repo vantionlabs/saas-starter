@@ -1,13 +1,13 @@
 import { sessionAtom, signIn, signInWithGoogle } from "@/atom/session-atoms.js";
-import { AuthCard, AuthLink, GoogleButton } from "@/components/auth/auth-card.js";
-import { textField } from "@/components/auth/text-field.js";
-import { Alert, AlertDescription } from "@/components/ui/alert.js";
-import { Button } from "@/components/ui/button.js";
 import { submitMessage } from "@/lib/auth/auth-result.js";
 import { CurrentPassword, Email } from "@/lib/auth/schemas.js";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { FormBuilder, FormReact } from "@lucas-barake/effect-form-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AuthCard, AuthLink, GoogleButton } from "@vantion/ui/auth/auth-card";
+import { textField } from "@vantion/ui/auth/text-field";
+import { Alert, AlertDescription } from "@vantion/ui/ui/alert";
+import { Button } from "@vantion/ui/ui/button";
 import { Effect } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";

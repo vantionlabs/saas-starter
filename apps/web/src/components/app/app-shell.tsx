@@ -1,10 +1,10 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
-import { Breadcrumbs } from "@/components/app/breadcrumbs.js";
 import { CommandPalette } from "@/components/app/command-palette.js";
 import { Sidebar } from "@/components/app/sidebar.js";
 import { VerifyEmailBanner } from "@/components/auth/verify-email-banner.js";
 import { useAtomRefresh } from "@effect/atom-react";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
+import { Breadcrumbs } from "@vantion/ui/app/breadcrumbs";
 import type * as React from "react";
 
 /**

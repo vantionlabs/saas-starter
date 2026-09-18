@@ -1,9 +1,9 @@
 import { signOut } from "@/atom/session-atoms.js";
 import { OrgSwitcher } from "@/components/app/org-switcher.js";
-import { Button } from "@/components/ui/button.js";
-import { Separator } from "@/components/ui/separator.js";
 import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
+import { Button } from "@vantion/ui/ui/button";
+import { Separator } from "@vantion/ui/ui/separator";
 import { Effect } from "effect";
 import { LayoutDashboard, Settings, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";

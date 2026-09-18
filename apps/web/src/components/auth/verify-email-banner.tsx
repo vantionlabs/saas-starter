@@ -1,6 +1,6 @@
 import { resendVerificationEmail } from "@/atom/session-atoms.js";
-import { Alert, AlertDescription } from "@/components/ui/alert.js";
-import { Button } from "@/components/ui/button.js";
+import { Alert, AlertDescription } from "@vantion/ui/ui/alert";
+import { Button } from "@vantion/ui/ui/button";
 import { Effect } from "effect";
 import * as React from "react";
 

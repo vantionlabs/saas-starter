@@ -1,6 +1,9 @@
 import { contactsAtom } from "@/atom/contact-atoms.js";
 import { nav } from "@/components/app/sidebar.js";
-import { settingsGroups } from "@/components/settings/settings-nav.js";
+import { useAtomValue } from "@effect/atom-react";
+import type { LinkProps } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+import { settingsGroups } from "@vantion/ui/settings/settings-nav";
 import {
   Command,
   CommandDialog,
@@ -9,10 +12,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command.js";
-import { useAtomValue } from "@effect/atom-react";
-import type { LinkProps } from "@tanstack/react-router";
-import { useNavigate } from "@tanstack/react-router";
+} from "@vantion/ui/ui/command";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
 

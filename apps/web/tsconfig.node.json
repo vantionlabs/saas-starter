@@ -1,12 +1,32 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["vite.config.ts"],
+  "include": [
+    "vite.config.ts"
+  ],
   "compilerOptions": {
     "composite": false,
     "declaration": false,
     "declarationMap": false,
     "noEmit": true,
-    "types": ["node"],
-    "tsBuildInfoFile": ".tsbuildinfo/node.tsbuildinfo"
-  }
+    "types": [
+      "node"
+    ],
+    "tsBuildInfoFile": ".tsbuildinfo/node.tsbuildinfo",
+    "paths": {
+      "@vantion/ui/*": [
+        "../../packages/ui/src/*.tsx"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
+      ]
+    }
+  },
+  "references": [
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/tokens"
+    }
+  ]
 }

@@ -68,6 +68,9 @@
       ],
       "@vantion/tokens/*": [
         "./packages/tokens/src/*.js"
+      ],
+      "@vantion/ui/*": [
+        "./packages/ui/src/*.tsx"
       ]
     }
   }

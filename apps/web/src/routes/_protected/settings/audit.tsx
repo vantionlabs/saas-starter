@@ -1,9 +1,9 @@
 import { auditLogAtom } from "@/atom/organization-atoms.js";
-import { QueryError } from "@/components/app/query-error.js";
-import { AuditTable } from "@/components/settings/audit-table.js";
-import { Skeleton } from "@/components/ui/skeleton.js";
 import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { QueryError } from "@vantion/ui/app/query-error";
+import { AuditTable } from "@vantion/ui/settings/audit-table";
+import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { AsyncResult } from "effect/unstable/reactivity";
 
 const Audit = () => {

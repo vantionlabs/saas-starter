@@ -3,10 +3,10 @@ import {
   organizationsAtom,
   switchOrganizationAtom,
 } from "@/atom/organization-atoms.js";
-import { Button } from "@/components/ui/button.js";
-import { Input } from "@/components/ui/input.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import type { Membership } from "@vantion/module-iam/organization/OrganizationRpc";
+import { Button } from "@vantion/ui/ui/button";
+import { Input } from "@vantion/ui/ui/input";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";

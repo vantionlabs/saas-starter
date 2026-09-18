@@ -15,19 +15,4 @@ declare module "@tanstack/react-router" {
   interface Register {
     router: ReturnType<typeof getRouter>;
   }
-
-  /**
-   * The breadcrumb label for a route, declared on the route itself and read back
-   * with `useMatches`.
-   *
-   * Declared rather than derived from the path: title-casing a slug guesses at a
-   * human label, and guesses wrong the moment a segment is an id.
-   *
-   * Optional on purpose. `router-core` makes `staticData` a required route option
-   * as soon as this interface has a required field, which would mean touching
-   * every route and breaking the generated tree.
-   */
-  interface StaticDataRouteOption {
-    readonly crumb?: string;
-  }
 }

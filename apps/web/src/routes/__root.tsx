@@ -1,9 +1,9 @@
 import "@/app.css";
-import { NotFound } from "@/components/app/not-found.js";
-import { RouteCrash } from "@/components/app/route-crash.js";
-import { Toaster } from "@/components/ui/sonner.js";
 import { RegistryProvider } from "@effect/atom-react";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { NotFound } from "@vantion/ui/app/not-found";
+import { RouteCrash } from "@vantion/ui/app/route-crash";
+import { Toaster } from "@vantion/ui/ui/sonner";
 import type * as React from "react";
 
 /**

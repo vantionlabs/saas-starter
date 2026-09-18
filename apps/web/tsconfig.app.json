@@ -13,6 +13,12 @@
     },
     {
       "path": "../../packages/modules/health"
+    },
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/tokens"
     }
   ],
   "compilerOptions": {
@@ -42,6 +48,12 @@
       ],
       "@vantion/module-health/*": [
         "../../packages/modules/health/src/*.js"
+      ],
+      "@vantion/ui/*": [
+        "../../packages/ui/src/*.tsx"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
       ]
     }
   }

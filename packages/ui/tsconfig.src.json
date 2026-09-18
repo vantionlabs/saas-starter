@@ -1,0 +1,44 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
+  ],
+  "references": [
+    {
+      "path": "../modules/contact"
+    },
+    {
+      "path": "../modules/iam"
+    },
+    {
+      "path": "../tokens"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "jsx": "react-jsx",
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/module-contact/*": [
+        "../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
+      ]
+    }
+  }
+}

@@ -29,6 +29,7 @@
     "@vantion/module-health": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "@vantion/tokens": "workspace:*",
+    "@vantion/ui": "workspace:*",
     "better-auth": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",

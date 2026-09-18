@@ -1,8 +1,8 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
-import { AuthCard, AuthLink } from "@/components/auth/auth-card.js";
-import { Button } from "@/components/ui/button.js";
 import { useAtomRefresh } from "@effect/atom-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AuthCard, AuthLink } from "@vantion/ui/auth/auth-card";
+import { Button } from "@vantion/ui/ui/button";
 import * as React from "react";
 
 /**

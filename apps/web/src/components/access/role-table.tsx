@@ -1,7 +1,9 @@
 import { deleteRoleAtom } from "@/atom/access-atoms.js";
-import { EmptyState } from "@/components/app/empty-state.js";
-import { Badge } from "@/components/ui/badge.js";
-import { Button } from "@/components/ui/button.js";
+import { useAtomSet } from "@effect/atom-react";
+import type { CustomRole } from "@vantion/module-iam/access/AccessRpc";
+import { EmptyState } from "@vantion/ui/app/empty-state";
+import { Badge } from "@vantion/ui/ui/badge";
+import { Button } from "@vantion/ui/ui/button";
 import {
   Table,
   TableBody,
@@ -9,9 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table.js";
-import { useAtomSet } from "@effect/atom-react";
-import type { CustomRole } from "@vantion/module-iam/access/AccessRpc";
+} from "@vantion/ui/ui/table";
 import { ShieldCheck } from "lucide-react";
 
 export const RoleTable = (props: {

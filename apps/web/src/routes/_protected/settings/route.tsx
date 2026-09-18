@@ -1,6 +1,6 @@
-import { SettingsNav } from "@/components/settings/settings-nav.js";
-import { Separator } from "@/components/ui/separator.js";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { SettingsNav } from "@vantion/ui/settings/settings-nav";
+import { Separator } from "@vantion/ui/ui/separator";
 
 /** App shell owns viewport height; the settings pane owns its own scrolling. */
 export const Route = createFileRoute("/_protected/settings")({

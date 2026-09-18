@@ -1,11 +1,11 @@
 import { setRoleAtom } from "@/atom/access-atoms.js";
-import { PermissionPicker } from "@/components/access/permission-picker.js";
-import { Button } from "@/components/ui/button.js";
-import { Input } from "@/components/ui/input.js";
-import { Label } from "@/components/ui/label.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { CustomRole } from "@vantion/module-iam/access/AccessRpc";
 import type { Permission } from "@vantion/module-iam/identity/Permission";
+import { PermissionPicker } from "@vantion/ui/access/permission-picker";
+import { Button } from "@vantion/ui/ui/button";
+import { Input } from "@vantion/ui/ui/input";
+import { Label } from "@vantion/ui/ui/label";
 import * as React from "react";
 
 /** Creates a role, or replaces one when `editing` is supplied. */

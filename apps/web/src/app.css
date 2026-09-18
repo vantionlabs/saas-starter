@@ -14,6 +14,13 @@
  */
 @import "@vantion/tokens/tokens.css";
 
+/*
+ * Tailwind scans the importing project for class names, and `packages/ui` is
+ * not part of it. Without this the primitives render unstyled — every utility
+ * they use is absent from the generated stylesheet, and nothing warns.
+ */
+@source "../../../packages/ui/src";
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

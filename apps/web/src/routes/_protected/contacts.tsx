@@ -1,9 +1,9 @@
 import { contactsAtom, createContactAtom, deleteContactAtom } from "@/atom/contact-atoms.js";
-import { QueryError } from "@/components/app/query-error.js";
-import { ContactForm } from "@/components/contact/contact-form.js";
-import { ContactTable } from "@/components/contact/contact-table.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { QueryError } from "@vantion/ui/app/query-error";
+import { ContactForm } from "@vantion/ui/contact/contact-form";
+import { ContactTable } from "@vantion/ui/contact/contact-table";
 import { AsyncResult } from "effect/unstable/reactivity";
 
 const Contacts = () => {

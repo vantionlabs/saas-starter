@@ -3,14 +3,14 @@ import {
   organizationsAtom,
   renameOrganizationAtom,
 } from "@/atom/organization-atoms.js";
-import { DangerZone } from "@/components/settings/danger-zone.js";
-import { Button } from "@/components/ui/button.js";
-import { Input } from "@/components/ui/input.js";
-import { Label } from "@/components/ui/label.js";
-import { Separator } from "@/components/ui/separator.js";
-import { Skeleton } from "@/components/ui/skeleton.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { DangerZone } from "@vantion/ui/settings/danger-zone";
+import { Button } from "@vantion/ui/ui/button";
+import { Input } from "@vantion/ui/ui/input";
+import { Label } from "@vantion/ui/ui/label";
+import { Separator } from "@vantion/ui/ui/separator";
+import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";

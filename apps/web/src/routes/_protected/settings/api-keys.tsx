@@ -1,7 +1,10 @@
 import { apiKeysAtom, createApiKeyAtom, revokeApiKeyAtom } from "@/atom/organization-atoms.js";
-import { QueryError } from "@/components/app/query-error.js";
-import { ApiKeyTable } from "@/components/settings/api-key-table.js";
-import { Button } from "@/components/ui/button.js";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { createFileRoute } from "@tanstack/react-router";
+import type { Role } from "@vantion/module-iam/identity/Permission";
+import { QueryError } from "@vantion/ui/app/query-error";
+import { ApiKeyTable } from "@vantion/ui/settings/api-key-table";
+import { Button } from "@vantion/ui/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,20 +12,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog.js";
-import { Input } from "@/components/ui/input.js";
-import { Label } from "@/components/ui/label.js";
+} from "@vantion/ui/ui/dialog";
+import { Input } from "@vantion/ui/ui/input";
+import { Label } from "@vantion/ui/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select.js";
-import { Skeleton } from "@/components/ui/skeleton.js";
-import { useAtomSet, useAtomValue } from "@effect/atom-react";
-import { createFileRoute } from "@tanstack/react-router";
-import type { Role } from "@vantion/module-iam/identity/Permission";
+} from "@vantion/ui/ui/select";
+import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { Copy, Plus } from "lucide-react";

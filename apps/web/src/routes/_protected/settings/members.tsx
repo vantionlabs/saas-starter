@@ -1,10 +1,10 @@
 import { membersAtom } from "@/atom/access-atoms.js";
 import { MemberOverrides } from "@/components/access/member-overrides.js";
-import { MemberTable } from "@/components/access/member-table.js";
-import { QueryError } from "@/components/app/query-error.js";
-import { Skeleton } from "@/components/ui/skeleton.js";
 import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { MemberTable } from "@vantion/ui/access/member-table";
+import { QueryError } from "@vantion/ui/app/query-error";
+import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
 

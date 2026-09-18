@@ -1,8 +1,8 @@
 import { overviewAtom } from "@/atom/contact-atoms.js";
-import { StatCard } from "@/components/dashboard/stat-card.js";
-import { Skeleton } from "@/components/ui/skeleton.js";
 import { useAtomValue } from "@effect/atom-react";
 import type { Overview } from "@vantion/module-contact/ContactRpc";
+import { StatCard } from "@vantion/ui/dashboard/stat-card";
+import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { AsyncResult } from "effect/unstable/reactivity";
 
 /**

@@ -1,12 +1,12 @@
 import { resetPassword } from "@/atom/session-atoms.js";
-import { AuthCard, AuthLink } from "@/components/auth/auth-card.js";
-import { textField } from "@/components/auth/text-field.js";
-import { Alert, AlertDescription } from "@/components/ui/alert.js";
-import { Button } from "@/components/ui/button.js";
 import { NewPassword } from "@/lib/auth/schemas.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { FormBuilder, FormReact } from "@lucas-barake/effect-form-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AuthCard, AuthLink } from "@vantion/ui/auth/auth-card";
+import { textField } from "@vantion/ui/auth/text-field";
+import { Alert, AlertDescription } from "@vantion/ui/ui/alert";
+import { Button } from "@vantion/ui/ui/button";
 import * as React from "react";
 
 const form = FormReact.make(

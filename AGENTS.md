@@ -29,6 +29,20 @@ what an application registers. HTTP routes are exported separately (`IamHttp`,
 `HealthHttpRoutes`) because a route layer requires the `HttpRouter` it adds itself to, and
 that service only exists inside `HttpRouter.serve`.
 
+`packages/tokens` holds the palette, radius and font stacks in TypeScript and generates the
+stylesheet from them, because three consumers need the same values and only one speaks CSS —
+the web app, the Expo app through NativeWind, and Figma through the library generator.
+`packages/ui` holds the 35 presentational components: the shadcn primitives on Base UI, the
+shell pieces, and the feature components, all prop-driven. The nine components that read atoms
+stay in `apps/web`, because a component that fetches is connected to an application rather than
+shared with one.
+
+Two things follow from `packages/ui` being a separate package. Tailwind scans the importing
+project, so `apps/web/src/app.css` names it with `@source` — without that every utility the
+primitives use is absent from the bundle and nothing warns. And `LinkProps["to"]` is only
+`string` there, because the route union comes from the generated route tree, which belongs to
+the application.
+
 Beneath them, `packages/database` owns the connection and the schema, and `packages/domain`
 is now only an aggregator: `AppRpcs`, which composes the modules' RPC groups into the one both
 apps import, and the frozen `api/v1` wire types.

@@ -1,0 +1,49 @@
+{
+  "name": "@vantion/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": {
+      "development": "./src/*.tsx",
+      "types": "./src/*.tsx",
+      "default": "./build/src/*.js"
+    }
+  },
+  "scripts": {
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@base-ui/react": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@vantion/module-contact": "workspace:*",
+    "@vantion/module-iam": "workspace:*",
+    "@vantion/tokens": "workspace:*",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "cmdk": "catalog:",
+    "effect": "catalog:",
+    "lucide-react": "catalog:",
+    "react": "catalog:",
+    "sonner": "catalog:",
+    "tailwind-merge": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "jsdom": "catalog:",
+    "react-dom": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -321,6 +321,9 @@ importers:
       '@vantion/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      '@vantion/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       better-auth:
         specifier: 'catalog:'
         version: 1.6.29(@opentelemetry/api@1.9.1)(@tanstack/react-start@1.168.48(crossws@0.4.10(srvx@0.11.22))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)))(pg@8.23.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.10)
@@ -556,6 +559,76 @@ importers:
       tsx:
         specifier: 'catalog:'
         version: 4.23.12
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+
+  packages/ui:
+    dependencies:
+      '@base-ui/react':
+        specifier: 'catalog:'
+        version: 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@tanstack/react-router':
+        specifier: 'catalog:'
+        version: 1.170.29(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@vantion/module-contact':
+        specifier: workspace:*
+        version: link:../modules/contact
+      '@vantion/module-iam':
+        specifier: workspace:*
+        version: link:../modules/iam
+      '@vantion/tokens':
+        specifier: workspace:*
+        version: link:../tokens
+      class-variance-authority:
+        specifier: 'catalog:'
+        version: 0.7.1
+      clsx:
+        specifier: 'catalog:'
+        version: 2.1.1
+      cmdk:
+        specifier: 'catalog:'
+        version: 1.1.1(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
+      lucide-react:
+        specifier: 'catalog:'
+        version: 1.31.0(react@19.2.8)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
+      sonner:
+        specifier: 'catalog:'
+        version: 2.0.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      tailwind-merge:
+        specifier: 'catalog:'
+        version: 3.6.0
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(vitest@4.1.10)
+      '@testing-library/jest-dom':
+        specifier: 'catalog:'
+        version: 7.0.1(@testing-library/dom@10.4.1)(vitest@4.1.10)
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@testing-library/user-event':
+        specifier: 'catalog:'
+        version: 14.6.4(@testing-library/dom@10.4.1)
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.4(@types/react@19.2.18)
+      jsdom:
+        specifier: 'catalog:'
+        version: 30.0.1(@noble/hashes@2.3.0)
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.8(react@19.2.8)
       vitest:
         specifier: 'catalog:'
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
