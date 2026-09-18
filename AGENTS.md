@@ -37,6 +37,16 @@ apps import, and the frozen `api/v1` wire types.
 is the measure of whether this is working: an application composes modules and owns almost
 nothing itself.
 
+`pnpm new:module <name>` writes a module and registers it. A module is five config files
+before it is a line of code, two of which register it elsewhere — a reference in
+`tsconfig.json`, a path in `tsconfig.base.json` — and by the fifth module one of those gets
+forgotten, with the failure reading as a resolution error three files away. It also writes a
+worked `List…` operation, so the conventions are in the tree rather than only in `RULES.md`.
+
+What it deliberately leaves to you is what the application serves: adding the group to
+`AppRpcs` and registering the module in `Main.ts`. Those are decisions, not side effects of
+creating a directory. The command prints them.
+
 Dependencies point one way: `apps/` → `packages/domain` → `packages/modules/*` →
 `packages/database`. A module may depend on another module, never on `domain` or on an app.
 
@@ -133,6 +143,7 @@ which works in any history and does not conflict the way a pull across 3,500 fil
 | `pnpm format` / `format:check` | dprint                                                             |
 | `pnpm test`                    | vitest across `apps/*` and `packages/*`                            |
 | `pnpm e2e`                     | Playwright, driving both servers in a browser                      |
+| `pnpm new:module <name>`       | scaffolds `packages/modules/<name>` and registers it               |
 
 The second half of `pnpm check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,

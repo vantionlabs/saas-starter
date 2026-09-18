@@ -6,6 +6,8 @@ packages:
   # One package per feature: its contract, its handlers, its stores.
   - packages/modules/*
   - scripts
+  # Repo automation: the module generator and its test.
+  - tooling
   # Browser tests, which drive both apps rather than importing from either.
   - e2e
 
