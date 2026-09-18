@@ -22,15 +22,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@effect/opentelemetry": "catalog:",
     "@effect/platform-node": "catalog:",
     "@effect/sql-pg": "catalog:",
-    "@opentelemetry/api": "catalog:",
-    "@opentelemetry/exporter-trace-otlp-http": "catalog:",
-    "@opentelemetry/resources": "catalog:",
-    "@opentelemetry/sdk-trace-base": "catalog:",
-    "@opentelemetry/sdk-trace-node": "catalog:",
-    "@opentelemetry/semantic-conventions": "catalog:",
     "@vantion/database": "workspace:*",
     "@vantion/domain": "workspace:*",
     "@vantion/module-billing": "workspace:*",
@@ -38,6 +31,7 @@
     "@vantion/module-health": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "@vantion/module-notifications": "workspace:*",
+    "@vantion/telemetry": "workspace:*",
     "better-auth": "catalog:",
     "effect": "catalog:",
     "pg": "catalog:"

@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="221 unit tests" src="https://img.shields.io/badge/tests-221-2EAD33?style=flat-square" />
+  <img alt="226 unit tests" src="https://img.shields.io/badge/tests-226-2EAD33?style=flat-square" />
   <img alt="32 browser tests" src="https://img.shields.io/badge/browser-32-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -80,8 +80,9 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
 - ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 221 unit, 32 browser, testcontainers Postgres, all in CI
-- ✅ **Operations** — `/health`, `/ready`, OpenTelemetry, a Dockerfile per app, Railway IaC
+- ✅ **Tests that gate** — 226 unit, 32 browser, testcontainers Postgres, all in CI
+- ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in both
+  processes, a Dockerfile per app, Railway IaC covering all of it
 
 **The method** — committed in `.claude/` and `docs/workflow/`.
 
@@ -132,7 +133,7 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps. That is what lets a suite of 221 be a gate an agent
+the edges, and no sleeps. That is what lets a suite of 226 be a gate an agent
 runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
@@ -356,8 +357,16 @@ breadcrumbs, error boundaries, empty states, light and dark. shadcn components
 on [Base UI](https://base-ui.com). Server-rendered auth: `beforeLoad` resolves
 the session before the page renders, so protected routes never flash.
 
-**Operations** — `/health` and `/ready`, OpenTelemetry tracing, a Dockerfile per
-app, and Railway infrastructure as code.
+**Operations** — `/health` and `/ready`, OpenTelemetry tracing from both the API
+and the worker, error tracking behind `SENTRY_DSN`, a Dockerfile per app, and
+Railway infrastructure as code that describes the database, the queue and all
+three services.
+
+Both boundaries follow the same rule as every other one here: unset, no SDK is
+loaded and nothing is reported. Error tracking is a logger rather than a call at
+each failure site — `RULES.md` forbids manual logging on error paths, so the
+places that would have called a tracker by hand do not exist, and one wiring
+point per process catches what remains.
 
 ## Getting started
 
@@ -501,8 +510,8 @@ docker build -f apps/server/Dockerfile -t acme-api .
 Migrations are applied by a script, never at boot, because two instances starting
 together would both migrate. On Railway that is the `preDeployCommand`.
 
-`.railway/railway.ts` describes the whole project: database, both services,
-their variables and health checks. `railway config plan` shows the diff and
+`.railway/railway.ts` describes the whole project: Postgres, Redis, the API, the
+worker and the web app, their variables and health checks. `railway config plan` shows the diff and
 `railway config apply` performs it, so a deployment is reviewable the way a pull
 request is. Change `REPO`, the `environments` map and the project name; secrets
 stay in Railway's dashboard, held by `preserve()`.
@@ -514,7 +523,7 @@ reaching for it would cost the property that makes a plan worth reviewing: two
 people planning the same environment get the same plan.
 
 It cannot create the domains, though — the runner rejects a `domains` entry
-outright, so both services need theirs added in the dashboard. Setting `DOMAIN`
+outright, so the two public services need theirs added in the dashboard. Setting `DOMAIN`
 is what makes every address in the file name them ahead of time rather than
 falling back to a `RAILWAY_PUBLIC_DOMAIN` that does not resolve yet.
 
@@ -563,17 +572,17 @@ are named in the table above because that is the shape, not because they exist.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|           | What                                                           | Why it is not here yet                                                                                                                    |
-| --------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Next**  | Error tracking, and telemetry for `apps/worker` and `apps/web` | Traces are not aggregation. Only the API is instrumented, so the part most likely to fail quietly is the part with no spans.              |
-| **Then**  | File storage                                                   | Uploads, object storage and signed URLs, tenant-scoped like everything else.                                                              |
-| **Then**  | `packages/core` + `apps/mobile`                                | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                                       |
-| **Then**  | `apps/marketing` and `apps/brand`                              | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                                    |
-| **Then**  | `apps/mcp`                                                     | The same handlers as an MCP server, so per-tool scopes are the existing permissions rather than a second vocabulary.                      |
-| **Then**  | AI, with evals                                                 | One worked feature that exercises tool-calling, extraction, org-scoped retrieval and a human approval gate — plus an eval baseline in CI. |
-| **Then**  | A spec template for the discovery phase                        | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.                    |
-| **Later** | SSO and SAML                                                   | The heaviest remaining item, and the one enterprise deals actually ask for.                                                               |
-| **Later** | An admin panel                                                 | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path.                   |
+|           | What                                    | Why it is not here yet                                                                                                                    |
+| --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Next**  | Browser telemetry                       | The API and the worker report errors and export spans; `apps/web` still has nothing — no client errors, no web vitals.                    |
+| **Then**  | File storage                            | Uploads, object storage and signed URLs, tenant-scoped like everything else.                                                              |
+| **Then**  | `packages/core` + `apps/mobile`         | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                                       |
+| **Then**  | `apps/marketing` and `apps/brand`       | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                                    |
+| **Then**  | `apps/mcp`                              | The same handlers as an MCP server, so per-tool scopes are the existing permissions rather than a second vocabulary.                      |
+| **Then**  | AI, with evals                          | One worked feature that exercises tool-calling, extraction, org-scoped retrieval and a human approval gate — plus an eval baseline in CI. |
+| **Then**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.                    |
+| **Later** | SSO and SAML                            | The heaviest remaining item, and the one enterprise deals actually ask for.                                                               |
+| **Later** | An admin panel                          | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path.                   |
 
 ## What it deliberately does not do
 

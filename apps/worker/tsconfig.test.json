@@ -11,6 +11,9 @@
       "path": "../../packages/database"
     },
     {
+      "path": "../../packages/telemetry"
+    },
+    {
       "path": "../../packages/modules/contact"
     },
     {
@@ -38,6 +41,9 @@
       ],
       "@vantion/database/*": [
         "../../packages/database/src/*.js"
+      ],
+      "@vantion/telemetry/*": [
+        "../../packages/telemetry/src/*.js"
       ],
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"

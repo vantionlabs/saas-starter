@@ -25,6 +25,7 @@ catalog:
   "@opentelemetry/sdk-trace-base": ^2.10.0
   "@opentelemetry/sdk-trace-node": ^2.10.0
   "@opentelemetry/semantic-conventions": ^1.43.0
+  "@sentry/node": ^10.75.0
   "@effect/sql-pg": 4.0.0-rc.109
   "@effect/vitest": 4.0.0-rc.109
 

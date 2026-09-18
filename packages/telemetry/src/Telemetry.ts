@@ -26,14 +26,20 @@ import { Config, Effect, Option, Redacted } from "effect";
  * `Effect.withSpan` and `Effect.fn` are what produce the spans; this only
  * decides where they go.
  */
-export const TelemetryLive = NodeSdk.layer(
-  Effect.gen(function*() {
+export const layerTelemetry = (defaultServiceName: string) =>
+  NodeSdk.layer(Effect.gen(function*() {
     const endpoint = yield* Config.option(
       Config.nonEmptyString("OTEL_EXPORTER_OTLP_ENDPOINT"),
     );
 
+    /**
+     * Each process names itself, and the environment can override it.
+     *
+     * The API and the worker fail in different ways for different reasons, and
+     * two services reporting under one name is a trace nobody can read.
+     */
     const serviceName = yield* Config.nonEmptyString("OTEL_SERVICE_NAME").pipe(
-      Config.withDefault("vantion-server"),
+      Config.withDefault(defaultServiceName),
     );
 
     /**
@@ -57,5 +63,4 @@ export const TelemetryLive = NodeSdk.layer(
         ),
       }),
     };
-  }),
-);
+  }));

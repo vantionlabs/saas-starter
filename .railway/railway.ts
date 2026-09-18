@@ -1,4 +1,4 @@
-import { defineRailway, github, postgres, preserve, project, service } from "railway/iac";
+import { defineRailway, github, postgres, preserve, project, redis, service } from "railway/iac";
 
 /**
  * The whole Railway project, in one file.
@@ -31,7 +31,7 @@ import { defineRailway, github, postgres, preserve, project, service } from "rai
  * authorization the connection grants. `preserve()` below is for the values
  * that genuinely are secret.
  */
-const REPO = "ishakdeveloper/vantion-effect";
+const REPO = "vantionlabs/saas-starter";
 
 interface Target {
   /** Must be a branch that actually carries this code — both services build from it. */
@@ -112,6 +112,15 @@ export default defineRailway((ctx) => {
 
   const db = postgres("postgres");
 
+  /**
+   * The queue BullMQ runs on.
+   *
+   * Without it the worker still works — the in-memory queue takes over and the
+   * outbox is still transactional — but nothing survives a restart, which is
+   * fine on a laptop and not in production.
+   */
+  const cache = redis("redis");
+
   const api = service("api", {
     source: github(REPO, { branch: target.branch }),
     build: {
@@ -145,6 +154,7 @@ export default defineRailway((ctx) => {
     env: {
       ...shared,
       DATABASE_URL: db.env.DATABASE_URL,
+      REDIS_URL: cache.env.REDIS_URL,
       /**
        * Its own public URL. better-auth builds callback and magic-link URLs
        * from this, so it has to be what a browser actually reached.
@@ -174,6 +184,50 @@ export default defineRailway((ctx) => {
       GOOGLE_CLIENT_SECRET: preserve(),
       OTEL_EXPORTER_OTLP_ENDPOINT: preserve(),
       OTEL_EXPORTER_OTLP_HEADERS: preserve(),
+      SENTRY_DSN: preserve(),
+      SENTRY_ENVIRONMENT: preserve(),
+    },
+  });
+
+  /**
+   * The outbox relay and the jobs it feeds.
+   *
+   * No domain and no health check: it serves nothing, so there is nothing to
+   * probe. It is the part of the system most likely to fail quietly — nobody is
+   * watching a response while a webhook is delivered — which is why it carries
+   * the same telemetry and error-tracking variables the API does.
+   *
+   * It does not run migrations. The API's `preDeployCommand` does that, and two
+   * services migrating the same database is the race that command exists to
+   * avoid.
+   */
+  const worker = service("worker", {
+    source: github(REPO, { branch: target.branch }),
+    build: {
+      builder: "DOCKERFILE",
+      dockerfilePath: "apps/worker/Dockerfile",
+      watchPatterns: [
+        "apps/worker/**",
+        "packages/database/**",
+        "packages/modules/jobs/**",
+        "packages/modules/webhooks/**",
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+      ],
+    },
+    deploy: {
+      restartPolicyType: "ON_FAILURE",
+      restartPolicyMaxRetries: 5,
+    },
+    env: {
+      ...shared,
+      DATABASE_URL: db.env.DATABASE_URL,
+      REDIS_URL: cache.env.REDIS_URL,
+      OTEL_EXPORTER_OTLP_ENDPOINT: preserve(),
+      OTEL_EXPORTER_OTLP_HEADERS: preserve(),
+      SENTRY_DSN: preserve(),
+      SENTRY_ENVIRONMENT: preserve(),
     },
   });
 
@@ -209,5 +263,5 @@ export default defineRailway((ctx) => {
     },
   });
 
-  return project("vantion", { resources: [db, api, web] });
+  return project("vantion", { resources: [db, cache, api, worker, web] });
 });

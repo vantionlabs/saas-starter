@@ -5,6 +5,8 @@ import { PgPool } from "@vantion/database/PgPool";
 import { JobQueue } from "@vantion/module-jobs/JobQueue";
 import { relayOnce } from "@vantion/module-jobs/Relay";
 import { WebhooksModule } from "@vantion/module-webhooks/Module";
+import { ErrorTracker, layerReporting } from "@vantion/telemetry/ErrorTracker";
+import { layerTelemetry } from "@vantion/telemetry/Telemetry";
 import { Effect, Layer, Schedule } from "effect";
 
 /**
@@ -25,9 +27,13 @@ const tick = Effect.gen(function*() {
   const waiting = yield* queue.drain;
 
   for (const job of waiting) {
-    // One job failing is not a reason to stop the loop or to skip the rest.
+    // One job failing is not a reason to stop the loop or to skip the rest. The
+    // log is also the report: `layerReporting` turns every error-level entry
+    // into one, so a job that fails all night is an issue with a count on it
+    // rather than a thousand lines nobody reads.
     yield* dispatch(job).pipe(
       Effect.catchCause((cause) => Effect.logError(`job ${job.id} (${job.kind}) failed`, cause)),
+      Effect.withSpan("job.dispatch", { attributes: { "job.kind": job.kind, "job.id": job.id } }),
     );
   }
 
@@ -38,7 +44,10 @@ const WorkerLive = Layer.effectDiscard(
   Effect.gen(function*() {
     yield* Effect.logInfo("worker started");
 
-    yield* tick.pipe(Effect.repeat(Schedule.spaced("1 second")));
+    yield* tick.pipe(
+      Effect.withSpan("worker.tick"),
+      Effect.repeat(Schedule.spaced("1 second")),
+    );
   }),
 ).pipe(
   Layer.provide(JobQueue.layer),
@@ -47,4 +56,17 @@ const WorkerLive = Layer.effectDiscard(
   Layer.provide(PgPool.layer),
 );
 
-NodeRuntime.runMain(Layer.launch(WorkerLive));
+/**
+ * The worker is instrumented for the same reason the API is, and it went
+ * without for longer: background delivery is the part most likely to fail
+ * quietly, because nobody is watching a response while it does.
+ *
+ * It names itself `vantion-worker` so its spans do not merge with the API's.
+ * Two services reporting under one name is a trace nobody can read.
+ */
+NodeRuntime.runMain(
+  Layer.launch(WorkerLive).pipe(
+    Effect.provide(layerTelemetry("vantion-worker")),
+    Effect.provide(layerReporting("worker").pipe(Layer.provide(ErrorTracker.layer))),
+  ),
+);

@@ -8,6 +8,8 @@ import { ContactModule } from "@vantion/module-contact/Module";
 import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
 import { NotificationsModule } from "@vantion/module-notifications/Module";
+import { ErrorTracker, layerReporting } from "@vantion/telemetry/ErrorTracker";
+import { layerTelemetry } from "@vantion/telemetry/Telemetry";
 import { Config, Effect, Layer } from "effect";
 import { HttpRouter } from "effect/unstable/http";
 import { HttpApiBuilder, HttpApiScalar } from "effect/unstable/httpapi";
@@ -15,7 +17,6 @@ import { RateLimiter } from "effect/unstable/persistence";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import * as Http from "node:http";
 import { ApiV1Live } from "./api/v1/Handlers.js";
-import { TelemetryLive } from "./Telemetry.js";
 
 /**
  * `IamModule` appears three times in this file, and is built once.
@@ -126,10 +127,19 @@ const HttpLive = Layer.unwrap(
 );
 
 /**
- * Telemetry is provided to the running effect rather than into the layer graph.
+ * Telemetry and error reporting are provided to the running effect rather than
+ * into the layer graph.
  *
  * The tracer has to be installed in the context the application *runs in* — a
  * layer nothing names as a dependency is not built, so providing it inside the
- * graph silently did nothing at all.
+ * graph silently did nothing at all. The reporting logger is here for the same
+ * reason, and it has to wrap the launch rather than sit inside it: what it is
+ * most needed for is the failure that takes the process down, and a logger
+ * installed within the graph is gone by the time that is reported.
  */
-NodeRuntime.runMain(Layer.launch(HttpLive).pipe(Effect.provide(TelemetryLive)));
+NodeRuntime.runMain(
+  Layer.launch(HttpLive).pipe(
+    Effect.provide(layerTelemetry("vantion-server")),
+    Effect.provide(layerReporting("api").pipe(Layer.provide(ErrorTracker.layer))),
+  ),
+);

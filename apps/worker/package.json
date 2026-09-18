@@ -22,6 +22,7 @@
     "@vantion/module-iam": "workspace:*",
     "@vantion/module-jobs": "workspace:*",
     "@vantion/module-webhooks": "workspace:*",
+    "@vantion/telemetry": "workspace:*",
     "effect": "catalog:",
     "pg": "catalog:"
   },

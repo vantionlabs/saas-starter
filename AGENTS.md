@@ -380,8 +380,11 @@ the OTP path the limit is the security boundary rather than a politeness measure
 The API allows exactly one CORS origin, `WEB_URL`, which is already the origin better-auth
 trusts. Widening it would only let a request through that better-auth then refuses.
 
-`.railway/railway.ts` describes the whole Railway project: Postgres, both services, their
-Dockerfiles, health check, watch patterns, and the variables wiring them together. `railway
+`.railway/railway.ts` describes the whole Railway project: Postgres, Redis, all three
+services, their Dockerfiles, health check, watch patterns, and the variables wiring them
+together. The worker carries no domain and no health check because it serves nothing, and it
+does not run migrations — the API's `preDeployCommand` does, and two services migrating one
+database is the race that command exists to avoid. `railway
 config plan` shows the diff and `railway config apply` performs it. Two lines change on a fork —
 the repository and the project name.
 
@@ -396,10 +399,30 @@ Railway's IaC API is in beta and its own README says it will change. The stable 
 `railway.json` per app, which covers build and deploy settings but cannot create the database or
 the services.
 
+`packages/telemetry` owns both halves of observability, and both processes use it.
+
 Tracing is exported only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set — unset installs no exporter
 at all, because one pointed at nothing retries on a schedule and fills the log. `RULES.md` says
 not to add manual logging on error paths because spans already carry the context; this is what
-makes that true.
+makes that true. Each process passes its own name to `layerTelemetry`, so the API and the
+worker do not merge into one unreadable service.
+
+Error tracking is a separate question from tracing and is answered separately. A span says
+what one request did; `ErrorTracker` says the same failure has happened four hundred times
+since Tuesday and which release started it. Traces are not aggregation, and the gap between
+them is what a deployment actually notices an outage with.
+
+It is wired as a **logger**, not as a call at each failure site. `RULES.md` forbids manual
+logging on error paths, so the sites that would have called a tracker by hand do not exist —
+what remains is the deliberate `Effect.logError`s and whatever the runtime reports when a
+fiber dies. `layerReporting(source)` forwards every entry at `Error` or above and nothing
+below, because a tracker that also collected `info` would report a deploy as an incident.
+
+Without `SENTRY_DSN` the tracker is a no-op that deliberately logs nothing: whatever reached
+it was already logged by the logger that called it, and a second line saying the same thing
+teaches people to ignore both. The SDK is loaded through a dynamic import, so a process
+without a DSN never pays for it — Vite splits it into its own chunk, which is why the
+worker's `main.js` is 478 kB and Sentry's 1.5 MB sits beside it unloaded.
 
 Migrations are applied by a script, never at boot — two instances starting together would both
 migrate. `packages/database` owns them:
