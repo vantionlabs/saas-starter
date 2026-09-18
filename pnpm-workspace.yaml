@@ -4,6 +4,8 @@ packages:
   # Libraries they share.
   - packages/*
   - scripts
+  # Browser tests, which drive both apps rather than importing from either.
+  - e2e
 
 # Effect v4 is tracked at an exact release candidate. Bumping the train means
 # editing this block only — every package manifest references `catalog:`.
@@ -58,4 +60,5 @@ catalog:
   esbuild: ^0.28.2
   vite: ^8.2.1
   vitest: ^4.1.10
+  "@playwright/test": ^1.63.0
   zod: ^4.4.3

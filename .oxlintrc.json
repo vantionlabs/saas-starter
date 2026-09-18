@@ -154,6 +154,23 @@
       "rules": {
         "effecttsgo/node-builtin-import": "off"
       }
+    },
+    {
+      "files": [
+        "e2e/**"
+      ],
+      "rules": {
+        "effecttsgo/async-function": "off",
+        "effecttsgo/node-builtin-import": "off",
+        "effecttsgo/global-console": "off",
+        "eslint/no-console": "off",
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off",
+        "eslint/no-empty-pattern": "off"
+      }
     }
   ],
   "ignorePatterns": [

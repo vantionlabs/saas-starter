@@ -21,6 +21,7 @@
     "lint": "oxlint --disable-nested-config",
     "lint:fix": "oxlint --disable-nested-config --fix",
     "test": "vitest run",
+    "e2e": "pnpm --filter @vantion/e2e test",
     "coverage": "vitest run --coverage",
     "clean": "rm -rf apps/*/build apps/*/.tsbuildinfo packages/*/build packages/*/.tsbuildinfo apps/web/dist apps/web/.output apps/web/.tanstack coverage",
     "sync:skills": "node scripts/sync-effect-skills.mjs",

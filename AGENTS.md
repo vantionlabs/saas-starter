@@ -89,6 +89,7 @@ which works in any history and does not conflict the way a pull across 3,500 fil
 | `pnpm lint`                    | oxlint, incl. Effect type-aware rules and the local `app/*` plugin |
 | `pnpm format` / `format:check` | dprint                                                             |
 | `pnpm test`                    | vitest across `apps/*` and `packages/*`                            |
+| `pnpm e2e`                     | Playwright, driving both servers in a browser                      |
 
 The second half of `pnpm check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,
@@ -101,6 +102,20 @@ port is `PORT`; the client derives its own from `WEB_URL`, so the two cannot dri
 
 Postgres-backed tests need a database. They skip without one. Either `docker compose up -d`,
 or point at an existing instance with `TEST_DB_URL=postgresql://...`.
+
+`pnpm e2e` is the browser suite in `e2e/`, and it needs nothing set up. It starts a Postgres
+container of its own on a free port, applies the migrations, runs both servers on 3100 and
+5273 so a running `pnpm dev` is undisturbed, and removes the container afterwards even when
+the run fails. `pnpm --filter @vantion/e2e install-browsers` once, first.
+
+Each test signs up its own user, so no two share a tenant and they run in parallel against one
+database — which is also why none of them truncates a table. The suite presents a different
+`x-forwarded-for` per test: the credential endpoints are rate-limited per caller, and a
+parallel suite arriving from one address would exhaust the bucket rather than test anything.
+
+`e2e/tests/tenancy.spec.ts` is the file to keep working. Unit tests cover row-level security
+and `withOrgScope` separately; only that file shows two real users, session to SQL, failing to
+see each other's rows.
 
 The server also exposes a versioned public HTTP API at `/api/v1`, authenticated by API key
 rather than by session, with its OpenAPI document at `/api/v1/openapi.json` and browsable docs

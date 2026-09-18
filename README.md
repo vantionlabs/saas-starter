@@ -211,9 +211,15 @@ schedule and fills the log.
 | `pnpm lint`                    | oxlint, including Effect type-aware and local rules |
 | `pnpm format` / `format:check` | dprint                                              |
 | `pnpm test`                    | vitest across `apps/*` and `packages/*`             |
+| `pnpm e2e`                     | Playwright, driving both servers in a browser       |
 
 Postgres-backed tests skip without a database. Either `docker compose up -d`, or
 point at an existing instance with `TEST_DB_URL=postgresql://...`.
+
+`pnpm e2e` runs the browser suite in `e2e/`. It needs no setup and no running
+app: it starts its own Postgres on a free port, applies the migrations, runs
+both servers on ports of their own, and cleans up after itself. Run
+`pnpm --filter @vantion/e2e install-browsers` once first.
 
 ## Reading further
 
