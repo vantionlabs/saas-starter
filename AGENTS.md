@@ -3,7 +3,15 @@
 Effect v4 monorepo. pnpm workspace + `tsc -b` project references, oxlint + dprint, vitest.
 
 `apps/` holds what deploys — `apps/server` is the Effect API, `apps/web` is the TanStack Start
-front end, and each owns its `Dockerfile`.
+front end, `apps/worker` runs the outbox relay and the jobs it feeds, and each owns its
+`Dockerfile`.
+
+The worker's loop is deliberate: relay a batch, _then_ drain and dispatch. The relay runs in a
+transaction, and dispatching inside it would hold that transaction open for the length of
+somebody else's HTTP timeout — which is how a slow customer becomes a database problem. With
+`REDIS_URL` the drain is empty and BullMQ's own worker does the work; without it the in-memory
+queue hands back what it is holding and the loop is the worker, which is what lets a fresh
+clone deliver a webhook with no Redis at all.
 
 `apps/design` deploys nothing. It renders the same components from `@vantion/ui` against
 persona fixtures, with no backend, no session and no network — the surface product designers

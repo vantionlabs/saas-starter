@@ -30,11 +30,13 @@ export const relayOnce = Effect.fnUntraced(function*(options?: { readonly batchS
     Effect.gen(function*() {
       const claimed = yield* sql<{
         id: string;
+        organizationId: string | null;
         kind: string;
         payload: unknown;
+        createdAt: Date;
         maxAttempts: number;
       }>`
-        select "id", "kind", "payload", "maxAttempts"
+        select "id", "organizationId", "kind", "payload", "createdAt", "maxAttempts"
         from "outboxEvent"
         where "relayedAt" is null
         order by "createdAt"
@@ -47,8 +49,10 @@ export const relayOnce = Effect.fnUntraced(function*(options?: { readonly batchS
       for (const row of claimed) {
         yield* queue.push({
           id: row.id,
+          organizationId: row.organizationId,
           kind: row.kind,
           payload: row.payload,
+          createdAt: row.createdAt,
           maxAttempts: row.maxAttempts,
         });
       }

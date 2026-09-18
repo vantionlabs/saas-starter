@@ -3,8 +3,12 @@ import { Config, Context, Effect, Layer, Option, Redacted, Schema } from "effect
 /** One unit of work, as it travels to the queue. */
 export type QueuedJob = {
   readonly id: string;
+  /** Null for system work that belongs to no tenant. */
+  readonly organizationId: string | null;
   readonly kind: string;
   readonly payload: unknown;
+  /** When the event happened, not when it was relayed or delivered. */
+  readonly createdAt: Date;
   readonly maxAttempts: number;
 };
 
@@ -19,6 +23,19 @@ export class QueueUnavailable extends Schema.TaggedError<QueueUnavailable>()("Qu
 
 export interface JobQueueService {
   readonly push: (job: QueuedJob) => Effect.Effect<void, QueueUnavailable>;
+  /**
+   * Takes everything waiting, and empties the queue.
+   *
+   * The in-memory implementation returns what it is holding; the Redis one
+   * returns nothing, because BullMQ has its own worker and handing the same job
+   * to two consumers is how it runs twice. A worker calls this after each relay
+   * pass, which is what makes the whole thing work with no Redis at all.
+   *
+   * Draining *after* the relay rather than dispatching inside it is deliberate:
+   * the relay runs in a transaction, and a handler that makes an HTTP call would
+   * hold it open for the length of somebody else's timeout.
+   */
+  readonly drain: Effect.Effect<ReadonlyArray<QueuedJob>>;
   /** What has been pushed, for the in-memory implementation to be asserted on. */
   readonly pushed: Effect.Effect<ReadonlyArray<QueuedJob>>;
 }
@@ -35,8 +52,15 @@ export class JobQueue extends Context.Service<JobQueue, JobQueueService>()("JobQ
   static layerMemory: Layer.Layer<JobQueue> = Layer.sync(JobQueue)(() => {
     const jobs: Array<QueuedJob> = [];
 
+    const waiting: Array<QueuedJob> = [];
+
     return {
-      push: (job) => Effect.sync(() => void jobs.push(job)),
+      push: (job) =>
+        Effect.sync(() => {
+          jobs.push(job);
+          waiting.push(job);
+        }),
+      drain: Effect.sync(() => waiting.splice(0)),
       pushed: Effect.sync(() => [...jobs]),
     };
   });

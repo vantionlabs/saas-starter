@@ -39,6 +39,10 @@ export const layerBullMq = (url: string): Layer.Layer<JobQueue> =>
             catch: () => new QueueUnavailable({ reason: "Unreachable" }),
           }).pipe(Effect.asVoid),
 
+        // BullMQ has its own worker, so nothing is waiting here to be drained —
+        // handing the same job to two consumers is how it runs twice.
+        drain: Effect.succeed([]),
+
         // BullMQ owns the jobs once pushed; asking this instance what it sent
         // would be asking the wrong thing.
         pushed: Effect.succeed([]),

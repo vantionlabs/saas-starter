@@ -1,0 +1,36 @@
+{
+  "name": "@vantion/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch --conditions=development --env-file-if-exists=../../.env src/Main.ts",
+    "build": "tsc -b tsconfig.json && vite build",
+    "start": "node build/bundle/main.js",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "@vantion/database": "workspace:*",
+    "@vantion/module-contact": "workspace:*",
+    "@vantion/module-iam": "workspace:*",
+    "@vantion/module-jobs": "workspace:*",
+    "@vantion/module-webhooks": "workspace:*",
+    "effect": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

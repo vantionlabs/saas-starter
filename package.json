@@ -12,8 +12,8 @@
   },
   "scripts": {
     "prepare": "effect-tsgo patch --oxlint",
-    "dev": "pnpm --parallel --filter @vantion/server --filter @vantion/web dev",
-    "build": "pnpm --filter @vantion/domain --filter @vantion/database --filter @vantion/server --filter @vantion/web build",
+    "dev": "pnpm --parallel --filter @vantion/server --filter @vantion/web --filter @vantion/worker dev",
+    "build": "pnpm --filter @vantion/domain --filter @vantion/database --filter @vantion/server --filter @vantion/worker --filter @vantion/web build",
     "check": "tsc -b tsconfig.json && tsc -p tsconfig.tools.json",
     "check:watch": "tsc -b tsconfig.json --watch",
     "format": "dprint fmt",

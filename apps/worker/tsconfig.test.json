@@ -1,0 +1,56 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "test"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/database"
+    },
+    {
+      "path": "../../packages/modules/contact"
+    },
+    {
+      "path": "../../packages/modules/jobs"
+    },
+    {
+      "path": "../../packages/modules/webhooks"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "#src/*": [
+        "./src/*"
+      ],
+      "@test/*": [
+        "./test/*"
+      ],
+      "@vantion/database/*": [
+        "../../packages/database/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/module-jobs/*": [
+        "../../packages/modules/jobs/src/*.js"
+      ],
+      "@vantion/module-webhooks/*": [
+        "../../packages/modules/webhooks/src/*.js"
+      ]
+    }
+  }
+}
