@@ -1,42 +1,45 @@
-import { signOut } from "@/atom/session-atoms.js";
-import { OrgSwitcher } from "@/components/app/org-switcher.js";
-import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@vantion/ui/ui/button";
-import { Separator } from "@vantion/ui/ui/separator";
-import { Effect } from "effect";
-import { LayoutDashboard, Settings, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type * as React from "react";
+import { Button } from "../ui/button.js";
+import { Separator } from "../ui/separator.js";
 
-/** Exported for the command palette, so the two cannot list different pages. */
-export const nav: ReadonlyArray<{
-  readonly to: NonNullable<LinkProps["to"]>;
+export type NavItem = {
+  readonly to: string;
   readonly label: string;
   readonly icon: LucideIcon;
   readonly exact?: boolean;
-}> = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/contacts", label: "Contacts", icon: Users },
-  // `/settings` rather than a subpage: it redirects to General, and matching
-  // non-exactly is what keeps this item lit on every settings page instead of
-  // only one of them.
-  { to: "/settings", label: "Settings", icon: Settings },
-];
+};
 
 const item =
   "flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
 const active = "flex items-center gap-2 rounded-md px-3 py-2 text-sm bg-accent text-foreground";
 
-/** Real links throughout, so middle-click and copy-link behave as expected. */
-export const Sidebar = (props: { readonly email: string; readonly onSignOut: () => void; }) => (
+/**
+ * The signed-in chrome down the left.
+ *
+ * Takes its destinations rather than declaring them: the route union belongs to
+ * the application, and a sidebar that hard-codes paths is a sidebar only one
+ * application can use. `orgSwitcher` is a slot for the same reason — the real
+ * one reads atoms, and this package holds nothing that fetches.
+ *
+ * Real links throughout, so middle-click and copy-link behave as expected.
+ */
+export const Sidebar = (props: {
+  readonly workspace: string;
+  readonly email: string;
+  readonly items: ReadonlyArray<NavItem>;
+  readonly orgSwitcher?: React.ReactNode;
+  readonly onSignOut: () => void;
+}) => (
   <aside className="flex w-56 shrink-0 flex-col justify-between border-r border-border p-4">
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         <div>
-          <p className="text-sm font-semibold">vantion</p>
+          <p className="text-sm font-semibold">{props.workspace}</p>
           <p className="text-muted-foreground text-xs">workspace</p>
         </div>
-        <OrgSwitcher />
+        {props.orgSwitcher}
       </div>
 
       {/* One line, and the difference between a feature and a secret. */}
@@ -50,7 +53,7 @@ export const Sidebar = (props: { readonly email: string; readonly onSignOut: () 
       <Separator />
 
       <nav className="flex flex-col gap-1">
-        {nav.map(({ to, label, icon: Icon, exact }) => (
+        {props.items.map(({ to, label, icon: Icon, exact }) => (
           <Link
             key={to}
             to={to}
@@ -67,12 +70,7 @@ export const Sidebar = (props: { readonly email: string; readonly onSignOut: () 
 
     <div className="flex flex-col gap-2">
       <p className="truncate font-mono text-xs text-muted-foreground">{props.email}</p>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => void Effect.runPromise(signOut).then(props.onSignOut)}
-      >
+      <Button type="button" variant="outline" size="sm" onClick={props.onSignOut}>
         Sign out
       </Button>
     </div>

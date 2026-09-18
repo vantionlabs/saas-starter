@@ -1,5 +1,5 @@
 import { contactsAtom } from "@/atom/contact-atoms.js";
-import { nav } from "@/components/app/sidebar.js";
+import { nav } from "@/nav.js";
 import { useAtomValue } from "@effect/atom-react";
 import type { LinkProps } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";

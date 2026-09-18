@@ -1,18 +1,22 @@
-import { sessionAtom } from "@/atom/session-atoms.js";
+import { sessionAtom, signOut } from "@/atom/session-atoms.js";
 import { CommandPalette } from "@/components/app/command-palette.js";
-import { Sidebar } from "@/components/app/sidebar.js";
+import { OrgSwitcher } from "@/components/app/org-switcher.js";
 import { VerifyEmailBanner } from "@/components/auth/verify-email-banner.js";
+import { nav } from "@/nav.js";
 import { useAtomRefresh } from "@effect/atom-react";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
-import { Breadcrumbs } from "@vantion/ui/app/breadcrumbs";
+import { AppShell as AppShellView } from "@vantion/ui/app/app-shell";
+import { Sidebar } from "@vantion/ui/app/sidebar";
+import { Effect } from "effect";
 import type * as React from "react";
 
 /**
- * Signed-in chrome: fixed sidebar, scrolling content pane.
+ * The application's chrome: the layout from `@vantion/ui`, with everything that
+ * fetches wired into its slots.
  *
- * No session gate of its own any more. `/_protected` resolves the session on the
- * server and redirects there, so by the time this renders there is a user — which
- * is why it reads one out of route context instead of waiting on an atom and
+ * No session gate of its own. `/_protected` resolves the session on the server
+ * and redirects there, so by the time this renders there is a user — which is
+ * why it reads one out of route context instead of waiting on an atom and
  * showing a "checking…" state the server already knew the answer to.
  *
  * The session atom is still refreshed on sign-out, because the RPC client caches
@@ -24,33 +28,24 @@ export const AppShell = (props: { readonly children: React.ReactNode; }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <CommandPalette />
-      <Sidebar
-        email={user.email}
-        onSignOut={() => {
-          refresh();
-          void navigate({ to: "/auth/sign-in" });
-        }}
-      />
-      <div className="flex min-w-0 flex-1 flex-col overflow-auto">
-        {!user.emailVerified && (
-          <div className="p-4 pb-0">
-            <VerifyEmailBanner email={user.email} />
-          </div>
-        )}
-        {
-          /*
-          Breadcrumb row, then the page. Mounted here rather than pasted into a
-          dozen route files, so a new page gets a trail by declaring a `crumb`
-          and nothing else.
-        */
-        }
-        <main className="flex min-h-0 flex-1 flex-col gap-4 p-8">
-          <Breadcrumbs />
-          {props.children}
-        </main>
-      </div>
-    </div>
+    <AppShellView
+      commandPalette={<CommandPalette />}
+      banner={user.emailVerified ? undefined : <VerifyEmailBanner email={user.email} />}
+      sidebar={
+        <Sidebar
+          workspace="vantion"
+          email={user.email}
+          items={nav}
+          orgSwitcher={<OrgSwitcher />}
+          onSignOut={() =>
+            void Effect.runPromise(signOut).then(() => {
+              refresh();
+              void navigate({ to: "/auth/sign-in" });
+            })}
+        />
+      }
+    >
+      {props.children}
+    </AppShellView>
   );
 };
