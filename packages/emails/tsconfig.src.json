@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../tokens"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "jsx": "react-jsx",
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
+      ]
+    }
+  }
+}

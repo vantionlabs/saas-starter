@@ -80,6 +80,9 @@
       ],
       "@vantion/module-billing/*": [
         "./packages/modules/billing/src/*.js"
+      ],
+      "@vantion/emails/*": [
+        "./packages/emails/src/*.js"
       ]
     }
   }

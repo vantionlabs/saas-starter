@@ -31,6 +31,16 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
       );
 
       /**
+       * What the transactional emails call this product.
+       *
+       * Configured rather than hard-coded: the subject line of a sign-in mail is the
+       * first thing a customer of a renamed fork ever reads.
+       */
+      const product = yield* Config.nonEmptyString("PRODUCT_NAME").pipe(
+        Config.withDefault("vantion"),
+      );
+
+      /**
        * Set only when the web app and the API are on different subdomains of one
        * parent — `.example.com`. Left unset they share a host and better-auth's
        * default is correct.
@@ -47,6 +57,7 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
 
       return makeAuth({
         pool,
+        product,
         baseURL,
         secret: Redacted.value(secret),
         trustedOrigins: [webUrl],

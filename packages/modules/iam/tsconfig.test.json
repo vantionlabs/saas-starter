@@ -13,6 +13,9 @@
     },
     {
       "path": "../notifications"
+    },
+    {
+      "path": "../../emails"
     }
   ],
   "compilerOptions": {
@@ -39,6 +42,9 @@
       ],
       "@vantion/module-notifications/*": [
         "../../../packages/modules/notifications/src/*.js"
+      ],
+      "@vantion/emails/*": [
+        "../../../packages/emails/src/*.js"
       ]
     }
   }

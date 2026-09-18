@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@vantion/database": "workspace:*",
+    "@vantion/emails": "workspace:*",
     "@vantion/module-notifications": "workspace:*",
     "better-auth": "catalog:",
     "effect": "catalog:",

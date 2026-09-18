@@ -1,0 +1,31 @@
+{
+  "name": "@vantion/emails",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": {
+      "development": "./src/*.tsx",
+      "types": "./src/*.tsx",
+      "default": "./build/src/*.js"
+    }
+  },
+  "scripts": {
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "build": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@react-email/components": "catalog:",
+    "@react-email/render": "catalog:",
+    "@vantion/tokens": "workspace:*",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "react-dom": "catalog:",
+    "vitest": "catalog:"
+  }
+}

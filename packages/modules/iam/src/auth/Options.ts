@@ -1,12 +1,17 @@
+import { renderEmail } from "@vantion/emails/Render";
+import { EmailOtp } from "@vantion/emails/templates/EmailOtp";
+import { MagicLink } from "@vantion/emails/templates/MagicLink";
+import { ResetPassword } from "@vantion/emails/templates/ResetPassword";
+import { VerifyEmail } from "@vantion/emails/templates/VerifyEmail";
 import type { EmailMessage } from "@vantion/module-notifications/Mailer";
 import { betterAuth } from "better-auth";
 import { getMigrations } from "better-auth/db/migration";
 import { emailOTP, magicLink, organization } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
+import { Effect } from "effect";
 import { randomUUID } from "node:crypto";
 import type * as Pg from "pg";
 import { grantsFor, statements } from "../identity/Permission.js";
-import * as Templates from "./EmailTemplates.js";
 
 /**
  * Everything better-auth needs, resolved before it is constructed.
@@ -16,6 +21,8 @@ import * as Templates from "./EmailTemplates.js";
  */
 export interface MakeAuthOptions {
   readonly pool: Pg.Pool;
+  /** What the emails call this product. */
+  readonly product: string;
   readonly baseURL: string;
   readonly secret: string;
   readonly trustedOrigins: ReadonlyArray<string>;
@@ -75,6 +82,22 @@ const roles = {
   member: accessControl.newRole(grantsFor.member),
 };
 
+/**
+ * Renders a template and hands it to the mailer.
+ *
+ * better-auth's callbacks are plain async functions, so the render — which is
+ * asynchronous, because that is what `@react-email/render` is — is run here
+ * rather than threaded through as an Effect.
+ */
+const send = async <Props>(
+  options: MakeAuthOptions,
+  to: string,
+  template: Parameters<typeof renderEmail<Props>>[0],
+  props: Props,
+) => {
+  await options.sendEmail({ to, ...(await Effect.runPromise(renderEmail(template, props))) });
+};
+
 /** Single source of truth for the runtime instance and for schema generation. */
 const authOptions = (options: MakeAuthOptions) => ({
   // The shared pool, so auth writes join application transactions and the
@@ -102,7 +125,7 @@ const authOptions = (options: MakeAuthOptions) => ({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }: { user: { email: string; }; url: string; }) => {
-      await options.sendEmail({ to: user.email, ...Templates.resetPassword(url) });
+      await send(options, user.email, ResetPassword, { url, product: options.product });
     },
   },
 
@@ -112,7 +135,7 @@ const authOptions = (options: MakeAuthOptions) => ({
     // The verification link lands them signed in, so there is no second step.
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }: { user: { email: string; }; url: string; }) => {
-      await options.sendEmail({ to: user.email, ...Templates.verifyEmail(url) });
+      await send(options, user.email, VerifyEmail, { url, product: options.product });
     },
   },
 
@@ -155,12 +178,12 @@ const authOptions = (options: MakeAuthOptions) => ({
     }),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
-        await options.sendEmail({ to: email, ...Templates.magicLink(url) });
+        await send(options, email, MagicLink, { url, product: options.product });
       },
     }),
     emailOTP({
       sendVerificationOTP: async ({ email, otp }) => {
-        await options.sendEmail({ to: email, ...Templates.emailOtp(otp) });
+        await send(options, email, EmailOtp, { code: otp, product: options.product });
       },
     }),
   ],

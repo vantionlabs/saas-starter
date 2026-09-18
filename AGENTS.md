@@ -45,6 +45,18 @@ what an application registers. HTTP routes are exported separately (`IamHttp`,
 `HealthHttpRoutes`) because a route layer requires the `HttpRouter` it adds itself to, and
 that service only exists inside `HttpRouter.serve`.
 
+`packages/emails` holds the transactional mail as React components, rendered with
+`@react-email/render` to HTML _and_ plain text. Both, always: a message with no text part is
+one some clients show empty and some filters score as spam, and the text is what makes a magic
+link followable out of the server log when `RESEND_API_KEY` is unset. Subject and body are
+declared together in one `Email`, because kept apart they drift and the reader gets "Verify
+your email" above a password reset. It is the fourth consumer of `@vantion/tokens` — converted
+to hex, because no mail client reads `oklch`.
+
+Every file in `packages/emails` and `packages/ui` is `.tsx`, including those with no JSX. The
+`exports` map can name one extension, so a single `.ts` among them resolves to nothing at run
+time while type-checking perfectly.
+
 `packages/tokens` holds the palette, radius and font stacks in TypeScript and generates the
 stylesheet from them, because three consumers need the same values and only one speaks CSS —
 the web app, the Expo app through NativeWind, and Figma through the library generator.

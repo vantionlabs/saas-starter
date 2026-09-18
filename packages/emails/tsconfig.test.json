@@ -1,0 +1,33 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "test"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../tokens"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@test/*": [
+        "./test/*"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
+      ]
+    }
+  }
+}
