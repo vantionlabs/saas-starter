@@ -18,7 +18,9 @@
     "check:css": "tsx build.mjs --check",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -b tsconfig.json",
+    "figma:script": "tsx figma.mjs",
+    "figma:json": "tsx figma.mjs --json"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

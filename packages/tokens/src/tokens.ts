@@ -39,8 +39,15 @@ export const colors = {
   border: "oklch(0.25 0.005 285)",
   input: "oklch(0.25 0.005 285)",
   ring: "oklch(0.65 0.15 250)",
-  /** Status only. It has no foreground because nothing sets text on it. */
-  success: "oklch(0.65 0.2 150)",
+  /**
+   * Status only. It has no foreground because nothing sets text on it.
+   *
+   * Chroma is 0.16 rather than the 0.2 it started at: above that this hue and
+   * lightness fall outside sRGB, and a browser clips them silently — so the
+   * colour on screen was never the colour written here. `isInGamut` is what
+   * noticed, and a test keeps it noticed.
+   */
+  success: "oklch(0.65 0.16 150)",
 } as const;
 
 export type ColorToken = keyof typeof colors;

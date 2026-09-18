@@ -156,17 +156,18 @@ which works in any history and does not conflict the way a pull across 3,500 fil
 
 ## Commands
 
-|                                |                                                                    |
-| ------------------------------ | ------------------------------------------------------------------ |
-| `pnpm dev`                     | API server and the Start client together, in parallel              |
-| `pnpm build`                   | deployable artifacts for the database, API and web packages        |
-| `pnpm check`                   | `tsc -b` across all project references, then the config files      |
-| `pnpm lint`                    | oxlint, incl. Effect type-aware rules and the local `app/*` plugin |
-| `pnpm format` / `format:check` | dprint                                                             |
-| `pnpm test`                    | vitest across `apps/*` and `packages/*`                            |
-| `pnpm e2e`                     | Playwright, driving both servers in a browser                      |
-| `pnpm new:module <name>`       | scaffolds `packages/modules/<name>` and registers it               |
-| `pnpm design`                  | the product-design app, on persona fixtures                        |
+|                                              |                                                                    |
+| -------------------------------------------- | ------------------------------------------------------------------ |
+| `pnpm dev`                                   | API server and the Start client together, in parallel              |
+| `pnpm build`                                 | deployable artifacts for the database, API and web packages        |
+| `pnpm check`                                 | `tsc -b` across all project references, then the config files      |
+| `pnpm lint`                                  | oxlint, incl. Effect type-aware rules and the local `app/*` plugin |
+| `pnpm format` / `format:check`               | dprint                                                             |
+| `pnpm test`                                  | vitest across `apps/*` and `packages/*`                            |
+| `pnpm e2e`                                   | Playwright, driving both servers in a browser                      |
+| `pnpm new:module <name>`                     | scaffolds `packages/modules/<name>` and registers it               |
+| `pnpm design`                                | the product-design app, on persona fixtures                        |
+| `pnpm --filter @vantion/tokens figma:script` | the Figma variable sync, printed                                   |
 
 The second half of `pnpm check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,

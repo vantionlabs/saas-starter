@@ -4,8 +4,12 @@ import { RouterProvider } from "@tanstack/react-router";
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 
-const root = document.getElementById("root");
-if (root === null) throw new Error("no #root");
+/**
+ * `index.html` in this package declares `#root`, so this cannot be missing
+ * except by editing that file — which is why the mount asserts rather than
+ * modelling a failure nobody can act on.
+ */
+const root = document.getElementById("root") as HTMLElement;
 
 createRoot(root).render(
   <React.StrictMode>

@@ -1,3 +1,4 @@
+import { isInGamut, oklchToHex, oklchToRgb } from "@/color.js";
 import { renderCss } from "@/css.js";
 import { colors, pairs, radius } from "@/tokens.js";
 import * as fs from "node:fs";
@@ -51,5 +52,38 @@ describe("tokens", () => {
     for (const [name, value] of Object.entries(colors)) {
       expect(value, name).toMatch(/^oklch\(/);
     }
+  });
+
+  /**
+   * A colour outside sRGB is clipped by the browser without a word, so what
+   * renders is not what is written here — and the Figma variable, converted from
+   * the same string, disagrees with both. `success` was this: chroma 0.2 at that
+   * hue and lightness clipped to a different green entirely.
+   */
+  it("keeps every colour inside sRGB", () => {
+    for (const [name, value] of Object.entries(colors)) {
+      expect(isInGamut(value), `${name} (${value}) is outside sRGB and will be clipped`).toBe(true);
+    }
+  });
+});
+
+describe("oklch conversion", () => {
+  it("agrees with the endpoints everyone knows", () => {
+    expect(oklchToHex("oklch(0 0 0)")).toBe("#000000");
+    expect(oklchToHex("oklch(1 0 0)")).toBe("#ffffff");
+  });
+
+  it("returns channels Figma can hold", () => {
+    const { r, g, b } = oklchToRgb(colors.primary);
+
+    for (const channel of [r, g, b]) {
+      expect(channel).toBeGreaterThanOrEqual(0);
+      expect(channel).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("refuses a colour it cannot read rather than guessing", () => {
+    expect(() => oklchToHex("#ff0000")).toThrow(/not an oklch colour/);
+    expect(() => oklchToHex("rgb(1 2 3)")).toThrow(/not an oklch colour/);
   });
 });

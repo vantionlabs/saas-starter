@@ -22,7 +22,7 @@
   --border: oklch(0.25 0.005 285);
   --input: oklch(0.25 0.005 285);
   --ring: oklch(0.65 0.15 250);
-  --success: oklch(0.65 0.2 150);
+  --success: oklch(0.65 0.16 150);
 }
 
 @theme inline {
