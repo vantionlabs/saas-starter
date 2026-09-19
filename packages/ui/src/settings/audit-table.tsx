@@ -1,65 +1,78 @@
 import type { AuditEntry, AuditOutcome } from "@vantion/module-iam/audit/Audit";
 import { DateTime } from "effect";
 import { ScrollText } from "lucide-react";
-import { EmptyState } from "../app/empty-state.js";
+import * as React from "react";
 import { Badge } from "../ui/badge.js";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table.js";
+import { DataTable } from "../ui/data-table.js";
+import type { DataColumn } from "../ui/data-table.js";
 
 const variantFor = (outcome: AuditOutcome) =>
   outcome === "ok" ? "secondary" : outcome === "denied" ? "destructive" : "outline";
 
+/**
+ * The audit log, which arrives a hundred rows at a time.
+ *
+ * The reason this one wants a filter more than most: it is read when somebody
+ * is looking for a *particular* thing — who changed that role, when did that
+ * key get revoked — and a hundred rows of successes is where the one denial
+ * hides.
+ */
 export const AuditTable = (props: { readonly entries: ReadonlyArray<AuditEntry>; }) => {
-  if (props.entries.length === 0) {
-    return (
-      <EmptyState
-        icon={ScrollText}
-        title="Nothing recorded yet"
-        description="Every change made in this organization is logged here as it happens."
-      />
-    );
-  }
+  const columns = React.useMemo<Array<DataColumn<AuditEntry>>>(() => [
+    {
+      id: "when",
+      header: "When",
+      accessorFn: (entry) => DateTime.toEpochMillis(entry.at),
+      cell: ({ row }) => (
+        <span className="text-muted-foreground font-mono text-xs">
+          {DateTime.toDateUtc(row.original.at).toISOString().slice(0, 19).replace("T", " ")}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "actorEmail",
+      header: "Who",
+      cell: ({ row }) => (
+        <div className="min-w-0">
+          <p className="truncate text-sm">{row.original.actorEmail}</p>
+          <p className="text-muted-foreground font-mono text-[10px]">{row.original.actorRole}</p>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "action",
+      header: "Action",
+      cell: ({ row }) => <span className="font-mono text-xs">{row.original.action}</span>,
+    },
+    {
+      accessorKey: "outcome",
+      header: "Outcome",
+      // A denial is the most security-relevant row in here, so it is the one
+      // that stands out rather than being buried in successes.
+      cell: ({ row }) => (
+        <Badge variant={variantFor(row.original.outcome)}>{row.original.outcome}</Badge>
+      ),
+    },
+    {
+      accessorKey: "detail",
+      header: "Detail",
+      enableSorting: false,
+      cell: ({ row }) => (
+        <span className="text-muted-foreground font-mono text-[10px]">{row.original.detail}</span>
+      ),
+    },
+  ], []);
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-44">When</TableHead>
-          <TableHead>Who</TableHead>
-          <TableHead>Action</TableHead>
-          <TableHead className="w-28">Outcome</TableHead>
-          <TableHead>Detail</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {props.entries.map((entry) => (
-          <TableRow key={`${entry.actorEmail}-${DateTime.toEpochMillis(entry.at)}-${entry.action}`}>
-            <TableCell>
-              <span className="text-muted-foreground font-mono text-xs">
-                {DateTime.toDateUtc(entry.at).toISOString().slice(0, 19).replace("T", " ")}
-              </span>
-            </TableCell>
-            <TableCell>
-              <div className="min-w-0">
-                <p className="truncate text-sm">{entry.actorEmail}</p>
-                <p className="text-muted-foreground font-mono text-[10px]">{entry.actorRole}</p>
-              </div>
-            </TableCell>
-            <TableCell>
-              <span className="font-mono text-xs">{entry.action}</span>
-            </TableCell>
-            {
-              /* A denial is the most security-relevant row in here, so it is the
-                one that stands out rather than being buried in successes. */
-            }
-            <TableCell>
-              <Badge variant={variantFor(entry.outcome)}>{entry.outcome}</Badge>
-            </TableCell>
-            <TableCell>
-              <span className="text-muted-foreground font-mono text-[10px]">{entry.detail}</span>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      rows={props.entries}
+      columns={columns}
+      filterPlaceholder="Filter the log"
+      empty={{
+        icon: ScrollText,
+        title: "Nothing recorded yet",
+        description: "Every change made in this organization is logged here as it happens.",
+      }}
+    />
   );
 };

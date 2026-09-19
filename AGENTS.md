@@ -110,6 +110,37 @@ is carried, since React Native has no cookie jar and `@better-auth/expo` puts th
 keychain instead. `docs/mobile.md` has the three seams Metro needs and is explicit that the app
 compiles and bundles but has not been run on a device here.
 
+## Long lists
+
+`DataTable` in `packages/ui/src/ui/data-table.tsx` is TanStack Table over this
+repository's own `Table` primitives — headless, so the markup is unchanged and
+what it brings is sorting, filtering and paging. Contacts and the audit log use
+it, because those are the two that grow: one without limit, the other a hundred
+rows at a time, and both are read when somebody is looking for a _particular_
+thing.
+
+**Paged, not virtualised**, and that is the decision to know. Virtualising
+renders only the rows in the viewport, so the server renders a handful and the
+rest appear when JavaScript runs — exactly what every read on these screens was
+moved to a loader to avoid. A page of rows is completely server-rendered and
+readable without JavaScript. A list long enough that paging hurts wants a
+server-side query, not a taller window.
+
+Finding nothing is not the same as having nothing. The empty state is for an
+empty list; a filter that matches no rows says so and **keeps the box**, or
+somebody is left with no way to undo the search that emptied their screen.
+
+Columns are memoised at every call site, because the column array is an input:
+a fresh array each render is a fresh table each render, which throws away the
+sort order and the filter somebody is halfway through typing.
+
+**v8, not v9.** v9 is days old and its option shapes are documented only in its
+type definitions — I reverse-engineered `_features`, `_rowModels` and the column
+generic order from `.d.ts` files before concluding that a template's job is to
+be legible to whoever clones it, and everything they will find is v8. Worth
+revisiting when v9 has documentation; it is a version bump rather than a
+rewrite, since the markup is ours either way.
+
 ## Motion
 
 Durations and easings are **tokens**, in `packages/tokens`, for the same reason
