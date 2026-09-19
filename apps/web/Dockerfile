@@ -59,7 +59,16 @@ COPY . .
 # it, not this container.
 ARG VITE_AUTH_BASE_URL=http://localhost:3000
 ENV VITE_AUTH_BASE_URL=$VITE_AUTH_BASE_URL
-RUN pnpm --filter @vantion/web build
+# `...` is pnpm for "and its dependencies", and it is load-bearing rather than
+# tidy. A workspace package resolves to `build/src/*.js` under its `default`
+# export condition, `.dockerignore` keeps build output out of the context, and
+# nothing here had built one — so a *value* imported from a module failed to
+# resolve while every type-only import beside it was erased and did not.
+# `MAX_UPLOAD_BYTES` in `routes/_protected/files.tsx` was the one that found it.
+#
+# The API and worker images never hit this because they already build
+# `@vantion/domain` first, which builds every module on the way.
+RUN pnpm --filter "@vantion/web..." build
 
 # Alpine for the same reason as the API image: nothing installs here, and the
 # rootfs is 86MB smaller than the Debian base the build needed.

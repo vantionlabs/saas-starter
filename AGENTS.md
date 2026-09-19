@@ -550,6 +550,19 @@ it builds and asserts the copied set is exactly that — both directions, becaus
 image does not need is a layer invalidated by a change that cannot affect it. It runs in
 `pnpm test`, and its failure prints the `COPY` lines to paste.
 
+An image also has to **build what it depends on**, which is what `pnpm --filter "@vantion/web..."`
+means — the `...` is pnpm for "and its dependencies". A workspace package resolves to
+`build/src/*.js` under its `default` export condition, and `.dockerignore` keeps build output
+out of the context, so a value imported from a module does not resolve until something has
+built it. Type-only imports are erased and never notice, which is why this surfaced on exactly
+one line: `MAX_UPLOAD_BYTES` in `routes/_protected/files.tsx`. The API and worker images never
+hit it because they already build `@vantion/domain` first, which builds every module on the way.
+
+The same applies outside Docker. The nightly mobile job bundles with Metro, which resolves
+`@vantion/tokens` through `default` as well, and a bare filter fails on
+`Cannot find module '@vantion/tokens/build/src/color.js'`. A local run cannot catch either one,
+because a working tree has the build output a fresh checkout does not.
+
 Nothing in `pnpm check`, `pnpm lint` or the test suite builds an image, which is the gap
 `.github/workflows/nightly.yml` covers: the mobile bundle and all six images, nightly, because
 together they take longer than the rest of CI and a break in them does not block a merge.

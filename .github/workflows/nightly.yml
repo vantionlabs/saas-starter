@@ -44,7 +44,10 @@ jobs:
       # An Expo SDK is a matched set, and the way this breaks is a transitive
       # bump landing a React Native the SDK was not built against — which the
       # type-checker cannot see and only a bundle finds.
-      - run: pnpm --filter @vantion/mobile build
+      # With its dependencies: Metro resolves `@vantion/tokens` through the
+      # `default` condition, which is built output, and a bare filter builds
+      # only the app — `Cannot find module '@vantion/tokens/build/src/color.js'`.
+      - run: pnpm --filter "@vantion/mobile..." build
 
   images:
     runs-on: ubuntu-latest

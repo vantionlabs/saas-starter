@@ -141,7 +141,11 @@ export const readDockerfile = (repo: string, app: string): DockerfileFacts => {
   const source = fs.readFileSync(path.join(repo, "apps", app, "Dockerfile"), "utf8");
 
   const built = [...source.matchAll(/^RUN pnpm .*--filter.*\bbuild\b.*$/gm)]
-    .flatMap(([line]) => captures(line, /--filter (\S+)/g));
+    .flatMap(([line]) => captures(line, /--filter (\S+)/g))
+    // `--filter "@vantion/web..."` — quotes because a shell would eat nothing
+    // here but a reader might, and `...` meaning "and its dependencies", which
+    // the closure computes anyway.
+    .map((filter) => filter.replace(/^["']|["']$/g, "").replace(/\.{3}$/, ""));
 
   const copied = new Set(captures(source, /^COPY (\S+)\/package\.json/gm));
 
