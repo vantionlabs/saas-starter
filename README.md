@@ -15,7 +15,7 @@
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
   <img alt="262 unit tests" src="https://img.shields.io/badge/tests-262-2EAD33?style=flat-square" />
-  <img alt="34 browser tests" src="https://img.shields.io/badge/browser-34-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+  <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
 <p align="center">
@@ -41,6 +41,7 @@
   <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" />
   <img alt="Railway" src="https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white" />
   <img alt="Figma" src="https://img.shields.io/badge/Figma-F24E1E?style=flat-square&logo=figma&logoColor=white" />
+  <img alt="OpenRouter" src="https://img.shields.io/badge/OpenRouter-6566F1?style=flat-square" />
   <img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-D97757?style=flat-square&logo=claude&logoColor=white" />
 </p>
 
@@ -74,7 +75,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **Transactional email** — React Email templates through Resend, HTML and text
 - ✅ **Realtime** — the same RPC procedures over a websocket, with a worked stream
 - ✅ **MCP server** — your own product as tools in an editor, on the same permissions
-- ✅ **An assistant** — over your own data, through those tools, with writes it must ask for
+- ✅ **An assistant** — over your own data, with a screen, and writes it must ask for
 - ✅ **App shell** — sidebar, command palette, breadcrumbs, empty states, light and dark
 
 **The platform** — what you build the next feature on.
@@ -83,7 +84,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
 - ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 262 unit, 34 browser, testcontainers Postgres, all in CI
+- ✅ **Tests that gate** — 262 unit, 37 browser, testcontainers Postgres, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -577,14 +578,14 @@ are named in the table above because that is the shape, not because they exist.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|           | What                                    | Why it is not here yet                                                                                                                   |
-| --------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Then**  | `packages/core` + `apps/mobile`         | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                                      |
-| **Then**  | `apps/marketing` and `apps/brand`       | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                                   |
-| **Next**  | The assistant's screen, and evals       | The turns, tools and approval gate are built and tested; what is missing is the page a person talks to it on, and a baseline gate in CI. |
-| **Then**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.                   |
-| **Later** | SSO and SAML                            | The heaviest remaining item, and the one enterprise deals actually ask for.                                                              |
-| **Later** | An admin panel                          | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path.                  |
+|           | What                                    | Why it is not here yet                                                                                                  |
+| --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Then**  | `packages/core` + `apps/mobile`         | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                     |
+| **Then**  | `apps/marketing` and `apps/brand`       | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                  |
+| **Next**  | Evals, with a baseline gate             | The assistant is built, tested and on screen; what is missing is a golden set that fails CI when an answer gets worse.  |
+| **Then**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.  |
+| **Later** | SSO and SAML                            | The heaviest remaining item, and the one enterprise deals actually ask for.                                             |
+| **Later** | An admin panel                          | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |
 
 ## What it deliberately does not do
 

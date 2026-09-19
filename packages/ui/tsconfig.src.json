@@ -12,6 +12,9 @@
       "path": "../modules/billing"
     },
     {
+      "path": "../modules/assistant"
+    },
+    {
       "path": "../modules/contact"
     },
     {
@@ -38,6 +41,9 @@
       ],
       "@vantion/module-billing/*": [
         "../../packages/modules/billing/src/*.js"
+      ],
+      "@vantion/module-assistant/*": [
+        "../../packages/modules/assistant/src/*.js"
       ],
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"

@@ -1,5 +1,6 @@
 import { personaById, personas } from "@/fixtures/personas.js";
 import { ApiKeys } from "@/screens/api-keys.js";
+import { Assistant } from "@/screens/assistant.js";
 import { Billing } from "@/screens/billing.js";
 import { Contacts } from "@/screens/contacts.js";
 import { Dashboard } from "@/screens/dashboard.js";
@@ -16,7 +17,15 @@ import {
 } from "@tanstack/react-router";
 import { AppShell } from "@vantion/ui/app/app-shell";
 import { Sidebar } from "@vantion/ui/app/sidebar";
-import { CreditCard, KeyRound, LayoutDashboard, LogIn, Users, UserSquare } from "lucide-react";
+import {
+  CreditCard,
+  KeyRound,
+  LayoutDashboard,
+  LogIn,
+  Sparkles,
+  Users,
+  UserSquare,
+} from "lucide-react";
 
 /**
  * The persona travels in the query string.
@@ -29,6 +38,7 @@ type Search = { readonly persona: string; };
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/contacts", label: "Contacts", icon: Users },
   { to: "/members", label: "Members", icon: UserSquare },
   { to: "/api-keys", label: "API keys", icon: KeyRound },
@@ -111,6 +121,7 @@ const screen = (path: string, component: () => React.ReactElement) =>
 
 const routeTree = rootRoute.addChildren([
   screen("/", Dashboard),
+  screen("/assistant", Assistant),
   screen("/contacts", Contacts),
   screen("/members", Members),
   screen("/api-keys", ApiKeys),

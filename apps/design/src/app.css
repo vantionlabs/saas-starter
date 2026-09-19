@@ -4,6 +4,8 @@
 /* The components live in a sibling package, which Tailwind does not scan. */
 @source "../../../packages/ui/src";
 
+@import "@vantion/ui/assistant/beautiful-ui.css";
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

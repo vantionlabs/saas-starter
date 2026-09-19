@@ -4,7 +4,14 @@ import { Effect, Option, Schema } from "effect";
 import { Prompt } from "effect/unstable/ai";
 import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
-import { Conversation, ConversationId, ConversationNotFound, Message } from "./AssistantRpc.js";
+import {
+  Conversation,
+  ConversationId,
+  ConversationNotFound,
+  Message,
+  Thread,
+} from "./AssistantRpc.js";
+import { pendingApproval } from "./Pending.js";
 
 /**
  * The stored prompt, decoded through the library's own schema.
@@ -164,13 +171,21 @@ export const listMessages = (id: ConversationId) =>
       order by m."createdAt"
     `).pipe(Effect.orDie);
 
-    return rows.map((row) =>
-      new Message({
-        id: row.id,
-        role: row.role,
-        text: row.text,
-        toolName: row.toolName,
-        createdAt: row.createdAt.toISOString(),
-      })
-    );
+    const stored = yield* loadState(id);
+
+    return new Thread({
+      messages: rows.map((row) =>
+        new Message({
+          id: row.id,
+          role: row.role,
+          text: row.text,
+          toolName: row.toolName,
+          createdAt: row.createdAt.toISOString(),
+        })
+      ),
+      pendingApproval: Option.match(stored, {
+        onNone: () => null,
+        onSome: (prompt) => pendingApproval(prompt),
+      }),
+    });
   });

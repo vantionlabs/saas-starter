@@ -19,6 +19,7 @@ export const Keys = {
   audit: "audit",
   apiKeys: "apiKeys",
   files: "files",
+  assistant: "assistant",
   /** Refreshed when a subscription changes, which only Stripe's webhook does. */
   billing: "billing",
   roles: "roles",

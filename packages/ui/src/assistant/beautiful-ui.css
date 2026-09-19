@@ -1,0 +1,157 @@
+/*
+ * Beautiful UI's token names, in our palette.
+ *
+ * The agent components under `assistant/` are adapted from Beautiful UI
+ * (https://www.beautifului.dev, MIT, © 2026 Shane Levine), which styles itself
+ * with Tailwind utilities over its own token set — `bg-surface`, `text-ink-2`,
+ * `shadow-card`. Taking its stylesheet wholesale would have put a second
+ * palette in the product, so this defines those names in terms of
+ * `@vantion/tokens` instead. The components keep their proportions, their
+ * motion and their restraint; the colour is ours, and so is dark mode.
+ *
+ * Scoped to `.bui` rather than `:root` for one concrete reason: Beautiful UI's
+ * `--accent` is an action blue and ours is a muted surface. Two systems, one
+ * name, opposite meanings — so the bridge lives inside a wrapper and these
+ * components must be rendered within one. `Conversation` provides it.
+ */
+
+.bui {
+  --page: var(--background);
+  --canvas: var(--background);
+  --surface: var(--card);
+  --inset: var(--muted);
+  --hover: color-mix(in oklch, var(--muted) 65%, var(--foreground) 6%);
+  --hover-2: color-mix(in oklch, var(--muted) 45%, var(--foreground) 12%);
+
+  --ink: var(--foreground);
+  --ink-2: var(--muted-foreground);
+  --ink-3: color-mix(in oklch, var(--muted-foreground) 75%, var(--background));
+
+  --line: var(--border);
+  --line-strong: var(--input);
+  --line-soft: color-mix(in oklch, var(--border) 60%, var(--background));
+  --field: var(--muted);
+
+  /* Theirs is the action colour, which in this palette is `--primary`. */
+  --accent: var(--primary);
+  --accent-ink: var(--primary);
+  --accent-tint: color-mix(in oklch, var(--primary) 16%, transparent);
+
+  --green: var(--success);
+  --green-tint: color-mix(in oklch, var(--success) 16%, transparent);
+  --red: var(--destructive);
+  --red-tint: color-mix(in oklch, var(--destructive) 16%, transparent);
+
+  /* A hairline ring plus a soft stack, the way the originals read. */
+  --shadow-hairline: 0 0 0 1px var(--line);
+  --shadow-btn: 0 0 0 1px var(--line-strong);
+  --shadow-card: 0 0 0 1px var(--line), 0 1px 2px oklch(0 0 0 / 0.24);
+  --shadow-raised: 0 0 0 1px var(--line), 0 4px 12px oklch(0 0 0 / 0.28);
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-inset: var(--inset);
+  --color-hover: var(--hover);
+  --color-hover-2: var(--hover-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-field: var(--field);
+  --color-accent-tint: var(--accent-tint);
+  --color-green: var(--green);
+  --color-green-tint: var(--green-tint);
+  --color-red: var(--red);
+  --color-red-tint: var(--red-tint);
+
+  --shadow-hairline: var(--shadow-hairline);
+  --shadow-btn: var(--shadow-btn);
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+
+  /* chips 6, controls 8, cards 10 — Beautiful UI's scale, kept */
+  --radius-chip: 6px;
+  --radius-control: 8px;
+  --radius-card: 10px;
+
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* The handful of shared utilities the adapted components rely on. */
+.primitive-card-pad {
+  padding: 12px;
+}
+
+.primitive-card-footer {
+  padding: 10px;
+}
+
+.primitive-icon-button {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer-text {
+  from {
+    background-position: 150% center;
+  }
+
+  to {
+    background-position: -50% center;
+  }
+}
+
+/* A word resolving out of blur as it arrives, which is the streaming tell. */
+@keyframes word-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bui *,
+  .bui *::before,
+  .bui *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

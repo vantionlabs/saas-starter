@@ -1,3 +1,4 @@
+import { Message } from "@vantion/module-assistant/AssistantRpc";
 import { BillingState } from "@vantion/module-billing/BillingRpc";
 import { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Contact } from "@vantion/module-contact/ContactRpc";
@@ -25,6 +26,7 @@ export type Persona = {
   readonly roles: ReadonlyArray<CustomRole>;
   readonly apiKeys: ReadonlyArray<ApiKey>;
   readonly billing: BillingState;
+  readonly conversation: ReadonlyArray<Message>;
 };
 
 const at = (iso: string) => DateTime.makeUnsafe(new Date(iso));
@@ -56,6 +58,30 @@ const firstDay: Persona = {
     configured: false,
     manageable: false,
   }),
+  conversation: [
+    new Message({
+      id: "m-user",
+      role: "user",
+      text: "Who have we not spoken to since the spring?",
+      toolName: null,
+      createdAt: "2026-09-18T09:00:00.000Z",
+    }),
+    new Message({
+      id: "m-tool",
+      role: "tool",
+      text: "SearchContacts",
+      toolName: "SearchContacts",
+      createdAt: "2026-09-18T09:00:01.000Z",
+    }),
+    new Message({
+      id: "m-answer",
+      role: "assistant",
+      text: "Three contacts have had no activity since March. Grace Hopper is not in your "
+        + "contacts at all — shall I add her?",
+      toolName: null,
+      createdAt: "2026-09-18T09:00:03.000Z",
+    }),
+  ],
 };
 
 /** The ordinary case, and the one most screenshots are taken of. */
@@ -97,6 +123,30 @@ const settled: Persona = {
     configured: true,
     manageable: true,
   }),
+  conversation: [
+    new Message({
+      id: "m-user",
+      role: "user",
+      text: "Who have we not spoken to since the spring?",
+      toolName: null,
+      createdAt: "2026-09-18T09:00:00.000Z",
+    }),
+    new Message({
+      id: "m-tool",
+      role: "tool",
+      text: "SearchContacts",
+      toolName: "SearchContacts",
+      createdAt: "2026-09-18T09:00:01.000Z",
+    }),
+    new Message({
+      id: "m-answer",
+      role: "assistant",
+      text: "Three contacts have had no activity since March. Grace Hopper is not in your "
+        + "contacts at all — shall I add her?",
+      toolName: null,
+      createdAt: "2026-09-18T09:00:03.000Z",
+    }),
+  ],
 };
 
 /**
@@ -157,6 +207,30 @@ const crowded: Persona = {
     configured: true,
     manageable: true,
   }),
+  conversation: [
+    new Message({
+      id: "m-user",
+      role: "user",
+      text: "Who have we not spoken to since the spring?",
+      toolName: null,
+      createdAt: "2026-09-18T09:00:00.000Z",
+    }),
+    new Message({
+      id: "m-tool",
+      role: "tool",
+      text: "SearchContacts",
+      toolName: "SearchContacts",
+      createdAt: "2026-09-18T09:00:01.000Z",
+    }),
+    new Message({
+      id: "m-answer",
+      role: "assistant",
+      text: "Three contacts have had no activity since March. Grace Hopper is not in your "
+        + "contacts at all — shall I add her?",
+      toolName: null,
+      createdAt: "2026-09-18T09:00:03.000Z",
+    }),
+  ],
 };
 
 export const personas: ReadonlyArray<Persona> = [firstDay, settled, crowded];

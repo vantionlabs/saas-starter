@@ -21,6 +21,13 @@
  */
 @source "../../../packages/ui/src";
 
+/*
+ * Beautiful UI's token names, defined in our palette. The agent components in
+ * `@vantion/ui/assistant` are styled against them, and they are scoped to
+ * `.bui` so their `--accent` cannot collide with ours.
+ */
+@import "@vantion/ui/assistant/beautiful-ui.css";
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

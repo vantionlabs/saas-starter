@@ -6,6 +6,7 @@
   "license": "MIT",
   "exports": {
     "./package.json": "./package.json",
+    "./assistant/beautiful-ui.css": "./src/assistant/beautiful-ui.css",
     "./*": {
       "development": "./src/*.tsx",
       "types": "./src/*.tsx",
@@ -21,6 +22,7 @@
     "@base-ui/react": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@vantion/module-contact": "workspace:*",
+    "@vantion/module-assistant": "workspace:*",
     "@vantion/module-files": "workspace:*",
     "@vantion/module-billing": "workspace:*",
     "@vantion/module-iam": "workspace:*",

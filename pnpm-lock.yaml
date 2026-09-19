@@ -230,6 +230,9 @@ importers:
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.170.29(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@vantion/module-assistant':
+        specifier: workspace:*
+        version: link:../../packages/modules/assistant
       '@vantion/module-billing':
         specifier: workspace:*
         version: link:../../packages/modules/billing
@@ -431,6 +434,9 @@ importers:
       '@vantion/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@vantion/module-assistant':
+        specifier: workspace:*
+        version: link:../../packages/modules/assistant
       '@vantion/module-billing':
         specifier: workspace:*
         version: link:../../packages/modules/billing
@@ -972,6 +978,9 @@ importers:
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.170.29(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@vantion/module-assistant':
+        specifier: workspace:*
+        version: link:../modules/assistant
       '@vantion/module-billing':
         specifier: workspace:*
         version: link:../modules/billing

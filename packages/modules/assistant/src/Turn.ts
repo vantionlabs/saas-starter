@@ -4,6 +4,7 @@ import { Chat, type Prompt } from "effect/unstable/ai";
 import type { Chunk, ConversationId } from "./AssistantRpc.js";
 import { AssistantUnavailable } from "./AssistantRpc.js";
 import { appendMessage, saveState } from "./Conversations.js";
+import { describe } from "./Pending.js";
 
 /**
  * How the assistant is told what it is.
@@ -25,17 +26,6 @@ permission was missing and stop — do not try another way round.
 
 Before anything that writes, state plainly what you are about to do. The person
 will be asked to approve it.`;
-
-/** What a tool call looked like, in text a person can check before approving. */
-const describe = (name: string, params: unknown): string => {
-  const rendered = typeof params === "object" && params !== null
-    ? Object.entries(params as Record<string, unknown>)
-      .map(([key, value]) => `${key}: ${String(value)}`)
-      .join(", ")
-    : String(params);
-
-  return rendered === "" ? name : `${name} — ${rendered}`;
-};
 
 /**
  * One turn, as chunks a screen can render.

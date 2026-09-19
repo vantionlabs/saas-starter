@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
+import { Route as ProtectedAssistantRouteImport } from './routes/_protected/assistant'
 import { Route as ProtectedContactsRouteImport } from './routes/_protected/contacts'
 import { Route as ProtectedFilesRouteImport } from './routes/_protected/files'
 import { Route as ProtectedSettingsRouteRouteImport } from './routes/_protected/settings/route'
@@ -43,6 +44,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedAssistantRoute = ProtectedAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedContactsRoute = ProtectedContactsRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/': typeof ProtectedIndexRoute
   '/settings': typeof ProtectedSettingsRouteRouteWithChildren
+  '/assistant': typeof ProtectedAssistantRoute
   '/contacts': typeof ProtectedContactsRoute
   '/files': typeof ProtectedFilesRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
+  '/assistant': typeof ProtectedAssistantRoute
   '/contacts': typeof ProtectedContactsRoute
   '/files': typeof ProtectedFilesRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
   '/_protected/settings': typeof ProtectedSettingsRouteRouteWithChildren
+  '/_protected/assistant': typeof ProtectedAssistantRoute
   '/_protected/contacts': typeof ProtectedContactsRoute
   '/_protected/files': typeof ProtectedFilesRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/'
     | '/settings'
+    | '/assistant'
     | '/contacts'
     | '/files'
     | '/auth/forgot-password'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/assistant'
     | '/contacts'
     | '/files'
     | '/auth/forgot-password'
@@ -257,6 +268,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_protected'
     | '/_protected/settings'
+    | '/_protected/assistant'
     | '/_protected/contacts'
     | '/_protected/files'
     | '/auth/forgot-password'
@@ -303,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof ProtectedIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/assistant': {
+      id: '/_protected/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof ProtectedAssistantRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/contacts': {
@@ -488,6 +507,7 @@ const ProtectedSettingsRouteRouteWithChildren =
 
 interface ProtectedRouteChildren {
   ProtectedSettingsRouteRoute: typeof ProtectedSettingsRouteRouteWithChildren
+  ProtectedAssistantRoute: typeof ProtectedAssistantRoute
   ProtectedContactsRoute: typeof ProtectedContactsRoute
   ProtectedFilesRoute: typeof ProtectedFilesRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
@@ -495,6 +515,7 @@ interface ProtectedRouteChildren {
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedSettingsRouteRoute: ProtectedSettingsRouteRouteWithChildren,
+  ProtectedAssistantRoute: ProtectedAssistantRoute,
   ProtectedContactsRoute: ProtectedContactsRoute,
   ProtectedFilesRoute: ProtectedFilesRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,

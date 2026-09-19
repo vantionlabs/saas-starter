@@ -77,8 +77,8 @@ describe.skipIf(testDbUrl() === undefined)("the assistant", () => {
 
         // The product's own record, which is what the screen renders — the
         // provider's history is a cache beside it.
-        const messages = yield* client.GetMessages({ conversationId: conversation.id });
-        expect(messages.map((message) => message.role)).toEqual(["user", "assistant"]);
+        const thread = yield* client.GetMessages({ conversationId: conversation.id });
+        expect(thread.messages.map((message) => message.role)).toEqual(["user", "assistant"]);
 
         // And the first thing said names the conversation.
         const listed = yield* client.ListConversations();
@@ -103,8 +103,8 @@ describe.skipIf(testDbUrl() === undefined)("the assistant", () => {
         expect(said.filter((chunk) => chunk._tag === "Tool").map((chunk) => chunk.name))
           .toEqual(["ListContacts"]);
 
-        const messages = yield* client.GetMessages({ conversationId: conversation.id });
-        expect(messages.map((message) => message.toolName)).toContain("ListContacts");
+        const thread = yield* client.GetMessages({ conversationId: conversation.id });
+        expect(thread.messages.map((message) => message.toolName)).toContain("ListContacts");
       }));
   });
 

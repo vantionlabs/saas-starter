@@ -71,12 +71,32 @@ export class ConversationNotFound
 
 const turnError = Schema.Union([Forbidden, AssistantUnavailable, ConversationNotFound]);
 
+/**
+ * A conversation, and whatever it is still waiting on.
+ *
+ * The pending approval is part of the *stored* conversation rather than
+ * something the client holds from the turn that produced it. A gate somebody
+ * loses by opening another page is not a gate — and reloading the page is the
+ * first thing anybody does when they are unsure about a write they were just
+ * asked to authorise.
+ */
+export class Thread extends Schema.Class<Thread>("Thread")({
+  messages: Schema.Array(Message),
+  pendingApproval: Schema.NullOr(
+    Schema.Struct({
+      approvalId: Schema.String,
+      tool: Schema.String,
+      summary: Schema.String,
+    }),
+  ),
+}) {}
+
 export const AssistantRpcs = RpcGroup.make(
   Rpc.make("ListConversations", { success: Schema.Array(Conversation), error: Forbidden }),
   Rpc.make("StartConversation", { success: Conversation, error: Forbidden }),
   Rpc.make("GetMessages", {
     payload: { conversationId: ConversationId },
-    success: Schema.Array(Message),
+    success: Thread,
     error: Schema.Union([Forbidden, ConversationNotFound]),
   }),
   /**

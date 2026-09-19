@@ -124,6 +124,21 @@ drives the same tools through the same gate, which is what the tests use — nev
 fallback, because a deployment that quietly answers from a lookup table is worse than one that
 says it has no model.
 
+The screen is `/assistant`, built from `@vantion/ui/assistant` — components adapted from
+Beautiful UI (MIT, recorded in `NOTICE`). Two things about that adaptation are load-bearing.
+Its stylesheet defines _its_ token names in terms of `@vantion/tokens` rather than shipping a
+second palette, so the assistant looks like the rest of the product; and it is scoped to a
+`.bui` class because Beautiful UI's `--accent` is an action colour while ours is a muted
+surface — same name, opposite meanings, so the components must render inside that wrapper and
+`Conversation` provides it.
+
+A pending approval lives in the stored conversation, not in the page. `GetMessages` returns it
+alongside the messages, read out of the history as a request with no response — so opening
+another tab to check something before answering does not lose the decision. The first version
+kept it in React state and cleared it when the stream ended, which made the card appear and
+vanish in the same frame: a turn _ending_ is not a turn _finishing_, and only the browser test
+could have caught the difference.
+
 `apps/mcp` is that toolkit over stdio, which is how an editor starts an MCP server: a
 subprocess with credentials in its own configuration and no port to expose. It resolves
 `VANTION_API_KEY` once at boot through the same `ApiKeyAuth` the public API uses, so the

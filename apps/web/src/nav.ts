@@ -1,5 +1,5 @@
 import type { LinkProps } from "@tanstack/react-router";
-import { LayoutDashboard, Paperclip, Settings, Users } from "lucide-react";
+import { LayoutDashboard, Paperclip, Settings, Sparkles, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
@@ -17,6 +17,7 @@ export const nav: ReadonlyArray<{
   readonly exact?: boolean;
 }> = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/contacts", label: "Contacts", icon: Users },
   { to: "/files", label: "Files", icon: Paperclip },
   // `/settings` rather than a subpage: it redirects to General, and matching

@@ -71,6 +71,15 @@ const serverEnv = {
    * needs no bucket.
    */
   FILES_DIR: path.join(import.meta.dirname, "test-results", "uploads"),
+  /**
+   * The deterministic stand-in, asked for explicitly.
+   *
+   * What the browser suite is for here is the loop and the gate — a tool runs,
+   * a write stops to ask, a person answers — none of which a real model would
+   * prove more truthfully. It would only make the run non-deterministic, slow
+   * and chargeable.
+   */
+  ASSISTANT_MODEL: "scripted",
 };
 
 export default defineConfig({
