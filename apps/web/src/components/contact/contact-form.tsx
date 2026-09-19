@@ -5,6 +5,7 @@ import { AppRpc } from "@vantion/core/AppRpc";
 import { Keys } from "@vantion/core/Keys";
 import { ContactFields } from "@vantion/module-contact/ContactRpc";
 import { textField } from "@vantion/ui/auth/text-field";
+import { RevealWhen } from "@vantion/ui/motion/reveal";
 import { Alert, AlertDescription } from "@vantion/ui/ui/alert";
 import { Button } from "@vantion/ui/ui/button";
 import { Effect, Exit } from "effect";
@@ -87,19 +88,27 @@ export const ContactForm = () => {
         >
           {result.waiting ? "Adding…" : "Add contact"}
         </Button>
-        {result._tag === "Failure" && (
-          /**
-           * One alert for the two ways a submit fails, which `submitMessage`
-           * tells apart: the form not validating, or the request being refused.
-           * Telling somebody to "check the fields" when their permission was
-           * denied sends them looking in the wrong place.
-           */
-          <Alert variant="destructive" className="w-full">
+        {
+          /*
+          One alert for the two ways a submit fails, which `submitMessage` tells
+          apart: the form not validating, or the request being refused. Telling
+          somebody to "check the fields" when their permission was denied sends
+          them looking in the wrong place.
+
+          `RevealWhen` rather than a conditional, because an element being
+          removed cannot animate itself out — by the time React has removed it
+          there is nothing left to animate. This is also exactly what motion is
+          for here: something that appeared *because a person did something*,
+          not content that came down with the page.
+        */
+        }
+        <RevealWhen show={result._tag === "Failure"} className="w-full">
+          <Alert variant="destructive">
             <AlertDescription>
               {submitMessage(result, "That contact could not be added.")}
             </AlertDescription>
           </Alert>
-        )}
+        </RevealWhen>
       </div>
     </form.Initialize>
   );

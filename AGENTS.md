@@ -110,6 +110,43 @@ is carried, since React Native has no cookie jar and `@better-auth/expo` puts th
 keychain instead. `docs/mobile.md` has the three seams Metro needs and is explicit that the app
 compiles and bundles but has not been run on a device here.
 
+## Motion
+
+Durations and easings are **tokens**, in `packages/tokens`, for the same reason
+colour is: three consumers need them and only one speaks CSS — the stylesheet,
+`motion/react` in `packages/ui`, and `apps/brand`. That last one is why this
+moved: the brand kit kept its own copy of the three curves inline, the one part
+of a page whose whole argument is that every value on it is generated. A brand
+document naming a different easing than the product animates with is worse than
+none, because people believe it.
+
+Three durations and three easings, deliberately. A scale with seven steps is one
+where nobody can say which to use, so every choice becomes a guess and the
+product ends up with nine.
+
+**Nothing that is server-rendered may start invisible.** An entrance animation
+is `initial={{ opacity: 0 }}`, and on a server-rendered page that ships the
+markup with its content hidden until JavaScript runs — undoing the reason the
+read was moved to the server, and leaving anything without JavaScript looking at
+an empty page. `Reveal` renders its children plainly until `useHydrated` says
+React has attached, and a test asserts the server markup contains neither
+`opacity:0` nor the hidden content. Removing that guard makes the test print
+`<div style="opacity:0">Nine hundred contacts</div>`, which is the whole point.
+
+So motion is for **chrome**: something that appeared because a person did
+something, after hydration. A validation message, a panel opening, a row just
+created. Not a table that came down with the page.
+
+Everything respects `prefers-reduced-motion`, via `useTransition` collapsing to
+zero duration rather than removing the animation — the end state stays
+identical and only the travel goes.
+
+`LazyMotion` with the `m` component and `strict`, not `motion.div`. Measured:
+the full component adds **124 kB** of client JavaScript, the same order as the
+Stripe SDK that once leaked into this bundle; `m` plus `domAnimation` brings it
+to about 80 kB. `strict` makes `motion.div` throw at runtime, so the expensive
+import cannot return by habit.
+
 ## The account is not the organization's
 
 `/settings/*` belongs to a workspace and is gated on what somebody may do inside

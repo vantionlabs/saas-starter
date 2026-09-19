@@ -21,11 +21,11 @@
   "dependencies": {
     "@base-ui/react": "catalog:",
     "@tanstack/react-router": "catalog:",
-    "@vantion/module-contact": "workspace:*",
     "@vantion/emails": "workspace:*",
     "@vantion/module-assistant": "workspace:*",
-    "@vantion/module-files": "workspace:*",
     "@vantion/module-billing": "workspace:*",
+    "@vantion/module-contact": "workspace:*",
+    "@vantion/module-files": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "@vantion/tokens": "workspace:*",
     "class-variance-authority": "catalog:",
@@ -33,6 +33,7 @@
     "cmdk": "catalog:",
     "effect": "catalog:",
     "lucide-react": "catalog:",
+    "motion": "catalog:",
     "react": "catalog:",
     "sonner": "catalog:",
     "tailwind-merge": "catalog:"

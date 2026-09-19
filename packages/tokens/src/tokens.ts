@@ -78,3 +78,50 @@ export const pairs = [
   ["accent", "accent-foreground"],
   ["destructive", "destructive-foreground"],
 ] as const satisfies ReadonlyArray<readonly [ColorToken, ColorToken]>;
+
+/**
+ * Motion, and it is a token for the same reason colour is.
+ *
+ * Three consumers again: the stylesheet, `motion/react` in `packages/ui`, and
+ * `apps/brand`, which used to keep its own copy of these curves inline — the
+ * one part of a page whose whole argument is that it is generated from this
+ * file. A brand document that writes down a different easing than the product
+ * uses is worse than no document, because people believe it.
+ *
+ * Short and few. Motion here says something arrived or changed; it is never
+ * decoration, and everything built on these honours `prefers-reduced-motion`.
+ */
+export const easings = {
+  /** Anything arriving: a card, a chip, a streamed word. */
+  out: "cubic-bezier(0.23, 1, 0.32, 1)",
+  /** Anything that moves and settles, like a panel opening. */
+  inOut: "cubic-bezier(0.77, 0, 0.175, 1)",
+  /** Only for something continuous — a shimmer, a progress bar. */
+  linear: "linear",
+} as const;
+
+export type EasingToken = keyof typeof easings;
+
+/**
+ * Milliseconds, and deliberately only three.
+ *
+ * A scale with seven steps is one where nobody can say which to use, so every
+ * choice becomes a guess and the product ends up with nine durations. `fast` is
+ * a state change on something already on screen, `base` is the default for
+ * anything entering or leaving, `slow` is reserved for something crossing the
+ * whole viewport.
+ */
+export const durations = {
+  fast: 120,
+  base: 200,
+  slow: 320,
+} as const;
+
+export type DurationToken = keyof typeof durations;
+
+/** What each easing is for, so the brand kit can read it rather than restate it. */
+export const easingUse: Record<EasingToken, { readonly name: string; readonly use: string; }> = {
+  out: { name: "Out, strong", use: "Anything arriving: a card, a chip, a streamed word." },
+  inOut: { name: "In and out", use: "Anything that moves and settles, like a panel opening." },
+  linear: { name: "Linear", use: "Only for something continuous — a shimmer, a progress bar." },
+};

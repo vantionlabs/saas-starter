@@ -1,4 +1,4 @@
-import { colors, fonts, radius } from "./tokens.js";
+import { colors, durations, easings, fonts, radius } from "./tokens.js";
 
 /**
  * The stylesheet, rendered from the tokens.
@@ -35,6 +35,14 @@ ${theme}
 
   --font-sans: ${fonts.sans};
   --font-mono: ${fonts.mono};
+
+  --ease-out: ${easings.out};
+  --ease-in-out: ${easings.inOut};
+  --ease-linear: ${easings.linear};
+
+  --duration-fast: ${durations.fast}ms;
+  --duration-base: ${durations.base}ms;
+  --duration-slow: ${durations.slow}ms;
 }
 `;
 };
