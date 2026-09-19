@@ -1,0 +1,42 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src",
+    "test"
+  ],
+  "references": [
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/tokens"
+    },
+    {
+      "path": "../../packages/emails"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "tsBuildInfoFile": ".tsbuildinfo/app.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
+      ],
+      "@vantion/emails/*": [
+        "../../packages/emails/src/*.tsx"
+      ],
+      "@vantion/ui/*": [
+        "../../packages/ui/src/*.tsx"
+      ]
+    }
+  }
+}

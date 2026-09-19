@@ -30,6 +30,7 @@ result-*
 
 # The marketing site's server bundle, built only to prerender its one page.
 apps/marketing/.ssr/
+apps/brand/.ssr/
 
 # playwright
 e2e/.e2e-env.json

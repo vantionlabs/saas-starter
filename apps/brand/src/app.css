@@ -1,0 +1,36 @@
+@import "tailwindcss";
+@import "@vantion/tokens/tokens.css";
+
+/* The components live in a sibling package, which Tailwind does not scan. */
+@source "../../../packages/ui/src";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/* The one animation this page defines, for the motion specimens. */
+@keyframes brand-slide {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(calc(100cqw - 100%));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

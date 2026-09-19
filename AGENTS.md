@@ -37,6 +37,20 @@ The calls to action are anchors wearing `buttonVariants`, not the `Button` compo
 sets `role="button"` even when rendered as an anchor, which is right for a control and wrong
 for a destination.
 
+`apps/brand` is the brand kit, and it is generated rather than written: every swatch, hex and
+pairing comes from `@vantion/tokens`, and the email footer comes from `@vantion/emails`. A brand
+document maintained by hand is out of date the first time somebody changes a colour, and then
+it is worse than nothing because people still believe it. It also marks any token outside sRGB,
+which is how one was caught before it shipped.
+
+Its voice section is pairs rather than adjectives. "Be clear and friendly" is advice nobody can
+apply; a sentence beside the one it replaces is a decision somebody can copy, and every
+"instead" there is a string the product actually ships.
+
+Both static apps build the same way — Vite bundles, a second SSR build renders the page, and
+`prerender.mjs` writes it into `index.html` — and both ship as nginx images with no JavaScript
+toolchain inside.
+
 `packages/modules/*` holds one package per feature, `@vantion/module-<name>`. A module owns
 its whole vertical: the contract both ends compile against, the RPC handlers, the stores, and
 the services behind them.

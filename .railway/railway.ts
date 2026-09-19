@@ -300,5 +300,28 @@ export default defineRailway((ctx) => {
     env: {},
   });
 
-  return project("vantion", { resources: [db, cache, api, worker, web, marketing] });
+  /** The brand kit, the same way: files behind nginx, on a host of its own. */
+  const brand = service("brand", {
+    source: github(REPO, { branch: target.branch }),
+    build: {
+      builder: "DOCKERFILE",
+      dockerfilePath: "apps/brand/Dockerfile",
+      watchPatterns: [
+        "apps/brand/**",
+        "packages/ui/**",
+        "packages/tokens/**",
+        "packages/emails/**",
+        "pnpm-lock.yaml",
+      ],
+    },
+    deploy: {
+      restartPolicyType: "ON_FAILURE",
+      restartPolicyMaxRetries: 5,
+    },
+    env: {},
+  });
+
+  return project("vantion", {
+    resources: [db, cache, api, worker, web, marketing, brand],
+  });
 });

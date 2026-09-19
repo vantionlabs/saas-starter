@@ -64,6 +64,9 @@
       "path": "apps/marketing"
     },
     {
+      "path": "apps/brand"
+    },
+    {
       "path": "apps/worker"
     },
     {
