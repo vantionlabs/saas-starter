@@ -274,11 +274,14 @@ export default defineRailway((ctx) => {
   /**
    * The marketing site, on its own host.
    *
-   * Static files behind nginx, so it has no variables, no database and no
-   * health check worth writing — if the container is up, the page is there.
-   * Its own service rather than a route on the web app because a landing page
-   * and a product should be able to fail independently: a deploy that breaks
-   * the app should not take the page that explains it down too.
+   * Server-rendered, because each page needs its own title, canonical and Open
+   * Graph tags and the sitemap has to be served rather than pasted. Its own
+   * service rather than a route on the web app because a landing page and a
+   * product should fail independently: a deploy that breaks the app should not
+   * take down the page explaining it.
+   *
+   * No database, no secrets and no health check beyond the platform's own — if
+   * the process is up, the pages are there.
    */
   const marketing = service("marketing", {
     source: github(REPO, { branch: target.branch }),

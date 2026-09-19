@@ -1,5 +1,5 @@
 import "@/app.css";
-import { Brand } from "@/Brand.js";
+import { Brand } from "@/brand.js";
 import * as React from "react";
 import { hydrateRoot } from "react-dom/client";
 

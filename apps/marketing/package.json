@@ -6,8 +6,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && vite build --ssr src/render.tsx --outDir .ssr && node prerender.mjs",
+    "build": "vite build",
     "preview": "vite preview",
+    "start": "node .output/server/index.mjs",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run"
   },
@@ -17,7 +18,9 @@
     "@vantion/ui": "workspace:*",
     "lucide-react": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
@@ -29,8 +32,9 @@
     "@vitejs/plugin-react": "catalog:",
     "jsdom": "catalog:",
     "tailwindcss": "catalog:",
-    "tsx": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "nitro": "catalog:"
   }
 }

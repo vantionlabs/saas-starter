@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="289 unit tests" src="https://img.shields.io/badge/tests-289-2EAD33?style=flat-square" />
+  <img alt="294 unit tests" src="https://img.shields.io/badge/tests-294-2EAD33?style=flat-square" />
   <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -85,7 +85,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
 - ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 289 unit, 37 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 294 unit, 37 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -139,7 +139,7 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps. That is what lets a suite of 289 be a gate an agent
+the edges, and no sleeps. That is what lets a suite of 294 be a gate an agent
 runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
@@ -159,7 +159,7 @@ emails and the Figma library at once.
 | `apps/web`       | the product itself, TanStack Start                                                                       | **built** |
 | `apps/worker`    | the outbox relay and the jobs it feeds                                                                   | **built** |
 | `apps/design`    | the product's screens on persona fixtures, no backend — what designers work on, and what pushes to Figma | **built** |
-| `apps/marketing` | the landing page, prerendered, with pricing read from the product's own plans                            | **built** |
+| `apps/marketing` | the marketing site: multi-page, server-rendered, pricing read from the product's own plans               | **built** |
 | `apps/brand`     | the brand kit, generated from the tokens: colour, type, voice, motion, email footer, social card         | **built** |
 | `apps/mcp`       | the toolkit over stdio: your product as tools in an editor                                               | **built** |
 | `apps/mobile`    | Expo, sharing the contract and the tokens                                                                | planned   |
@@ -484,7 +484,7 @@ it.
 | ------------------------------ | --------------------------------------------------- |
 | `pnpm dev`                     | API, front end and worker together                  |
 | `pnpm design`                  | the design app, on persona fixtures                 |
-| `pnpm marketing`               | the landing page, prerendered at build              |
+| `pnpm marketing`               | the marketing site, server-rendered                 |
 | `pnpm brand`                   | the brand kit, generated from the tokens            |
 | `pnpm new:module <name>`       | scaffold a feature package and register it          |
 | `pnpm build`                   | deployable artifacts for every package              |

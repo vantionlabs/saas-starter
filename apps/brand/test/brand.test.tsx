@@ -1,4 +1,4 @@
-import { Brand } from "@/Brand.js";
+import { Brand } from "@/brand.js";
 import { render } from "@/render.js";
 import { describe, expect, it } from "@effect/vitest";
 import { render as mount, screen } from "@testing-library/react";

@@ -21,10 +21,22 @@ and `crowded` for the long names and many rows that actually break a layout. The
 travels in the query string, so a designer can link to exactly the state they mean. `pnpm
 design`.
 
-`apps/marketing` is the landing page, and it deploys as files: nginx serving what Vite built,
-with no JavaScript toolchain in the image at all. `pnpm build` renders the page into
-`index.html` after bundling, because a landing page has to be readable by somebody who has not
-waited for a bundle — and by a crawler and a link preview, neither of which runs one.
+`apps/marketing` is the marketing site: several pages, server-rendered with TanStack Start for
+the same reasons `apps/web` uses it, minus the session. It began as one prerendered page, and
+stopped being the right shape the moment it had a navigation — once there are five routes, each
+needing its own title, canonical and Open Graph tags, and a `sitemap.xml` to serve, rendering on
+the server is the simpler thing rather than the heavier one.
+
+Its pages are one list. `site.ts` declares them, the header and footer read it, the sitemap is
+generated from it, and a test asserts the route files and that list are the same set — a route
+nobody can reach and a nav link to nothing are both silent failures on a marketing site.
+`meta()` builds every page's head in one place, because the failure is always the same: a page
+gains a title and forgets the description, and nothing on screen shows it.
+
+`robots.txt` and `sitemap.xml` come from a small Vite plugin rather than a build script, so
+the config — which Vite already compiles — can import the same module the pages do. It is
+listed _first_ among the plugins: its dev middleware has to run before Start's handler, which
+otherwise answers `/robots.txt` with the router's not-found page.
 
 Its pricing table is read from `@vantion/module-iam`'s own `features` and `limits`, not retyped
 beside them. A pricing page promising ten seats while the application enforces three is the

@@ -1,8 +1,8 @@
-import { Assets } from "@/sections/Assets.js";
-import { Colour } from "@/sections/Colour.js";
-import { Motion } from "@/sections/Motion.js";
-import { Type } from "@/sections/Type.js";
-import { Voice } from "@/sections/Voice.js";
+import { Assets } from "@/sections/assets.js";
+import { Colour } from "@/sections/colour.js";
+import { Motion } from "@/sections/motion.js";
+import { Type } from "@/sections/type.js";
+import { Voice } from "@/sections/voice.js";
 
 const sections = [
   ["colour", "Colour"],
