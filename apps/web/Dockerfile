@@ -67,7 +67,18 @@ ENV VITE_AUTH_BASE_URL=$VITE_AUTH_BASE_URL
 # notice. `tooling/test/docker.test.ts` asserts the set is complete.
 # `MAX_UPLOAD_BYTES` in `routes/_protected/files.tsx` is the line that found it:
 # one value import among sixteen from the same packages.
-RUN pnpm --filter "@vantion/web..." build
+# `--workspace-concurrency=1` because `tsc -b` in one package builds the
+# *projects* of the packages it references, and several here reference the same
+# ones: `modules/agent` and `modules/assistant` both reference
+# `packages/database`. Run in parallel, two `tsc` processes write that project's
+# output and `.tsbuildinfo` at once, and a third reads it half-written —
+# `error TS2306: File 'src/PgTest.ts' is not a module`, on a file that is one.
+#
+# No package-level ordering fixes it: pnpm orders by `package.json`, and the
+# duplicated work is inside tsc's own reference graph. The race was always here
+# — the old filter list ran two such processes — and building the whole closure
+# made it likely rather than rare. Serialising costs about a minute.
+RUN pnpm --workspace-concurrency=1 --filter "@vantion/web..." build
 
 # Alpine for the same reason as the API image: nothing installs here, and the
 # rootfs is 86MB smaller than the Debian base the build needed.

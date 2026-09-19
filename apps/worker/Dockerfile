@@ -62,7 +62,18 @@ COPY . .
 # context, and a value imported from one does not resolve until something has
 # built it — while every type-only import beside it is erased and does not
 # notice. `tooling/test/docker.test.ts` asserts the set is complete.
-RUN pnpm --filter "@vantion/worker..." build
+# `--workspace-concurrency=1` because `tsc -b` in one package builds the
+# *projects* of the packages it references, and several here reference the same
+# ones: `modules/agent` and `modules/assistant` both reference
+# `packages/database`. Run in parallel, two `tsc` processes write that project's
+# output and `.tsbuildinfo` at once, and a third reads it half-written —
+# `error TS2306: File 'src/PgTest.ts' is not a module`, on a file that is one.
+#
+# No package-level ordering fixes it: pnpm orders by `package.json`, and the
+# duplicated work is inside tsc's own reference graph. The race was always here
+# — the old filter list ran two such processes — and building the whole closure
+# made it likely rather than rare. Serialising costs about a minute.
+RUN pnpm --workspace-concurrency=1 --filter "@vantion/worker..." build
 
 # Alpine, not the Debian base the build used. `effect-tsgo` has no musl build so
 # the install cannot run here — but nothing installs at runtime, it only runs

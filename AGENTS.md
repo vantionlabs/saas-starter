@@ -547,6 +547,16 @@ docker build -f apps/server/Dockerfile -t vantion-api .
 docker build -f apps/web/Dockerfile    -t vantion-web .
 ```
 
+Every image builds with `--workspace-concurrency=1`, and so does `pnpm build`. `tsc -b` in one
+package builds the _projects_ of the packages it references, and several here reference the
+same ones — `modules/agent` and `modules/assistant` both reference `packages/database`. Run in
+parallel, two `tsc` processes write that project's output and `.tsbuildinfo` at once and a
+third reads it half-written, which surfaces as `error TS2306: File 'src/PgTest.ts' is not a
+module` on a file that is one. No package-level ordering fixes it: pnpm orders by
+`package.json` and the duplicated work is inside tsc's own reference graph. The race was always
+here; building the whole closure made it likely rather than rare, and it appeared in CI while
+passing three times locally.
+
 Each one's `deps` stage copies only the manifests that image's build reaches, so a source
 change does not reinstall the world and no image pulls React Native, Expo or Playwright. That
 subset is a registration elsewhere, though, and it had drifted in **all six at once** —

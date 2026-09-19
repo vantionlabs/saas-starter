@@ -24,7 +24,7 @@
     "services:logs": "docker compose logs -f",
     "services:reset": "docker compose down -v && docker compose up -d",
     "db:migrate": "pnpm --filter @vantion/database migrate",
-    "build": "pnpm --filter @vantion/domain --filter @vantion/database --filter @vantion/server --filter @vantion/worker --filter @vantion/web build",
+    "build": "pnpm --workspace-concurrency=1 --filter @vantion/domain --filter @vantion/database --filter @vantion/server --filter @vantion/worker --filter @vantion/web build",
     "build:images": "docker build -f apps/server/Dockerfile -t vantion-server . && docker build -f apps/web/Dockerfile -t vantion-web . && docker build -f apps/admin/Dockerfile -t vantion-admin . && docker build -f apps/worker/Dockerfile -t vantion-worker . && docker build -f apps/marketing/Dockerfile -t vantion-marketing . && docker build -f apps/brand/Dockerfile -t vantion-brand .",
     "clean": "rm -rf apps/*/build apps/*/.tsbuildinfo packages/*/build packages/*/.tsbuildinfo packages/modules/*/build packages/modules/*/.tsbuildinfo apps/web/dist apps/web/.output apps/web/.tanstack coverage",
     "check": "tsc -b tsconfig.json && tsc -p tsconfig.tools.json",
