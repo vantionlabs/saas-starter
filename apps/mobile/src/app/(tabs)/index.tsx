@@ -1,6 +1,6 @@
 import { Empty, Failed, Loading } from "@/components/state";
 import { useAtomValue } from "@effect/atom-react";
-import { contactsAtom } from "@vantion/core/ContactAtoms";
+import { contactsAtom } from "@vantion/core/atoms/Contact";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { FlatList, Text, View } from "react-native";
 

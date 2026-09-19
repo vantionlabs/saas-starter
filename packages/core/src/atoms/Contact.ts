@@ -1,7 +1,7 @@
 import type { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Effect } from "effect";
-import { AppRpc } from "./AppRpc.js";
-import { Keys } from "./Keys.js";
+import { AppRpc } from "../AppRpc.js";
+import { Keys } from "../Keys.js";
 
 /**
  * Reads are declared by naming the RPC; writes stay hand-written.

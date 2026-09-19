@@ -2,8 +2,8 @@ import { StorageUnavailable } from "@vantion/module-files/FilesErrors";
 import type { FileId } from "@vantion/module-files/FilesRpc";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
-import { AppRpc } from "./AppRpc.js";
-import { Keys } from "./Keys.js";
+import { AppRpc } from "../AppRpc.js";
+import { Keys } from "../Keys.js";
 
 export const filesAtom = Atom.withReactivity([Keys.organization, Keys.files])(
   AppRpc.runtime.atom(

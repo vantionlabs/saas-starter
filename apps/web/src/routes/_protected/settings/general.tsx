@@ -4,7 +4,7 @@ import {
   deleteOrganizationAtom,
   organizationsAtom,
   renameOrganizationAtom,
-} from "@vantion/core/OrganizationAtoms";
+} from "@vantion/core/atoms/Organization";
 import { DangerZone } from "@vantion/ui/settings/danger-zone";
 import { Button } from "@vantion/ui/ui/button";
 import { Input } from "@vantion/ui/ui/input";

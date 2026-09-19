@@ -3,7 +3,7 @@ import {
   createOrganizationAtom,
   organizationsAtom,
   switchOrganizationAtom,
-} from "@vantion/core/OrganizationAtoms";
+} from "@vantion/core/atoms/Organization";
 import type { Membership } from "@vantion/module-iam/organization/OrganizationRpc";
 import { Button } from "@vantion/ui/ui/button";
 import { Input } from "@vantion/ui/ui/input";

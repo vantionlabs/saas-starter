@@ -1,5 +1,5 @@
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
-import { setRoleAtom } from "@vantion/core/AccessAtoms";
+import { setRoleAtom } from "@vantion/core/atoms/Access";
 import { CustomRole } from "@vantion/module-iam/access/AccessRpc";
 import type { Permission } from "@vantion/module-iam/identity/Permission";
 import { PermissionPicker } from "@vantion/ui/access/permission-picker";

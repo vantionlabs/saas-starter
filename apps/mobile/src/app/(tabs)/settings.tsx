@@ -1,7 +1,7 @@
 import { authClient } from "@/auth";
 import { Failed, Loading } from "@/components/state";
 import { useAtomValue } from "@effect/atom-react";
-import { organizationsAtom } from "@vantion/core/OrganizationAtoms";
+import { organizationsAtom } from "@vantion/core/atoms/Organization";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";

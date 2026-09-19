@@ -1,5 +1,5 @@
 import { useAtomValue } from "@effect/atom-react";
-import { overviewAtom } from "@vantion/core/ContactAtoms";
+import { overviewAtom } from "@vantion/core/atoms/Contact";
 import type { Overview } from "@vantion/module-contact/ContactRpc";
 import { StatCard } from "@vantion/ui/dashboard/stat-card";
 import { Skeleton } from "@vantion/ui/ui/skeleton";

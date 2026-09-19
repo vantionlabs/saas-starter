@@ -1,6 +1,6 @@
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
-import { contactsAtom, createContactAtom, deleteContactAtom } from "@vantion/core/ContactAtoms";
+import { contactsAtom, createContactAtom, deleteContactAtom } from "@vantion/core/atoms/Contact";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { ContactForm } from "@vantion/ui/contact/contact-form";
 import { ContactTable } from "@vantion/ui/contact/contact-table";

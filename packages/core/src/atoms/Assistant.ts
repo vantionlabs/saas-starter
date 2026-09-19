@@ -2,8 +2,8 @@ import type { Chunk } from "@vantion/module-assistant/AssistantRpc";
 import { ConversationId, Thread } from "@vantion/module-assistant/AssistantRpc";
 import { Effect, Stream } from "effect";
 import { Atom } from "effect/unstable/reactivity";
-import { AppRpc } from "./AppRpc.js";
-import { Keys } from "./Keys.js";
+import { AppRpc } from "../AppRpc.js";
+import { Keys } from "../Keys.js";
 
 export const conversationsAtom = Atom.withReactivity([Keys.organization, Keys.assistant])(
   AppRpc.runtime.atom(

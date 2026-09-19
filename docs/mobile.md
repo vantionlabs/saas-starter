@@ -50,6 +50,10 @@ from the catalog, and why `global.css` uses `@tailwind` directives instead of
 `@import "tailwindcss"`. NativeWind v5 takes the Tailwind 4 pipeline; it is a
 release candidate, and one release candidate in a starter is enough.
 
+**The router root is `src/app`.** Expo looks there before a top-level `app/` and says so on
+start-up, with no configuration — which lets everything that is source live under `src/`, the
+way it does in every other app here, and leaves the root for configuration.
+
 **Metro is told three things it cannot infer**: the workspace root to watch, that
 package exports exist and which condition to take, and that a relative `./Foo.js`
 inside a workspace package means `./Foo.ts`. The last one is a resolver of about

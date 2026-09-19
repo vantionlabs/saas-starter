@@ -2,8 +2,8 @@ import type { CustomRole, MemberOverride } from "@vantion/module-iam/access/Acce
 import type { Permission } from "@vantion/module-iam/identity/Permission";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
-import { AppRpc } from "./AppRpc.js";
-import { Keys } from "./Keys.js";
+import { AppRpc } from "../AppRpc.js";
+import { Keys } from "../Keys.js";
 
 export const rolesAtom = Atom.withReactivity([Keys.organization, Keys.roles])(
   AppRpc.runtime.atom(

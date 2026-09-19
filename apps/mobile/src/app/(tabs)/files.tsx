@@ -1,6 +1,6 @@
 import { Empty, Failed, Loading } from "@/components/state";
 import { useAtomValue } from "@effect/atom-react";
-import { filesAtom } from "@vantion/core/FileAtoms";
+import { filesAtom } from "@vantion/core/atoms/File";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { FlatList, Text, View } from "react-native";
 

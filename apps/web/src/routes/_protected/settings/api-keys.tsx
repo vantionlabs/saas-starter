@@ -1,6 +1,6 @@
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
-import { apiKeysAtom, createApiKeyAtom, revokeApiKeyAtom } from "@vantion/core/OrganizationAtoms";
+import { apiKeysAtom, createApiKeyAtom, revokeApiKeyAtom } from "@vantion/core/atoms/Organization";
 import type { Role } from "@vantion/module-iam/identity/Permission";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { ApiKeyTable } from "@vantion/ui/settings/api-key-table";

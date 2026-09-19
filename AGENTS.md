@@ -100,15 +100,22 @@ what an application registers. HTTP routes are exported separately (`IamHttp`,
 `HealthHttpRoutes`) because a route layer requires the `HttpRouter` it adds itself to, and
 that service only exists inside `HttpRouter.serve`.
 
-`apps/mobile` is Expo and expo-router over that same package: the contacts screen renders
+`apps/mobile` keeps its router root at `src/app`, which Expo prefers over a top-level `app/`
+without being told to — so everything that is source lives under `src/` here as it does in
+every other app, and what stays at the root is configuration. `apps/mobile` is Expo and
+expo-router over that same package: the contacts screen renders
 `contactsAtom`, not the mobile equivalent of it. What differs is the rendering layer —
 `packages/ui` is HTML for a browser and a phone needs `View` and `Text` — and how the session
 is carried, since React Native has no cookie jar and `@better-auth/expo` puts the token in the
 keychain instead. `docs/mobile.md` has the three seams Metro needs and is explicit that the app
 compiles and bundles but has not been run on a device here.
 
-`packages/core` is everything a client needs that is not a screen: the RPC client and its atom
-runtime, the reactivity keys, and the reads and writes for every feature. It exists because
+`packages/core` is everything a client needs that is not a screen. Five files at its root are
+the foundation every feature builds on — `AppRpc` (the one client and its atom runtime),
+`ApiUrl`, `Keys`, and the two combinators `Stable` and `HoldOpen` — and `atoms/` is one file
+per feature beneath them. The split is the same one `packages/modules/*` makes: what a reader
+is looking for is a feature, and what they need to understand first is the machinery under all
+of them. It exists because
 `apps/web` and `apps/mobile` are two front ends over one contract, and a query written twice is
 a query that behaves differently twice.
 

@@ -81,4 +81,4 @@ const withTypeScript = (context, moduleName, platform) => {
 
 config.resolver.resolveRequest = withTypeScript;
 
-module.exports = withNativeWind(config, { input: "./global.css" });
+module.exports = withNativeWind(config, { input: "./src/global.css" });

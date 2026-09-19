@@ -7,7 +7,7 @@ import {
 } from "@/atom/sso-atoms.js";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
-import { billingAtom } from "@vantion/core/BillingAtoms";
+import { billingAtom } from "@vantion/core/atoms/Billing";
 import { has } from "@vantion/module-iam/identity/Entitlement";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { SsoPanel, verificationRecord } from "@vantion/ui/settings/sso-panel";

@@ -6,7 +6,7 @@ import {
   downloadUrlAtom,
   filesAtom,
   uploadFileAtom,
-} from "@vantion/core/FileAtoms";
+} from "@vantion/core/atoms/File";
 import type { FileId } from "@vantion/module-files/FilesRpc";
 import { MAX_UPLOAD_BYTES } from "@vantion/module-files/FilesRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
