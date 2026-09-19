@@ -166,12 +166,31 @@ until it has an answer: `ReasonPrompt` stands in front of the list rather than
 beside it, because a reason box that can be skipped is one that is always
 empty. Its button is unusable until something is typed, and a test asserts that.
 
-**Staff sign in through the ordinary sign-in page.** There is no separate
-credential, and that is the honest limitation: this surface is only as strong as
-an individual's account. `whoami` resolves per request against `user.role`, so
-revoking somebody lands on their next request — but a stolen staff session is a
-stolen staff session, and two-factor on those accounts is the mitigation this
-repository does not yet enforce.
+**Staff sign in through the ordinary sign-in page, and must hold a second
+factor.** `whoami` resolves per request against `user.role` _and_
+`user.twoFactorEnabled`, so revoking either lands on somebody's next request
+rather than when their session happens to expire — and turning 2FA off closes
+the panel immediately.
+
+Required here and merely offered to customers, because the asymmetry is real:
+an organization's owner can destroy their own organization, and staff can read
+everybody's. A surface whose entire protection is "somebody proved they are
+staff" is, without a second factor, one password and one session cookie.
+
+`TwoFactorRequired` is the **only** refusal on this surface that names itself.
+Everything else answers identically whether the caller is signed out, a
+customer, or banned — but somebody holding the staff role has already proved who
+they are, so there is nothing left to leak, and "enrol a second factor" is the
+only refusal they can act on. Returning it as `NotStaff` would leave them
+staring at a panel they hold the role for and cannot open.
+
+TOTP, not OTP over email. A second factor delivered to the address that recovers
+the first is a second lock with the same key, and on the email-OTP sign-in path
+this deployment already offers it would be the same channel twice.
+
+What is left, and worth saying: the TOTP secret and the backup codes sit in
+`twoFactor` at rest, so a database dump is a 2FA bypass and should be treated as
+one.
 
 The session itself comes from the customer API, which owns the only better-auth
 instance — the same call `apps/web` makes, for the same reason: a second

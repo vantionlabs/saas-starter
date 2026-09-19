@@ -31,11 +31,23 @@ function Root() {
   const { viewer } = Route.useRouteContext();
 
   if (!viewer.staff) {
+    /**
+     * The one refusal here that names itself. Everything else says the same
+     * thing whether the caller is signed out, a customer, or banned — but
+     * somebody holding the staff role has already proved who they are, and
+     * telling them to enrol is the only way they get in.
+     */
+    const needsTwoFactor = "needsTwoFactor" in viewer && viewer.needsTwoFactor;
+
     return (
       <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-3 px-6">
-        <h1 className="text-lg font-semibold">Not available</h1>
+        <h1 className="text-lg font-semibold">
+          {needsTwoFactor ? "Set up two-factor first" : "Not available"}
+        </h1>
         <p className="text-muted-foreground text-sm">
-          This surface is for staff. If you think that is wrong, sign in and try again.
+          {needsTwoFactor
+            ? "This panel reads across every customer, so it needs a second factor. Enrol one in your account settings and come back."
+            : "This surface is for staff. If you think that is wrong, sign in and try again."}
         </p>
       </main>
     );

@@ -153,14 +153,23 @@ describe.skipIf(testDbUrl() === undefined || adminDbUrl() === undefined)("the ad
 
 describe.skipIf(testDbUrl() === undefined)("staff", () => {
   it.layer(StaffResolver.layer.pipe(Layer.provideMerge(PgPoolTest)))("resolution", (it) => {
-    const user = Effect.fnUntraced(function*(id: string, role: string | null, banned: boolean) {
+    const user = Effect.fnUntraced(function*(
+      id: string,
+      role: string | null,
+      banned: boolean,
+      twoFactor = true,
+    ) {
       const sql = yield* SqlClient.SqlClient;
 
       yield* sql`
         insert into "user" ("id", "name", "email", "emailVerified", "role", "banned",
-                            "createdAt", "updatedAt")
-        values (${id}, ${id}, ${`${id}@example.com`}, true, ${role}, ${banned}, now(), now())
-        on conflict ("id") do update set "role" = excluded."role", "banned" = excluded."banned"
+                            "twoFactorEnabled", "createdAt", "updatedAt")
+        values (${id}, ${id}, ${`${id}@example.com`}, true, ${role}, ${banned},
+                ${twoFactor}, now(), now())
+        on conflict ("id") do update set
+          "role" = excluded."role",
+          "banned" = excluded."banned",
+          "twoFactorEnabled" = excluded."twoFactorEnabled"
       `;
     });
 
@@ -197,6 +206,29 @@ describe.skipIf(testDbUrl() === undefined)("staff", () => {
         const failure = yield* Effect.flip(resolver.resolve("staff_banned"));
 
         expect(failure._tag).toBe("NotStaff");
+      }).pipe(Effect.provide(PgLive)));
+
+    /**
+     * The panel reads across every tenant, so its whole protection is that
+     * somebody proved they are staff — which without a second factor is one
+     * password and one session cookie.
+     *
+     * Checked on every request rather than at enrolment, so turning 2FA off
+     * closes the panel immediately rather than at the end of a session.
+     */
+    it.effect("refuses staff who have not enrolled a second factor", () =>
+      Effect.gen(function*() {
+        yield* user("staff_no_2fa", "admin", false, false);
+
+        const resolver = yield* StaffResolver;
+        const failure = yield* Effect.flip(resolver.resolve("staff_no_2fa"));
+
+        /**
+         * Named, unlike every other refusal here. This caller has already
+         * proved who they are, so there is nothing left to leak — and it is
+         * the only refusal on this surface they can act on.
+         */
+        expect(failure._tag).toBe("TwoFactorRequired");
       }).pipe(Effect.provide(PgLive)));
 
     /** Unknown and not-staff are one answer, so neither confirms the other. */

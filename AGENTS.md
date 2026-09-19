@@ -844,6 +844,20 @@ every other caller acts inside exactly one organization; a flag would let a call
 that field is meaningless reach every handler that takes one, with nothing for the compiler to
 say about it.
 
+Staff must also hold a **second factor**. `StaffResolver` reads `twoFactorEnabled` alongside
+the role on every request, so turning 2FA off closes the panel immediately rather than at the
+end of a session. Required of staff and merely offered to customers, because the asymmetry is
+real: an owner can destroy their own organization, staff can read everybody's, and a surface
+whose whole protection is "somebody proved they are staff" is otherwise one password and one
+cookie. TOTP rather than OTP over email — a second factor sent to the address that recovers
+the first is a second lock with the same key.
+
+`TwoFactorRequired` is the one refusal on that surface that names itself, and the reason is
+that the caller has already proved who they are: there is nothing left to leak, and it is the
+only refusal they can act on. Note the shape of the bug that nearly hid it — `Effect.catchCause`
+at the end of the resolver caught typed failures as well as defects and reported it as
+`NotStaff`. `catchDefect` is what that line wanted.
+
 `Staff` comes from `user.role`, which better-auth's `admin` plugin owns and which has nothing
 to do with `member.role` — somebody can own their organization and not be staff, or be staff
 and a member of nothing. `StaffResolver` reads it per request rather than trusting a session

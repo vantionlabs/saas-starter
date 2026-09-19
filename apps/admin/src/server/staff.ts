@@ -2,7 +2,7 @@ import { asStaff, runtime } from "@/server/runtime.js";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { getOrganization, listOrganizations } from "@vantion/module-admin/Organizations";
-import { NotStaff, StaffResolver } from "@vantion/module-admin/StaffResolver";
+import { NotStaff, StaffResolver, TwoFactorRequired } from "@vantion/module-admin/StaffResolver";
 import { createAuthClient } from "better-auth/client";
 import { Effect } from "effect";
 
@@ -43,7 +43,16 @@ const currentStaff = async () => {
       const resolver = yield* StaffResolver;
 
       return yield* resolver.resolve(userId);
-    }).pipe(Effect.catchTag("NotStaff", () => Effect.succeed(null))),
+    }).pipe(
+      Effect.catchTag("NotStaff", () => Effect.succeed(null)),
+      /**
+       * Kept distinct all the way to the screen. Everything else here refuses
+       * identically on purpose, but this caller has already proved who they
+       * are — there is nothing left to leak, and "enrol a second factor" is the
+       * only refusal on this surface somebody can do something about.
+       */
+      Effect.catchTag("TwoFactorRequired", () => Effect.succeed("needs-2fa" as const)),
+    ),
   );
 };
 
@@ -51,7 +60,10 @@ const currentStaff = async () => {
 export const whoami = createServerFn({ method: "GET" }).handler(async () => {
   const staff = await currentStaff();
 
-  return staff === null ? { staff: false as const } : { staff: true as const, email: staff.email };
+  if (staff === null) return { staff: false as const };
+  if (staff === "needs-2fa") return { staff: false as const, needsTwoFactor: true as const };
+
+  return { staff: true as const, email: staff.email };
 });
 
 /**
@@ -63,6 +75,7 @@ export const whoami = createServerFn({ method: "GET" }).handler(async () => {
  */
 const requireStaff = async () => {
   const staff = await currentStaff();
+  if (staff === "needs-2fa") throw new TwoFactorRequired();
   /**
    * The same `NotStaff` the module raises, thrown rather than returned because
    * that is how a server function reports a failure. One type for one

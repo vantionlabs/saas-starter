@@ -12,9 +12,22 @@ import { Staff } from "./Staff.js";
  */
 export class NotStaff extends Schema.TaggedError<NotStaff>()("NotStaff", {}) {}
 
+/**
+ * Staff, but without a second factor.
+ *
+ * Told apart from `NotStaff` on purpose, and it is the one distinction worth
+ * making: the caller has already proved who they are, so there is nothing left
+ * to leak, and "you are staff, go and enrol" is the only refusal here that a
+ * person can act on. Refusing it as `NotStaff` would leave somebody staring at
+ * a panel they hold the role for and cannot open.
+ */
+export class TwoFactorRequired
+  extends Schema.TaggedError<TwoFactorRequired>()("TwoFactorRequired", {})
+{}
+
 export interface StaffResolverService {
   /** The staff member behind a session, or `NotStaff`. */
-  readonly resolve: (userId: string) => Effect.Effect<Staff, NotStaff>;
+  readonly resolve: (userId: string) => Effect.Effect<Staff, NotStaff | TwoFactorRequired>;
 }
 
 /**
@@ -41,12 +54,22 @@ export class StaffResolver extends Context.Service<StaffResolver, StaffResolverS
       return {
         resolve: (userId: string) =>
           Effect.promise(() =>
-            pool.query<{ email: string; role: string | null; banned: boolean | null; }>(
-              `select "email", "role", "banned" from "user" where "id" = $1`,
+            pool.query<{
+              email: string;
+              role: string | null;
+              banned: boolean | null;
+              twoFactorEnabled: boolean | null;
+            }>(
+              `select "email", "role", "banned", "twoFactorEnabled" from "user" where "id" = $1`,
               [userId],
             )
           ).pipe(
-            Effect.flatMap((result) => {
+            /**
+             * Annotated, because three branches returning three different
+             * failures widen to `unknown` otherwise and the service type stops
+             * saying anything.
+             */
+            Effect.flatMap((result): Effect.Effect<Staff, NotStaff | TwoFactorRequired> => {
               const row = result.rows[0];
 
               if (
@@ -56,14 +79,38 @@ export class StaffResolver extends Context.Service<StaffResolver, StaffResolverS
                 return Effect.fail(new NotStaff());
               }
 
+              /**
+               * A second factor is not optional here.
+               *
+               * `apps/admin` reads across every tenant, and its whole
+               * protection is that somebody proved they are staff — which
+               * without this is one password and one session cookie. The
+               * product offers 2FA to customers; this *requires* it of the
+               * people who can see everybody's data, and requires it on every
+               * request rather than at enrolment, so turning it off closes the
+               * panel immediately.
+               */
+              if (row.twoFactorEnabled !== true) {
+                return Effect.fail(new TwoFactorRequired());
+              }
+
               return Effect.succeed(new Staff({ userId, email: row.email }));
             }),
             /**
              * Authorisation must not fail open. Every other resolver here falls
              * back to *fewer* permissions when a lookup breaks; the only
              * equivalent for this one is refusing.
+             *
+             * `catchDefect`, not `catchCause`: the latter catches typed
+             * failures too, so it swallowed the `TwoFactorRequired` raised
+             * above and reported it as `NotStaff` — turning the one actionable
+             * refusal on this surface into the one that says nothing. A test
+             * caught it, which is the argument for having written that test.
+             *
+             * `Effect.promise` turns a rejected query into a defect, so a
+             * defect is exactly the case this is for.
              */
-            Effect.catchCause(() => Effect.fail(new NotStaff())),
+            Effect.catchDefect(() => Effect.fail(new NotStaff())),
           ),
       };
     }),

@@ -11,7 +11,7 @@ import type { Session, User } from "better-auth";
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getMigrations } from "better-auth/db/migration";
-import { admin, emailOTP, magicLink, organization } from "better-auth/plugins";
+import { admin, emailOTP, magicLink, organization, twoFactor } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { Effect } from "effect";
 import { randomUUID } from "node:crypto";
@@ -278,6 +278,23 @@ const authOptions = (options: MakeAuthOptions) => ({
      * connection can see.
      */
     admin(),
+
+    /**
+     * A second factor, available to everybody and **required of staff**.
+     *
+     * Offered to customers because an organization's owner can delete the
+     * organization, and required of staff because `apps/admin` reads across
+     * every tenant — a surface whose whole protection is "somebody proved they
+     * are staff" is a surface only as strong as one person's password.
+     * `StaffResolver` is where that requirement lives; this plugin is what
+     * makes it possible to satisfy.
+     *
+     * TOTP, which needs nothing from us. The OTP-over-email variant is left
+     * off: a second factor delivered to the address that recovers the first is
+     * a second lock with the same key, and on the OTP sign-in path this
+     * deployment already has, it would be the *same* channel twice.
+     */
+    twoFactor({ issuer: options.product }),
 
     /**
      * Single sign-on, OIDC and SAML 2.0, configured per organization.
