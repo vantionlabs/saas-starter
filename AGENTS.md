@@ -398,9 +398,18 @@ It runs under `tsx`, the same way `packages/database`'s migration runner does.
 `NodeServices.layer` provides the whole of the CLI's `Environment` — filesystem, path, stdio,
 terminal, child process — in one layer.
 
-`scripts/sync-effect-skills.mjs` and `tooling/new-module.mjs` have not been converted. They
-are larger and `new-module.mjs` has its own tests against the current interface; they should
-follow, and this note exists so that the inconsistency is a plan rather than an oversight.
+Everything that can be TypeScript now is: `sync:skills`, `new:module`, the tokens scripts, the
+whole e2e harness, the eval runner and the brand prerender. Each takes its flags through
+`Flag`/`Argument` and reports failures as typed errors rather than `process.exit(1)`, and
+`tsconfig.tools.json` covers them so `pnpm check` type-checks them like everything else.
+
+Two sets stay `.mjs`, and neither is an oversight:
+
+- **`.claude/hooks/*.mjs`** run on every `Edit` and `Write`. They must start in milliseconds,
+  and `tsx` adds a compile step to each invocation; `check-rules` also has to work when
+  `node_modules` is broken, which is exactly when somebody is editing under pressure.
+- **`scripts/oxlint-rules/*.mjs`** are loaded by oxlint itself, which reads JavaScript. There
+  is no TypeScript to convert them to that oxlint could run.
 
 ## Commands
 

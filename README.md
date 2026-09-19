@@ -622,9 +622,9 @@ says so rather than leaving you to find out.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|          | What                                             | Why it is not here yet                                                                      |
-| -------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| **Next** | The last `.mjs` scripts on `effect/unstable/cli` | `sync:skills` and `new:module` are still plain JavaScript in an otherwise typed repository. |
+|          | What                                   | Why it is not here yet                                                                                                  |
+| -------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Next** | A tenant-visible record of staff reads | A customer asking "did anyone at your company look at our data" should answer it from `/settings/audit`, not by asking. |
 
 ## What it deliberately does not do
 

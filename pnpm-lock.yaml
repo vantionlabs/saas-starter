@@ -315,6 +315,9 @@ importers:
 
   apps/brand:
     dependencies:
+      '@effect/platform-node':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(redis@6.2.1(@opentelemetry/api@1.9.1))
       '@vantion/emails':
         specifier: workspace:*
         version: link:../../packages/emails
@@ -324,6 +327,9 @@ importers:
       '@vantion/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
       lucide-react:
         specifier: 'catalog:'
         version: 1.31.0(react@19.2.8)
@@ -922,6 +928,13 @@ importers:
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.1))
 
   e2e:
+    dependencies:
+      '@effect/platform-node':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(redis@6.2.1(@opentelemetry/api@1.9.1))
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
     devDependencies:
       '@playwright/test':
         specifier: 'catalog:'
@@ -929,6 +942,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.2.0
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.12
 
   evals:
     dependencies:
@@ -1429,6 +1445,13 @@ importers:
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.1))
 
   packages/tokens:
+    dependencies:
+      '@effect/platform-node':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(redis@6.2.1(@opentelemetry/api@1.9.1))
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
     devDependencies:
       '@effect/vitest':
         specifier: 'catalog:'
@@ -1536,10 +1559,20 @@ importers:
         version: 4.23.12
 
   tooling:
+    dependencies:
+      '@effect/platform-node':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(redis@6.2.1(@opentelemetry/api@1.9.1))
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 26.2.0
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.12
       vitest:
         specifier: 'catalog:'
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.1))

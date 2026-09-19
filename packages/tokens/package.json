@@ -14,17 +14,21 @@
     }
   },
   "scripts": {
-    "build:css": "tsx build.mjs",
-    "check:css": "tsx build.mjs --check",
+    "build:css": "tsx build.ts",
+    "check:css": "tsx build.ts --check",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "build": "tsc -b tsconfig.json",
-    "figma:script": "tsx figma.mjs",
-    "figma:json": "tsx figma.mjs --json"
+    "figma:script": "tsx figma.ts",
+    "figma:json": "tsx figma.ts --json"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "tsx": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:"
   }
 }

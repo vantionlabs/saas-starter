@@ -4,7 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-const SCRIPT = path.join(import.meta.dirname, "..", "new-module.mjs");
+const SCRIPT = path.join(import.meta.dirname, "..", "new-module.ts");
 
 /**
  * Each test gets a repository of its own.
@@ -34,15 +34,29 @@ afterEach(() => {
 });
 
 const run = (...args: ReadonlyArray<string>) =>
-  execFileSync("node", [SCRIPT, ...args, "--root", root], { encoding: "utf8" });
+  execFileSync("pnpm", ["exec", "tsx", SCRIPT, ...args, "--root", root], {
+    cwd: path.join(import.meta.dirname, "..", ".."),
+    encoding: "utf8",
+  });
 
-/** The stderr of a run that was supposed to fail. */
+/**
+ * Everything a run that was supposed to fail printed.
+ *
+ * Both streams, because the refusal is reported by Effect's logger rather than
+ * written to stderr by hand — which stream that lands on is the runtime's
+ * business, and a test that picked one would be asserting on it.
+ */
 const refusal = (...args: ReadonlyArray<string>) => {
   try {
-    execFileSync("node", [SCRIPT, ...args, "--root", root], { stdio: "pipe" });
+    execFileSync("pnpm", ["exec", "tsx", SCRIPT, ...args, "--root", root], {
+      cwd: path.join(import.meta.dirname, "..", ".."),
+      stdio: "pipe",
+    });
     return "";
   } catch (error) {
-    return String((error as { stderr?: Buffer; }).stderr ?? "");
+    const failed = error as { stdout?: Buffer; stderr?: Buffer; };
+
+    return `${String(failed.stdout ?? "")}${String(failed.stderr ?? "")}`;
   }
 };
 
@@ -58,8 +72,13 @@ describe("new-module", () => {
     }
   });
 
-  it("refuses a name that looks like a flag", () => {
-    expect(refusal("-billing")).toContain("usage:");
+  /**
+   * `-billing` is a flag as far as any argument parser is concerned, and the
+   * CLI says so by name rather than printing a usage block and leaving the
+   * reader to spot the hyphen.
+   */
+  it("refuses a name that looks like a flag, and says which flag", () => {
+    expect(refusal("-billing")).toContain("Unrecognized flag");
   });
 
   it("refuses to overwrite an existing module", () => {

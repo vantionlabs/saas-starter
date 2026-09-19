@@ -9,6 +9,11 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "tsx": "catalog:"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:"
   }
 }

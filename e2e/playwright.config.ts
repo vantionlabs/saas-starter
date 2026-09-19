@@ -18,7 +18,7 @@ const API_URL = `http://localhost:${API_PORT}`;
 const WEB_URL = `http://localhost:${WEB_PORT}`;
 
 /**
- * The database `prepare-db.mjs` started for this run.
+ * The database `prepare-db.ts` started for this run.
  *
  * Its port is chosen at run time, so it arrives through a file rather than the
  * environment — a child process cannot export a value back to its parent, and

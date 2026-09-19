@@ -5,7 +5,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "evals": "node run.mjs",
+    "evals": "tsx run.ts",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run"
   },

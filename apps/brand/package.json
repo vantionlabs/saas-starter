@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && vite build --ssr src/render.tsx --outDir .ssr && node prerender.mjs",
+    "build": "vite build && vite build --ssr src/render.tsx --outDir .ssr && tsx prerender.ts",
     "preview": "vite preview",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run"
@@ -17,7 +17,9 @@
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "@vantion/emails": "workspace:*"
+    "@vantion/emails": "workspace:*",
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

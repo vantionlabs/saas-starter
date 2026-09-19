@@ -1,23 +1,24 @@
-#!/usr/bin/env node
-// Gives the browser tests a Postgres of their own, on a port nothing else holds.
-//
-// Not the `docker compose` database: that one is bound to 5432, and a developer
-// machine very often already has something there — a native Postgres on the
-// loopback wins over a container bound to `*`, and the failure reads as "role
-// does not exist" rather than as a port conflict. A container on an
-// ephemeral port cannot collide with anything.
-//
-// The container outlives this process on purpose. `pnpm --filter @vantion/e2e
-// test` runs this first, Playwright second, and `stop-db.mjs` last, so the
-// database is up for the whole run and gone afterwards.
-//
-// Set E2E_DATABASE_URL to skip all of this and use a database you supply — a CI
-// service container, or your own instance.
-
+#!/usr/bin/env tsx
+/**
+ * Gives the browser tests a Postgres of their own, on a port nothing else holds.
+ *
+ * Not the `docker compose` database: that one is bound to 5432, and a developer
+ * machine very often already has something there — a native Postgres on the
+ * loopback wins over a container bound to `*`, and the failure reads as "role
+ * does not exist" rather than as a port conflict. A container on an ephemeral
+ * port cannot collide with anything.
+ *
+ * The container outlives this process on purpose. `run.ts` starts this first,
+ * Playwright second, and `stop-db.ts` last, so the database is up for the whole
+ * run and gone afterwards.
+ *
+ * Set `E2E_DATABASE_URL` to skip all of this and use a database you supply — a
+ * CI service container, or your own instance.
+ */
 import { execFileSync } from "node:child_process";
 import * as net from "node:net";
 import * as path from "node:path";
-import { writeEnv } from "./env-file.mjs";
+import { writeEnv } from "./env-file.js";
 
 const ROOT = path.join(import.meta.dirname, "..");
 
@@ -25,22 +26,24 @@ const CONTAINER = "vantion-e2e-postgres";
 
 /** Asks the OS for a free port by binding one and letting go. */
 const freePort = () =>
-  new Promise((resolve, reject) => {
+  new Promise<number>((resolve, reject) => {
     const server = net.createServer();
     server.unref();
     server.on("error", reject);
     server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
+      const address = server.address() as net.AddressInfo;
       server.close(() => resolve(address.port));
     });
   });
 
-const docker = (...args) => execFileSync("docker", args, { encoding: "utf8" }).trim();
+const docker = (...args: ReadonlyArray<string>) =>
+  execFileSync("docker", [...args], { encoding: "utf8" }).trim();
 
 /** Same, but never prints — for calls whose failure is an expected outcome. */
-const dockerQuietly = (...args) => execFileSync("docker", args, { stdio: "ignore" });
+const dockerQuietly = (...args: ReadonlyArray<string>) =>
+  execFileSync("docker", [...args], { stdio: "ignore" });
 
-const migrate = (url) =>
+const migrate = (url: string) =>
   execFileSync("pnpm", ["--filter", "@vantion/database", "migrate"], {
     cwd: ROOT,
     stdio: "inherit",
@@ -134,7 +137,7 @@ for (;;) {
 // browser suite proves isolation rather than assuming it. `admin` is the
 // cross-tenant role and is the only one here that may bypass — the boundary
 // lives in Postgres rather than in a reviewer's attention.
-const psql = (sql) =>
+const psql = (sql: string) =>
   docker(
     "exec",
     "-e",

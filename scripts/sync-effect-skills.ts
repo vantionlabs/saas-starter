@@ -1,16 +1,51 @@
-#!/usr/bin/env node
-// Syncs the Effect skill guides from lucas-barake/dotfiles into knowledge/skills/,
-// then re-applies the corrections that bring them in line with the `effect` version
-// pinned in pnpm-workspace.yaml.
-//
-// The upstream guides are not pinned to our Effect version and carry API spellings
-// that no longer exist in v4. Every correction below was verified against
-// repos/effect before being encoded here. See AGENTS.md.
-//
-//   node scripts/sync-effect-skills.mjs [--dry-run]
-
+#!/usr/bin/env tsx
+/**
+ * Syncs the Effect skill guides from `lucas-barake/dotfiles` into
+ * `knowledge/skills/`, then re-applies the corrections that bring them in line
+ * with the `effect` version pinned in `pnpm-workspace.yaml`.
+ *
+ * The upstream guides are not pinned to our Effect version and carry API
+ * spellings that no longer exist in v4. Every correction below was verified
+ * against `repos/effect` before being encoded here. See `AGENTS.md`.
+ *
+ *   pnpm sync:skills
+ *   pnpm sync:skills --dry-run
+ */
+import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { Console, Data, Effect } from "effect";
+import { Command, Flag } from "effect/unstable/cli";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+
+/**
+ * Upstream moved, and the corrections below no longer describe it.
+ *
+ * A failure rather than a warning, and nothing is written: a guide that still
+ * carries a v4-invalid API is worse than no guide, because an agent reads it
+ * and believes it.
+ */
+class DriftSurvived extends Data.TaggedError("DriftSurvived")<{
+  readonly failures: ReadonlyArray<string>;
+}> {
+  get message() {
+    return [
+      "Uncorrected v4 drift survived the sync. Nothing was written.",
+      "",
+      ...this.failures.map((failure) => `  ${failure}`),
+      "",
+      "Upstream likely changed. Verify against repos/effect, then update the corrections"
+      + " in this script.",
+    ].join("\n");
+  }
+}
+
+class UpstreamUnreadable extends Data.TaggedError("UpstreamUnreadable")<{
+  readonly what: string;
+}> {
+  get message() {
+    return this.what;
+  }
+}
 
 const OWNER = "lucas-barake";
 const REPO = "dotfiles";
@@ -219,7 +254,9 @@ const GUARDS = [
 
 // --------------------------------------------------------------------------
 
-const applyCorrections = (name, text, report) => {
+type Report = { readonly applied: Array<string>; readonly missed: Array<string>; };
+
+const applyCorrections = (name: string, text: string, report: Report) => {
   let out = text;
 
   for (const c of STRUCTURAL) {
@@ -243,8 +280,8 @@ const applyCorrections = (name, text, report) => {
   return out;
 };
 
-const checkGuards = (name, text) => {
-  const failures = [];
+const checkGuards = (name: string, text: string) => {
+  const failures: Array<string> = [];
   text.split("\n").forEach((line, i) => {
     for (const g of GUARDS) {
       if (!g.re.test(line)) continue;
@@ -255,63 +292,98 @@ const checkGuards = (name, text) => {
   return failures;
 };
 
-const main = async () => {
-  const dryRun = process.argv.includes("--dry-run");
-
+const sync = Effect.fnUntraced(function*(dryRun: boolean) {
   const listUrl =
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/${UPSTREAM_DIR}?ref=${REF}`;
-  const res = await fetch(listUrl, { headers: { accept: "application/vnd.github+json" } });
-  if (!res.ok) throw new Error(`listing ${UPSTREAM_DIR} failed: ${res.status} ${res.statusText}`);
 
-  const upstream = (await res.json()).filter((e) => e.type === "file" && WANTED.test(e.name));
-  if (upstream.length === 0) throw new Error(`no files matched ${WANTED} in ${UPSTREAM_DIR}`);
+  const res = yield* Effect.promise(() =>
+    fetch(listUrl, { headers: { accept: "application/vnd.github+json" } })
+  );
 
-  const report = { applied: [], missed: [] };
-  const written = [];
-  const failures = [];
+  if (!res.ok) {
+    return yield* new UpstreamUnreadable({
+      what: `listing ${UPSTREAM_DIR} failed: ${res.status} ${res.statusText}`,
+    });
+  }
+
+  const listing = (yield* Effect.promise(() => res.json())) as ReadonlyArray<
+    { type: string; name: string; download_url: string; }
+  >;
+
+  const upstream = listing.filter((entry) => entry.type === "file" && WANTED.test(entry.name));
+
+  if (upstream.length === 0) {
+    return yield* new UpstreamUnreadable({
+      what: `no files matched ${WANTED} in ${UPSTREAM_DIR}`,
+    });
+  }
+
+  const report: Report = { applied: [], missed: [] };
+  const written: Array<{ name: string; corrected: string; }> = [];
+  const failures: Array<string> = [];
 
   for (const entry of upstream) {
-    const raw = await fetch(entry.download_url);
-    if (!raw.ok) throw new Error(`fetching ${entry.name} failed: ${raw.status}`);
+    const raw = yield* Effect.promise(() => fetch(entry.download_url));
 
-    const corrected = applyCorrections(entry.name, await raw.text(), report);
+    if (!raw.ok) {
+      return yield* new UpstreamUnreadable({
+        what: `fetching ${entry.name} failed: ${raw.status}`,
+      });
+    }
+
+    const corrected = applyCorrections(
+      entry.name,
+      yield* Effect.promise(() => raw.text()),
+      report,
+    );
+
     failures.push(...checkGuards(entry.name, corrected));
     written.push({ name: entry.name, corrected });
   }
 
-  if (failures.length > 0) {
-    console.error("Uncorrected v4 drift survived the sync. Nothing was written.\n");
-    for (const f of failures) console.error(`  ${f}`);
-    console.error(
-      "\nUpstream likely changed. Verify against repos/effect, then update the corrections in this script.",
-    );
-    process.exit(1);
-  }
+  if (failures.length > 0) return yield* new DriftSurvived({ failures });
 
   if (!dryRun) {
-    for (const { name, corrected } of written) {
-      await fs.writeFile(path.join(TARGET_DIR, name), corrected);
+    for (const { corrected, name } of written) {
+      yield* Effect.promise(() => fs.writeFile(path.join(TARGET_DIR, name), corrected));
     }
   }
 
-  const existing = await fs.readdir(TARGET_DIR);
+  const existing = yield* Effect.promise(() => fs.readdir(TARGET_DIR));
   const upstreamNames = new Set(written.map((w) => w.name));
   const localOnly = existing.filter(
-    (f) => f.endsWith(".md") && !upstreamNames.has(f) && !PRESERVE.has(f),
+    (file) => file.endsWith(".md") && !upstreamNames.has(file) && !PRESERVE.has(file),
   );
 
-  console.log(`${dryRun ? "[dry run] " : ""}synced ${written.length} guides from ${UPSTREAM_DIR}`);
-  console.log(`corrections applied: ${report.applied.length}`);
-  for (const a of report.applied) console.log(`  + ${a}`);
-  if (report.missed.length > 0) {
-    console.log(`\ncorrections that no longer match upstream: ${report.missed.length}`);
-    for (const m of report.missed) console.log(`  ! ${m}`);
-    console.log("  (upstream changed — re-verify these against repos/effect)");
-  }
-  if (localOnly.length > 0) {
-    console.log(`\nkept, not present upstream: ${localOnly.join(", ")}`);
-  }
-  console.log(`\npreserved: ${[...PRESERVE].join(", ")}`);
-};
+  yield* Console.log(
+    `${dryRun ? "[dry run] " : ""}synced ${written.length} guides from ${UPSTREAM_DIR}`,
+  );
+  yield* Console.log(`corrections applied: ${report.applied.length}`);
+  for (const applied of report.applied) yield* Console.log(`  + ${applied}`);
 
-await main();
+  if (report.missed.length > 0) {
+    yield* Console.log(`\ncorrections that no longer match upstream: ${report.missed.length}`);
+    for (const missed of report.missed) yield* Console.log(`  ! ${missed}`);
+    yield* Console.log("  (upstream changed — re-verify these against repos/effect)");
+  }
+
+  if (localOnly.length > 0) {
+    yield* Console.log(`\nkept, not present upstream: ${localOnly.join(", ")}`);
+  }
+
+  yield* Console.log(`\npreserved: ${[...PRESERVE].join(", ")}`);
+});
+
+const command = Command.make(
+  "sync-skills",
+  {
+    dryRun: Flag.boolean("dry-run").pipe(
+      Flag.withDescription("Fetch and correct, report what would change, and write nothing."),
+    ),
+  },
+  ({ dryRun }) => sync(dryRun),
+);
+
+NodeRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+);
