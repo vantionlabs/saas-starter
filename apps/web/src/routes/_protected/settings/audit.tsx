@@ -1,6 +1,6 @@
-import { auditLogAtom } from "@/atom/organization-atoms.js";
 import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { auditLogAtom } from "@vantion/core/OrganizationAtoms";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { AuditTable } from "@vantion/ui/settings/audit-table";
 import { Skeleton } from "@vantion/ui/ui/skeleton";

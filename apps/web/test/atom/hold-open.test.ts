@@ -1,4 +1,4 @@
-import { holdOpen } from "@/atom/hold-open.js";
+import { holdOpen } from "@vantion/core/HoldOpen";
 import { Effect, Ref, Schedule, Stream } from "effect";
 import { describe, expect, it } from "vitest";
 

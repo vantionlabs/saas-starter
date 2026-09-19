@@ -1,10 +1,10 @@
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   deleteOrganizationAtom,
   organizationsAtom,
   renameOrganizationAtom,
-} from "@/atom/organization-atoms.js";
-import { useAtomSet, useAtomValue } from "@effect/atom-react";
-import { createFileRoute } from "@tanstack/react-router";
+} from "@vantion/core/OrganizationAtoms";
 import { DangerZone } from "@vantion/ui/settings/danger-zone";
 import { Button } from "@vantion/ui/ui/button";
 import { Input } from "@vantion/ui/ui/input";

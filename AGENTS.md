@@ -100,6 +100,22 @@ what an application registers. HTTP routes are exported separately (`IamHttp`,
 `HealthHttpRoutes`) because a route layer requires the `HttpRouter` it adds itself to, and
 that service only exists inside `HttpRouter.serve`.
 
+`packages/core` is everything a client needs that is not a screen: the RPC client and its atom
+runtime, the reactivity keys, and the reads and writes for every feature. It exists because
+`apps/web` and `apps/mobile` are two front ends over one contract, and a query written twice is
+a query that behaves differently twice.
+
+Nothing in it touches the DOM. What stayed behind in `apps/web` is the auth client and the
+session atoms, because those build callback URLs from `window.location` and hold a cookie —
+a native app does neither.
+
+`ApiUrl.ts` is the seam between the two bundlers, and it is smaller than it looks: Vite
+substitutes `import.meta.env.VITE_*` and leaves `process.env` alone, Metro inlines
+`process.env.EXPO_PUBLIC_*` and has no `import.meta.env` at all. Reading both names through
+**dot access** is what makes one expression serve both — a bracket read is not substituted, so
+the value would be `undefined` in a browser and every call would quietly go to localhost. The
+web app's Vite config defines the one name it needs.
+
 `packages/emails` holds the transactional mail as React components, rendered with
 `@react-email/render` to HTML _and_ plain text. Both, always: a message with no text part is
 one some clients show empty and some filters score as spam, and the text is what makes a magic

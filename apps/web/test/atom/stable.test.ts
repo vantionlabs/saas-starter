@@ -1,4 +1,4 @@
-import { sameIds, stable } from "@/atom/stable.js";
+import { sameIds, stable } from "@vantion/core/Stable";
 import { AsyncResult, Atom, AtomRegistry } from "effect/unstable/reactivity";
 import { describe, expect, it } from "vitest";
 

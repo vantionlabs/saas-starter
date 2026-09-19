@@ -6,6 +6,9 @@
   ],
   "references": [
     {
+      "path": "../../packages/core"
+    },
+    {
       "path": "../../packages/domain"
     },
     {
@@ -54,6 +57,9 @@
       ],
       "@vantion/tokens/*": [
         "../../packages/tokens/src/*.js"
+      ],
+      "@vantion/core/*": [
+        "../../packages/core/src/*.js"
       ]
     }
   }

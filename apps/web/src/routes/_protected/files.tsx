@@ -1,7 +1,12 @@
-import { deleteFileAtom, downloadUrlAtom, filesAtom, uploadFileAtom } from "@/atom/file-atoms.js";
 import { sessionAtom } from "@/atom/session-atoms.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  deleteFileAtom,
+  downloadUrlAtom,
+  filesAtom,
+  uploadFileAtom,
+} from "@vantion/core/FileAtoms";
 import type { FileId } from "@vantion/module-files/FilesRpc";
 import { MAX_UPLOAD_BYTES } from "@vantion/module-files/FilesRpc";
 import { QueryError } from "@vantion/ui/app/query-error";

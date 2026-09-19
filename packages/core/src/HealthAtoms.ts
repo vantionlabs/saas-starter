@@ -1,5 +1,5 @@
-import { AppRpc } from "@/atom/app-rpc.js";
 import { Effect } from "effect";
+import { AppRpc } from "./AppRpc.js";
 
 /**
  * Latest health report, refetched on demand via `useAtomRefresh`.

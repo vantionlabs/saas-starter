@@ -1,9 +1,9 @@
-import { AppRpc } from "@/atom/app-rpc.js";
-import { Keys } from "@/atom/reactivity-keys.js";
 import type { FileId } from "@vantion/module-files/FilesRpc";
 import { StorageUnavailable } from "@vantion/module-files/ObjectStore";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
+import { AppRpc } from "./AppRpc.js";
+import { Keys } from "./Keys.js";
 
 export const filesAtom = Atom.withReactivity([Keys.organization, Keys.files])(
   AppRpc.runtime.atom(

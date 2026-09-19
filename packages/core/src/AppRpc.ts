@@ -3,6 +3,7 @@ import { Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 import { AtomRpc } from "effect/unstable/reactivity";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
+import { apiUrl } from "./ApiUrl.js";
 
 /**
  * The application's one RPC client, and the one atom runtime behind it.
@@ -19,17 +20,20 @@ export class AppRpc extends AtomRpc.Service<AppRpc>()("AppRpc", {
   group: AppRpcs,
   /**
    * The API's own address, not a path on this origin. Every RPC is served by
-   * `apps/server`, the same place the auth routes live.
+   * `apps/server`, the same place the auth routes live — and `apiUrl` resolves
+   * it the same way for the browser and for Expo.
    */
-  protocol: RpcClient.layerProtocolHttp({
-    url: `${import.meta.env.VITE_AUTH_BASE_URL ?? "http://localhost:3000"}/rpc`,
-  }).pipe(
+  protocol: RpcClient.layerProtocolHttp({ url: `${apiUrl()}/rpc` }).pipe(
     Layer.provide(RpcSerialization.layerNdjson),
     Layer.provide(FetchHttpClient.layer),
     /**
      * `credentials` because every RPC is authenticated by the session cookie and
      * `fetch` omits cookies on a cross-origin request unless asked. Without it
      * each call arrives anonymous and `AuthMiddleware` refuses it.
+     *
+     * React Native has no cookie jar of its own, so a native client sends the
+     * session another way — the option is harmless there rather than wrong,
+     * which is why this stays one client rather than two.
      */
     Layer.provide(Layer.succeed(FetchHttpClient.RequestInit)({ credentials: "include" })),
   ),

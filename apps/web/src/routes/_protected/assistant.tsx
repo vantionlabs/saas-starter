@@ -1,12 +1,12 @@
-import type { Ask } from "@/atom/assistant-atoms.js";
+import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { createFileRoute } from "@tanstack/react-router";
+import type { Ask } from "@vantion/core/AssistantAtoms";
 import {
   conversationsAtom,
   messagesAtom,
   sendAtom,
   startConversationAtom,
-} from "@/atom/assistant-atoms.js";
-import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
-import { createFileRoute } from "@tanstack/react-router";
+} from "@vantion/core/AssistantAtoms";
 import type { Chunk, ConversationId } from "@vantion/module-assistant/AssistantRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { Conversation, emptyTurn, type Turn } from "@vantion/ui/assistant/conversation";

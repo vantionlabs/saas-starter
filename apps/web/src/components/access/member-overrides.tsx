@@ -1,5 +1,5 @@
-import { clearOverrideAtom, memberOverridesAtom, setOverrideAtom } from "@/atom/access-atoms.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { clearOverrideAtom, memberOverridesAtom, setOverrideAtom } from "@vantion/core/AccessAtoms";
 import { MemberOverride } from "@vantion/module-iam/access/AccessRpc";
 import type { Permission } from "@vantion/module-iam/identity/Permission";
 import { permissionsFor } from "@vantion/module-iam/identity/Permission";

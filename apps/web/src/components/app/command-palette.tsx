@@ -1,8 +1,8 @@
-import { contactsAtom } from "@/atom/contact-atoms.js";
 import { nav } from "@/nav.js";
 import { useAtomValue } from "@effect/atom-react";
 import type { LinkProps } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
+import { contactsAtom } from "@vantion/core/ContactAtoms";
 import { settingsGroups } from "@vantion/ui/settings/settings-nav";
 import {
   Command,

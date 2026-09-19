@@ -1,7 +1,7 @@
-import { billingAtom, billingPortalAtom, checkoutAtom } from "@/atom/billing-atoms.js";
 import { sessionAtom } from "@/atom/session-atoms.js";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { billingAtom, billingPortalAtom, checkoutAtom } from "@vantion/core/BillingAtoms";
 import type { PaidPlan } from "@vantion/module-billing/BillingRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { BillingPanel } from "@vantion/ui/settings/billing-panel";

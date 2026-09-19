@@ -1,9 +1,9 @@
-import { AppRpc } from "@/atom/app-rpc.js";
-import { Keys } from "@/atom/reactivity-keys.js";
 import type { OrgId } from "@vantion/module-iam/identity/Identity";
 import type { Role } from "@vantion/module-iam/identity/Permission";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
+import { AppRpc } from "./AppRpc.js";
+import { Keys } from "./Keys.js";
 
 export const organizationsAtom = Atom.withReactivity([Keys.organization])(
   AppRpc.runtime.atom(

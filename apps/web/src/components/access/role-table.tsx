@@ -1,5 +1,5 @@
-import { deleteRoleAtom } from "@/atom/access-atoms.js";
 import { useAtomSet } from "@effect/atom-react";
+import { deleteRoleAtom } from "@vantion/core/AccessAtoms";
 import type { CustomRole } from "@vantion/module-iam/access/AccessRpc";
 import { EmptyState } from "@vantion/ui/app/empty-state";
 import { Badge } from "@vantion/ui/ui/badge";

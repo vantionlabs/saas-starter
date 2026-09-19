@@ -1,0 +1,60 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts"
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/domain/*": [
+        "../domain/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../modules/iam/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../modules/contact/src/*.js"
+      ],
+      "@vantion/module-billing/*": [
+        "../modules/billing/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../modules/files/src/*.js"
+      ],
+      "@vantion/module-assistant/*": [
+        "../modules/assistant/src/*.js"
+      ]
+    }
+  },
+  "references": [
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../modules/iam"
+    },
+    {
+      "path": "../modules/contact"
+    },
+    {
+      "path": "../modules/billing"
+    },
+    {
+      "path": "../modules/files"
+    },
+    {
+      "path": "../modules/assistant"
+    }
+  ]
+}

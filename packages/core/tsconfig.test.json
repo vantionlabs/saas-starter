@@ -1,0 +1,63 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "test",
+    "src/**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../modules/iam"
+    },
+    {
+      "path": "../modules/contact"
+    },
+    {
+      "path": "../modules/billing"
+    },
+    {
+      "path": "../modules/files"
+    },
+    {
+      "path": "../modules/assistant"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@test/*": [
+        "./test/*"
+      ],
+      "@vantion/domain/*": [
+        "../domain/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../modules/iam/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../modules/contact/src/*.js"
+      ],
+      "@vantion/module-billing/*": [
+        "../modules/billing/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../modules/files/src/*.js"
+      ],
+      "@vantion/module-assistant/*": [
+        "../modules/assistant/src/*.js"
+      ]
+    }
+  }
+}

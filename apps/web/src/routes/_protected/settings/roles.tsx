@@ -1,8 +1,8 @@
-import { rolesAtom } from "@/atom/access-atoms.js";
 import { RoleForm } from "@/components/access/role-form.js";
 import { RoleTable } from "@/components/access/role-table.js";
 import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { rolesAtom } from "@vantion/core/AccessAtoms";
 import type { CustomRole } from "@vantion/module-iam/access/AccessRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { Button } from "@vantion/ui/ui/button";

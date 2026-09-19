@@ -1,9 +1,9 @@
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import {
   createOrganizationAtom,
   organizationsAtom,
   switchOrganizationAtom,
-} from "@/atom/organization-atoms.js";
-import { useAtomSet, useAtomValue } from "@effect/atom-react";
+} from "@vantion/core/OrganizationAtoms";
 import type { Membership } from "@vantion/module-iam/organization/OrganizationRpc";
 import { Button } from "@vantion/ui/ui/button";
 import { Input } from "@vantion/ui/ui/input";

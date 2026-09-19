@@ -577,6 +577,9 @@ importers:
       '@tanstack/react-start':
         specifier: 'catalog:'
         version: 1.168.48(crossws@0.4.10(srvx@0.11.22))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.1))
+      '@vantion/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@vantion/domain':
         specifier: workspace:*
         version: link:../../packages/domain
@@ -778,6 +781,40 @@ importers:
       tsx:
         specifier: 'catalog:'
         version: 4.23.12
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.1))
+
+  packages/core:
+    dependencies:
+      '@effect/atom-react':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(react@19.2.8)(scheduler@0.27.0)
+      '@vantion/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@vantion/module-assistant':
+        specifier: workspace:*
+        version: link:../modules/assistant
+      '@vantion/module-billing':
+        specifier: workspace:*
+        version: link:../modules/billing
+      '@vantion/module-contact':
+        specifier: workspace:*
+        version: link:../modules/contact
+      '@vantion/module-files':
+        specifier: workspace:*
+        version: link:../modules/files
+      '@vantion/module-iam':
+        specifier: workspace:*
+        version: link:../modules/iam
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(vitest@4.1.10)
       vitest:
         specifier: 'catalog:'
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.1))

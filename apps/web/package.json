@@ -24,6 +24,7 @@
     "@lucas-barake/effect-form-react": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
+    "@vantion/core": "workspace:*",
     "@vantion/domain": "workspace:*",
     "@vantion/module-contact": "workspace:*",
     "@vantion/module-health": "workspace:*",

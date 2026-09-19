@@ -1,4 +1,4 @@
-import { Keys } from "@/atom/reactivity-keys.js";
+import { Keys } from "@vantion/core/Keys";
 import { Effect, Layer } from "effect";
 import { Atom, AtomRegistry } from "effect/unstable/reactivity";
 import { describe, expect, it } from "vitest";

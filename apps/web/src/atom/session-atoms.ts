@@ -1,6 +1,6 @@
-import { AppRpc } from "@/atom/app-rpc.js";
-import { Keys } from "@/atom/reactivity-keys.js";
 import { authClient } from "@/iam/auth-client.js";
+import { AppRpc } from "@vantion/core/AppRpc";
+import { Keys } from "@vantion/core/Keys";
 import { Effect, Schema } from "effect";
 import { Atom } from "effect/unstable/reactivity";
 

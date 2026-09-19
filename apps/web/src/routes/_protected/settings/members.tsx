@@ -1,7 +1,7 @@
-import { membersAtom } from "@/atom/access-atoms.js";
 import { MemberOverrides } from "@/components/access/member-overrides.js";
 import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { membersAtom } from "@vantion/core/AccessAtoms";
 import { MemberTable } from "@vantion/ui/access/member-table";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { Skeleton } from "@vantion/ui/ui/skeleton";

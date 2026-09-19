@@ -69,6 +69,21 @@ export default defineConfig(({ command, mode }) => {
      * them in dev puts React's CommonJS entry through Vite's ESM module runner,
      * and every server-rendered route dies on `module is not defined`.
      */
+    /**
+     * `@vantion/core` reads `process.env.VITE_AUTH_BASE_URL`, because the same
+     * module is bundled by Metro for the Expo app and Metro has no
+     * `import.meta.env`. Vite exposes its values on `import.meta.env` only, so
+     * the one name the shared package reads is defined here.
+     *
+     * Substituted at build time like every other `VITE_` value, which is why
+     * it is a build argument for the image rather than a runtime variable.
+     */
+    define: {
+      "process.env.VITE_AUTH_BASE_URL": JSON.stringify(
+        process.env["VITE_AUTH_BASE_URL"] ?? env["VITE_AUTH_BASE_URL"] ?? "",
+      ),
+      "process.env.EXPO_PUBLIC_API_URL": JSON.stringify(""),
+    },
     ssr: command === "build" ? { noExternal: true } : {},
     resolve: {
       /**

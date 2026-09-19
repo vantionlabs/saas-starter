@@ -1,8 +1,8 @@
-import { AppRpc } from "@/atom/app-rpc.js";
-import { Keys } from "@/atom/reactivity-keys.js";
 import type { PaidPlan } from "@vantion/module-billing/BillingRpc";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
+import { AppRpc } from "./AppRpc.js";
+import { Keys } from "./Keys.js";
 
 export const billingAtom = Atom.withReactivity([Keys.organization, Keys.billing])(
   AppRpc.runtime.atom(
