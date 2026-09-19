@@ -843,6 +843,13 @@ is written first and in the same transaction as the read, so a read that succeed
 gone unrecorded. It takes the read rather than returning a client for the same reason: a
 function handing back `AdminSql` is one somebody calls once and uses forever.
 
+When an action concerns exactly one organization, **that tenant's own `auditEntry` gets a row**
+— actor `staff`, the action, the reason — in the same transaction as the staff record and the
+read. `adminAudit` answers what staff have been doing; this answers what a customer asks, from
+the screen they already use. A read across every tenant names nobody, and a read of an
+organization that is gone writes nothing: the insert is a `select … where exists`, because
+`auditEntry.organizationId` has a foreign key and staff follow stale links.
+
 `adminAudit` carries a policy that is never true — `using (false) with check (false)` — so the
 application role, which owns the table because it runs the migrations, can neither read nor
 write a row of it. A staff trail the application can write to is one a compromised application

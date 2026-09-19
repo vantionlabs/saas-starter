@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="378 unit tests" src="https://img.shields.io/badge/tests-378-2EAD33?style=flat-square" />
+  <img alt="380 unit tests" src="https://img.shields.io/badge/tests-380-2EAD33?style=flat-square" />
   <img alt="45 browser tests" src="https://img.shields.io/badge/browser-45-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -88,7 +88,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 378 unit, 45 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 380 unit, 45 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -622,9 +622,9 @@ says so rather than leaving you to find out.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|          | What                                   | Why it is not here yet                                                                                                  |
-| -------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Next** | A tenant-visible record of staff reads | A customer asking "did anyone at your company look at our data" should answer it from `/settings/audit`, not by asking. |
+|          | What              | Why it is not here yet                                                                       |
+| -------- | ----------------- | -------------------------------------------------------------------------------------------- |
+| **Next** | SCIM provisioning | The enterprise ask after SSO: directory-driven joiners and leavers, rather than invitations. |
 
 ## What it deliberately does not do
 

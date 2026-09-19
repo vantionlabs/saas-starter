@@ -207,7 +207,34 @@ instance — the same call `apps/web` makes, for the same reason: a second
 instance would be a second door onto one `user` table without `AuthHttp`'s rate
 limiter in front of it.
 
-Also owed, and worth naming: when a staff action concerns exactly one
-organization, that organization's own `auditEntry` should carry it too. A
-customer asking "did anyone at your company look at our data" deserves to answer
-it from the same screen they read everything else in.
+## The tenant is told
+
+When an action concerns exactly one organization, that organization's own
+`auditEntry` gets a row too — actor `staff`, the action, and the reason.
+`adminAudit` answers "what has staff been doing"; this answers the question a
+_customer_ asks, from `/settings/audit`, which is the screen they already read
+everything else in. A transparency record somebody has to ask you for is not
+one.
+
+Written in the same transaction as the staff record and the read, so the three
+cannot disagree. Through `AdminSql`, because there is no session — the role
+holds BYPASSRLS, which is what lets a row be written into a tenant nobody is
+scoped to.
+
+Two cases it deliberately does not cover:
+
+- **A read across every tenant** — `ListOrganizations` — names nobody, because
+  a line in everybody's trail saying somebody looked at them in particular
+  would be true of all of them and useful to none.
+- **An organization that is gone.** The insert is a `select … where exists`,
+  not a `values`. `auditEntry.organizationId` has a foreign key, correctly: it
+  is a tenant-owned table and a row for a deleted organization belongs to
+  nobody and can be read by nobody. Staff follow stale links, and writing it
+  unconditionally turned a 404 into a constraint error that took the staff
+  record down with it. If there is no tenant, there is nobody to tell — and the
+  attempt is still in `adminAudit`, which is where it matters.
+
+**The reason is included, deliberately.** "Support looked at your data" without
+why is a notification rather than an explanation, and the reference is usually
+the customer's own ticket. A deployment whose staff investigate abuse may want
+it redacted: that is the one `${action.reason}` in `CrossTenant.ts`.

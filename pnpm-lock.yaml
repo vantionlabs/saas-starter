@@ -233,6 +233,9 @@ importers:
       railway:
         specifier: 'catalog:'
         version: 3.10.0
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.12
       typescript:
         specifier: ^7.0.2
         version: 7.0.2

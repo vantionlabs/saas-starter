@@ -80,6 +80,51 @@ export const crossTenant = <A, R>(
          * suddenly used two hundred times is worth a page, and a row-level
          * trail does not make that visible on its own.
          */
+        /**
+         * The tenant's own copy, when the action concerned exactly one tenant.
+         *
+         * `adminAudit` answers "what has staff been doing"; this answers the
+         * question a *customer* asks, from the screen they already read
+         * everything else in. A transparency record they have to ask us for is
+         * not one.
+         *
+         * Written in the same transaction as the staff record and the read, so
+         * the three cannot disagree. It goes through `AdminSql` because there is
+         * no session here — the role holds BYPASSRLS, which is what lets a row
+         * be written into a tenant nobody is scoped to.
+         *
+         * The **reason is included**, deliberately. "Support looked at your
+         * data" without why is a notification rather than an explanation, and
+         * the reference is usually the customer's own ticket. A deployment
+         * whose staff investigate abuse may want it redacted; that is this one
+         * line, and `docs/admin.md` says so.
+         */
+        if (action.organizationId !== undefined) {
+          /**
+           * `select … where exists`, not `values`.
+           *
+           * Staff follow stale links, and `auditEntry.organizationId` has a
+           * foreign key — correctly, because it is a tenant-owned table and a
+           * row for an organization that is gone belongs to nobody and can be
+           * read by nobody. Writing it unconditionally turned a 404 into a
+           * constraint error and took the staff record down with it.
+           *
+           * So: if there is a tenant, tell them. If there is not, the attempt
+           * is still in `adminAudit`, which is where it matters.
+           */
+          yield* sql`
+            insert into "auditEntry"
+              ("id", "organizationId", "actorUserId", "actorEmail", "actorRole",
+               "action", "outcome", "detail")
+            select
+              ${randomUUID()}, ${action.organizationId}, ${staff.userId}, ${staff.email},
+              'staff', ${action.action}, 'ok', ${action.reason}
+            where exists (
+              select 1 from "organization" where "id" = ${action.organizationId}
+            )
+          `;
+        }
+
         yield* Metric.update(
           Metric.withAttributes(crossTenantReads, { action: action.action }),
           1,

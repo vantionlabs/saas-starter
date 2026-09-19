@@ -37,14 +37,15 @@
   "devDependencies": {
     "@effect/tsgo": "0.36.5",
     "@effect/vitest": "catalog:",
-    "@vantion/scripts": "workspace:*",
     "@types/node": "catalog:",
+    "@vantion/scripts": "workspace:*",
     "@vitest/coverage-v8": "^4.1.10",
     "dprint": "^0.55.2",
     "effect": "catalog:",
     "oxlint": "1.78.0",
     "oxlint-tsgolint": "7.0.2001",
     "railway": "catalog:",
+    "tsx": "catalog:",
     "typescript": "^7.0.2",
     "vitest": "catalog:"
   },

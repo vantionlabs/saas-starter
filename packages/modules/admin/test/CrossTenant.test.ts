@@ -123,6 +123,62 @@ describe.skipIf(testDbUrl() === undefined || adminDbUrl() === undefined)("cross-
         expect(entry?.organizationId).toBe(THEIRS);
       }));
 
+    /**
+     * The question a customer asks, answerable from the screen they already
+     * read everything else in. `adminAudit` says what staff have been doing;
+     * this says what was done *to them*, and a transparency record they have to
+     * ask us for is not one.
+     */
+    it.effect("tells the tenant, in their own audit trail", () =>
+      Effect.gen(function*() {
+        yield* seed();
+
+        yield* crossTenant(
+          { action: "GetOrganization", organizationId: THEIRS, reason: "SUP-4096" },
+          (sql) => sql`select 1 from "organization" where "id" = ${THEIRS}`,
+        );
+
+        const sql = yield* SqlClient.SqlClient;
+
+        // Read as the tenant would — scoped, through the application's own
+        // connection, which is the only way they will ever see it.
+        const [entry] = yield* withOrgScopeFor(
+          THEIRS,
+          sql<{ actorEmail: string; actorRole: string; action: string; detail: string; }>`
+            select "actorEmail", "actorRole", "action", "detail" from "auditEntry"
+            where "organizationId" = ${THEIRS} and "detail" = 'SUP-4096'
+          `,
+        );
+
+        expect(entry?.actorEmail).toBe("support@vantion.co");
+        expect(entry?.actorRole).toBe("staff");
+        expect(entry?.action).toBe("GetOrganization");
+      }));
+
+    /**
+     * A read across *every* tenant belongs to none of them, so nobody's trail
+     * gets a line saying somebody looked at them in particular — which would be
+     * true of everybody and useful to no one.
+     */
+    it.effect("tells nobody when the read concerned no one tenant", () =>
+      Effect.gen(function*() {
+        yield* seed();
+
+        yield* crossTenant(
+          { action: "ListOrganizations", reason: "SUP-8192" },
+          (sql) => sql`select 1 from "organization" limit 1`,
+        );
+
+        const sql = yield* SqlClient.SqlClient;
+
+        const rows = yield* withOrgScopeFor(
+          MINE,
+          sql`select 1 from "auditEntry" where "detail" = 'SUP-8192'`,
+        );
+
+        expect(rows).toHaveLength(0);
+      }));
+
     /** A read with nothing said about why is refused before it runs. */
     it.effect("refuses a read with no reason", () =>
       Effect.gen(function*() {
