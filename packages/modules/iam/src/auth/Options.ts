@@ -7,6 +7,7 @@ import { MagicLink } from "@vantion/emails/templates/MagicLink";
 import { ResetPassword } from "@vantion/emails/templates/ResetPassword";
 import { VerifyEmail } from "@vantion/emails/templates/VerifyEmail";
 import type { EmailMessage } from "@vantion/module-notifications/Mailer";
+import type { Session, User } from "better-auth";
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getMigrations } from "better-auth/db/migration";
@@ -62,29 +63,39 @@ export interface MakeAuthOptions {
   readonly sendEmail: (message: EmailMessage) => Promise<void>;
 }
 
-/** What a verified session carries. Narrower than better-auth's own shape. */
+/**
+ * What `getSession` returns, which is not better-auth's session.
+ *
+ * The **user** half is better-auth's and is taken from it rather than retyped,
+ * so a field that changes type upstream is a compiler error here.
+ *
+ * The **session** half is ours. Only `id` comes from better-auth; the other
+ * three do not exist in its `Session` type at all. `activeOrganizationId` is
+ * written to the session row by the organization plugin at runtime and left out
+ * of its types, and `role` and `memberId` are the result of the `member` join in
+ * `getSession` below. So this is the shape of our own query, not a second
+ * declaration of somebody else's.
+ *
+ * What is _not_ available is better-auth's own inferred session,
+ * `typeof auth.$Infer.Session`. With this plugin set it fails to cross a
+ * `declaration: true` boundary — **TS2883**, "cannot be named without a
+ * reference to `$strip` from `.pnpm/zod@4.6.5/.../zod/v4/core`": the inferred
+ * type reaches into zod's internals, and their path inside pnpm's store is not
+ * nameable from an emitted `.d.ts`. Its non-inferred `User` and `Session`
+ * exports have no such problem, which is why the user half can be derived and
+ * `authOptions` still stays unexported.
+ */
 export interface AuthSession {
-  readonly user: {
-    readonly id: string;
-    readonly email: string;
-    readonly emailVerified: boolean;
-  };
+  readonly user: Pick<User, "id" | "email" | "emailVerified">;
   readonly session: {
-    readonly id: string;
+    readonly id: Session["id"];
     readonly activeOrganizationId?: string | null | undefined;
     readonly role?: string | null | undefined;
     readonly memberId?: string | null | undefined;
   };
 }
 
-/**
- * The only surface the rest of the server sees.
- *
- * Deliberately narrow: better-auth's inferred types are not portable across a
- * `declaration: true` build — they reach into zod internals that pnpm's store
- * layout makes unnameable — and letting them escape would leak its whole type
- * surface into every consumer. `authOptions` stays unexported for that reason.
- */
+/** The only surface the rest of the server sees. */
 export interface AuthInstance {
   readonly handler: (request: Request) => Promise<Response>;
   readonly getSession: (headers: Record<string, string>) => Promise<AuthSession | null>;
