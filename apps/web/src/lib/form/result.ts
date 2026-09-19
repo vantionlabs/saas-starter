@@ -1,7 +1,15 @@
 import { Option } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 
-type Failure = { readonly _tag: string; readonly reason?: string; };
+/**
+ * Every tagged failure a submit can carry, from any form.
+ *
+ * `reason` is `unknown` rather than `string` because the error unions differ
+ * per procedure — `Unauthenticated` carries one shape, `RpcClientError`
+ * another — and this only ever compares it to a literal. Narrowing it to
+ * `string` made the type reject the very unions it exists to read.
+ */
+type Failure = { readonly _tag: string; readonly reason?: unknown; };
 
 const failure = (result: AsyncResult.AsyncResult<unknown, Failure>) => AsyncResult.error(result);
 
@@ -35,7 +43,13 @@ export const isInvalidForm = (result: AsyncResult.AsyncResult<unknown, Failure>)
     onSome: (error) => error._tag === "SchemaError",
   });
 
-/** Picks the message for a form-level alert. `rejected` is the request-level case. */
+/**
+ * Picks the message for a form-level alert. `rejected` is the request-level case.
+ *
+ * Here rather than under `lib/auth/` because it is the rule for **every** form:
+ * a failed submit is either the form not validating or the request being
+ * rejected, and those need different sentences whatever the form was for.
+ */
 export const submitMessage = (
   result: AsyncResult.AsyncResult<unknown, Failure>,
   rejected: string,

@@ -1,6 +1,6 @@
 import { sessionAtom, signIn, signInWithGoogle } from "@/atom/session-atoms.js";
-import { submitMessage } from "@/lib/auth/auth-result.js";
 import { CurrentPassword, Email } from "@/lib/auth/schemas.js";
+import { submitMessage } from "@/lib/form/result.js";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { FormBuilder, FormReact } from "@lucas-barake/effect-form-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";

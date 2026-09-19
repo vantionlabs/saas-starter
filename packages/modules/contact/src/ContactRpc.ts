@@ -27,13 +27,38 @@ export class Overview extends Schema.Class<Overview>("Overview")({
   customRoles: Schema.Number,
 }) {}
 
+/**
+ * What a contact's fields must be, declared **once** and in the contract.
+ *
+ * The payload below is built from these and so is the form that submits it, so
+ * a rule cannot hold on one side and not the other. The alternative is what was
+ * here before: the procedure checked `isNonEmpty` with no message while the
+ * screen kept its own copy of the same rule with a nicer one — two places for
+ * one fact, and the server's version was the one nobody could read.
+ *
+ * Every check carries a `message`, because these are what a person reads.
+ * effect-form's default formatter prefers them over its own generated
+ * `Expected a value with a length of at least 1`, and `apps/mobile` gets the
+ * same sentences for free rather than inventing its own.
+ */
+export const ContactFields = {
+  fullName: Schema.String.check(Schema.isNonEmpty({ message: "Enter a name." })),
+  email: Schema.String.check(
+    Schema.isNonEmpty({ message: "Enter an email address." }),
+    /**
+     * Deliberately permissive, the same judgement the auth schemas make: the
+     * only real proof an address works is that mail to it arrives, and a strict
+     * pattern rejects valid addresses.
+     */
+    Schema.isIncludes("@", { message: "That does not look like an email address." }),
+  ),
+};
+
 export const ContactRpcs = RpcGroup.make(
   Rpc.make("ListContacts", { success: Schema.Array(Contact), error: Forbidden }),
   Rpc.make("CreateContact", {
-    payload: {
-      email: Schema.String.check(Schema.isNonEmpty()),
-      fullName: Schema.String.check(Schema.isNonEmpty()),
-    },
+    // The same fields the form validates with, so the two cannot disagree.
+    payload: ContactFields,
     success: Contact,
     error: Forbidden,
   }),

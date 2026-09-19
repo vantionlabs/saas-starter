@@ -1,15 +1,13 @@
-import { Email } from "@/lib/auth/schemas.js";
+import { submitMessage } from "@/lib/form/result.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { FormBuilder, FormReact } from "@lucas-barake/effect-form-react";
 import { AppRpc } from "@vantion/core/AppRpc";
 import { Keys } from "@vantion/core/Keys";
+import { ContactFields } from "@vantion/module-contact/ContactRpc";
 import { textField } from "@vantion/ui/auth/text-field";
+import { Alert, AlertDescription } from "@vantion/ui/ui/alert";
 import { Button } from "@vantion/ui/ui/button";
-import { Effect, Exit, Schema } from "effect";
-
-const FullName = Schema.String.check(
-  Schema.isNonEmpty({ message: "Enter a name." }),
-);
+import { Effect, Exit } from "effect";
 
 /**
  * Creating a contact: a write, and therefore a form.
@@ -27,8 +25,14 @@ const FullName = Schema.String.check(
  */
 const form = FormReact.make(
   FormBuilder.empty
-    .addField("fullName", FullName)
-    .addField("email", Email),
+    /**
+     * The contract's own field schemas, not a copy. The procedure this submits
+     * to is built from the same two, so the form refuses exactly what the
+     * server would refuse — and the messages a person reads are declared once,
+     * where the rule is.
+     */
+    .addField("fullName", ContactFields.fullName)
+    .addField("email", ContactFields.email),
   {
     /**
      * The RPC client's runtime. Without it `onSubmit` could not reach `AppRpc`
@@ -83,6 +87,19 @@ export const ContactForm = () => {
         >
           {result.waiting ? "Adding…" : "Add contact"}
         </Button>
+        {result._tag === "Failure" && (
+          /**
+           * One alert for the two ways a submit fails, which `submitMessage`
+           * tells apart: the form not validating, or the request being refused.
+           * Telling somebody to "check the fields" when their permission was
+           * denied sends them looking in the wrong place.
+           */
+          <Alert variant="destructive" className="w-full">
+            <AlertDescription>
+              {submitMessage(result, "That contact could not be added.")}
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
     </form.Initialize>
   );

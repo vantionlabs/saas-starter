@@ -1,6 +1,6 @@
 import { requestPasswordReset } from "@/atom/session-atoms.js";
-import { submitMessage } from "@/lib/auth/auth-result.js";
 import { Email } from "@/lib/auth/schemas.js";
+import { submitMessage } from "@/lib/form/result.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { FormBuilder, FormReact } from "@lucas-barake/effect-form-react";
 import { createFileRoute } from "@tanstack/react-router";

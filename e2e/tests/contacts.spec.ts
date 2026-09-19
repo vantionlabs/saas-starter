@@ -89,7 +89,7 @@ test.describe("contacts", () => {
     await signedIn.getByRole("button", { name: "Add contact" }).click();
 
     // Per field, from the schema, rather than one sentence about the form.
-    await expect(signedIn.getByText("Enter your email address.")).toBeVisible();
+    await expect(signedIn.getByText("Enter an email address.")).toBeVisible();
     await expect(signedIn.getByRole("table")).toBeHidden();
   });
 });
