@@ -1,8 +1,6 @@
 import { AppShell } from "@/components/app/app-shell.js";
-import { hydrated } from "@/server/hydration.js";
 import { getIdentity } from "@/server/reads/identity.js";
 import { getSession } from "@/server/session.js";
-import { HydrationBoundary } from "@effect/atom-react";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 /**
@@ -39,10 +37,8 @@ export const Route = createFileRoute("/_protected")({
 
 function Protected() {
   return (
-    <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-      <AppShell>
-        <Outlet />
-      </AppShell>
-    </HydrationBoundary>
+    <AppShell>
+      <Outlet />
+    </AppShell>
   );
 }

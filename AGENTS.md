@@ -110,6 +110,44 @@ is carried, since React Native has no cookie jar and `@better-auth/expo` puts th
 keychain instead. `docs/mobile.md` has the three seams Metro needs and is explicit that the app
 compiles and bundles but has not been run on a device here.
 
+## Seeding a local database
+
+`pnpm seed` fills a local database with three organizations that mirror
+`apps/design`'s personas — a first day, an ordinary tenant, and the crowded one
+whose long names and many rows are what actually break a layout. An empty
+application proves nothing: every list is its empty state, no screen is seen
+under load, and the admin panel has no tenant to open.
+
+Two things about it are not incidental. **Users are created through the API**,
+never by writing to `user`: better-auth owns that table and hashes with scrypt,
+so a row inserted by hand would have a password nobody could sign in with —
+which is the one thing the script exists to provide. And it **renames and fills
+the organization sign-up already made** rather than creating tenants beside it,
+because better-auth gives every account a personal organization and picks the
+active one at sign-in; a tenant on the side would leave whoever signed in
+staring at their own empty org, hunting for the switcher.
+
+Tenant rows go through `withOrgScopeFor`, since the application role is
+`NOBYPASSRLS` and an unscoped insert into `contact` is refused outright. The
+subscription goes through `withWorkerScope`, because that table's `with check`
+is worker-only — Stripe's webhook is the only thing that may change a plan.
+Seeding through the product's own write path is also what stops a fixture
+describing a state the application could not have produced.
+
+It is re-runnable: fixed ids with `on conflict do nothing`, and an address that
+already exists is not a failure.
+
+```
+pnpm services          # postgres, redis, jaeger
+pnpm db:migrate
+pnpm dev               # the API must be up; users are created through it
+pnpm seed
+```
+
+Everybody's password is `seedpassword`, and `staff@vantion.co` is the account
+made staff so `apps/admin` opens without a SQL statement — the one
+`0014_staff.sql` tells you to run, run for you.
+
 ## A GET is rendered on the server; a write happens on the client
 
 A dashboard that fetches after hydration shows a spinner for work the server
@@ -151,6 +189,24 @@ than hiding: a `GET` payload travels in the URL, so a reason and an email
 address appear in whatever access log sits in front of that app. Acceptable for
 an internal surface already expected to sit behind a VPN or an allowlist, and a
 reason not to put it on a shared ingress with third-party logging.
+
+**One boundary, at the root, above the shell.** `HydrationBoundary` applies a
+value immediately only for an atom that has _no node yet_; for one that already
+exists it defers to an effect — and an effect never runs during SSR. The app
+shell reads atoms of its own (the command palette reads contacts, the switcher
+reads organizations) and renders before the child route does, so a boundary
+inside a route arrived too late for exactly those atoms and left them `Initial`
+on the server. The page rendered its empty state, the browser fetched the same
+data again, and the only symptom was a hydration mismatch in the console.
+`useHydratedMatches` collects every matched route's dehydrated data so it lands
+before anything has read an atom.
+
+This is also the failure a test can pass straight through. The router serialises
+every loader's result into the document, so a contact's address is in the HTML
+whether or not anything rendered it — the first version of
+`contacts.spec.ts`'s SSR test asserted on raw text and was green while the
+server was emitting the empty state. It strips `<script>` blocks first now, and
+fails if hydration is disabled.
 
 **Hydration, not seeding.** `useAtomInitialValues` looks like the tool and is
 not: it marks the node **valid** — computed, fresh, done — so the atom never

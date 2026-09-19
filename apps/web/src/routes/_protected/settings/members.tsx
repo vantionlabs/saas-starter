@@ -1,7 +1,6 @@
 import { MemberOverrides } from "@/components/access/member-overrides.js";
-import { hydrated } from "@/server/hydration.js";
 import { listMembers } from "@/server/reads/access.js";
-import { HydrationBoundary, useAtomValue } from "@effect/atom-react";
+import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { membersAtom } from "@vantion/core/atoms/Access";
 import { MemberTable } from "@vantion/ui/access/member-table";
@@ -40,14 +39,8 @@ const Members = () => {
   );
 };
 
-const MembersRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <Members />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/settings/members")({
   staticData: { crumb: "Members" },
   loader: () => listMembers(),
-  component: MembersRoute,
+  component: Members,
 });

@@ -1,6 +1,5 @@
-import { hydrated } from "@/server/hydration.js";
 import { listApiKeys } from "@/server/reads/organization.js";
-import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { apiKeysAtom, createApiKeyAtom, revokeApiKeyAtom } from "@vantion/core/atoms/Organization";
 import type { Role } from "@vantion/module-iam/identity/Permission";
@@ -186,14 +185,8 @@ const ApiKeys = () => {
   );
 };
 
-const ApiKeysRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <ApiKeys />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/settings/api-keys")({
   staticData: { crumb: "API keys" },
   loader: () => listApiKeys(),
-  component: ApiKeysRoute,
+  component: ApiKeys,
 });

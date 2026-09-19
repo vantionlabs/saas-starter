@@ -1,6 +1,5 @@
-import { hydrated } from "@/server/hydration.js";
 import { listConversations } from "@/server/reads/assistant.js";
-import { HydrationBoundary, useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Ask } from "@vantion/core/atoms/Assistant";
 import {
@@ -178,15 +177,9 @@ const Assistant = () => {
   );
 };
 
-const AssistantRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <Assistant />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/assistant")({
   staticData: { crumb: "Assistant" },
   /** The list only — a thread streams, and belongs to whichever is open. */
   loader: () => listConversations(),
-  component: AssistantRoute,
+  component: Assistant,
 });

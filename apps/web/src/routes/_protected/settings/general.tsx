@@ -1,6 +1,5 @@
-import { hydrated } from "@/server/hydration.js";
 import { listMyOrganizations } from "@/server/reads/organization.js";
-import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   deleteOrganizationAtom,
@@ -37,10 +36,18 @@ const General = () => {
   }
 
   /**
-   * Hydrated before first paint, so this is the unreachable arm: a caller
-   * always belongs to at least their personal organization.
+   * Hydrated before first paint, and a caller always belongs to at least their
+   * personal organization — so this should not happen. It says so rather than
+   * rendering nothing: a blank settings page is the one outcome that leaves
+   * somebody with no idea whether it is broken or empty.
    */
-  if (active === undefined) return null;
+  if (active === undefined) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        No organization is active. Pick one from the switcher above.
+      </p>
+    );
+  }
 
   const current = name === "" ? active.name : name;
 
@@ -109,14 +116,8 @@ const General = () => {
   );
 };
 
-const GeneralRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <General />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/settings/general")({
   staticData: { crumb: "General" },
   loader: () => listMyOrganizations(),
-  component: GeneralRoute,
+  component: General,
 });

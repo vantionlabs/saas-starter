@@ -1,3 +1,4 @@
+import { useRouterState } from "@tanstack/react-router";
 import { Schema } from "effect";
 import type { Hydration } from "effect/unstable/reactivity";
 import { AsyncResult } from "effect/unstable/reactivity";
@@ -70,3 +71,31 @@ export const hydrated = (
     value: JSON.parse(entry.value) as unknown,
     dehydratedAt: entry.dehydratedAt,
   }));
+
+/**
+ * Every server-rendered read on the page, in one place at the top of the tree.
+ *
+ * This is a boundary per *document*, not per route, and the difference is not
+ * stylistic. `HydrationBoundary` applies a value immediately only when the atom
+ * has no node yet; for one that already exists it defers to an effect — which
+ * never runs during SSR. The app shell reads atoms of its own (the command
+ * palette reads contacts, the switcher reads organizations), and it renders
+ * *before* the child route does, so a boundary inside the route arrived too
+ * late for exactly those atoms and left them `Initial` on the server. The page
+ * then rendered its empty state, the browser fetched the same data again, and
+ * the only visible symptom was a hydration mismatch in the console.
+ *
+ * Hydrating every match's data above the shell means nothing has read an atom
+ * yet when the values land.
+ */
+export const useHydratedMatches = (): Array<Hydration.DehydratedAtomValue> => {
+  const loaderData = useRouterState({
+    select: (state) => state.matches.map((match) => match.loaderData),
+  });
+
+  return hydrated(
+    ...loaderData.filter((data): data is Dehydrated =>
+      typeof data === "object" && data !== null && "key" in data && "dehydratedAt" in data
+    ),
+  );
+};

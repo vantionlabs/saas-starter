@@ -1,6 +1,5 @@
-import { hydrated } from "@/server/hydration.js";
 import { listAuditLog } from "@/server/reads/organization.js";
-import { HydrationBoundary, useAtomValue } from "@effect/atom-react";
+import { useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { auditLogAtom } from "@vantion/core/atoms/Organization";
 import { QueryError } from "@vantion/ui/app/query-error";
@@ -34,14 +33,8 @@ const Audit = () => {
   );
 };
 
-const AuditRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <Audit />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/settings/audit")({
   staticData: { crumb: "Audit log" },
   loader: () => listAuditLog(),
-  component: AuditRoute,
+  component: Audit,
 });

@@ -28,18 +28,27 @@ test.describe("contacts", () => {
    * asks the server for the document and looks in the markup, so it fails the
    * day somebody moves the read back into the browser.
    */
-  test("the list is in the server-rendered document", async ({ signedIn }) => {
+  test("the list is in the server-rendered markup", async ({ signedIn }) => {
     const email = uniqueEmail("ssr");
     await signedIn.goto("/contacts");
     await addContact(signedIn, "Server Rendered", email);
     await expect(signedIn.getByRole("row").filter({ hasText: email })).toBeVisible();
 
-    // The page's own request context, so it carries the session cookie.
     const response = await signedIn.request.get("/contacts");
-    const html = await response.text();
+    /**
+     * Scripts stripped first, and that is the whole point of the test.
+     *
+     * The router serialises every loader's result into the document, so the
+     * contact's address is in the HTML whether or not anything rendered it —
+     * an earlier version of this asserted on the raw text and passed happily
+     * while the server was emitting the *empty state* and the browser was
+     * fetching the list all over again. What proves server rendering is the
+     * row, in the markup, with the payload taken away.
+     */
+    const markup = (await response.text()).replace(/<script[\s\S]*?<\/script>/g, "");
 
-    expect(html).toContain(email);
-    expect(html).toContain("Server Rendered");
+    expect(markup).toContain(email);
+    expect(markup).toContain("Server Rendered");
   });
 
   test("a deleted contact leaves the table", async ({ signedIn }) => {

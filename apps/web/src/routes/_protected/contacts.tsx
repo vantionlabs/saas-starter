@@ -1,7 +1,6 @@
 import { ContactForm } from "@/components/contact/contact-form.js";
-import { hydrated } from "@/server/hydration.js";
 import { listContacts } from "@/server/reads/contact.js";
-import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { contactsAtom, deleteContactAtom } from "@vantion/core/atoms/Contact";
 import { QueryError } from "@vantion/ui/app/query-error";
@@ -38,19 +37,6 @@ const Contacts = () => {
   );
 };
 
-/**
- * The boundary goes around the screen rather than at the root.
- *
- * What is hydrated is this route's data, so it belongs to this route: a root
- * boundary would need every page's state whether or not it was rendered, and a
- * navigation would have nothing to apply.
- */
-const ContactsRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <Contacts />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/contacts")({
   staticData: { crumb: "Contacts" },
   /**
@@ -58,5 +44,5 @@ export const Route = createFileRoute("/_protected/contacts")({
    * the forwarded cookie belongs to a caller who is signed in.
    */
   loader: () => listContacts(),
-  component: ContactsRoute,
+  component: Contacts,
 });

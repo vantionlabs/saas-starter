@@ -1,7 +1,6 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
-import { hydrated } from "@/server/hydration.js";
 import { getBilling } from "@/server/reads/billing.js";
-import { HydrationBoundary, useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { billingAtom, billingPortalAtom, checkoutAtom } from "@vantion/core/atoms/Billing";
 import type { PaidPlan } from "@vantion/module-billing/BillingRpc";
@@ -87,15 +86,9 @@ const Billing = () => {
   );
 };
 
-const BillingRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <Billing />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/settings/billing")({
   staticData: { crumb: "Billing" },
   validateSearch: (search: Record<string, unknown>) => ({ checkout: outcomeOf(search) }),
   loader: () => getBilling(),
-  component: BillingRoute,
+  component: Billing,
 });

@@ -1,7 +1,8 @@
+import { useHydratedMatches } from "@/server/hydration.js";
 import "@/app.css";
 import { installClientTelemetry } from "@/telemetry/install.js";
 import { reporter } from "@/telemetry/Reporter.js";
-import { RegistryProvider } from "@effect/atom-react";
+import { HydrationBoundary, RegistryProvider } from "@effect/atom-react";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { NotFound } from "@vantion/ui/app/not-found";
 import { RouteCrash } from "@vantion/ui/app/route-crash";
@@ -51,6 +52,11 @@ export const Route = createRootRoute({
   ),
 });
 
+/** Applies every matched route's server-rendered reads, before anything reads one. */
+const Hydrate = ({ children }: Readonly<{ children: React.ReactNode; }>) => (
+  <HydrationBoundary state={useHydratedMatches()}>{children}</HydrationBoundary>
+);
+
 const RootDocument = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
   // Client-only, and after hydration: installing during render would run on the
   // server too, where there is no window to listen to. The returned undo is the
@@ -79,8 +85,20 @@ const RootDocument = ({ children }: Readonly<{ children: React.ReactNode; }>) =>
       */
         }
         <RegistryProvider defaultIdleTTL={30_000}>
-          <div className="h-dvh flex flex-col overflow-hidden">{children}</div>
-          <Toaster position="bottom-right" />
+          {
+            /*
+            One boundary for the whole document, above the shell.
+            `HydrationBoundary` applies a value immediately only for an atom
+            with no node yet, and defers an existing one to an effect that never
+            runs during SSR — so a boundary inside a route arrived after the
+            shell had already read `contactsAtom` and `organizationsAtom`, and
+            left exactly those `Initial` on the server.
+          */
+          }
+          <Hydrate>
+            <div className="h-dvh flex flex-col overflow-hidden">{children}</div>
+            <Toaster position="bottom-right" />
+          </Hydrate>
         </RegistryProvider>
         <Scripts />
       </body>

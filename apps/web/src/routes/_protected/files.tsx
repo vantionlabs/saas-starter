@@ -1,7 +1,6 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
-import { hydrated } from "@/server/hydration.js";
 import { listFiles } from "@/server/reads/file.js";
-import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   deleteFileAtom,
@@ -127,14 +126,8 @@ const Files = () => {
   );
 };
 
-const FilesRoute = () => (
-  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
-    <Files />
-  </HydrationBoundary>
-);
-
 export const Route = createFileRoute("/_protected/files")({
   staticData: { crumb: "Files" },
   loader: () => listFiles(),
-  component: FilesRoute,
+  component: Files,
 });
