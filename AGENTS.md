@@ -434,6 +434,14 @@ steps of its own — a failure there is reproducible by typing one thing.
 already watching; this is the other one. A secret in a commit is in the history whether or not
 the next commit removes it, and this repository is a public template.
 
+It installs itself from the root `prepare` script, which is guarded on a git checkout existing
+— and that guard is load-bearing rather than defensive. `prepare` also runs inside every
+`pnpm install --frozen-lockfile`, which is the first line of all six Dockerfiles, and the build
+image carries no `git`; an unguarded `lefthook install` therefore failed every image build at
+once while `pnpm check`, `pnpm lint` and the whole test suite stayed green. Nothing in CI built
+an image, so the next thing to notice would have been a deploy. `.github/workflows/nightly.yml`
+is the answer to that, and this is the break it was written for.
+
 `.ignore` keeps `repos/` out of ripgrep, and therefore out of every agent search. Reading it
 deliberately is the point and `rg --no-ignore` still does; having 3,558 vendored files in the
 results of every unrelated query is attention spent for nothing.
@@ -454,6 +462,12 @@ results of every unrelated query is attention spent for nothing.
 | `pnpm new:module <name>`                     | scaffolds `packages/modules/<name>` and registers it               |
 | `pnpm design`                                | the product-design app, on persona fixtures                        |
 | `pnpm --filter @vantion/tokens figma:script` | the Figma variable sync, printed                                   |
+| `pnpm services`                              | Postgres, Redis and Jaeger, via `docker compose`                   |
+| `pnpm db:migrate`                            | applies the migrations to `DATABASE_URL`                           |
+| `pnpm build:images`                          | all six deployable images                                          |
+| `pnpm fix`                                   | `format` then `lint:fix` — what to run before reading a diff       |
+| `pnpm e2e:install`                           | the one Playwright browser the suite needs, once                   |
+| `pnpm preflight`                             | format, check, lint, hygiene and test, in that order               |
 
 The second half of `pnpm check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,
@@ -511,6 +525,10 @@ plain Node gets the built output. `apps/server` does the same for its own intern
 imports, which is why they are Node subpath imports rather than a `@/` alias a bundler would have
 had to rewrite.
 
+`pnpm dev` runs the three that make the product; `pnpm dev:all` runs every app, which is
+rarely what you want and occasionally exactly what you want. `pnpm services:reset` is the one
+to know the shape of: it takes the volumes with it, so it discards the database.
+
 Each app owns a `Dockerfile`, built from the repository root because pnpm resolves a workspace
 package against the root lockfile and every sibling manifest:
 
@@ -518,6 +536,23 @@ package against the root lockfile and every sibling manifest:
 docker build -f apps/server/Dockerfile -t vantion-api .
 docker build -f apps/web/Dockerfile    -t vantion-web .
 ```
+
+Each one's `deps` stage copies only the manifests that image's build reaches, so a source
+change does not reinstall the world and no image pulls React Native, Expo or Playwright. That
+subset is a registration elsewhere, though, and it had drifted in **all six at once** —
+`packages/modules/health` was listed in none of them. `tsc -b` follows project references and
+`@vantion/domain` aggregates every module, so building it reached packages whose dependencies
+had never been installed and the failure read as `Cannot find module '@aws-sdk/client-s3'`:
+a missing `COPY` line reported as a missing npm package.
+
+`tooling/test/docker.test.ts` computes the workspace closure of whatever each Dockerfile says
+it builds and asserts the copied set is exactly that — both directions, because a manifest an
+image does not need is a layer invalidated by a change that cannot affect it. It runs in
+`pnpm test`, and its failure prints the `COPY` lines to paste.
+
+Nothing in `pnpm check`, `pnpm lint` or the test suite builds an image, which is the gap
+`.github/workflows/nightly.yml` covers: the mobile bundle and all six images, nightly, because
+together they take longer than the rest of CI and a break in them does not block a merge.
 
 Neither image carries `node_modules`, and both run on Alpine even though the build stage needs
 Debian — `effect-tsgo` has no musl build, but nothing installs at runtime. The API image also

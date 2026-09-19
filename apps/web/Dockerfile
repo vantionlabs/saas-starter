@@ -28,10 +28,26 @@ WORKDIR /app
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/server/package.json apps/server/
+# Every workspace package this image's build reaches, and no more.
+# `tooling/test/docker.test.ts` computes the set and fails with the lines
+# to paste, so this block is generated rather than remembered.
 COPY apps/web/package.json apps/web/
+COPY packages/core/package.json packages/core/
 COPY packages/database/package.json packages/database/
 COPY packages/domain/package.json packages/domain/
+COPY packages/emails/package.json packages/emails/
+COPY packages/modules/agent/package.json packages/modules/agent/
+COPY packages/modules/assistant/package.json packages/modules/assistant/
+COPY packages/modules/billing/package.json packages/modules/billing/
+COPY packages/modules/contact/package.json packages/modules/contact/
+COPY packages/modules/files/package.json packages/modules/files/
+COPY packages/modules/health/package.json packages/modules/health/
+COPY packages/modules/iam/package.json packages/modules/iam/
+COPY packages/modules/jobs/package.json packages/modules/jobs/
+COPY packages/modules/notifications/package.json packages/modules/notifications/
+COPY packages/telemetry/package.json packages/telemetry/
+COPY packages/tokens/package.json packages/tokens/
+COPY packages/ui/package.json packages/ui/
 COPY scripts/package.json scripts/
 RUN pnpm install --frozen-lockfile
 

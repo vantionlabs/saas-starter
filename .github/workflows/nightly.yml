@@ -1,0 +1,61 @@
+# The checks that are too slow to run on every push and too important to let rot.
+#
+# Each of these has broken at least once in this repository's short history, and
+# each was found by somebody running it by hand rather than by CI: the mobile
+# bundle broke on a React Native minor the Expo SDK does not pair with, and all
+# six images broke at once when the root `prepare` script gained a command that
+# needs `git`, which the build image does not carry.
+#
+# That second one is the argument for this file. `check` and `e2e` never build
+# an image, so a change to a root script can break every deployment while every
+# job stays green — and the next person to find out is whoever deploys.
+#
+# Nightly rather than per-push because together they take longer than the rest
+# of CI, and a break here does not block a merge — it tells somebody the next
+# morning, which for a bundle nobody ships from a pull request is the right
+# trade.
+name: nightly
+
+on:
+  schedule:
+    # 03:00 UTC. Late enough that a day's merges are in, early enough to read
+    # with coffee.
+    - cron: "0 3 * * *"
+  # So it can be proved to work without waiting a day.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # An Expo SDK is a matched set, and the way this breaks is a transitive
+      # bump landing a React Native the SDK was not built against — which the
+      # type-checker cannot see and only a bundle finds.
+      - run: pnpm --filter @vantion/mobile build
+
+  images:
+    runs-on: ubuntu-latest
+    strategy:
+      # One broken image should not hide the state of the others.
+      fail-fast: false
+      matrix:
+        app: [server, web, admin, worker, marketing, brand]
+    steps:
+      - uses: actions/checkout@v5
+
+      # Built from the repository root, because pnpm resolves a workspace
+      # package against the root lockfile and every sibling manifest.
+      - run: docker build -f apps/${{ matrix.app }}/Dockerfile -t vantion-${{ matrix.app }} .

@@ -66,8 +66,17 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # The browser is ~130MB and changes only when Playwright does, so it is
+      # keyed on the lockfile rather than downloaded every run.
+      - id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
       # Only the one browser the suite runs in. `--with-deps` installs the
-      # system libraries the runner image does not ship.
+      # system libraries the runner image does not ship, and those are not in
+      # the cache — so this step runs either way and only the download is saved.
       - run: pnpm --filter @vantion/e2e exec playwright install --with-deps chromium
 
       # Starts its own Postgres container on a free port, applies the
