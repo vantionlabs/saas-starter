@@ -246,25 +246,48 @@ registry per React tree, so each request gets its own; the module-level default
 registry would be shared by every request the process handles, and a preload
 would serve the first caller's data to everybody after.
 
-**A server-rendered form must be uncontrolled.** The page is in the document
-before React attaches to it, so anything typed in that window goes into the DOM
-and never reaches a controlled component: the state stays empty, the submit
-button stays disabled, and the typing is discarded with no error anywhere.
-`ContactForm` reads its values off the DOM at submit.
+**A write is a form, and a form is effect-form.** `FormReact.make` over a
+`FormBuilder`, living in the app rather than in `@vantion/ui` — the library
+binds the submit into the form definition, so a shared component taking
+`onCreate` as a prop cannot be one. `apps/design` renders plain inputs for the
+layout, as it does for sign-in, because validation and submit state are the part
+of a form that has nothing to do with how it looks.
 
-`useHydrated` is the other half of that rule, and it generalises: **a control
-whose only job is to run a handler is disabled until React is listening.** The
-upload button on `/files` and the submit on `ContactForm` both look live in the
-server's markup and both do nothing when pressed, silently, which is the worst
-version of a bug. Disabling them until hydration is honest, and it is also the
-only signal the markup gives a browser test that the page is real — which is
-what makes the e2e suite deterministic rather than a collection of retries.
+That also _removes_ a problem rather than managing it: effect-form does not
+render its fields during SSR, so there is no window in which somebody can type
+into a control that is not listening.
 
-Note the trap the second time round: the upload button was _already_ disabled
-until the caller's permissions arrived, so it happened to encode hydration by
-accident. Server-rendering the identity made it enabled from the first byte and
-the tests went red again. A signal that works by coincidence stops working the
-day the coincidence does.
+**A field's rules are declared once, in the contract.** `ContactFields` in
+`ContactRpc.ts` is what the `CreateContact` payload is built from _and_ what the
+form validates with, so the form refuses exactly what the server would. They
+were two declarations of one rule before — the procedure checked `isNonEmpty`
+with no message while the screen kept its own copy with a readable one, and the
+server's was the version nobody could read. Every check carries a `message`,
+because that is what a person sees; `apps/mobile` gets the same sentences
+without inventing any.
+
+**A failed submit is two different things.** `submitMessage` in
+`apps/web/src/lib/form/result.ts` tells them apart: a `SchemaError` is the form
+failing to decode, anything else came back from a server. Saying "check the
+fields above" to somebody whose permission was denied sends them looking in the
+wrong place — and writing that test the other way round, as "not this one
+particular error", is how every error added later inherits the wrong message.
+
+`useHydrated` is for what is **not** a form: **a control whose only job is to
+run a handler is disabled until React is listening.** The upload button on
+`/files`, the assistant's Send, the "Set up" on `/settings/security` — all three
+look live in the server's markup and all three did nothing when pressed,
+silently, which is the worst version of a bug. Disabling them until hydration is
+honest, and it is the only signal the markup gives a browser test that the page
+is real, which is what keeps the e2e suite deterministic rather than a
+collection of retries.
+
+Note the trap it sprang twice. The upload button was _already_ disabled until
+the caller's permissions arrived, so it encoded hydration by accident;
+server-rendering the identity made it enabled from the first byte and the tests
+went red. And the third case was found only by CI, on a machine slower than the
+one it passed on. A signal that works by coincidence stops working the day the
+coincidence does.
 
 `packages/core` is everything a client needs that is not a screen. Five files at its root are
 the foundation every feature builds on — `AppRpc` (the one client and its atom runtime),
