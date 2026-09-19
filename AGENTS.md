@@ -110,6 +110,54 @@ is carried, since React Native has no cookie jar and `@better-auth/expo` puts th
 keychain instead. `docs/mobile.md` has the three seams Metro needs and is explicit that the app
 compiles and bundles but has not been run on a device here.
 
+## A GET is rendered on the server; a write happens on the client
+
+A dashboard that fetches after hydration shows a spinner for work the server
+could already have done, and asks the reader to wait twice — once for the page,
+once for its contents. So a read that a route can name is a **route loader**,
+and what stays in the browser is what a person asks for: creating, editing,
+deleting, and the refetch that follows one.
+
+It is one query either way. `contactsAtom` is still what the screen reads, still
+what a write invalidates, and still what `apps/mobile` renders with no server
+behind it at all — the loader only arranges for it to arrive already full.
+
+Three pieces, and the middle one is where the mistake is easy to make.
+`apps/web/src/server/rpc.ts` is the RPC client as the server uses it: the
+browser's client sends `credentials: "include"` and lets the platform attach the
+session, and there is no platform here, so the cookie is forwarded explicitly.
+`apps/web/src/server/reads.ts` is a server function per read. And hydration puts
+the result into the atom.
+
+**Hydration, not seeding.** `useAtomInitialValues` looks like the tool and is
+not: it marks the node **valid** — computed, fresh, done — so the atom never
+builds a lifecycle, and a mutation that invalidates its reactivity key has
+nothing to refresh. The table showed the server's rows and then ignored every
+write, intermittently, because which of the seed and the first fetch won was a
+race. `Hydration` instead _preloads_ the encoded value through
+`registry.setSerializable`, and the node collects it when it builds: the atom
+has the server's data and is still live.
+
+So each server-rendered read is `Atom.serializable({ key, schema })` in
+`packages/core`, beside the atom rather than in the app — the server needs the
+same key and schema to encode, and a pair kept in two places is a pair that
+drifts into hydrating nothing while the page quietly fetches again. The schema
+covers the whole `AsyncResult`, because that is what the atom's value is.
+
+`RegistryProvider` in `__root.tsx` is what makes any of this safe. It builds a
+registry per React tree, so each request gets its own; the module-level default
+registry would be shared by every request the process handles, and a preload
+would serve the first caller's data to everybody after.
+
+**A server-rendered form must be uncontrolled.** The page is in the document
+before React attaches to it, so anything typed in that window goes into the DOM
+and never reaches a controlled component: the state stays empty, the submit
+button stays disabled, and the typing is discarded with no error anywhere.
+`ContactForm` reads its values off the DOM at submit, and `useHydrated` disables
+the button until React is listening — which is honest, since pressing it does
+nothing until then, and is also the only signal the markup gives a browser test
+that hydration has happened.
+
 `packages/core` is everything a client needs that is not a screen. Five files at its root are
 the foundation every feature builds on — `AppRpc` (the one client and its atom runtime),
 `ApiUrl`, `Keys`, and the two combinators `Stable` and `HoldOpen` — and `atoms/` is one file

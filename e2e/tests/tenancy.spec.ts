@@ -1,5 +1,6 @@
 import type { Browser, Page } from "@playwright/test";
 import {
+  addContact,
   expect,
   nextClientAddress,
   signOutViaApi,
@@ -27,10 +28,9 @@ const newTenant = async (browser: Browser, prefix: string) => {
   return { context, page, email };
 };
 
-const addContact = async (page: Page, fullName: string, email: string) => {
-  await page.getByLabel("Name").fill(fullName);
-  await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Add contact" }).click();
+/** The shared helper, plus the wait this file wants: the row is actually there. */
+const addVisibleContact = async (page: Page, fullName: string, email: string) => {
+  await addContact(page, fullName, email);
   await expect(page.getByRole("row").filter({ hasText: email })).toBeVisible();
 };
 
@@ -52,8 +52,8 @@ test.describe("tenant isolation", () => {
     const aliceContact = uniqueEmail("alice-contact");
     const bobContact = uniqueEmail("bob-contact");
 
-    await addContact(alice.page, "Alice's Contact", aliceContact);
-    await addContact(bob.page, "Bob's Contact", bobContact);
+    await addVisibleContact(alice.page, "Alice's Contact", aliceContact);
+    await addVisibleContact(bob.page, "Bob's Contact", bobContact);
 
     // Each sees exactly their own, and the negative assertion is the point.
     await expect(alice.page.getByRole("row").filter({ hasText: aliceContact })).toBeVisible();
@@ -69,7 +69,7 @@ test.describe("tenant isolation", () => {
 
   test("a fresh organization starts empty however many others exist", async ({ browser }) => {
     const first = await newTenant(browser, "incumbent");
-    await addContact(first.page, "Existing Person", uniqueEmail("existing"));
+    await addVisibleContact(first.page, "Existing Person", uniqueEmail("existing"));
 
     const second = await newTenant(browser, "newcomer");
 
@@ -85,7 +85,7 @@ test.describe("tenant isolation", () => {
   test("signing out revokes access to the data immediately", async ({ browser }) => {
     const tenant = await newTenant(browser, "revoked");
     const contact = uniqueEmail("revoked-contact");
-    await addContact(tenant.page, "Soon Invisible", contact);
+    await addVisibleContact(tenant.page, "Soon Invisible", contact);
 
     await signOutViaApi(tenant.page);
     await tenant.page.goto("/contacts");

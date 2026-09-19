@@ -1,11 +1,4 @@
-import type { Page } from "@playwright/test";
-import { expect, test, uniqueEmail } from "../fixtures.js";
-
-const addContact = async (page: Page, fullName: string, email: string) => {
-  await page.getByLabel("Name").fill(fullName);
-  await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Add contact" }).click();
-};
+import { addContact, expect, test, uniqueEmail } from "../fixtures.js";
 
 test.describe("contacts", () => {
   test("start empty, with an empty state that names what is missing", async ({ signedIn }) => {
@@ -25,6 +18,28 @@ test.describe("contacts", () => {
     await expect(row).toBeVisible();
     await expect(row.getByText("Ada Lovelace")).toBeVisible();
     await expect(signedIn.getByText("No contacts yet")).toBeHidden();
+  });
+
+  /**
+   * The assertion that SSR is real, rather than fast.
+   *
+   * Everything else in this file passes just as well when the list is fetched
+   * after hydration — the table fills in either way and Playwright waits. This
+   * asks the server for the document and looks in the markup, so it fails the
+   * day somebody moves the read back into the browser.
+   */
+  test("the list is in the server-rendered document", async ({ signedIn }) => {
+    const email = uniqueEmail("ssr");
+    await signedIn.goto("/contacts");
+    await addContact(signedIn, "Server Rendered", email);
+    await expect(signedIn.getByRole("row").filter({ hasText: email })).toBeVisible();
+
+    // The page's own request context, so it carries the session cookie.
+    const response = await signedIn.request.get("/contacts");
+    const html = await response.text();
+
+    expect(html).toContain(email);
+    expect(html).toContain("Server Rendered");
   });
 
   test("a deleted contact leaves the table", async ({ signedIn }) => {
@@ -53,16 +68,22 @@ test.describe("contacts", () => {
     await expect(signedIn.getByRole("row").filter({ hasText: email })).toBeVisible();
   });
 
-  test("the submit button stays disabled until both fields are filled", async ({ signedIn }) => {
+  test("submitting an incomplete form says what is missing", async ({ signedIn }) => {
     await signedIn.goto("/contacts");
     const submit = signedIn.getByRole("button", { name: "Add contact" });
 
-    await expect(submit).toBeDisabled();
+    // Enabled once React is listening — before that it is disabled because a
+    // press would do nothing, which is a different thing from invalid input.
+    await expect(submit).toBeEnabled();
 
     await signedIn.getByLabel("Name").fill("Only A Name");
-    await expect(submit).toBeDisabled();
+    await submit.click();
 
-    await signedIn.getByLabel("Email").fill(uniqueEmail("enabled"));
-    await expect(submit).toBeEnabled();
+    // By text, not by role: the page already carries a "verify your email"
+    // alert, and `getByRole("alert")` matches both.
+    await expect(
+      signedIn.getByText("Both a name and an email address are needed."),
+    ).toBeVisible();
+    await expect(signedIn.getByRole("table")).toBeHidden();
   });
 });

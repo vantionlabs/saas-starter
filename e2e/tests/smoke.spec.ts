@@ -1,4 +1,4 @@
-import { API_URL, expect, interactUntil, test } from "../fixtures.js";
+import { addContact, API_URL, expect, interactUntil, test } from "../fixtures.js";
 
 test.describe("operations", () => {
   test("liveness and readiness answer", async ({ request }) => {
@@ -103,9 +103,7 @@ test.describe("settings", () => {
 
   test("records the creation of a contact in the audit trail", async ({ signedIn }) => {
     await signedIn.goto("/contacts");
-    await signedIn.getByLabel("Name").fill("Audited Person");
-    await signedIn.getByLabel("Email").fill("audited@example.test");
-    await signedIn.getByRole("button", { name: "Add contact" }).click();
+    await addContact(signedIn, "Audited Person", "audited@example.test");
     await expect(signedIn.getByRole("row").filter({ hasText: "audited@example.test" }))
       .toBeVisible();
 

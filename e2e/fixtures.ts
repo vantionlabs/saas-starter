@@ -147,4 +147,22 @@ export const interactUntil = async (
     await settle();
   }).toPass({ timeout, intervals: [250, 500, 1000] });
 
+/**
+ * Fills and submits the contact form.
+ *
+ * `toBeEnabled()` is the wait for **hydration**, not for validation: the form
+ * is server-rendered, and its button is disabled until React attaches because
+ * until then pressing it does nothing. Waiting on that one signal is what makes
+ * this deterministic — there is no sleeping and no retrying a fill, because the
+ * inputs are uncontrolled and keep whatever was typed into them.
+ */
+export const addContact = async (page: Page, fullName: string, email: string) => {
+  const submit = page.getByRole("button", { name: "Add contact" });
+
+  await expectBase(submit).toBeEnabled();
+  await page.getByLabel("Name").fill(fullName);
+  await page.getByLabel("Email").fill(email);
+  await submit.click();
+};
+
 export { expect } from "@playwright/test";

@@ -1,5 +1,7 @@
 import type { ContactId } from "@vantion/module-contact/ContactRpc";
-import { Effect } from "effect";
+import { Contact, Overview } from "@vantion/module-contact/ContactRpc";
+import { Effect, Schema } from "effect";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "../AppRpc.js";
 import { Keys } from "../Keys.js";
 
@@ -15,9 +17,33 @@ import { Keys } from "../Keys.js";
  */
 const reads = [Keys.organization, Keys.contacts];
 
-export const contactsAtom = AppRpc.query("ListContacts", undefined, { reactivityKeys: reads });
+/**
+ * The serialization metadata for a read the server can render, declared beside
+ * the atom rather than in the app that renders it.
+ *
+ * A key and a schema are what `Atom.serializable` needs to put a value into a
+ * registry from outside, and the server needs the *same* pair to encode it.
+ * Exporting them together is what stops the two halves drifting — a mismatched
+ * key silently hydrates nothing, and the page quietly fetches again.
+ *
+ * `apps/mobile` imports the atom and ignores this, which is the point: the
+ * metadata costs a phone nothing and the query stays one definition.
+ */
+export const contactsSerial = {
+  key: "contacts",
+  schema: AsyncResult.Schema({ success: Schema.Array(Contact) }),
+};
 
-export const overviewAtom = AppRpc.query("GetOverview", undefined, { reactivityKeys: reads });
+export const contactsAtom = AppRpc.query("ListContacts", undefined, { reactivityKeys: reads })
+  .pipe(Atom.serializable(contactsSerial));
+
+export const overviewSerial = {
+  key: "overview",
+  schema: AsyncResult.Schema({ success: Overview }),
+};
+
+export const overviewAtom = AppRpc.query("GetOverview", undefined, { reactivityKeys: reads })
+  .pipe(Atom.serializable(overviewSerial));
 
 export const createContactAtom = AppRpc.runtime.fn<
   { readonly email: string; readonly fullName: string; }
