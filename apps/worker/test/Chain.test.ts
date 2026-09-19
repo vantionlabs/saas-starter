@@ -9,6 +9,7 @@ import { permissionsFor } from "@vantion/module-iam/identity/Permission";
 import { JobQueue } from "@vantion/module-jobs/JobQueue";
 import { relayOnce } from "@vantion/module-jobs/Relay";
 import { register } from "@vantion/module-webhooks/Endpoints";
+import { Outbound } from "@vantion/module-webhooks/Outbound";
 import { SIGNATURE_HEADER, verify } from "@vantion/module-webhooks/Signature";
 import { Effect, Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
@@ -46,6 +47,9 @@ const live = Layer.mergeAll(
   ContactStore.layer,
   JobQueue.layerMemory,
   FetchHttpClient.layer,
+  // One event, one receiver: a permit pool here would be a number to keep in
+  // step with the test rather than a bound on anything.
+  Outbound.layerUnbounded,
   Layer.succeed(CurrentUser)(
     new Identity({
       userId: UserId.make("user_chain"),

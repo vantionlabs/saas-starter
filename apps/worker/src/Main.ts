@@ -26,16 +26,25 @@ const tick = Effect.gen(function*() {
   const queue = yield* JobQueue;
   const waiting = yield* queue.drain;
 
-  for (const job of waiting) {
+  /**
+   * Jobs in parallel, bounded here and bounded again where they reach the
+   * network.
+   *
+   * This was a sequential loop, which is bounded and slow in the worst way: one
+   * webhook receiver that accepts the connection and then sits there stalled
+   * every job behind it for the length of the timeout, so one customer's wedged
+   * server delayed everybody's. `Outbound` is what stops this number and the
+   * per-event fan-out multiplying into more sockets than anybody chose.
+   */
+  yield* Effect.forEach(waiting, (job) =>
     // One job failing is not a reason to stop the loop or to skip the rest. The
     // log is also the report: `layerReporting` turns every error-level entry
     // into one, so a job that fails all night is an issue with a count on it
     // rather than a thousand lines nobody reads.
-    yield* dispatch(job).pipe(
+    dispatch(job).pipe(
       Effect.catchCause((cause) => Effect.logError(`job ${job.id} (${job.kind}) failed`, cause)),
       Effect.withSpan("job.dispatch", { attributes: { "job.kind": job.kind, "job.id": job.id } }),
-    );
-  }
+    ), { concurrency: 10 });
 
   return { relayed, dispatched: waiting.length };
 });

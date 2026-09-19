@@ -1,5 +1,6 @@
 import { deliver } from "@/Delivery.js";
 import { FAILURE_LIMIT, register } from "@/Endpoints.js";
+import { Outbound } from "@/Outbound.js";
 import { ID_HEADER, SIGNATURE_HEADER, verify } from "@/Signature.js";
 import { describe, expect, it } from "@effect/vitest";
 import { withOrgScopeFor } from "@vantion/database/OrgScope";
@@ -56,7 +57,13 @@ const asOrg = Layer.succeed(CurrentUser)(
   }),
 );
 
-const live = Layer.mergeAll(asOrg, FetchHttpClient.layer).pipe(
+/**
+ * Unbounded permits: these tests run one event against one or two receivers of
+ * their own, so a limit would only be a number to keep in step with them. What
+ * the pool is for is a worker dispatching many jobs at once, which
+ * `apps/worker` does and this does not.
+ */
+const live = Layer.mergeAll(asOrg, FetchHttpClient.layer, Outbound.layerUnbounded).pipe(
   Layer.provideMerge(PgLive),
   Layer.provideMerge(PgPoolTest),
 );

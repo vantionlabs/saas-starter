@@ -7,6 +7,7 @@ import { randomUUID } from "node:crypto";
 import type { Endpoint } from "./Endpoints.js";
 import { activeFor, recordOutcome } from "./Endpoints.js";
 import type { Envelope } from "./Event.js";
+import { Outbound } from "./Outbound.js";
 import { ID_HEADER, sign, SIGNATURE_HEADER } from "./Signature.js";
 
 /**
@@ -72,47 +73,62 @@ export const deliver = Effect.fnUntraced(function*(options: {
   const sql = yield* SqlClient.SqlClient;
   const endpoints = yield* activeFor(options.organizationId);
 
-  let delivered = 0;
+  const outbound = yield* Outbound;
 
-  for (const endpoint of endpoints) {
-    // `result` rather than letting it fail: one receiver being down is not a
-    // reason to skip the others, and failing the job would retry the ones that
-    // already succeeded.
-    const outcome = yield* Effect.result(post(endpoint, options.envelope));
-    const ok = Result.isSuccess(outcome);
+  /**
+   * Endpoints in parallel, and bounded twice over.
+   *
+   * `concurrency` caps the fan-out of one event; `Outbound` caps what this
+   * whole process has open, because the worker dispatches several jobs at once
+   * and the two would otherwise multiply. Sequentially, one receiver that
+   * accepts a connection and then sits there delayed every other endpoint of
+   * the same event by the full timeout.
+   */
+  const outcomes = yield* Effect.forEach(endpoints, (endpoint) =>
+    Effect.gen(function*() {
+      // `result` rather than letting it fail: one receiver being down is not a
+      // reason to skip the others, and failing the job would retry the ones
+      // that already succeeded.
+      const outcome = yield* outbound.withPermit(
+        Effect.result(post(endpoint, options.envelope)),
+      );
+      const ok = Result.isSuccess(outcome);
 
-    yield* withWorkerScope(sql`
-      insert into "webhookDelivery"
-        ("id", "organizationId", "endpointId", "eventId", "kind", "status", "attempts",
-         "responseStatus", "lastError")
-      values (
-        ${randomUUID()}, ${options.organizationId}, ${endpoint.id}, ${options.envelope.id},
-        ${options.envelope.type}, ${ok ? "delivered" : "failed"}, 1,
-        ${Result.isSuccess(outcome) ? outcome.success : outcome.failure.status},
-        ${Result.isSuccess(outcome) ? null : outcome.failure.reason}
-      )
-      on conflict ("eventId", "endpointId") do update set
-        "status" = excluded."status",
-        "attempts" = "webhookDelivery"."attempts" + 1,
-        "responseStatus" = excluded."responseStatus",
-        "lastError" = excluded."lastError",
-        "at" = now()
-    `).pipe(Effect.orDie);
+      yield* withWorkerScope(sql`
+        insert into "webhookDelivery"
+          ("id", "organizationId", "endpointId", "eventId", "kind", "status", "attempts",
+           "responseStatus", "lastError")
+        values (
+          ${randomUUID()}, ${options.organizationId}, ${endpoint.id}, ${options.envelope.id},
+          ${options.envelope.type}, ${ok ? "delivered" : "failed"}, 1,
+          ${Result.isSuccess(outcome) ? outcome.success : outcome.failure.status},
+          ${Result.isSuccess(outcome) ? null : outcome.failure.reason}
+        )
+        on conflict ("eventId", "endpointId") do update set
+          "status" = excluded."status",
+          "attempts" = "webhookDelivery"."attempts" + 1,
+          "responseStatus" = excluded."responseStatus",
+          "lastError" = excluded."lastError",
+          "at" = now()
+      `).pipe(Effect.orDie);
 
-    yield* recordOutcome({ endpointId: endpoint.id, delivered: ok });
+      yield* recordOutcome({ endpointId: endpoint.id, delivered: ok });
 
-    /**
-     * One counter with an outcome attribute rather than two counters, so "what
-     * share of deliveries failed" is a query rather than arithmetic between
-     * series.
-     */
-    yield* Metric.update(
-      Metric.withAttributes(webhookDeliveries, { outcome: ok ? "delivered" : "failed" }),
-      1,
-    );
+      /**
+       * One counter with an outcome attribute rather than two counters, so
+       * "what share of deliveries failed" is a query rather than arithmetic
+       * between series.
+       */
+      yield* Metric.update(
+        Metric.withAttributes(webhookDeliveries, { outcome: ok ? "delivered" : "failed" }),
+        1,
+      );
 
-    if (ok) delivered += 1;
-  }
+      return ok;
+    }), { concurrency: 5 });
 
-  return { attempted: endpoints.length, delivered };
+  return {
+    attempted: endpoints.length,
+    delivered: outcomes.filter((ok) => ok).length,
+  };
 });

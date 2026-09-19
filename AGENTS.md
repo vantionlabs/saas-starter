@@ -633,6 +633,16 @@ deliberately does not open a transaction of its own — one that did would commi
 which is the failure the outbox exists to prevent. Called outside a scoped transaction it is
 refused by the table's `with check` rather than writing something unscoped.
 
+Deliveries run **concurrently, bounded twice**. Both loops used to be sequential — one
+endpoint at a time, one job at a time — which is bounded and slow in the worst way: a receiver
+that accepts the connection and then sits there held up every other endpoint and every job
+behind it for the length of the timeout, so one customer's wedged server was everybody's delay.
+`Effect.forEach` with a `concurrency` caps each loop, and `Outbound` — a `Semaphore` from
+`WEBHOOK_CONCURRENCY`, default 20 — caps what the process holds open, because ten jobs each
+fanning out to five endpoints is fifty sockets and neither loop can see the other. A test
+asserts the pool never runs more at once than it has permits, and another that it is not
+quietly serialising everything.
+
 Deliveries are signed with Stripe's scheme — `Webhook-Signature: t=…,v1=…` over
 `${timestamp}.${body}` — because customers already have code for it and there is a document to
 point at. `sign` and `verify` live in the same file so the tests verify with the function a
