@@ -1,0 +1,49 @@
+{
+  "name": "@vantion/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "license": "MIT",
+  "scripts": {
+    "dev": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "build": "expo export --platform ios --output-dir build",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@effect/atom-react": "catalog:",
+    "@expo/metro-runtime": "^57.0.16",
+    "@vantion/core": "workspace:*",
+    "@vantion/module-contact": "workspace:*",
+    "@vantion/module-files": "workspace:*",
+    "@vantion/module-iam": "workspace:*",
+    "@vantion/tokens": "workspace:*",
+    "better-auth": "catalog:",
+    "effect": "catalog:",
+    "expo": "^57.0.24",
+    "expo-constants": "^57.0.19",
+    "expo-linking": "^57.0.10",
+    "expo-router": "^57.0.22",
+    "expo-secure-store": "^57.0.4",
+    "expo-status-bar": "^57.0.1",
+    "expo-web-browser": "^57.0.3",
+    "nativewind": "^4.2.7",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-native": "0.86.3",
+    "react-native-css-interop": "^0.2.7",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "~0.21.0"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/react": "catalog:",
+    "babel-preset-expo": "^57.0.0",
+    "tailwindcss": "^3.4.17",
+    "vitest": "catalog:"
+  }
+}

@@ -1,5 +1,5 @@
+import { StorageUnavailable } from "@vantion/module-files/FilesErrors";
 import type { FileId } from "@vantion/module-files/FilesRpc";
-import { StorageUnavailable } from "@vantion/module-files/ObjectStore";
 import { Effect } from "effect";
 import { Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "./AppRpc.js";

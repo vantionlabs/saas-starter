@@ -1,0 +1,9 @@
+/*
+ * Tailwind 3's directives, because NativeWind v4 is a Tailwind 3 integration.
+ * The rest of this repository is on Tailwind 4 and uses `@import "tailwindcss"`
+ * — the two are not interchangeable, and mixing them silently produces a
+ * stylesheet with no utilities in it.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

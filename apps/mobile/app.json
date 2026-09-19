@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Vantion",
+    "slug": "vantion",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "scheme": "vantion",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": true, "bundleIdentifier": "co.vantion.starter" },
+    "android": { "package": "co.vantion.starter", "edgeToEdgeEnabled": true },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "experiments": { "typedRoutes": true }
+  }
+}

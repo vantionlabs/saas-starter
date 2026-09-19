@@ -6,6 +6,7 @@ dist/
 .tsbuildinfo/
 *.tsbuildinfo
 coverage/
+.expo/
 
 .direnv/
 result

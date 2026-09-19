@@ -1,11 +1,7 @@
-import { Config, Context, Effect, Layer, Option, Redacted, Schema } from "effect";
+import { Config, Context, Effect, Layer, Option, Redacted } from "effect";
+import { StorageUnavailable } from "./FilesErrors.js";
 
-/** Storage is unreachable, or refused. Both mean "try again", not "give up". */
-export class StorageUnavailable
-  extends Schema.TaggedError<StorageUnavailable>()("StorageUnavailable", {
-    reason: Schema.Literals(["Unreachable", "Rejected", "NotConfigured"]),
-  })
-{}
+export { StorageUnavailable };
 
 /** Where to send the bytes, and how. */
 export type Upload = {

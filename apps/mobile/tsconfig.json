@@ -1,0 +1,59 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "app",
+    "src",
+    "test",
+    "*.d.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/core"
+    },
+    {
+      "path": "../../packages/tokens"
+    },
+    {
+      "path": "../../packages/modules/contact"
+    },
+    {
+      "path": "../../packages/modules/files"
+    },
+    {
+      "path": "../../packages/modules/iam"
+    }
+  ],
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "nativewind",
+    "types": [
+      "node"
+    ],
+    "moduleResolution": "bundler",
+    "tsBuildInfoFile": ".tsbuildinfo/mobile.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/core/*": [
+        "../../packages/core/src/*.js"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../../packages/modules/files/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../../packages/modules/iam/src/*.js"
+      ]
+    }
+  }
+}

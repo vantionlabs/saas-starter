@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="322 unit tests" src="https://img.shields.io/badge/tests-322-2EAD33?style=flat-square" />
+  <img alt="327 unit tests" src="https://img.shields.io/badge/tests-327-2EAD33?style=flat-square" />
   <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -82,10 +82,10 @@ Both are MIT. Nothing is held back for a paid tier.
 **The platform** — what you build the next feature on.
 
 - ✅ **Feature modules** — `pnpm new:module <name>` scaffolds and registers a vertical slice
-- ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
+- ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 322 unit, 37 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 327 unit, 37 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -162,7 +162,7 @@ emails and the Figma library at once.
 | `apps/marketing` | the marketing site: multi-page, server-rendered, pricing read from the product's own plans                   | **built** |
 | `apps/brand`     | the brand kit, generated from the tokens: colour, type, voice, motion, email footer, social card             | **built** |
 | `apps/mcp`       | the toolkit over stdio: your product as tools in an editor                                                   | **built** |
-| `apps/mobile`    | Expo, sharing the contract and the tokens                                                                    | planned   |
+| `apps/mobile`    | Expo and NativeWind over the same contract, queries and tokens                                               | **built** |
 
 Underneath, `packages/tokens` is the single source the whole lot reads —
 TypeScript, not CSS, because only one of its consumers speaks CSS:
@@ -494,6 +494,7 @@ it.
 | `pnpm design`                  | the design app, on persona fixtures                 |
 | `pnpm marketing`               | the marketing site, server-rendered                 |
 | `pnpm brand`                   | the brand kit, generated from the tokens            |
+| `pnpm mobile`                  | the Expo app, against the same API                  |
 | `pnpm new:module <name>`       | scaffold a feature package and register it          |
 | `pnpm build`                   | deployable artifacts for every package              |
 | `pnpm check`                   | `tsc -b` across all project references              |
@@ -567,8 +568,8 @@ changing much. `knowledge/README.md` indexes the per-topic guides.
 
 `docs/workflow/` is the method, written out phase by phase, `docs/figma.md` is
 the design workflow and its one account caveat, `docs/mcp.md` connects an editor
-to the MCP server, and `docs/evals.md` is the eval set and what its gate can
-honestly enforce.
+to the MCP server, `docs/evals.md` is the eval set and what its gate can honestly
+enforce, and `docs/mobile.md` is the Expo app and the three seams it needs.
 
 `repos/` vendors the Effect and effect-form sources at exactly the versions this
 repo depends on. Effect v4 is a release candidate whose APIs moved recently, so
@@ -585,8 +586,12 @@ deliberate step rather than a background one.
 **Some of this is newer than the rest.** Auth, organizations, access control,
 tenant isolation and the public API came from production work and have been
 exercised. Billing, jobs, webhooks, the design app and the Figma path are newer,
-tested but not yet weathered. `apps/mobile` is named in the table above because
-that is the shape, not because it exists.
+tested but not yet weathered.
+
+**`apps/mobile` compiles and bundles, and has not been run on a device here.**
+It type-checks, its theme conversion is tested and `expo export` produces a
+bundle — but nobody in this repository has watched it move, and `docs/mobile.md`
+says so rather than leaving you to find out.
 
 ## Roadmap
 
@@ -595,8 +600,7 @@ open, and none of it is waiting behind a paid tier.
 
 |           | What                                    | Why it is not here yet                                                                                                  |
 | --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Next**  | `apps/mobile`                           | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                     |
-| **Then**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.  |
+| **Next**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.  |
 | **Later** | SSO and SAML                            | The heaviest remaining item, and the one enterprise deals actually ask for.                                             |
 | **Later** | An admin panel                          | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |
 

@@ -21,6 +21,7 @@
     "@vantion/database": "workspace:*",
     "@vantion/emails": "workspace:*",
     "@vantion/module-notifications": "workspace:*",
+    "@better-auth/expo": "catalog:",
     "better-auth": "catalog:",
     "effect": "catalog:",
     "pg": "catalog:"

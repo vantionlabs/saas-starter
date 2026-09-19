@@ -100,6 +100,13 @@ what an application registers. HTTP routes are exported separately (`IamHttp`,
 `HealthHttpRoutes`) because a route layer requires the `HttpRouter` it adds itself to, and
 that service only exists inside `HttpRouter.serve`.
 
+`apps/mobile` is Expo and expo-router over that same package: the contacts screen renders
+`contactsAtom`, not the mobile equivalent of it. What differs is the rendering layer —
+`packages/ui` is HTML for a browser and a phone needs `View` and `Text` — and how the session
+is carried, since React Native has no cookie jar and `@better-auth/expo` puts the token in the
+keychain instead. `docs/mobile.md` has the three seams Metro needs and is explicit that the app
+compiles and bundles but has not been run on a device here.
+
 `packages/core` is everything a client needs that is not a screen: the RPC client and its atom
 runtime, the reactivity keys, and the reads and writes for every feature. It exists because
 `apps/web` and `apps/mobile` are two front ends over one contract, and a query written twice is

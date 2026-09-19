@@ -3,7 +3,7 @@ import { LimitReached } from "@vantion/module-iam/identity/Entitlement";
 import { Forbidden } from "@vantion/module-iam/identity/Policy";
 import { Schema } from "effect";
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
-import { StorageUnavailable } from "./ObjectStore.js";
+import { StorageUnavailable } from "./FilesErrors.js";
 
 export const FileId = Schema.String.pipe(Schema.brand("FileId")).annotate({
   identifier: "FileId",

@@ -75,7 +75,15 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
             ),
           baseURL,
           secret: Redacted.value(secret),
-          trustedOrigins: [webUrl],
+          /**
+           * The web origin, and the mobile app's scheme.
+           *
+           * `vantion://` is not an origin a browser would ever send, and
+           * better-auth refuses anything unlisted — so a deep link back from a
+           * magic link or an OAuth redirect fails without it. It matches
+           * `scheme` in `apps/mobile/app.json`; change one and change both.
+           */
+          trustedOrigins: [webUrl, "vantion://"],
           cookieDomain: Option.getOrUndefined(cookieDomain),
           google: Option.getOrUndefined(google),
           sendEmail,

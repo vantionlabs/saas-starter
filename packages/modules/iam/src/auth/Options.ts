@@ -1,3 +1,4 @@
+import { expo } from "@better-auth/expo";
 import { renderEmail } from "@vantion/emails/Render";
 import { EmailOtp } from "@vantion/emails/templates/EmailOtp";
 import { Invitation } from "@vantion/emails/templates/Invitation";
@@ -216,6 +217,19 @@ const authOptions = (options: MakeAuthOptions) => ({
         await send(options, email, EmailOtp, { code: otp, product: options.product });
       },
     }),
+    /**
+     * What a phone needs, and a browser does not.
+     *
+     * A browser keeps the session in a cookie the platform manages. React
+     * Native has no such jar to rely on, so the Expo client sends a bearer
+     * token instead — and this plugin is the half of that arrangement that
+     * accepts it. Without it a signed-in phone arrives anonymous at every
+     * request, which looks exactly like a broken session.
+     *
+     * It is harmless to a deployment with no mobile app: it adds a way to
+     * authenticate, not a way around authenticating.
+     */
+    expo(),
   ],
 });
 
