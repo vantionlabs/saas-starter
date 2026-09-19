@@ -25,6 +25,9 @@
     },
     {
       "path": "../tokens"
+    },
+    {
+      "path": "../emails"
     }
   ],
   "compilerOptions": {
@@ -58,6 +61,9 @@
       ],
       "@vantion/tokens/*": [
         "../../packages/tokens/src/*.js"
+      ],
+      "@vantion/emails/*": [
+        "../../packages/emails/src/*.tsx"
       ]
     }
   }

@@ -8,10 +8,12 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "tsc -b tsconfig.json"
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tanstack/react-router": "catalog:",
+    "@vantion/emails": "workspace:*",
     "@vantion/module-assistant": "workspace:*",
     "@vantion/module-billing": "workspace:*",
     "@vantion/module-contact": "workspace:*",
@@ -29,6 +31,11 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "tailwindcss": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "jsdom": "catalog:",
+    "vitest": "catalog:"
   }
 }

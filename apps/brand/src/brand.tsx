@@ -1,8 +1,8 @@
-import { Assets } from "@/sections/assets.js";
-import { Colour } from "@/sections/colour.js";
-import { Motion } from "@/sections/motion.js";
-import { Type } from "@/sections/type.js";
-import { Voice } from "@/sections/voice.js";
+import { Assets } from "@vantion/ui/brand/assets";
+import { Colour } from "@vantion/ui/brand/colour";
+import { Motion } from "@vantion/ui/brand/motion";
+import { Type } from "@vantion/ui/brand/type";
+import { Voice } from "@vantion/ui/brand/voice";
 
 const sections = [
   ["colour", "Colour"],

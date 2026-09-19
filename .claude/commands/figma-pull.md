@@ -13,9 +13,11 @@ Implement this Figma change in the code: **$ARGUMENTS**
    a one-off colour ends up hardcoded in a route:
    - a colour, radius or type change → `packages/tokens/src/tokens.ts`, then
      `pnpm --filter @vantion/tokens build:css`
-   - a component's appearance → `packages/ui/src/`
+   - a component's appearance → `packages/ui/src/`, whichever surface it belongs
+     to: `marketing/`, `brand/`, `settings/`, `assistant/` and the rest are all
+     the same design system
    - a layout or composition → `apps/design/src/screens/` and the matching route
-     in `apps/web`
+     in `apps/web`, `apps/marketing` or `apps/brand`
 3. If it is a token, check it is inside sRGB before committing — the test will
    fail otherwise, and it is right to: a colour outside the gamut is clipped by
    the browser without a word, so what renders is not what was designed.

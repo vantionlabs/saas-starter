@@ -22,6 +22,7 @@
     "@base-ui/react": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@vantion/module-contact": "workspace:*",
+    "@vantion/emails": "workspace:*",
     "@vantion/module-assistant": "workspace:*",
     "@vantion/module-files": "workspace:*",
     "@vantion/module-billing": "workspace:*",

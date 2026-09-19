@@ -3,6 +3,25 @@
 The design system, the screens and the journeys all come from the code, and
 designers' changes come back the same way.
 
+## One canvas, three surfaces
+
+`apps/design` is the middleman, and it is the only one. The product screens,
+the marketing sections and the brand kit all render from `@vantion/ui` against
+fixtures, so a designer opens one application and `/figma-screen` reads one
+source.
+
+That is why the presentational half of `apps/marketing` and `apps/brand` lives
+in the design system rather than in those apps. What stays behind is routing,
+metadata and **copy** — a designer changing a headline should not be editing a
+route, and a component only one site can render is a component Figma cannot see.
+
+The surfaces differ in what they need from the canvas. The product has personas,
+because its screens have states you cannot reach without a backend — every list
+empty, two dozen rows, a subscription that lapsed, a turn stopped mid-approval.
+Marketing and brand have none: a landing page has no empty state, and the brand
+kit is read straight from `@vantion/tokens`, so what it shows is already what
+ships.
+
 ## What connects
 
 Figma's own MCP server, not a third-party bridge. It ships the skills that do

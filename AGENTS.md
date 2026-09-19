@@ -13,9 +13,17 @@ somebody else's HTTP timeout — which is how a slow customer becomes a database
 queue hands back what it is holding and the loop is the worker, which is what lets a fresh
 clone deliver a webhook with no Redis at all.
 
-`apps/design` deploys nothing. It renders the same components from `@vantion/ui` against
+`apps/design` deploys nothing, and it is the one canvas all three surfaces are worked on. It renders the same components from `@vantion/ui` against
 persona fixtures, with no backend, no session and no network — the surface product designers
-work on, and the one that pushes to Figma. A persona is a whole tenant's worth of data rather
+work on, and the one that pushes to Figma. The product screens, the marketing
+sections and the brand kit all render from `@vantion/ui` here, so a designer opens one
+application and `/figma-screen` reads one source — which is also why the presentational half of
+`apps/marketing` and `apps/brand` lives in the design system rather than in those apps. What
+stays behind is routing, metadata and copy: a designer changing a headline should not be editing
+a route, and a component only one site can render is a component Figma cannot see.
+
+Only the product screens have personas, because only they have states you cannot reach without
+a backend. A persona is a whole tenant's worth of data rather
 than a card on a wall: `first-day` where every list is empty, `settled` for the ordinary case,
 and `crowded` for the long names and many rows that actually break a layout. The persona
 travels in the query string, so a designer can link to exactly the state they mean. `pnpm

@@ -1,7 +1,7 @@
 import "@/app.css";
-import { Shell } from "@/components/shell.js";
-import { site } from "@/site.js";
+import { pages, site } from "@/site.js";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { MarketingShell } from "@vantion/ui/marketing/shell";
 import type * as React from "react";
 
 /**
@@ -44,9 +44,17 @@ export const Route = createRootRoute({
   }),
   component: () => (
     <RootDocument>
-      <Shell>
+      <MarketingShell
+        name={site.name}
+        nav={pages.filter((page) => page.inNav).map(({ path, label }) => ({ to: path, label }))}
+        footerLinks={pages
+          .filter((page) => page.path !== "/")
+          .map(({ path, label }) => ({ to: path, label }))}
+        appUrl={site.appUrl}
+        contact={site.contact}
+      >
         <Outlet />
-      </Shell>
+      </MarketingShell>
     </RootDocument>
   ),
   notFoundComponent: () => (

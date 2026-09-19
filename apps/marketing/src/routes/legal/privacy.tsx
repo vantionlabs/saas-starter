@@ -1,6 +1,6 @@
-import { Legal } from "@/components/legal.js";
 import { meta, site } from "@/site.js";
 import { createFileRoute } from "@tanstack/react-router";
+import { Legal } from "@vantion/ui/marketing/legal";
 
 const DESCRIPTION = `What ${site.name} stores, why, and how to get it back or have it deleted.`;
 

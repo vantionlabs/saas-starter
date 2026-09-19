@@ -1,5 +1,11 @@
-import { Pricing } from "@/sections/pricing.js";
 import { describe, expect, it } from "@effect/vitest";
+import { Pricing } from "@vantion/ui/marketing/pricing";
+
+const prices = {
+  free: { price: "Free", cadence: "for one team" },
+  pro: { price: "$49", cadence: "per month" },
+  scale: { price: "$199", cadence: "per month" },
+} as const;
 import { render, screen } from "@testing-library/react";
 import type { Plan } from "@vantion/module-iam/identity/Entitlement";
 import { features, limits } from "@vantion/module-iam/identity/Entitlement";
@@ -16,7 +22,7 @@ describe("the pricing table", () => {
    * declaration, and this fails the day that stops being true.
    */
   it("promises exactly the limits the product enforces", () => {
-    render(<Pricing />);
+    render(<Pricing prices={prices} />);
 
     for (const plan of plans) {
       expect(screen.getByText(`${limits[plan].seats} seats`)).toBeInTheDocument();
@@ -25,7 +31,7 @@ describe("the pricing table", () => {
   });
 
   it("lists every feature a plan actually carries", () => {
-    render(<Pricing />);
+    render(<Pricing prices={prices} />);
 
     expect([...features.scale]).toHaveLength(3);
 
@@ -35,7 +41,7 @@ describe("the pricing table", () => {
   });
 
   it("shows every plan, so none can be quietly dropped", () => {
-    render(<Pricing />);
+    render(<Pricing prices={prices} />);
 
     for (const plan of plans) expect(screen.getByText(plan, { exact: true })).toBeInTheDocument();
   });

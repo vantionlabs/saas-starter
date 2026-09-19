@@ -1,7 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [
-    "src"
+    "src",
+    "test"
   ],
   "references": [
     {
@@ -21,6 +22,9 @@
     },
     {
       "path": "../../packages/modules/assistant"
+    },
+    {
+      "path": "../../packages/emails"
     }
   ],
   "compilerOptions": {
@@ -53,6 +57,9 @@
       ],
       "@vantion/ui/*": [
         "../../packages/ui/src/*.tsx"
+      ],
+      "@vantion/emails/*": [
+        "../../packages/emails/src/*.tsx"
       ]
     }
   }

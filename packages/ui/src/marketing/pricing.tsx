@@ -3,28 +3,18 @@ import { features, limits } from "@vantion/module-iam/identity/Entitlement";
 import { Check } from "lucide-react";
 
 /**
- * The plans, read from the product rather than retyped beside it.
+ * The plans, read from the product rather than retyped beside them.
  *
  * This is the one part of a marketing site that lies most often: a pricing page
- * promising ten seats while the application enforces three. Here both come from
- * `@vantion/module-iam`, so a plan change is a code change in one place and
- * this page cannot disagree with what a customer actually gets.
+ * promising ten seats while the application enforces three. The limits and
+ * features here come from `@vantion/module-iam`, so a plan change is one edit
+ * and this cannot disagree with what a customer actually gets.
  *
- * Prices are not in that module, because what an organization *may do* and what
- * it *costs* are different decisions — the first is enforced, the second lives
- * in Stripe. They are declared here and marked as an example.
+ * Prices arrive as props, because what an organization *may do* and what it
+ * *costs* are different decisions — the first is enforced in code, the second
+ * lives in Stripe and on the site.
  */
-const price: Record<Plan, string> = {
-  free: "Free",
-  pro: "$49",
-  scale: "$199",
-};
-
-const cadence: Record<Plan, string> = {
-  free: "for one team",
-  pro: "per month",
-  scale: "per month",
-};
+export type PlanPrice = { readonly price: string; readonly cadence: string; };
 
 const featureLabels = {
   api_keys: "Public API and keys",
@@ -34,7 +24,9 @@ const featureLabels = {
 
 const order: ReadonlyArray<Plan> = ["free", "pro", "scale"];
 
-export const Pricing = () => (
+export const Pricing = (props: {
+  readonly prices: Record<Plan, PlanPrice>;
+}) => (
   <section id="pricing" className="flex flex-col gap-8">
     <div className="flex flex-col gap-2">
       <h2 className="text-2xl font-semibold tracking-tight">Pricing</h2>
@@ -49,8 +41,8 @@ export const Pricing = () => (
         <div key={plan} className="bg-card flex flex-col gap-4 rounded-lg border p-6">
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium capitalize">{plan}</p>
-            <p className="text-3xl font-semibold tracking-tight">{price[plan]}</p>
-            <p className="text-muted-foreground text-xs">{cadence[plan]}</p>
+            <p className="text-3xl font-semibold tracking-tight">{props.prices[plan].price}</p>
+            <p className="text-muted-foreground text-xs">{props.prices[plan].cadence}</p>
           </div>
 
           <ul className="text-muted-foreground flex flex-col gap-2 text-sm">

@@ -2,8 +2,10 @@ import { personaById, personas } from "@/fixtures/personas.js";
 import { ApiKeys } from "@/screens/api-keys.js";
 import { Assistant } from "@/screens/assistant.js";
 import { Billing } from "@/screens/billing.js";
+import { Brand } from "@/screens/brand.js";
 import { Contacts } from "@/screens/contacts.js";
 import { Dashboard } from "@/screens/dashboard.js";
+import { Marketing } from "@/screens/marketing.js";
 import { Members } from "@/screens/members.js";
 import { SignIn } from "@/screens/sign-in.js";
 import {
@@ -22,6 +24,8 @@ import {
   KeyRound,
   LayoutDashboard,
   LogIn,
+  Megaphone,
+  Palette,
   Sparkles,
   Users,
   UserSquare,
@@ -44,6 +48,14 @@ const nav = [
   { to: "/api-keys", label: "API keys", icon: KeyRound },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/sign-in", label: "Sign in", icon: LogIn },
+  /**
+   * The other two surfaces, on the same canvas.
+   *
+   * They have no personas — a landing page has no empty state — but they are
+   * here so a designer works on one app and `/figma-screen` reads one source.
+   */
+  { to: "/marketing", label: "Marketing", icon: Megaphone },
+  { to: "/brand", label: "Brand", icon: Palette },
 ];
 
 const PersonaPicker = () => {
@@ -119,7 +131,14 @@ const rootRoute = createRootRoute({
 const screen = (path: string, component: () => React.ReactElement) =>
   createRoute({ getParentRoute: () => rootRoute, path, component });
 
-const routeTree = rootRoute.addChildren([
+/**
+ * Exported so a test can build a router of its own with in-memory history.
+ *
+ * The singleton below is what the app runs; sharing it between tests would
+ * share its navigation state too, and a screen would be rendered at whatever
+ * path the previous test left behind.
+ */
+export const routeTree = rootRoute.addChildren([
   screen("/", Dashboard),
   screen("/assistant", Assistant),
   screen("/contacts", Contacts),
@@ -127,6 +146,8 @@ const routeTree = rootRoute.addChildren([
   screen("/api-keys", ApiKeys),
   screen("/billing", Billing),
   screen("/sign-in", SignIn),
+  screen("/marketing", Marketing),
+  screen("/brand", Brand),
 ]);
 
 export const router = createRouter({ routeTree });

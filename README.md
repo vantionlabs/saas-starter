@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="294 unit tests" src="https://img.shields.io/badge/tests-294-2EAD33?style=flat-square" />
+  <img alt="317 unit tests" src="https://img.shields.io/badge/tests-317-2EAD33?style=flat-square" />
   <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -83,9 +83,9 @@ Both are MIT. Nothing is held back for a paid tier.
 
 - ✅ **Feature modules** — `pnpm new:module <name>` scaffolds and registers a vertical slice
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
-- ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
+- ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 294 unit, 37 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 317 unit, 37 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -139,7 +139,7 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps. That is what lets a suite of 294 be a gate an agent
+the edges, and no sleeps. That is what lets a suite of 317 be a gate an agent
 runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
@@ -153,25 +153,30 @@ four repositories and two agencies live here, sharing one design system — so a
 colour changes in `packages/tokens` and moves the app, the marketing site, the
 emails and the Figma library at once.
 
-|                  |                                                                                                          |           |
-| ---------------- | -------------------------------------------------------------------------------------------------------- | --------- |
-| `apps/server`    | the Effect API: RPC, the public `/api/v1`, auth, websockets                                              | **built** |
-| `apps/web`       | the product itself, TanStack Start                                                                       | **built** |
-| `apps/worker`    | the outbox relay and the jobs it feeds                                                                   | **built** |
-| `apps/design`    | the product's screens on persona fixtures, no backend — what designers work on, and what pushes to Figma | **built** |
-| `apps/marketing` | the marketing site: multi-page, server-rendered, pricing read from the product's own plans               | **built** |
-| `apps/brand`     | the brand kit, generated from the tokens: colour, type, voice, motion, email footer, social card         | **built** |
-| `apps/mcp`       | the toolkit over stdio: your product as tools in an editor                                               | **built** |
-| `apps/mobile`    | Expo, sharing the contract and the tokens                                                                | planned   |
+|                  |                                                                                                              |           |
+| ---------------- | ------------------------------------------------------------------------------------------------------------ | --------- |
+| `apps/server`    | the Effect API: RPC, the public `/api/v1`, auth, websockets                                                  | **built** |
+| `apps/web`       | the product itself, TanStack Start                                                                           | **built** |
+| `apps/worker`    | the outbox relay and the jobs it feeds                                                                       | **built** |
+| `apps/design`    | one canvas for all three surfaces on fixtures, no backend — what designers work on, and what pushes to Figma | **built** |
+| `apps/marketing` | the marketing site: multi-page, server-rendered, pricing read from the product's own plans                   | **built** |
+| `apps/brand`     | the brand kit, generated from the tokens: colour, type, voice, motion, email footer, social card             | **built** |
+| `apps/mcp`       | the toolkit over stdio: your product as tools in an editor                                                   | **built** |
+| `apps/mobile`    | Expo, sharing the contract and the tokens                                                                    | planned   |
 
 Underneath, `packages/tokens` is the single source the whole lot reads —
 TypeScript, not CSS, because only one of its consumers speaks CSS:
 
 ```
-packages/tokens ──┬──▶ packages/ui        the web design system
+packages/tokens ──┬──▶ packages/ui        the design system, all three surfaces
                   ├──▶ packages/emails    React Email, converted to hex
                   ├──▶ Figma variables    via /figma-tokens
                   └──▶ NativeWind         when apps/mobile lands
+
+packages/ui ──────┬──▶ apps/web           the product
+                  ├──▶ apps/marketing     the site's sections
+                  ├──▶ apps/brand         the kit's sections
+                  └──▶ apps/design        all of them, on fixtures → Figma
 ```
 
 A test asserts every colour survives conversion to sRGB without clipping. It
