@@ -1,9 +1,10 @@
 import { Message } from "@vantion/module-assistant/AssistantRpc";
-import { BillingState } from "@vantion/module-billing/BillingRpc";
+import { BillingState, UsageRow } from "@vantion/module-billing/BillingRpc";
 import { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Contact } from "@vantion/module-contact/ContactRpc";
 import { CustomRole, OrganizationMember } from "@vantion/module-iam/access/AccessRpc";
 import { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
+import { limits } from "@vantion/module-iam/identity/Entitlement";
 import type { PersonView } from "@vantion/ui/admin/person-card";
 import type { StaffTrailRow } from "@vantion/ui/admin/staff-trail-table";
 import type { SsoProviderRow } from "@vantion/ui/settings/sso-panel";
@@ -42,6 +43,47 @@ export type Persona = {
   readonly staffTrail: ReadonlyArray<StaffTrailRow>;
   /** The result of a staff lookup, for the admin panel's person screen. */
   readonly person: PersonView;
+  /**
+   * Where this tenant stands against its plan.
+   *
+   * **Derived, not written.** Counted off the persona's own members and keys
+   * and read off its own plan's limits, so a fixture cannot show two seats
+   * beside a members table with nine rows — which is exactly the lie a design
+   * app exists to stop somebody shipping.
+   */
+  readonly usage: ReadonlyArray<UsageRow>;
+};
+
+/** Everything but the part computed from the rest of it. */
+type Fixture = Omit<Persona, "usage">;
+
+/** Storage has no list on screen to count, so it is the one number given. */
+const withUsage = (persona: Fixture, storageBytes: number): Persona => {
+  const allowed = limits[persona.billing.effectivePlan];
+
+  return {
+    ...persona,
+    usage: [
+      new UsageRow({
+        metric: "seats",
+        unit: "count",
+        used: persona.members.length,
+        allowed: allowed.seats,
+      }),
+      new UsageRow({
+        metric: "apiKeys",
+        unit: "count",
+        used: persona.apiKeys.length,
+        allowed: allowed.apiKeys,
+      }),
+      new UsageRow({
+        metric: "storage",
+        unit: "bytes",
+        used: storageBytes,
+        allowed: allowed.storageMb * 1024 * 1024,
+      }),
+    ],
+  };
 };
 
 const at = (iso: string) => DateTime.makeUnsafe(new Date(iso));
@@ -50,7 +92,7 @@ const contact = (id: string, fullName: string, email: string) =>
   new Contact({ id: ContactId.make(id), fullName, email });
 
 /** Day one. Every list is empty, which is the state most designs forget. */
-const firstDay: Persona = {
+const firstDay: Fixture = {
   id: "first-day",
   name: "First day",
   describes: "Signed up ten minutes ago. Nothing exists yet.",
@@ -113,7 +155,7 @@ const firstDay: Persona = {
 };
 
 /** The ordinary case, and the one most screenshots are taken of. */
-const settled: Persona = {
+const settled: Fixture = {
   id: "settled",
   name: "Settled team",
   describes: "A few months in. Enough data to look like a product.",
@@ -222,7 +264,7 @@ const settled: Persona = {
  * Designing against `settled` alone produces a table that is beautiful until a
  * customer with a real company name signs up.
  */
-const crowded: Persona = {
+const crowded: Fixture = {
   id: "crowded",
   name: "Crowded",
   describes: "Long names, many rows. The state that breaks a layout.",
@@ -389,7 +431,16 @@ const crowded: Persona = {
   },
 };
 
-export const personas: ReadonlyArray<Persona> = [firstDay, settled, crowded];
+/**
+ * The storage figures are the interesting part of each: nothing, a comfortable
+ * fraction, and one nearly full — a meter is only worth designing once it is
+ * close to its limit.
+ */
+export const personas: ReadonlyArray<Persona> = [
+  withUsage(firstDay, 0),
+  withUsage(settled, 1_180 * 1024 * 1024),
+  withUsage(crowded, 96_400 * 1024 * 1024),
+];
 
 export const personaById = (id: string): Persona =>
-  personas.find((persona) => persona.id === id) ?? settled;
+  personas.find((persona) => persona.id === id) ?? personas[1]!;

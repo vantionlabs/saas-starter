@@ -12,6 +12,9 @@
     },
     {
       "path": "../iam"
+    },
+    {
+      "path": "../files"
     }
   ],
   "compilerOptions": {
@@ -27,6 +30,9 @@
       ],
       "@vantion/database/*": [
         "../../../packages/database/src/*.js"
+      ],
+      "@vantion/module-files/*": [
+        "../../../packages/modules/files/src/*.js"
       ],
       "@vantion/module-iam/*": [
         "../../../packages/modules/iam/src/*.js"

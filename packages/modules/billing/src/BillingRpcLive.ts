@@ -2,6 +2,12 @@ import { Layer } from "effect";
 import { GetBilling } from "./GetBilling.js";
 import { OpenBillingPortal } from "./OpenBillingPortal.js";
 import { StartCheckout } from "./StartCheckout.js";
+import { GetUsage } from "./Usage.js";
 
-/** The three procedures a billing screen needs, and nothing else. */
-export const BillingRpcLive = Layer.mergeAll(GetBilling, StartCheckout, OpenBillingPortal);
+/** The procedures a billing screen needs, and nothing else. */
+export const BillingRpcLive = Layer.mergeAll(
+  GetBilling,
+  GetUsage,
+  StartCheckout,
+  OpenBillingPortal,
+);

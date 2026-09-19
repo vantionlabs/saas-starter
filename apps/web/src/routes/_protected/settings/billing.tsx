@@ -1,11 +1,17 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
-import { getBilling } from "@/server/reads/billing.js";
+import { getBilling, getUsage } from "@/server/reads/billing.js";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
-import { billingAtom, billingPortalAtom, checkoutAtom } from "@vantion/core/atoms/Billing";
+import {
+  billingAtom,
+  billingPortalAtom,
+  checkoutAtom,
+  usageAtom,
+} from "@vantion/core/atoms/Billing";
 import type { PaidPlan } from "@vantion/module-billing/BillingRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { BillingPanel } from "@vantion/ui/settings/billing-panel";
+import { UsagePanel } from "@vantion/ui/settings/usage-panel";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
@@ -23,6 +29,7 @@ const outcomeOf = (search: Record<string, unknown>) =>
 
 const Billing = () => {
   const billing = useAtomValue(billingAtom);
+  const usage = useAtomValue(usageAtom);
   const refresh = useAtomRefresh(billingAtom);
   const session = useAtomValue(sessionAtom);
   const checkout = useAtomSet(checkoutAtom, { mode: "promiseExit" });
@@ -76,19 +83,33 @@ const Billing = () => {
   if (!AsyncResult.isSuccess(billing) || !AsyncResult.isSuccess(session)) return null;
 
   return (
-    <BillingPanel
-      state={billing.value}
-      canManage={session.value.permissions.includes("billing:manage")}
-      busy={leaving}
-      onCheckout={(plan: PaidPlan) => void leave(checkout(plan))}
-      onPortal={() => void leave(portal())}
-    />
+    <div className="flex flex-col gap-10">
+      <BillingPanel
+        state={billing.value}
+        canManage={session.value.permissions.includes("billing:manage")}
+        busy={leaving}
+        onCheckout={(plan: PaidPlan) => void leave(checkout(plan))}
+        onPortal={() => void leave(portal())}
+      />
+
+      {
+        /*
+        Below the plan, not above it: somebody arrives here having been refused
+        something, reads what they are on, and the numbers are the answer to the
+        question that follows. A failed count is left out rather than shown as
+        an error — the plan is still worth reading, and half a screen is better
+        than none of it.
+      */
+      }
+      {AsyncResult.isSuccess(usage) && <UsagePanel rows={usage.value} />}
+    </div>
   );
 };
 
 export const Route = createFileRoute("/_protected/settings/billing")({
   staticData: { crumb: "Billing" },
   validateSearch: (search: Record<string, unknown>) => ({ checkout: outcomeOf(search) }),
-  loader: () => getBilling(),
+  /** Two reads for one screen: the plan, and where the organization stands. */
+  loader: async () => Promise.all([getBilling(), getUsage()]),
   component: Billing,
 });

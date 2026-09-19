@@ -207,6 +207,48 @@ verification flow rather than a field.
 `settingsGroups` does — a page that exists in a sidebar and not in ⌘K is a page
 half the application cannot reach.
 
+## Usage, against the limits that are enforced
+
+A limit nobody can see is a limit people find out about by being refused. `/settings/billing`
+carries the counts under the plan, because that is the next question: somebody
+arrives here having just been told they cannot invite a fourth colleague.
+
+**Counts live with the tables, not with the plan.** `seatsUsed` and `apiKeysUsed`
+are in iam, `bytesUsed` is in files, and `@vantion/module-billing`'s `Usage.ts`
+composes them — metering is a billing question, but what a seat is belongs to
+identity. A count written beside the limit is the one that quietly stops matching
+what the enforcement counts, and a screen saying two of three seats while
+invitations are being refused sends somebody to support instead of to the upgrade
+button. `seatsUsed` counts _accepted_ members for exactly that reason: it is what
+better-auth's `membershipLimit` counts, and a pending invitation is not a seat.
+
+`allowed` travels on each row rather than the client looking it up from a plan
+table, so the number shown is the number that refuses. Each row also carries its
+**unit**: seats are a count and storage is bytes, and a table that mixed them
+would render a hundred megabytes as a hundred files.
+
+Writing it found the other half of the problem: **the `apiKeys` limit was declared
+and never checked**. A plan that says two keys and hands out a third teaches people
+the number is decoration, and it makes the usage screen a lie rather than a reason
+to upgrade. `CreateApiKey` counts first now, and its policy moved to wrap the
+_whole_ handler rather than the insert — asked the other way round, somebody with
+no right to create a key would be told how many the organization had left, which is
+a fact about the tenant handed to a caller who may not act on it.
+
+`LimitReached` carries the number because that is the only part of a quota somebody
+can act on, and `/settings/api-keys` says "this plan includes two API keys" rather
+than "could not create that key" — the same rule `submitMessage` follows for forms.
+
+**`webhookEndpoints` is deliberately not on the screen**, though the limit exists
+and the whole delivery pipeline is built and tested: nothing in the product can
+register an endpoint yet, so the row could only ever read zero, and a metric that
+cannot move is not a measurement. It arrives with the screen that lets somebody add
+one.
+
+The design app's personas **derive** their usage from their own members and keys
+rather than stating it, so a fixture cannot show two seats beside a members table
+with nine rows — which is the lie a design app exists to stop somebody shipping.
+
 ## Setting up a workspace
 
 Onboarding is **on the organization, not on the person**, and that is the decision

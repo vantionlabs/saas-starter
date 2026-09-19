@@ -1166,6 +1166,9 @@ importers:
       '@vantion/database':
         specifier: workspace:*
         version: link:../../database
+      '@vantion/module-files':
+        specifier: workspace:*
+        version: link:../files
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../iam

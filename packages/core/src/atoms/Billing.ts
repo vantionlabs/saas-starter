@@ -1,6 +1,6 @@
 import type { PaidPlan } from "@vantion/module-billing/BillingRpc";
-import { BillingState } from "@vantion/module-billing/BillingRpc";
-import { Effect } from "effect";
+import { BillingState, UsageRow } from "@vantion/module-billing/BillingRpc";
+import { Effect, Schema } from "effect";
 import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "../AppRpc.js";
 import { Keys } from "../Keys.js";
@@ -20,6 +20,35 @@ export const billingAtom = Atom.withReactivity([Keys.organization, Keys.billing]
     }),
   ),
 ).pipe(Atom.serializable(billingSerial));
+
+/**
+ * Rendered on the server, and invalidated by far more than billing is.
+ *
+ * Every key it counts belongs to something else — a member joining, a key being
+ * revoked, a file uploaded — so the numbers go stale for reasons a billing
+ * screen never hears about. Subscribing to all of them is what makes the count
+ * beside a limit true rather than true when the page happened to load.
+ */
+export const usageSerial = {
+  key: "usage",
+  schema: AsyncResult.Schema({ success: Schema.Array(UsageRow) }),
+};
+
+export const usageAtom = Atom.withReactivity([
+  Keys.organization,
+  Keys.billing,
+  Keys.members,
+  Keys.apiKeys,
+  Keys.files,
+])(
+  AppRpc.runtime.atom(
+    Effect.gen(function*() {
+      const client = yield* AppRpc;
+
+      return yield* client("GetUsage", undefined);
+    }),
+  ),
+).pipe(Atom.serializable(usageSerial));
 
 /**
  * Both of these return a URL rather than navigating, because Stripe's page is

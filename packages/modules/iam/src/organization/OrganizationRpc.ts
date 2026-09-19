@@ -3,6 +3,7 @@ import { Rpc, RpcGroup } from "effect/unstable/rpc";
 import { ApiKey, CreatedApiKey } from "../apikey/ApiKey.js";
 import { AuditEntry } from "../audit/Audit.js";
 import { AuthMiddleware } from "../identity/AuthMiddleware.js";
+import { LimitReached } from "../identity/Entitlement.js";
 import { OrgId } from "../identity/Identity.js";
 import { Role } from "../identity/Permission.js";
 import { Forbidden } from "../identity/Policy.js";
@@ -96,13 +97,18 @@ export const OrganizationRpcs = RpcGroup.make(
    * The only time a key is returned. Creating one is an owner-level act: a key
    * is a credential that bypasses the browser session entirely.
    */
+  /**
+   * `LimitReached` is declared beside `Forbidden` because the two are different
+   * answers: one says this caller may not, the other says this plan does not
+   * stretch that far — and only the second comes with a number worth showing.
+   */
   Rpc.make("CreateApiKey", {
     payload: {
       name: Schema.String.check(Schema.isNonEmpty()),
       role: Role,
     },
     success: CreatedApiKey,
-    error: Forbidden,
+    error: Schema.Union([Forbidden, LimitReached]),
   }),
   Rpc.make("RevokeApiKey", {
     payload: { id: Schema.String },

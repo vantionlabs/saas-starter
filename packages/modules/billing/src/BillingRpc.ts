@@ -52,8 +52,41 @@ export class BillingSession extends Schema.Class<BillingSession>("BillingSession
 /** The portal needs a customer, and an organization that never paid has none. */
 export class NotSubscribed extends Schema.TaggedError<NotSubscribed>()("NotSubscribed", {}) {}
 
+/**
+ * One metered quantity, as a screen shows it.
+ *
+ * `used` and `allowed` in the **same unit**, carried on the row, rather than a
+ * number whose meaning the reader has to know: seats are a count and storage is
+ * bytes, and a table that mixed them silently would render a hundred megabytes
+ * as a hundred files. The formatting is the screen's job; saying which unit it
+ * is is the contract's.
+ *
+ * `allowed` travels with each row rather than the client looking it up from the
+ * plan. The limit is enforced against the number the server holds, so that is
+ * the number worth showing — a client computing its own from a plan table would
+ * be free to disagree with the thing actually refusing the request.
+ */
+export const Metric = Schema.Literals(["seats", "apiKeys", "storage"]);
+export type Metric = typeof Metric.Type;
+
+export class UsageRow extends Schema.Class<UsageRow>("UsageRow")({
+  metric: Metric,
+  unit: Schema.Literals(["count", "bytes"]),
+  used: Schema.Number,
+  allowed: Schema.Number,
+}) {}
+
 export const BillingRpcs = RpcGroup.make(
   Rpc.make("GetBilling", { success: BillingState, error: Forbidden }),
+  /**
+   * What the organization is using against what it may.
+   *
+   * Separate from `GetBilling` because they answer different questions and one
+   * is far more expensive: this counts rows in three tables, and the billing
+   * panel is rendered on every visit to the settings screen while the numbers
+   * are only wanted on one of them.
+   */
+  Rpc.make("GetUsage", { success: Schema.Array(UsageRow), error: Forbidden }),
   /**
    * Returns a Stripe Checkout URL rather than performing a redirect, because
    * the RPC transport is not the browser's navigation and the caller is the one

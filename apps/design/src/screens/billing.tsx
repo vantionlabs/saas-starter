@@ -1,5 +1,6 @@
 import { usePersona } from "@/screens/persona.js";
 import { BillingPanel } from "@vantion/ui/settings/billing-panel";
+import { UsagePanel } from "@vantion/ui/settings/usage-panel";
 
 /**
  * Billing is the screen a designer can least easily reach in the real product —
@@ -10,11 +11,14 @@ export const Billing = () => {
   const persona = usePersona();
 
   return (
-    <BillingPanel
-      state={persona.billing}
-      canManage
-      onCheckout={() => {}}
-      onPortal={() => {}}
-    />
+    <div className="flex flex-col gap-10">
+      <BillingPanel
+        state={persona.billing}
+        canManage
+        onCheckout={() => {}}
+        onPortal={() => {}}
+      />
+      <UsagePanel rows={persona.usage} />
+    </div>
   );
 };

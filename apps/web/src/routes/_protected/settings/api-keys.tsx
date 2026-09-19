@@ -23,13 +23,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@vantion/ui/ui/select";
-import { Exit } from "effect";
+import { Cause, Exit, Option } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { Copy, Plus } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
 const roles: ReadonlyArray<Role> = ["owner", "admin", "member"];
+
+/**
+ * A quota refused and a request refused are different sentences.
+ *
+ * `LimitReached` carries the number, which is the only part of it somebody can
+ * act on: "this plan includes two keys" names the next step, while "could not
+ * create that key" sends them to support. Everything else keeps the plain
+ * message, because saying more would be guessing — the same rule
+ * `lib/form/result.ts` follows for forms.
+ *
+ * The typed error lives in the `Cause`, so it is read out rather than taken off
+ * the exit.
+ */
+const isLimitReached = (error: unknown): error is { readonly allowed: number; } =>
+  typeof error === "object" && error !== null && "_tag" in error
+  && error._tag === "LimitReached";
+
+const createFailure = (cause: Cause.Cause<unknown>) =>
+  Option.match(Cause.findErrorOption(cause), {
+    onNone: () => "Could not create that key",
+    onSome: (error) =>
+      isLimitReached(error)
+        ? `This plan includes ${error.allowed} API keys. Revoke one, or upgrade for more.`
+        : "Could not create that key",
+  });
 
 const ApiKeys = () => {
   const keys = useAtomValue(apiKeysAtom);
@@ -126,7 +151,7 @@ const ApiKeys = () => {
               disabled={name.trim() === "" || creating.waiting}
               onClick={() => {
                 void create({ name: name.trim(), role }).then((exit) => {
-                  if (Exit.isFailure(exit)) return toast.error("Could not create that key");
+                  if (Exit.isFailure(exit)) return toast.error(createFailure(exit.cause));
 
                   setOpen(false);
                   setName("");
