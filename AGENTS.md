@@ -138,10 +138,19 @@ the same way — `auth.ts` answers who is asking, `queries/` holds the procedure
 — because one file holding the authentication _and_ every read is the one that
 grows a procedure somebody forgot to put `requireStaff` in front of.
 
-Server functions are for **GETs**. A write is a form on the client, and the RPC
-behind it is already authenticated by `AuthMiddleware`: a loader that forgot its
-guard renders an error rather than somebody else's data. And hydration puts the
-result into the atom.
+Server functions are for **GETs**, and `tooling/test/server-functions.test.ts`
+keeps it that way — the rule is invisible at the call site, because
+`createServerFn({ method: "POST" })` reads perfectly well and says nothing about
+which half of the application it belongs to. A write is a form on the client,
+and the RPC behind it is already authenticated by `AuthMiddleware`: a loader
+that forgot its guard renders an error rather than somebody else's data. And
+hydration puts the result into the atom.
+
+The admin panel's reads are `GET` too, payload and all. Worth knowing rather
+than hiding: a `GET` payload travels in the URL, so a reason and an email
+address appear in whatever access log sits in front of that app. Acceptable for
+an internal surface already expected to sit behind a VPN or an allowlist, and a
+reason not to put it on a shared ingress with third-party logging.
 
 **Hydration, not seeding.** `useAtomInitialValues` looks like the tool and is
 not: it marks the node **valid** — computed, fresh, done — so the atom never
@@ -1046,6 +1055,17 @@ log nobody can open is not a control, it is a record of one.
 every other caller acts inside exactly one organization; a flag would let a caller for whom
 that field is meaningless reach every handler that takes one, with nothing for the compiler to
 say about it.
+
+`GetOrganization` also answers the two questions a support ticket usually turns
+out to be. **What Stripe says**, separately from what the product enforces —
+they disagree on purpose, since a `canceled` subscription falls back to free
+while the row still records what was bought, and "I have been charged and I am
+on the free plan" is a different bug from "I have not been charged". A tenant
+that never subscribed shows as such rather than as free, because never having
+paid and having stopped are different tickets. And **whether their background
+work is moving**: an outbox that only grows explains a webhook that never came,
+a switched-off endpoint explains one that stopped last week. Counts, like
+everything else here.
 
 `/settings/security` is where anybody enrols, and `/auth/two-factor` is the step a sign-in
 stops at once they have. That second page is not optional: with 2FA on, better-auth answers a

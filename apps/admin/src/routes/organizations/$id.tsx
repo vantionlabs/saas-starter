@@ -82,6 +82,78 @@ const Organization = () => {
         ))}
       </dl>
 
+      <section className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium">Subscription</h2>
+        {detail.subscription === null
+          ? (
+            /**
+             * Never subscribed, which reads differently from cancelled and is
+             * a different ticket: one has never been charged, the other has.
+             */
+            <p className="text-muted-foreground text-sm">
+              No subscription has ever been created for this organization.
+            </p>
+          )
+          : (
+            <dl className="border-border grid grid-cols-2 gap-3 rounded-lg border p-3 sm:grid-cols-4">
+              <div>
+                <dt className="text-muted-foreground text-xs">Status</dt>
+                <dd className="text-sm font-medium">{detail.subscription.status}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground text-xs">Seats paid for</dt>
+                <dd className="text-sm font-medium">{detail.subscription.seats}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground text-xs">Period ends</dt>
+                <dd className="text-sm font-medium">
+                  {detail.subscription.currentPeriodEnd?.slice(0, 10) ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground text-xs">Cancelling</dt>
+                <dd className="text-sm font-medium">
+                  {detail.subscription.cancelAtPeriodEnd ? "at period end" : "no"}
+                </dd>
+              </div>
+            </dl>
+          )}
+        {detail.subscription !== null && detail.subscription.plan !== detail.organization.plan && (
+          /**
+           * The two disagreeing is the state worth surfacing rather than
+           * leaving somebody to spot: a `canceled` subscription falls back to
+           * free while the row still says what was bought.
+           */
+          <p className="text-muted-foreground text-xs">
+            Stripe says{" "}
+            <span className="font-medium">{detail.subscription.plan}</span>; the product is
+            enforcing <span className="font-medium">{detail.organization.plan}</span>.
+          </p>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium">Background work</h2>
+        <dl className="grid grid-cols-3 gap-4">
+          {[
+            { label: "Outbox waiting", value: detail.health.outboxPending },
+            { label: "Failed deliveries", value: detail.health.failedDeliveries },
+            { label: "Endpoints switched off", value: detail.health.disabledEndpoints },
+          ].map((count) => (
+            <div key={count.label} className="border-border rounded-lg border p-3">
+              <dt className="text-muted-foreground text-xs">{count.label}</dt>
+              <dd
+                className={count.value > 0
+                  ? "text-destructive text-lg font-semibold"
+                  : "text-lg font-semibold"}
+              >
+                {count.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
       <Link to="/" className="text-muted-foreground text-sm underline">
         Back to organizations
       </Link>

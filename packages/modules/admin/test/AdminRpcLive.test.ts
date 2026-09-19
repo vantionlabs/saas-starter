@@ -118,6 +118,48 @@ describe.skipIf(testDbUrl() === undefined || adminDbUrl() === undefined)("the ad
         expect(JSON.stringify(detail)).not.toContain("one@example.com");
       }));
 
+    /**
+     * The two states support is actually asked to tell apart. Nobody has
+     * subscribed here, which is not the same as having cancelled — one has
+     * never been charged and the other has, and a screen that showed both as
+     * "free" would make the commonest billing ticket unanswerable.
+     */
+    it.effect("distinguishes never subscribed from a plan that lapsed", () =>
+      Effect.gen(function*() {
+        const client = yield* RpcTest.makeClient(AdminRpcs);
+
+        yield* seed();
+
+        const detail = yield* client.GetOrganization({
+          organizationId: ORG,
+          reason: "SUP-3010",
+        });
+
+        expect(detail.subscription).toBeNull();
+        expect(detail.organization.plan).toBe("free");
+      }));
+
+    /**
+     * Machinery, not records. These are the numbers that turn "we cannot see
+     * anything wrong" into an answer, and they are counts of this tenant's
+     * background work rather than anything belonging to it.
+     */
+    it.effect("reports background work as counts", () =>
+      Effect.gen(function*() {
+        const client = yield* RpcTest.makeClient(AdminRpcs);
+
+        yield* seed();
+
+        const detail = yield* client.GetOrganization({
+          organizationId: ORG,
+          reason: "SUP-3011",
+        });
+
+        expect(detail.health.outboxPending).toBeGreaterThanOrEqual(0);
+        expect(detail.health.failedDeliveries).toBe(0);
+        expect(detail.health.disabledEndpoints).toBe(0);
+      }));
+
     it.effect("says so when an organization has gone, rather than crashing", () =>
       Effect.gen(function*() {
         const client = yield* RpcTest.makeClient(AdminRpcs);

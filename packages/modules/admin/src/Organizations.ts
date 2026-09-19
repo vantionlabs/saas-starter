@@ -1,5 +1,11 @@
 import { Effect } from "effect";
-import { OrganizationDetail, OrganizationNotFound, OrganizationSummary } from "./AdminRpc.js";
+import {
+  OrganizationDetail,
+  OrganizationHealth,
+  OrganizationNotFound,
+  OrganizationSummary,
+  SubscriptionSummary,
+} from "./AdminRpc.js";
 import { crossTenant } from "./CrossTenant.js";
 
 /**
@@ -85,15 +91,35 @@ export const getOrganization = (organizationId: string, reason: string) =>
         files: string;
         apiKeys: string;
         webhookEndpoints: string;
+        subStatus: string | null;
+        subSeats: number | null;
+        subPeriodEnd: Date | null;
+        subCancelAtPeriodEnd: boolean | null;
+        outboxPending: string;
+        failedDeliveries: string;
+        disabledEndpoints: string;
       }>`
         select
           o."id", o."name", o."slug", o."createdAt", s."plan",
+          s."status" as "subStatus",
+          s."seats" as "subSeats",
+          s."currentPeriodEnd" as "subPeriodEnd",
+          s."cancelAtPeriodEnd" as "subCancelAtPeriodEnd",
           (select count(*) from "member" m where m."organizationId" = o."id") as "members",
           (select count(*) from "contact" c where c."organizationId" = o."id") as "contacts",
           (select count(*) from "file" f where f."organizationId" = o."id") as "files",
           (select count(*) from "apiKey" k where k."organizationId" = o."id") as "apiKeys",
           (select count(*) from "webhookEndpoint" w where w."organizationId" = o."id")
-            as "webhookEndpoints"
+            as "webhookEndpoints",
+          -- Written and not yet relayed. A number that only grows is a stuck
+          -- relay, which is the explanation for every webhook that never came.
+          (select count(*) from "outboxEvent" e
+            where e."organizationId" = o."id" and e."relayedAt" is null) as "outboxPending",
+          (select count(*) from "webhookDelivery" d
+            join "webhookEndpoint" we on we."id" = d."endpointId"
+            where we."organizationId" = o."id" and d."status" = 'failed') as "failedDeliveries",
+          (select count(*) from "webhookEndpoint" w
+            where w."organizationId" = o."id" and w."active" = false) as "disabledEndpoints"
         from "organization" o
         left join "subscription" s on s."organizationId" = o."id"
         where o."id" = ${organizationId}
@@ -115,6 +141,23 @@ export const getOrganization = (organizationId: string, reason: string) =>
             files: Number(row.files),
             apiKeys: Number(row.apiKeys),
             webhookEndpoints: Number(row.webhookEndpoints),
+            /**
+             * Null when there has never been a subscription, which is not the
+             * same as a cancelled one and reads differently on the screen:
+             * "never paid" against "stopped paying".
+             */
+            subscription: row.subStatus === null ? null : new SubscriptionSummary({
+              plan: row.plan ?? "free",
+              status: row.subStatus,
+              seats: row.subSeats ?? 0,
+              currentPeriodEnd: row.subPeriodEnd?.toISOString() ?? null,
+              cancelAtPeriodEnd: row.subCancelAtPeriodEnd ?? false,
+            }),
+            health: new OrganizationHealth({
+              outboxPending: Number(row.outboxPending),
+              failedDeliveries: Number(row.failedDeliveries),
+              disabledEndpoints: Number(row.disabledEndpoints),
+            }),
           }),
         )
     ),

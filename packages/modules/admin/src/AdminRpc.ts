@@ -27,6 +27,33 @@ export class OrganizationSummary extends Schema.Class<OrganizationSummary>("Orga
 }) {}
 
 /**
+ * What Stripe says, which is not always what the product enforces.
+ *
+ * Separate from the plan on the summary because they answer different
+ * questions: one is what this organization may do, the other is why. A
+ * subscription that is `canceled` still shows here after the plan has fallen
+ * back to free, which is exactly the state somebody is writing in about.
+ */
+export class SubscriptionSummary extends Schema.Class<SubscriptionSummary>("SubscriptionSummary")({
+  plan: Schema.String,
+  status: Schema.String,
+  /** Paid for, which is not the same as used. */
+  seats: Schema.Number,
+  currentPeriodEnd: Schema.NullOr(Schema.String),
+  cancelAtPeriodEnd: Schema.Boolean,
+}) {}
+
+/** Counts about this tenant's machinery, never about its records. */
+export class OrganizationHealth extends Schema.Class<OrganizationHealth>("OrganizationHealth")({
+  /** Written and not yet handed to the queue. A number that only grows is a stuck relay. */
+  outboxPending: Schema.Number,
+  /** Deliveries that have exhausted their attempts. */
+  failedDeliveries: Schema.Number,
+  /** Endpoints switched off after too many consecutive failures. */
+  disabledEndpoints: Schema.Number,
+}) {}
+
+/**
  * Counts, never contents.
  *
  * A support engineer answering "is their import stuck" needs to know there are
@@ -40,6 +67,26 @@ export class OrganizationDetail extends Schema.Class<OrganizationDetail>("Organi
   files: Schema.Number,
   apiKeys: Schema.Number,
   webhookEndpoints: Schema.Number,
+  /**
+   * What they are paying for and whether Stripe agrees.
+   *
+   * `plan` on the summary says what they are *entitled* to; this says how that
+   * came about. The two disagreeing is the commonest billing ticket there is —
+   * a `past_due` subscription still entitles, deliberately, and a customer who
+   * has been charged and sees the free plan is a different bug from one who has
+   * not been charged at all.
+   */
+  subscription: Schema.NullOr(SubscriptionSummary),
+  /**
+   * Whether their background work is moving.
+   *
+   * These three are the difference between "we cannot see anything wrong" and
+   * an answer. A backed-up outbox explains a webhook that never arrived; a
+   * switched-off endpoint explains one that stopped a week ago; and failed
+   * deliveries explain the rest. All counts, all about machinery rather than
+   * about anybody's records.
+   */
+  health: OrganizationHealth,
 }) {}
 
 /**

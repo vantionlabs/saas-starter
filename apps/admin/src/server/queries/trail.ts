@@ -14,7 +14,7 @@ import { listStaffTrail } from "@vantion/module-admin/StaffTrail";
  *
  * It is still behind `requireStaff`, which is the part that matters.
  */
-export const staffTrail = createServerFn({ method: "POST" })
+export const staffTrail = createServerFn({ method: "GET" })
   .inputValidator((limit: number) => limit)
   .handler(async ({ data }) => {
     const staff = await requireStaff();
