@@ -271,5 +271,34 @@ export default defineRailway((ctx) => {
     },
   });
 
-  return project("vantion", { resources: [db, cache, api, worker, web] });
+  /**
+   * The marketing site, on its own host.
+   *
+   * Static files behind nginx, so it has no variables, no database and no
+   * health check worth writing — if the container is up, the page is there.
+   * Its own service rather than a route on the web app because a landing page
+   * and a product should be able to fail independently: a deploy that breaks
+   * the app should not take the page that explains it down too.
+   */
+  const marketing = service("marketing", {
+    source: github(REPO, { branch: target.branch }),
+    build: {
+      builder: "DOCKERFILE",
+      dockerfilePath: "apps/marketing/Dockerfile",
+      watchPatterns: [
+        "apps/marketing/**",
+        "packages/ui/**",
+        "packages/tokens/**",
+        "packages/modules/iam/**",
+        "pnpm-lock.yaml",
+      ],
+    },
+    deploy: {
+      restartPolicyType: "ON_FAILURE",
+      restartPolicyMaxRetries: 5,
+    },
+    env: {},
+  });
+
+  return project("vantion", { resources: [db, cache, api, worker, web, marketing] });
 });

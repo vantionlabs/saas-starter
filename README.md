@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="278 unit tests" src="https://img.shields.io/badge/tests-278-2EAD33?style=flat-square" />
+  <img alt="284 unit tests" src="https://img.shields.io/badge/tests-284-2EAD33?style=flat-square" />
   <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -85,7 +85,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
 - ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 278 unit, 37 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 284 unit, 37 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -139,7 +139,7 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps. That is what lets a suite of 278 be a gate an agent
+the edges, and no sleeps. That is what lets a suite of 284 be a gate an agent
 runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
@@ -159,8 +159,9 @@ emails and the Figma library at once.
 | `apps/web`       | the product itself, TanStack Start                                                                       | **built** |
 | `apps/worker`    | the outbox relay and the jobs it feeds                                                                   | **built** |
 | `apps/design`    | the product's screens on persona fixtures, no backend — what designers work on, and what pushes to Figma | **built** |
-| `apps/marketing` | the landing page and marketing site                                                                      | planned   |
+| `apps/marketing` | the landing page, prerendered, with pricing read from the product's own plans                            | **built** |
 | `apps/brand`     | the brand kit: typography, colour, voice, motion, ad creative, email footers, business cards             | planned   |
+| `apps/mcp`       | the toolkit over stdio: your product as tools in an editor                                               | **built** |
 | `apps/mobile`    | Expo, sharing the contract and the tokens                                                                | planned   |
 
 Underneath, `packages/tokens` is the single source the whole lot reads —
@@ -483,6 +484,7 @@ it.
 | ------------------------------ | --------------------------------------------------- |
 | `pnpm dev`                     | API, front end and worker together                  |
 | `pnpm design`                  | the design app, on persona fixtures                 |
+| `pnpm marketing`               | the landing page, prerendered at build              |
 | `pnpm new:module <name>`       | scaffold a feature package and register it          |
 | `pnpm build`                   | deployable artifacts for every package              |
 | `pnpm check`                   | `tsc -b` across all project references              |
@@ -574,8 +576,8 @@ deliberate step rather than a background one.
 **Some of this is newer than the rest.** Auth, organizations, access control,
 tenant isolation and the public API came from production work and have been
 exercised. Billing, jobs, webhooks, the design app and the Figma path are newer,
-tested but not yet weathered. `apps/marketing`, `apps/brand` and `apps/mobile`
-are named in the table above because that is the shape, not because they exist.
+tested but not yet weathered. `apps/brand` and `apps/mobile` are named in the
+table above because that is the shape, not because they exist.
 
 ## Roadmap
 
@@ -585,7 +587,7 @@ open, and none of it is waiting behind a paid tier.
 |           | What                                    | Why it is not here yet                                                                                                  |
 | --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | **Then**  | `packages/core` + `apps/mobile`         | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                     |
-| **Then**  | `apps/marketing` and `apps/brand`       | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                  |
+| **Next**  | `apps/brand`                            | The brand kit: typography, colour, voice, motion, ad creative, email footers, business cards.                           |
 | **Then**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.  |
 | **Later** | SSO and SAML                            | The heaviest remaining item, and the one enterprise deals actually ask for.                                             |
 | **Later** | An admin panel                          | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |

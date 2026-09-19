@@ -28,6 +28,7 @@
     "sync:skills": "node scripts/sync-effect-skills.mjs",
     "vendor": "node scripts/vendor.mjs",
     "new:module": "node tooling/new-module.mjs",
+    "marketing": "pnpm --filter @vantion/marketing dev",
     "design": "pnpm --filter @vantion/design dev"
   },
   "devDependencies": {

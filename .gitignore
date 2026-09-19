@@ -28,6 +28,9 @@ result-*
 # Where uploads land without S3 credentials. Not durable, and not ours to keep.
 .data/
 
+# The marketing site's server bundle, built only to prerender its one page.
+apps/marketing/.ssr/
+
 # playwright
 e2e/.e2e-env.json
 e2e/test-results/

@@ -21,6 +21,22 @@ and `crowded` for the long names and many rows that actually break a layout. The
 travels in the query string, so a designer can link to exactly the state they mean. `pnpm
 design`.
 
+`apps/marketing` is the landing page, and it deploys as files: nginx serving what Vite built,
+with no JavaScript toolchain in the image at all. `pnpm build` renders the page into
+`index.html` after bundling, because a landing page has to be readable by somebody who has not
+waited for a bundle — and by a crawler and a link preview, neither of which runs one.
+
+Its pricing table is read from `@vantion/module-iam`'s own `features` and `limits`, not retyped
+beside them. A pricing page promising ten seats while the application enforces three is the
+commonest lie on a software website and always an accident; here a plan change is one edit and
+a test fails the day the two disagree. Prices themselves are declared in the site, because what
+an organization _may do_ and what it _costs_ are different decisions — one is enforced, the
+other lives in Stripe.
+
+The calls to action are anchors wearing `buttonVariants`, not the `Button` component: Base UI
+sets `role="button"` even when rendered as an anchor, which is right for a control and wrong
+for a destination.
+
 `packages/modules/*` holds one package per feature, `@vantion/module-<name>`. A module owns
 its whole vertical: the contract both ends compile against, the RPC handlers, the stores, and
 the services behind them.
