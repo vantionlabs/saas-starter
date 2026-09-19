@@ -11,6 +11,7 @@ import { FilesHttp, FilesModule } from "@vantion/module-files/Module";
 import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
 import { NotificationsModule } from "@vantion/module-notifications/Module";
+import { layerPersistence } from "@vantion/redis/PersistenceLive";
 import { layerRateLimitStore } from "@vantion/redis/RateLimitStore";
 import { ErrorTracker, layerReporting } from "@vantion/telemetry/ErrorTracker";
 import { layerTelemetry } from "@vantion/telemetry/Telemetry";
@@ -131,6 +132,13 @@ const HttpLive = Layer.unwrap(
        * `EntitlementResolver.layerFree` to run the product with billing off.
        */
       Layer.provide(BillingModule),
+      /**
+       * Where the entitlement cache lives. Redis when `REDIS_URL` is set, this
+       * process's memory when it is not — and the difference is that a shared
+       * store lets a Stripe webhook drop a cancelled plan on every replica at
+       * once rather than only on the one that received it.
+       */
+      Layer.provide(layerPersistence),
       Layer.provide(FilesModule),
       /**
        * Redis when `REDIS_URL` is set, memory when it is not — and the

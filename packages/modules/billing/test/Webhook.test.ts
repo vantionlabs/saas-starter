@@ -5,6 +5,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { withWorkerScope } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
+import { EntitlementCache } from "@vantion/module-iam/identity/Cached";
 import { EntitlementResolver } from "@vantion/module-iam/identity/EntitlementResolver";
 import { Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
@@ -28,7 +29,16 @@ const event = (overrides: Partial<ConstructorParameters<typeof SubscriptionEvent
     ...overrides,
   });
 
-const live = layerDatabase.pipe(Layer.provideMerge(PgLive), Layer.provideMerge(PgPoolTest));
+/**
+ * `layerNoop` for the cache: what these tests are about is what the webhook
+ * *writes*, and a real cache would only add a thing to assert that the
+ * invalidation test below covers properly.
+ */
+const live = layerDatabase.pipe(
+  Layer.provideMerge(EntitlementCache.layerNoop),
+  Layer.provideMerge(PgLive),
+  Layer.provideMerge(PgPoolTest),
+);
 
 const reset = Effect.fnUntraced(function*() {
   const sql = yield* SqlClient.SqlClient;

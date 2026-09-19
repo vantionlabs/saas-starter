@@ -65,15 +65,51 @@ treating it as an unknown failure. Adding a status to a versioned API is a chang
 every client has to cope with, which is why it is in the contract rather than
 returned ad hoc.
 
-## What is not on Redis, and why
+## Caching, and the window it opens
 
-**Caching.** `PermissionResolver` and `EntitlementResolver` still read Postgres
-per request. `PersistedCache` over `Persistence.layerBackingRedis` is exactly
-the tool, and the reason it has not been done is not oversight: caching
-authorisation trades a revocation delay for throughput, and this repository has
-just spent two changes making sure a revoked permission is actually revoked. It
-wants a deliberate TTL and a note in `docs/` about the window, not a default.
+`EntitlementResolver` is cached. Every authenticated request asks what the
+organization is paying for, so it is the hottest read in the product and the one
+that changes least.
+
+Caching authorisation is a security decision rather than a performance one, so
+the numbers are stated rather than defaulted, in
+`packages/modules/iam/src/identity/Cached.ts`:
+
+|                                          |            |
+| ---------------------------------------- | ---------- |
+| Shared store (Redis)                     | 30 seconds |
+| Each process's own cache, in front of it | 2 seconds  |
+
+**Invalidation is explicit, which is why the store is shared.** Dropping an
+entry removes it from Redis for every replica at once, so a plan change does not
+wait for a clock anywhere. The Stripe webhook that writes a subscription drops
+the entry, and the direction that matters — a _downgrade_ — therefore stops
+entitling on the next request everywhere rather than lingering for a TTL. A test
+asserts exactly that.
+
+What a TTL still bounds is the small in-process cache in front of the store:
+invalidating on one replica cannot reach into another's memory. Two seconds is
+the real worst case for a change made elsewhere, and it is short on purpose.
+
+A cache that cannot be reached falls through to the database rather than
+refusing. Slower and correct beats neither.
+
+`apps/mcp` uses `Persistence.layerMemory` instead: it is one editor's
+subprocess, holds one identity for its lifetime, and is gone when the editor
+closes. Nothing there benefits from a shared cache, and joining one would make
+an MCP server a reason to run Redis.
+
+## What is not cached, and why
+
+**`PermissionResolver`.** What a _person_ may do changes when an administrator
+edits a role or sets an override, and those are exactly the changes somebody
+makes because they want them to take effect now. The entitlement case is
+comfortable because Stripe's webhook already lags by seconds to minutes, so a
+cache sits inside a delay the product has anyway; a revoked permission has no
+such delay to hide in. It would need the same invalidation on four write
+handlers, and until that is written the resolver reads Postgres every time —
+which is correct, and the slower half of one query.
 
 **Pub/sub.** Effect's `PubSub` is in-process. There is no Redis-backed
-implementation in `effect/unstable/persistence`, so cross-process fan-out —
-invalidating a cache on every replica, say — would be hand-written.
+implementation in `effect/unstable/persistence`, so any fan-out that is not
+invalidation-through-a-shared-store would be hand-written.

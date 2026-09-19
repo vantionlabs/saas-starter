@@ -1,4 +1,5 @@
 import { withWorkerScope } from "@vantion/database/OrgScope";
+import { EntitlementCache } from "@vantion/module-iam/identity/Cached";
 import { Effect } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { asStatus, type SubscriptionEvent } from "./StripeClient.js";
@@ -76,6 +77,17 @@ export const apply = Effect.fnUntraced(function*(event: SubscriptionEvent) {
           "lastEventCreated" = excluded."lastEventCreated",
           "updatedAt" = now()
       `;
+
+      /**
+       * Drop the cached plan, everywhere.
+       *
+       * The entitlement cache is shared, so this reaches every replica rather
+       * than the one that happened to receive the webhook — which is the whole
+       * reason the store is Redis and not each process's memory. Without it a
+       * cancellation would keep entitling for as long as the TTL, and a
+       * downgrade that lingers is the direction that actually costs something.
+       */
+      yield* (yield* EntitlementCache).invalidate(organizationId);
 
       return "written" as const;
     }),

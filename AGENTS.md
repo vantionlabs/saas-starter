@@ -676,6 +676,20 @@ a comment offering Redis as a way to "share limits across workers", which unders
 the `X-Forwarded-For` failure again, on the same endpoint, from a different direction. One
 instance without Redis is fine; more than one is not, and `docs/redis.md` says so.
 
+The **entitlement resolver is cached** on that same store — thirty seconds in Redis, two in
+each process's own cache in front of it. Caching authorisation is a security decision rather
+than a performance one, so the numbers live in `identity/Cached.ts` with the reasoning beside
+them. Invalidation is explicit and that is why the store is shared: the Stripe webhook drops
+the entry, so a **downgrade** stops entitling on the next request on every replica rather than
+lingering for a TTL — the expensive direction of being wrong. What the TTL still bounds is the
+in-process layer, which invalidation on one replica cannot reach; two seconds is that worst
+case. A cache that cannot be reached falls through to the database rather than refusing.
+
+`PermissionResolver` is deliberately **not** cached. A plan change hides inside a delay the
+product already has — Stripe's webhook arrives seconds to minutes late — and a revoked
+permission has no such delay to hide in. It would want the same invalidation on four write
+handlers, and until that exists reading Postgres every time is correct.
+
 `packages/redis` builds the `Redis` service over **ioredis**, not the `NodeRedis` layer
 `@effect/platform-node` ships. BullMQ requires ioredis and is not negotiable, so the platform
 layer would mean two client libraries and two pools in one process; `Redis.make` wants one

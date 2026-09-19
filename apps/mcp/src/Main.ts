@@ -8,6 +8,7 @@ import { PermissionResolver } from "@vantion/module-iam/access/PermissionResolve
 import { ApiKeyAuth } from "@vantion/module-iam/apikey/ApiKeyAuth";
 import { Layer } from "effect";
 import { McpProtocol, McpServer } from "effect/unstable/ai";
+import { Persistence } from "effect/unstable/persistence";
 import { IdentityLive } from "./Identity.js";
 
 /**
@@ -34,6 +35,13 @@ const ToolsLive = AgentModule.pipe(
    * like they were on `free`, which is a lie a model would then repeat.
    */
   Layer.provide(BillingModule),
+  /**
+   * Memory, not Redis, and deliberately: this process is one editor's
+   * subprocess, it holds one identity for its lifetime, and it is gone when the
+   * editor closes. Nothing here benefits from a shared cache and joining one
+   * would make an MCP server a reason to run Redis.
+   */
+  Layer.provide(Persistence.layerMemory),
   Layer.provide(PgLive),
   Layer.provide(PgPool.layer),
 );
