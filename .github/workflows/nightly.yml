@@ -32,9 +32,9 @@ jobs:
   mobile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -57,7 +57,7 @@ jobs:
       matrix:
         app: [server, web, admin, worker, marketing, brand]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # Built from the repository root, because pnpm resolves a workspace
       # package against the root lockfile and every sibling manifest.
