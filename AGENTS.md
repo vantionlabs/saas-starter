@@ -334,7 +334,10 @@ When sources disagree, higher wins:
 
 1. `repos/effect` — the actual source of the version installed here
 2. `RULES.md` — hard repository rules
-3. `knowledge/rules/` and `knowledge/skills/`
+3. `knowledge/rules/` and `knowledge/skills/` — including
+   `knowledge/rules/effect-reach-for.md`, which is keyed on the problem rather
+   than the module name and is the one to read when a task does not resemble
+   anything already in this repository
 4. Your own recall — never authoritative for Effect APIs
 
 This ordering applies to `RULES.md` and `knowledge/` themselves: where their example code

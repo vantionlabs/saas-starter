@@ -52,6 +52,22 @@ writes `packages/modules/<name>` and registers it. Then, per `RULES.md`:
 - for anything tenant-owned: a row-level security policy in the style of
   `0002_rls.sql` **and** `withOrgScope` around the queries — both, never either
 
+## When the slice does not look like this repository
+
+`knowledge/rules/effect-reach-for.md`, before writing it rather than after.
+
+The starter uses about twenty of Effect's hundred and twenty modules, and the
+twenty are the ones a boilerplate needs: identity, SQL, RPC, streams, config,
+layers. A product reaches further, and the failure is never that somebody chose
+the wrong module — it is that they did not know one existed and wrote four
+hundred lines instead.
+
+That file is keyed on the **problem**: a `for` loop that touches the network, a
+lookup repeated per row, a decision worth caching, a sequence that must survive
+a restart, a script with arguments. It says when each is right and — more
+usefully — when it is not, because half of what it lists is wrong for this
+codebase today and says so.
+
 ## Read the source
 
 `repos/effect` is the vendored Effect monorepo at exactly the version installed.

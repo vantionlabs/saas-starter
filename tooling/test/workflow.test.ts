@@ -125,6 +125,38 @@ describe("the workflow's artefacts", () => {
     }
   });
 
+  /**
+   * The phase documents and the commands both point into `knowledge/`, and a
+   * pointer to a file that has been renamed reads exactly like one that has
+   * not. `01-discovery.md` proved that inside `docs/workflow/`; these paths
+   * leave it, so the link check above cannot see them.
+   */
+  it("resolves every knowledge path the workflow and its commands cite", () => {
+    const sources = [
+      ...fs.readdirSync(WORKFLOW).filter((name) => name.endsWith(".md")).map((name) =>
+        path.join(WORKFLOW, name)
+      ),
+      ...fs.readdirSync(path.join(ROOT, ".claude", "commands")).map((name) =>
+        path.join(ROOT, ".claude", "commands", name)
+      ),
+      path.join(ROOT, "AGENTS.md"),
+    ];
+
+    const cited = new Set<string>();
+
+    for (const source of sources) {
+      for (const [, cite] of fs.readFileSync(source, "utf8").matchAll(/`(knowledge\/[^`]+)`/g)) {
+        if (cite !== undefined) cited.add(cite);
+      }
+    }
+
+    expect(cited.size, "nothing cites knowledge/ at all").toBeGreaterThan(0);
+
+    for (const cite of cited) {
+      expect(fs.existsSync(path.join(ROOT, cite)), `${cite} does not exist`).toBe(true);
+    }
+  });
+
   /** Four phases, four documents, four commands, and nothing orphaned. */
   it("has a command for every phase the overview lists", () => {
     const overview = read("docs", "workflow", "00-overview.md");

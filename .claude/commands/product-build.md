@@ -37,6 +37,15 @@ of `0002_rls.sql` _and_ `withOrgScope` around the queries. Both, never either.
 Read `repos/effect` before using an Effect API you have not already read this
 session. It outranks `RULES.md`, `knowledge/` and your recall, in that order.
 
+**When a slice does not look like the code already here, read
+`knowledge/rules/effect-reach-for.md` before writing it.** This repository uses
+about twenty of Effect's hundred and twenty modules, because a boilerplate has a
+boilerplate's problems — a product has others. That file is keyed on what you
+are about to do rather than on module names: bounding concurrency, caching a
+decision, batching an N+1, a process that must survive a restart, a script with
+arguments. The failure it prevents is writing four hundred lines of something
+that is one import.
+
 When a slice lands, set its row to `landed` in the spec and update
 `docs/workflow/STATE.md`. The spec is what the work is; `STATE.md` is where it
 got to.

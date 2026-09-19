@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="375 unit tests" src="https://img.shields.io/badge/tests-375-2EAD33?style=flat-square" />
+  <img alt="376 unit tests" src="https://img.shields.io/badge/tests-376-2EAD33?style=flat-square" />
   <img alt="41 browser tests" src="https://img.shields.io/badge/browser-41-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -87,7 +87,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 375 unit, 41 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 376 unit, 41 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -579,7 +579,11 @@ schedule and fills the log.
 `AGENTS.md` is the map: layout, commands, and the deployment story, written for
 whoever (or whatever) picks the repo up cold. `RULES.md` holds the hard rules on
 Effect style, architecture, forms, observability and testing; read it before
-changing much. `knowledge/README.md` indexes the per-topic guides.
+changing much. `knowledge/README.md` indexes the per-topic guides, and
+`knowledge/rules/effect-reach-for.md` is the one to read when a task does not
+resemble anything already here — keyed on the problem rather than the module
+name, because the failure it prevents is writing four hundred lines of something
+Effect already has.
 
 `docs/workflow/` is the method, written out phase by phase, `docs/figma.md` is
 the design workflow and its one account caveat, `docs/mcp.md` connects an editor

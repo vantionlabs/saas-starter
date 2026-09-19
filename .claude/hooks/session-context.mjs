@@ -39,6 +39,13 @@ const postgres = () => {
 
 const lines = [
   `Effect is pinned at ${effectVersion()} — a release candidate whose APIs moved recently.`,
+  /**
+   * The one thing a cold agent reliably gets wrong: it writes four hundred
+   * lines of something Effect already has, because this repository uses about
+   * twenty of its hundred and twenty modules and nothing in the tree hints at
+   * the other hundred.
+   */
+  "This repository uses ~20 of Effect's ~120 modules. Before writing something that does not resemble the code already here — bounding concurrency, caching a decision, batching a lookup, a process that must survive a restart, a script with arguments — read `knowledge/rules/effect-reach-for.md`. It is keyed on the problem, not the module name.",
   vendored
     ? "Its source is vendored at `repos/effect`. Read the real signature there before using an API you have not already read this session; it outranks RULES.md, knowledge/ and your own recall, in that order."
     : "`repos/effect` is MISSING. Run `pnpm vendor` — without it there is no authority for Effect APIs and recall is not one.",
