@@ -685,10 +685,15 @@ lingering for a TTL — the expensive direction of being wrong. What the TTL sti
 in-process layer, which invalidation on one replica cannot reach; two seconds is that worst
 case. A cache that cannot be reached falls through to the database rather than refusing.
 
-`PermissionResolver` is deliberately **not** cached. A plan change hides inside a delay the
-product already has — Stripe's webhook arrives seconds to minutes late — and a revoked
-permission has no such delay to hide in. It would want the same invalidation on four write
-handlers, and until that exists reading Postgres every time is correct.
+`PermissionResolver` is cacheable and **off by default**. `PERMISSION_CACHE_TTL` is `0`, and
+zero means the resolver is passed through rather than wrapped in a zero-lifetime cache — which
+would still pay a round trip per request to learn the entry had expired. The asymmetry with
+entitlements is the point: a plan change hides inside a delay the product already has, and a
+revoked permission does not. Turned on, all four access write handlers drop the affected
+members' entries from the shared store, so an override or a role edit lands on the next request
+on every replica; what stays bounded by the TTL is anything done through better-auth's own
+dynamic access-control endpoints, which this module does not wrap. The role is part of the key,
+not only the lookup, so reassigning somebody cannot hand them what their old role cached.
 
 `packages/redis` builds the `Redis` service over **ioredis**, not the `NodeRedis` layer
 `@effect/platform-node` ships. BullMQ requires ioredis and is not negotiable, so the platform
