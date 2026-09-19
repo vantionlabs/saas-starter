@@ -11,7 +11,7 @@ import type { Session, User } from "better-auth";
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getMigrations } from "better-auth/db/migration";
-import { emailOTP, magicLink, organization } from "better-auth/plugins";
+import { admin, emailOTP, magicLink, organization } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { Effect } from "effect";
 import { randomUUID } from "node:crypto";
@@ -252,6 +252,32 @@ const authOptions = (options: MakeAuthOptions) => ({
      * authenticate, not a way around authenticating.
      */
     expo(),
+
+    /**
+     * Staff, which is a different thing from an organization's owner.
+     *
+     * This adds `role` to `user` — a *system* role, unrelated to `member.role`,
+     * which is somebody's standing inside one organization. `adminRoles`
+     * defaults to `["admin"]` and every existing user is a plain `user`, so
+     * switching this on grants nobody anything.
+     *
+     * Its endpoints are mounted on this instance, which is the customer-facing
+     * API, and that is a deliberate decision rather than an oversight. The
+     * alternative is a second better-auth instance in the admin application,
+     * and two instances over one `user` table is the arrangement where the two
+     * quietly disagree about who somebody is. They are gated by better-auth's
+     * own `adminRoles` check, which is the same check we would otherwise write.
+     *
+     * What makes that safe is the layer underneath. A session that somehow
+     * became `role: "admin"` on this process gains better-auth's user
+     * management and **no tenant data at all**, because `apps/server` connects
+     * as `vantion` and cannot bypass a row-level security policy whatever it is
+     * asked to do. Reading across organizations needs `ADMIN_DATABASE_URL`,
+     * which this process does not have. The two controls compose rather than
+     * overlapping: one decides who you are, the other decides what the
+     * connection can see.
+     */
+    admin(),
 
     /**
      * Single sign-on, OIDC and SAML 2.0, configured per organization.

@@ -80,6 +80,59 @@ every handler taking an `Identity` could be reached by a caller for whom the
 tenant field is meaningless, and the compiler would have nothing to say about
 it.
 
+## Staff are a system role, not an organization role
+
+`user.role`, which better-auth's `admin` plugin owns, and nothing to do with
+`member.role` — somebody can be the owner of their own organization and not
+staff, or staff and a member of nothing. `StaffResolver` reads it per request
+rather than trusting a session payload, so revoking it takes effect on somebody's
+next request instead of whenever their session expires, and it honours `banned`
+for the same reason.
+
+"Not signed in" and "signed in but not staff" are the **same** answer,
+`NotStaff`. Distinguishing them would confirm to an anonymous caller that the
+second state exists and that a given account is or is not in it.
+
+Nobody is staff until somebody is made staff, and there is deliberately no way
+to do that through the product:
+
+```sql
+update "user" set "role" = 'admin' where "email" = 'you@example.com';
+```
+
+A flow that could grant it is a flow that could grant it to anybody.
+
+**The plugin's endpoints are mounted on the customer-facing API**, which is a
+decision rather than an oversight. The alternative is a second better-auth
+instance over one `user` table, which is the arrangement where two systems
+quietly disagree about who somebody is. What makes it safe is the layer
+underneath: a session that somehow became `role: "admin"` on `apps/server`
+gains better-auth's user management and **no tenant data at all**, because that
+process connects as `vantion` and cannot bypass a policy whatever it is asked
+to do. The two controls compose — one decides who you are, the other decides
+what the connection can see.
+
+## Counts, never contents
+
+`GetOrganization` returns how many contacts, files, API keys and endpoints an
+organization has, and not one of their rows. Everything an admin procedure
+returns crosses the tenant boundary, so the bar for adding a field is what
+somebody cannot do their job without — "is their import stuck" needs the number
+nine hundred, not nine hundred names. A test asserts a seeded contact's address
+does not appear in the response.
+
+`OrganizationNotFound` is a typed outcome rather than a defect: the panel links
+from a list into a detail page, an organization can be deleted between the two,
+and a stale link is something a screen renders rather than a crash. The record
+of the attempt is written first and stays written — a trail keeping only the
+successful reads would be missing exactly the ones worth reviewing.
+
+That last point cost a schema change. `adminAudit.organizationId` originally had
+a foreign key, which refuses an id that never existed — so probing for
+identifiers produced a constraint error instead of a row, and the one read
+nobody could explain was the one read nobody could see. An audit row is a
+statement about the past; a foreign key makes it a statement about the present.
+
 ## What exists, and what does not
 
 The seam and its proofs: `packages/modules/admin/test/CrossTenant.test.ts`
@@ -88,13 +141,19 @@ connection sees across tenants, that a read without a reason is refused before
 it runs, that the record names who looked at what, and that the application can
 neither read nor forge a row of the staff trail.
 
-**There is no admin application yet.** No `apps/admin`, no authentication for
-staff, no screens, and no procedures beyond the seam — so nothing is served and
-`ADMIN_DATABASE_URL` is unset everywhere including CI. What lands next is the
-application that uses this, and with it the question this file does not yet
-answer: how somebody proves they are staff.
+The module is complete and serveable: `AdminModule` carries
+`ListOrganizations` and `GetOrganization` over the admin connection, and leaves
+`CurrentStaff` in its requirements because who is asking is the host's to
+establish.
 
-Also owed, and worth naming now: when a staff action concerns exactly one
+**There is no admin application yet.** No `apps/admin`, no screens, and no
+process registering `AdminModule` — `apps/server` does not and must not — so
+nothing is served and `ADMIN_DATABASE_URL` is unset everywhere including CI.
+What lands next is the application: a TanStack Start app serving these
+procedures from its own process, so the credential never sits beside customer
+traffic.
+
+Also owed, and worth naming: when a staff action concerns exactly one
 organization, that organization's own `auditEntry` should carry it too. A
 customer asking "did anyone at your company look at our data" deserves to answer
 it from the same screen they read everything else in.

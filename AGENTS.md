@@ -752,6 +752,30 @@ every other caller acts inside exactly one organization; a flag would let a call
 that field is meaningless reach every handler that takes one, with nothing for the compiler to
 say about it.
 
+`Staff` comes from `user.role`, which better-auth's `admin` plugin owns and which has nothing
+to do with `member.role` — somebody can own their organization and not be staff, or be staff
+and a member of nothing. `StaffResolver` reads it per request rather than trusting a session
+payload, so revoking it lands on the next request, and it honours `banned` for the same reason.
+"Not signed in" and "signed in but not staff" are one answer, because distinguishing them tells
+an anonymous caller that the second state exists.
+
+The plugin's endpoints are mounted on the customer-facing API deliberately: two better-auth
+instances over one `user` table is the arrangement where two systems disagree about who
+somebody is. A session that somehow became `role: "admin"` there gains user management and no
+tenant data, because `apps/server` connects as `vantion`. The controls compose — one decides
+who you are, the other what the connection can see.
+
+Admin procedures return **counts, never contents**. Everything they return crosses the tenant
+boundary, so the bar is what somebody cannot do their job without: "is their import stuck"
+needs the number nine hundred, not nine hundred names, and a test asserts a seeded contact's
+address is absent from the response.
+
+`adminAudit.organizationId` carries no foreign key, and that was a bug fixed rather than a
+choice made twice. A key refuses an id that never existed, so probing for identifiers produced
+a constraint error instead of a row — the one read nobody could explain was the one read nobody
+could see. An audit row is a statement about the past; a foreign key makes it one about the
+present.
+
 **`apps/server` does not register this module and must not.** The process serving customer
 traffic should not hold the credential, which is why the admin application will serve its own
 procedures. `docs/admin.md` has the whole argument and is explicit that no such application

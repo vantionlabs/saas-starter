@@ -1,4 +1,5 @@
 import { Effect, Schema } from "effect";
+import type { SqlError } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
 import { AdminSql } from "./AdminSql.js";
 import { CurrentStaff } from "./Staff.js";
@@ -42,16 +43,25 @@ export class ReasonRequired extends Schema.TaggedError<ReasonRequired>()("Reason
  * function handing back `AdminSql` would be a function somebody could call once
  * and then use forever.
  */
-export const crossTenant = <A, E, R>(
+export const crossTenant = <A, R>(
   action: CrossTenantAction,
-  read: (sql: typeof AdminSql.Service) => Effect.Effect<A, E, R>,
-): Effect.Effect<A, E | ReasonRequired, R | AdminSql | CurrentStaff> =>
+  read: (sql: typeof AdminSql.Service) => Effect.Effect<A, SqlError.SqlError, R>,
+): Effect.Effect<A, ReasonRequired, R | AdminSql | CurrentStaff> =>
   Effect.gen(function*() {
     const sql = yield* AdminSql;
     const staff = yield* CurrentStaff;
 
     if (action.reason.trim() === "") return yield* new ReasonRequired();
 
+    /**
+     * A failing query is a defect here, not a case a screen handles.
+     *
+     * `ReasonRequired` is the one thing a caller can do something about, so it
+     * is the only thing in the error channel. Everything else — the connection
+     * gone, a query wrong, the audit insert refused — is the admin surface
+     * being broken, and `RULES.md` is clear that those become defects rather
+     * than travelling as failures nobody will catch.
+     */
     return yield* sql.withTransaction(
       Effect.gen(function*() {
         yield* sql`
@@ -65,5 +75,5 @@ export const crossTenant = <A, E, R>(
 
         return yield* read(sql);
       }),
-    ).pipe(Effect.catchTag("SqlError", (error) => Effect.die(error)));
+    ).pipe(Effect.orDie);
   });

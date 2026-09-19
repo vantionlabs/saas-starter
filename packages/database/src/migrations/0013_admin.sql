@@ -15,9 +15,10 @@ create table if not exists "adminAudit" (
   "action" text not null,
   -- The organization the action concerned, when it concerned exactly one.
   -- Null for a genuinely cross-tenant read such as listing every organization.
-  -- `set null` rather than `cascade`: deleting an organization must not delete
-  -- the record of who looked at it.
-  "organizationId" text references "organization" ("id") on delete set null,
+  --
+  -- No foreign key, and `0015_admin_audit_id.sql` says why at length: this
+  -- records what was *asked for*, which includes ids that never existed.
+  "organizationId" text,
   -- Why. Not optional, and not derivable — a support engineer opening a
   -- customer's data should have to type the ticket number, and a log of reads
   -- with no reasons in it is a log nobody can review.
