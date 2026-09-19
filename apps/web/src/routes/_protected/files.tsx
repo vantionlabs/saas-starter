@@ -13,6 +13,7 @@ import type { FileId } from "@vantion/module-files/FilesRpc";
 import { MAX_UPLOAD_BYTES } from "@vantion/module-files/FilesRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { FileTable } from "@vantion/ui/files/file-table";
+import { useHydrated } from "@vantion/ui/lib/use-hydrated";
 import { Button } from "@vantion/ui/ui/button";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
@@ -80,6 +81,7 @@ const Files = () => {
   /** Hydrated before first paint; the empty list is the unreachable arm. */
   const rows = AsyncResult.isSuccess(files) ? files.value : [];
   const permissions = AsyncResult.isSuccess(session) ? session.value.permissions : [];
+  const hydrated = useHydrated();
 
   return (
     <section className="flex flex-col gap-6">
@@ -91,7 +93,15 @@ const Files = () => {
           </p>
         </div>
         <Button
-          disabled={uploading.waiting || !permissions.includes("file:create")}
+          /**
+           * `!hydrated` because this button's whole job is to run an `onClick`,
+           * and the file input below it only uploads when its `onChange` is
+           * listened to. Server rendering puts both in the document first, so
+           * without this the control looks live and silently does nothing —
+           * the same trap `ContactForm` fell into, and the reason `useHydrated`
+           * exists rather than each screen inventing its own signal.
+           */
+          disabled={!hydrated || uploading.waiting || !permissions.includes("file:create")}
           onClick={() => input.current?.click()}
         >
           <Upload className="size-4" aria-hidden />

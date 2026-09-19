@@ -153,10 +153,21 @@ would serve the first caller's data to everybody after.
 before React attaches to it, so anything typed in that window goes into the DOM
 and never reaches a controlled component: the state stays empty, the submit
 button stays disabled, and the typing is discarded with no error anywhere.
-`ContactForm` reads its values off the DOM at submit, and `useHydrated` disables
-the button until React is listening — which is honest, since pressing it does
-nothing until then, and is also the only signal the markup gives a browser test
-that hydration has happened.
+`ContactForm` reads its values off the DOM at submit.
+
+`useHydrated` is the other half of that rule, and it generalises: **a control
+whose only job is to run a handler is disabled until React is listening.** The
+upload button on `/files` and the submit on `ContactForm` both look live in the
+server's markup and both do nothing when pressed, silently, which is the worst
+version of a bug. Disabling them until hydration is honest, and it is also the
+only signal the markup gives a browser test that the page is real — which is
+what makes the e2e suite deterministic rather than a collection of retries.
+
+Note the trap the second time round: the upload button was _already_ disabled
+until the caller's permissions arrived, so it happened to encode hydration by
+accident. Server-rendering the identity made it enabled from the first byte and
+the tests went red again. A signal that works by coincidence stops working the
+day the coincidence does.
 
 `packages/core` is everything a client needs that is not a screen. Five files at its root are
 the foundation every feature builds on — `AppRpc` (the one client and its atom runtime),

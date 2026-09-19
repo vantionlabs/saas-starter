@@ -33,13 +33,13 @@ export const OrgSwitcher = () => {
   const [naming, setNaming] = React.useState(false);
   const [name, setName] = React.useState("");
 
+  /**
+   * The list is its own RPC and is not server-rendered: it is the *other*
+   * organizations, which the shell only needs when somebody opens the switcher.
+   * A spinner rather than the word "loading" — this is a real wait, and a word
+   * in body text reads as content rather than as "not yet".
+   */
   if (!AsyncResult.isSuccess(organizations)) {
-    /**
-     * A spinner rather than the word "loading". This one is in the shell on
-     * every page and is not server-rendered — the organization list is an RPC
-     * of its own — so it is a real wait, and a word in body text reads as
-     * content rather than as "not yet".
-     */
     return <Spinner label="Loading organizations" className="px-2" />;
   }
 

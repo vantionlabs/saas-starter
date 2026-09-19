@@ -1,5 +1,8 @@
 import { AppShell } from "@/components/app/app-shell.js";
+import { hydrated } from "@/server/hydration.js";
+import { getIdentity } from "@/server/reads.js";
 import { getSession } from "@/server/session.js";
+import { HydrationBoundary } from "@effect/atom-react";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 /**
@@ -25,9 +28,21 @@ export const Route = createFileRoute("/_protected")({
 
     return { user };
   },
-  component: () => (
-    <AppShell>
-      <Outlet />
-    </AppShell>
-  ),
+  /**
+   * Runs after `beforeLoad`, so there is a session by the time this asks who it
+   * belongs to. Every page below inherits the hydrated identity, which is why
+   * it is here rather than repeated in each of them.
+   */
+  loader: () => getIdentity(),
+  component: Protected,
 });
+
+function Protected() {
+  return (
+    <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+      <AppShell>
+        <Outlet />
+      </AppShell>
+    </HydrationBoundary>
+  );
+}

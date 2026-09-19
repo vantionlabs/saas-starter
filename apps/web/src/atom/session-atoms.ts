@@ -1,8 +1,9 @@
 import { authClient } from "@/iam/auth-client.js";
 import { AppRpc } from "@vantion/core/AppRpc";
 import { Keys } from "@vantion/core/Keys";
+import { Identity } from "@vantion/module-iam/identity/Identity";
 import { Effect, Schema } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 
 /**
  * Sign-in failures a form can act on. Anything else — a 500, a broken proxy —
@@ -20,6 +21,17 @@ export class SignInFailed extends Schema.TaggedError<SignInFailed>()("SignInFail
  * itself whenever the active organization changes. Signing in and out happen
  * outside any atom, and still refresh it with `useAtomRefresh`.
  */
+/**
+ * Server-rendered on every protected page, because almost everything needs it:
+ * the shell reads the organization, and each screen reads the permissions that
+ * decide which of its controls are live. Hydrating it in `_protected` is what
+ * turns "the page is here but does not know who you are yet" into one render.
+ */
+export const identitySerial = {
+  key: "identity",
+  schema: AsyncResult.Schema({ success: Identity }),
+};
+
 export const sessionAtom = Atom.withReactivity([Keys.organization])(
   AppRpc.runtime.atom(
     Effect.gen(function*() {
@@ -28,7 +40,7 @@ export const sessionAtom = Atom.withReactivity([Keys.organization])(
       return yield* client("Me", undefined);
     }),
   ),
-);
+).pipe(Atom.serializable(identitySerial));
 
 /**
  * better-auth's client resolves with `{ error }` rather than rejecting, so the

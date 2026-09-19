@@ -6,7 +6,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { billingAtom, billingPortalAtom, checkoutAtom } from "@vantion/core/atoms/Billing";
 import type { PaidPlan } from "@vantion/module-billing/BillingRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
-import { SpinnerPanel } from "@vantion/ui/app/spinner";
 import { BillingPanel } from "@vantion/ui/settings/billing-panel";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
@@ -70,14 +69,12 @@ const Billing = () => {
   }
 
   /**
-   * The plan is hydrated; the caller's permissions are not. `sessionAtom` is an
-   * RPC of its own and still resolves in the browser, so this waits for one
-   * thing rather than two — a spinner, because somebody is waiting on work in
-   * flight, not a skeleton standing in for a page that never loaded.
+   * Both halves are hydrated — the plan by this route, the identity by
+   * `_protected` — so this is the unreachable arm rather than a loading state.
+   * It renders nothing instead of a spinner: a spinner here would be a promise
+   * that something is coming, and nothing is.
    */
-  if (!AsyncResult.isSuccess(billing) || !AsyncResult.isSuccess(session)) {
-    return <SpinnerPanel label="Loading your plan" />;
-  }
+  if (!AsyncResult.isSuccess(billing) || !AsyncResult.isSuccess(session)) return null;
 
   return (
     <BillingPanel
