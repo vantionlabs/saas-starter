@@ -1,4 +1,5 @@
 import { personaById, personas } from "@/fixtures/personas.js";
+import { Admin } from "@/screens/admin.js";
 import { ApiKeys } from "@/screens/api-keys.js";
 import { Assistant } from "@/screens/assistant.js";
 import { Billing } from "@/screens/billing.js";
@@ -28,6 +29,7 @@ import {
   LogIn,
   Megaphone,
   Palette,
+  ShieldAlert,
   Sparkles,
   Users,
   UserSquare,
@@ -59,6 +61,7 @@ const nav = [
    */
   { to: "/marketing", label: "Marketing", icon: Megaphone },
   { to: "/brand", label: "Brand", icon: Palette },
+  { to: "/admin", label: "Staff trail", icon: ShieldAlert },
 ];
 
 const PersonaPicker = () => {
@@ -152,6 +155,7 @@ export const routeTree = rootRoute.addChildren([
   screen("/sign-in", SignIn),
   screen("/marketing", Marketing),
   screen("/brand", Brand),
+  screen("/admin", Admin),
 ]);
 
 export const router = createRouter({ routeTree });

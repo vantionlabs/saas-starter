@@ -942,6 +942,23 @@ application role, which owns the table because it runs the migrations, can neith
 write a row of it. A staff trail the application can write to is one a compromised application
 can rewrite.
 
+**And it is read from inside the panel**, at `/audit`, which is the one screen here that does
+not ask for a reason and the one privileged read that does not go through `crossTenant`.
+`StaffTrail.ts` carries the argument and it has two halves. Routing it through `crossTenant`
+would append a row saying the log had been read, and the next review would read that one too —
+unbounded growth in the one table that has to stay legible. And charging a ticket number for
+checking what your colleagues have been doing is how the checking stops; a reason is the right
+price for opening a customer's records and the wrong price for oversight.
+
+What it keeps is the part that matters: `CurrentStaff` is still required, and the connection is
+still the one holding BYPASSRLS, because the application role cannot read a row of that table
+whoever is asking. It takes no query — unlike `crossTenant` it is not generic over a read, and
+that is the whole of why a second door onto the privileged connection is safe: there is nothing
+to pass it. A generic version would be an unaudited way to reach every table.
+
+The trail was written for a year before anything read it, which is the failure this closes: a
+log nobody can open is not a control, it is a record of one.
+
 `Staff` is its own type, not an `Identity` with a flag. `Identity` carries an `orgId` because
 every other caller acts inside exactly one organization; a flag would let a caller for whom
 that field is meaningless reach every handler that takes one, with nothing for the compiler to

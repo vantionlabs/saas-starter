@@ -4,6 +4,7 @@ import { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Contact } from "@vantion/module-contact/ContactRpc";
 import { CustomRole, OrganizationMember } from "@vantion/module-iam/access/AccessRpc";
 import { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
+import type { StaffTrailRow } from "@vantion/ui/admin/staff-trail-table";
 import type { SsoProviderRow } from "@vantion/ui/settings/sso-panel";
 import { DateTime } from "effect";
 
@@ -29,6 +30,15 @@ export type Persona = {
   readonly billing: BillingState;
   readonly conversation: ReadonlyArray<Message>;
   readonly sso: ReadonlyArray<SsoProviderRow>;
+  /**
+   * The staff trail, which belongs to `apps/admin` rather than to this tenant.
+   *
+   * It is on a persona anyway because its states are the same three: nothing
+   * recorded, an ordinary week, and the crowded case where a reason runs long
+   * enough to decide the column widths. A staff surface with no design is the
+   * one whose mistakes are least visible and most expensive.
+   */
+  readonly staffTrail: ReadonlyArray<StaffTrailRow>;
 };
 
 const at = (iso: string) => DateTime.makeUnsafe(new Date(iso));
@@ -85,6 +95,7 @@ const firstDay: Persona = {
     }),
   ],
   sso: [],
+  staffTrail: [],
 };
 
 /** The ordinary case, and the one most screenshots are taken of. */
@@ -156,6 +167,25 @@ const settled: Persona = {
       domain: "acme.com",
       issuer: "https://acme.okta.com",
       domainVerified: true,
+    },
+  ],
+  staffTrail: [
+    {
+      id: "t1",
+      staffEmail: "support@vantion.co",
+      action: "GetOrganization",
+      organizationId: "org_8fc2",
+      reason: "SUP-4821",
+      at: "2026-09-18T14:02:11.000Z",
+    },
+    {
+      id: "t2",
+      staffEmail: "support@vantion.co",
+      // The widest thing anybody can do here, and the row that has to look it.
+      action: "ListOrganizations",
+      organizationId: undefined,
+      reason: "SUP-4821",
+      at: "2026-09-18T14:01:48.000Z",
     },
   ],
 };
@@ -259,6 +289,46 @@ const crowded: Persona = {
       domain: "northwind.example",
       issuer: "https://northwind.okta.com",
       domainVerified: false,
+    },
+  ],
+  /**
+   * The case that decides the column widths: a reason somebody actually typed
+   * rather than a ticket number, two staff working the same afternoon, and a
+   * read of every tenant sitting beside reads of one.
+   */
+  staffTrail: [
+    {
+      id: "t1",
+      staffEmail: "priya.ramachandran@vantion.co",
+      action: "GetOrganization",
+      organizationId: "org_3f9a71c4e88b",
+      reason: "Customer reports their CSV import stalled at 900 of 2400 rows — ZD-118204",
+      at: "2026-09-19T11:47:03.000Z",
+    },
+    {
+      id: "t2",
+      staffEmail: "priya.ramachandran@vantion.co",
+      action: "ListOrganizations",
+      organizationId: undefined,
+      reason: "Finding the tenant for ZD-118204; customer gave a domain, not a slug",
+      at: "2026-09-19T11:46:20.000Z",
+    },
+    {
+      id: "t3",
+      staffEmail: "sam@vantion.co",
+      action: "GetOrganization",
+      organizationId: "org_0011aa22bb33",
+      reason: "ZD-118199",
+      at: "2026-09-19T09:15:55.000Z",
+    },
+    {
+      id: "t4",
+      staffEmail: "sam@vantion.co",
+      action: "GetOrganization",
+      organizationId: "org_deleted_last_week",
+      // A stale link, which is a real row and the kind worth reviewing.
+      reason: "ZD-118188 — following a link from an old ticket",
+      at: "2026-09-19T09:14:02.000Z",
     },
   ],
 };

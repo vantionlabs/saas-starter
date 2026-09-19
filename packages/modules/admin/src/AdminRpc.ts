@@ -56,6 +56,28 @@ export class OrganizationNotFound
   extends Schema.TaggedError<OrganizationNotFound>()("OrganizationNotFound", {})
 {}
 
+/**
+ * One line of the staff trail.
+ *
+ * The only procedure here that returns *contents* rather than counts, and the
+ * exception proves the rule: every field is something a staff member typed or
+ * something the system recorded about them. There is no customer data in it —
+ * `organizationId` is an identifier a reviewer follows, not a name, an address
+ * or a row belonging to anybody.
+ *
+ * `staffEmail` rather than `staffUserId` alone, because the table stores both
+ * and a review nobody can read at a glance is a review nobody does.
+ */
+export class StaffTrailEntry extends Schema.Class<StaffTrailEntry>("StaffTrailEntry")({
+  id: Schema.String,
+  staffEmail: Schema.String,
+  action: Schema.String,
+  /** Absent when the action concerned every tenant, such as listing them all. */
+  organizationId: Schema.optional(Schema.String),
+  reason: Schema.String,
+  at: Schema.String,
+}) {}
+
 export class AdminRpcs extends RpcGroup.make(
   Rpc.make("ListOrganizations", {
     payload: { reason: Reason },
@@ -66,5 +88,29 @@ export class AdminRpcs extends RpcGroup.make(
     payload: { organizationId: Schema.String, reason: Reason },
     success: OrganizationDetail,
     error: Schema.Union([NotStaff, ReasonRequired, OrganizationNotFound]),
+  }),
+  /**
+   * The trail, and the one procedure here that takes **no reason**.
+   *
+   * Every other one reads a customer's data and has to say why. This reads what
+   * staff have been doing, which is oversight rather than access — charging a
+   * ticket number for checking on your colleagues is how the checking stops.
+   * `StaffTrail.ts` has the argument at length, including why it would
+   * otherwise record itself.
+   *
+   * `ReasonRequired` is therefore absent from the error channel, which is the
+   * compiler carrying the decision rather than a comment asking for it.
+   */
+  Rpc.make("ListStaffTrail", {
+    payload: {
+      /**
+       * Bounded in the schema rather than by the query, so a client cannot ask
+       * for the whole table and the limit is part of the contract both ends
+       * compile against.
+       */
+      limit: Schema.Int.check(Schema.isBetween({ minimum: 1, maximum: 200 })),
+    },
+    success: Schema.Array(StaffTrailEntry),
+    error: NotStaff,
   }),
 ) {}

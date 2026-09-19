@@ -56,9 +56,21 @@ function Root() {
   return (
     <div className="min-h-screen">
       <header className="border-border flex items-center justify-between border-b px-6 py-3">
-        <Link to="/" className="text-sm font-semibold">
-          Admin
-        </Link>
+        <nav className="flex items-center gap-4">
+          <Link to="/" className="text-sm font-semibold">
+            Admin
+          </Link>
+          {
+            /*
+            The trail is in the navigation rather than somewhere a reviewer has
+            to know the URL of. A log that takes effort to find is a log nobody
+            reads, and this one exists to be read by the people it records.
+          */
+          }
+          <Link to="/audit" className="text-muted-foreground text-xs hover:underline">
+            Staff trail
+          </Link>
+        </nav>
         <p className="text-muted-foreground text-xs">{viewer.email}</p>
       </header>
       <main className="mx-auto max-w-5xl px-6 py-8">
