@@ -67,6 +67,7 @@ const SignIn = () => {
         <div className="flex flex-col gap-1">
           <AuthLink to="/auth/magic-link">Email me a sign-in link</AuthLink>
           <AuthLink to="/auth/otp">Email me a code</AuthLink>
+          <AuthLink to="/auth/sso">Sign in with your company</AuthLink>
           <span>
             No account? <AuthLink to="/auth/sign-up">Create one</AuthLink>
           </span>

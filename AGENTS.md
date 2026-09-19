@@ -514,6 +514,22 @@ but it makes discovery an operator's decision and a restart. Explicit endpoints 
 only be publicly routable, so adding a customer's IdP is a row.
 `SSO_DISCOVERY_ORIGINS` exists for deployments that prefer the other way, and is empty.
 
+`/settings/sso` is the screen, and `/auth/sso` is how somebody signs in through one — by
+**email address**, never by picking from a list, because a picker on a multi-tenant product
+shows every customer who the other customers are. The settings page narrows better-auth's
+provider list to the active organization: `/sso/providers` returns every one the caller
+administers across organizations, which is right for the endpoint and wrong for a page
+titled with one organization's name.
+
+Both go through the auth client rather than through RPC. `/sso/providers` already filters to
+what the caller administers and already strips the client secret, and `/sso/register` already
+validates the endpoints and refuses a non-member — an RPC in front of either would be a second
+implementation of both, free to disagree with the one that actually runs.
+
+Neither half of `domainVerification` can be switched off quietly, which is deliberate: drop it
+on the client and `settings/sso.tsx` stops compiling, because it reads the token; drop it on
+the server and `Sso.test.ts` fails, because it asserts the token comes back.
+
 `ssoProvider` is the first organization-owned table here with **no row-level security**,
 and `0011_sso.sql` says why at length: better-auth writes it outside any `withOrgScope`
 transaction, so a policy in the usual shape would refuse its inserts, and one that made

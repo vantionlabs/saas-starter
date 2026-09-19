@@ -14,8 +14,8 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="337 unit tests" src="https://img.shields.io/badge/tests-337-2EAD33?style=flat-square" />
-  <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+  <img alt="341 unit tests" src="https://img.shields.io/badge/tests-341-2EAD33?style=flat-square" />
+  <img alt="41 browser tests" src="https://img.shields.io/badge/browser-41-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
 <p align="center">
@@ -63,6 +63,7 @@ Both are MIT. Nothing is held back for a paid tier.
 **The product** — built, tested, deploys today.
 
 - ✅ **Auth** — password, magic link, email OTP, Google; sessions resolved server-side
+- ✅ **Single sign-on** — OIDC and SAML per organization, routed by email domain, DNS-verified
 - ✅ **Organizations** — members, invitations, seats, org switcher, a personal org per user
 - ✅ **Access control** — built-in roles, custom roles, per-member overrides, one permission model
 - ✅ **Tenant isolation** — Postgres RLS _and_ `withOrgScope`, proven by browser tests
@@ -85,7 +86,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 337 unit, 37 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 341 unit, 41 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -608,10 +609,9 @@ says so rather than leaving you to find out.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|           | What           | Why it is not here yet                                                                                                  |
-| --------- | -------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Next**  | SSO and SAML   | The heaviest remaining item, and the one enterprise deals actually ask for.                                             |
-| **Later** | An admin panel | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |
+|          | What           | Why it is not here yet                                                                                                  |
+| -------- | -------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Next** | An admin panel | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |
 
 ## What it deliberately does not do
 

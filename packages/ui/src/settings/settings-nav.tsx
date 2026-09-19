@@ -1,6 +1,14 @@
 import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { Building2, CreditCard, KeyRound, ScrollText, ShieldCheck, Users } from "lucide-react";
+import {
+  Building2,
+  CreditCard,
+  Fingerprint,
+  KeyRound,
+  ScrollText,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
@@ -33,6 +41,7 @@ export const settingsGroups: ReadonlyArray<{
   {
     label: "Governance",
     items: [
+      { to: "/settings/sso", label: "Single sign-on", icon: Fingerprint },
       { to: "/settings/audit", label: "Audit log", icon: ScrollText },
     ],
   },

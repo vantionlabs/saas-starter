@@ -4,6 +4,7 @@ import { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Contact } from "@vantion/module-contact/ContactRpc";
 import { CustomRole, OrganizationMember } from "@vantion/module-iam/access/AccessRpc";
 import { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
+import type { SsoProviderRow } from "@vantion/ui/settings/sso-panel";
 import { DateTime } from "effect";
 
 /**
@@ -27,6 +28,7 @@ export type Persona = {
   readonly apiKeys: ReadonlyArray<ApiKey>;
   readonly billing: BillingState;
   readonly conversation: ReadonlyArray<Message>;
+  readonly sso: ReadonlyArray<SsoProviderRow>;
 };
 
 const at = (iso: string) => DateTime.makeUnsafe(new Date(iso));
@@ -82,6 +84,7 @@ const firstDay: Persona = {
       createdAt: "2026-09-18T09:00:03.000Z",
     }),
   ],
+  sso: [],
 };
 
 /** The ordinary case, and the one most screenshots are taken of. */
@@ -146,6 +149,14 @@ const settled: Persona = {
       toolName: null,
       createdAt: "2026-09-18T09:00:03.000Z",
     }),
+  ],
+  sso: [
+    {
+      providerId: "acme-okta",
+      domain: "acme.com",
+      issuer: "https://acme.okta.com",
+      domainVerified: true,
+    },
   ],
 };
 
@@ -230,6 +241,25 @@ const crowded: Persona = {
       toolName: null,
       createdAt: "2026-09-18T09:00:03.000Z",
     }),
+  ],
+  /**
+   * One live and one still waiting on DNS, because that pair is the state
+   * the screen has to explain and the one a designer cannot reach without
+   * owning two domains.
+   */
+  sso: [
+    {
+      providerId: "northwind-entra",
+      domain: "northwind-industries.example",
+      issuer: "https://login.microsoftonline.com/8f4c2c1e-0b7a-4c5d-9f2e-6a1b3c4d5e6f/v2.0",
+      domainVerified: true,
+    },
+    {
+      providerId: "northwind-okta",
+      domain: "northwind.example",
+      issuer: "https://northwind.okta.com",
+      domainVerified: false,
+    },
   ],
 };
 

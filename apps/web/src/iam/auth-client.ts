@@ -1,3 +1,4 @@
+import { ssoClient } from "@better-auth/sso/client";
 import { emailOTPClient, magicLinkClient, organizationClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
@@ -32,5 +33,23 @@ const baseURL = import.meta.env.VITE_AUTH_BASE_URL ?? "http://localhost:3000";
  */
 export const authClient = createAuthClient({
   baseURL,
-  plugins: [magicLinkClient(), emailOTPClient(), organizationClient()],
+  plugins: [
+    magicLinkClient(),
+    emailOTPClient(),
+    organizationClient(),
+    /**
+     * `domainVerification` must match the server's, and it is not decoration:
+     * the client infers the registration response's shape from it, and
+     * `domainVerificationToken` — the thing a new provider has to be proved
+     * with — only appears when it is on. Nothing else would break, which is why
+     * it is worth saying: the screen would simply have nothing to show, and the
+     * provider would silently never route anybody.
+     *
+     * Neither half can be turned off quietly. Drop it here and
+     * `settings/sso.tsx` stops compiling, because it reads that token. Drop it
+     * on the server and `Sso.test.ts` fails, because it asserts the token comes
+     * back.
+     */
+    ssoClient({ domainVerification: { enabled: true } }),
+  ],
 });

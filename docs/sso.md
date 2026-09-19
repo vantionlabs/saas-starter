@@ -82,6 +82,25 @@ it holds: a caller who is not a member of the organization cannot register a
 provider for it. The same reasoning already applies to `member`, `invitation`
 and `organizationRole`, which carry no policy for the same reason.
 
+## The screen
+
+`/settings/sso` lists the organization's providers and adds one. It shows the
+verification token once — after that the only way to see it again is to register
+the provider a second time — and marks every unverified provider as routing
+nobody yet.
+
+It narrows better-auth's list to the active organization. `/sso/providers`
+returns every provider the caller administers across organizations, which is
+right for the endpoint and wrong for a page titled with one organization's name.
+
+Sign-in is `/auth/sso`, and it asks for an **email address**. The domain is the
+routing key, so that is sufficient — and the obvious alternative, a list of
+providers to pick from, would show every customer who the other customers are.
+
+An address with no provider behind it is refused in the same words whether or
+not the domain is known here, so the form cannot be used to ask the product which
+companies are its customers.
+
 ## What has been verified here, and what has not
 
 `packages/modules/iam/test/Sso.test.ts` drives the real better-auth handler

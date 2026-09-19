@@ -35,6 +35,7 @@
     "@vantion/module-iam": "workspace:*",
     "@vantion/tokens": "workspace:*",
     "@vantion/ui": "workspace:*",
+    "@better-auth/sso": "catalog:",
     "better-auth": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",

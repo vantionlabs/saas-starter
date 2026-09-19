@@ -8,6 +8,7 @@ import { Dashboard } from "@/screens/dashboard.js";
 import { Marketing } from "@/screens/marketing.js";
 import { Members } from "@/screens/members.js";
 import { SignIn } from "@/screens/sign-in.js";
+import { Sso } from "@/screens/sso.js";
 import {
   createRootRoute,
   createRoute,
@@ -21,6 +22,7 @@ import { AppShell } from "@vantion/ui/app/app-shell";
 import { Sidebar } from "@vantion/ui/app/sidebar";
 import {
   CreditCard,
+  Fingerprint,
   KeyRound,
   LayoutDashboard,
   LogIn,
@@ -47,6 +49,7 @@ const nav = [
   { to: "/members", label: "Members", icon: UserSquare },
   { to: "/api-keys", label: "API keys", icon: KeyRound },
   { to: "/billing", label: "Billing", icon: CreditCard },
+  { to: "/sso", label: "Single sign-on", icon: Fingerprint },
   { to: "/sign-in", label: "Sign in", icon: LogIn },
   /**
    * The other two surfaces, on the same canvas.
@@ -145,6 +148,7 @@ export const routeTree = rootRoute.addChildren([
   screen("/members", Members),
   screen("/api-keys", ApiKeys),
   screen("/billing", Billing),
+  screen("/sso", Sso),
   screen("/sign-in", SignIn),
   screen("/marketing", Marketing),
   screen("/brand", Brand),

@@ -163,6 +163,15 @@ describe.skipIf(testDbUrl() === undefined)("single sign-on", () => {
     expect(rows[0]?.organizationId).toBe(organizationId);
 
     /**
+     * The token is the only way the domain can ever be proved, so a response
+     * without one means `domainVerification` is off and every provider this
+     * deployment registers is permanently inert.
+     */
+    const body = await response.json() as { domainVerificationToken?: string; };
+
+    expect(body.domainVerificationToken).toEqual(expect.any(String));
+
+    /**
      * Registered but not yet usable. `domainVerification` is enabled, so a
      * provider only routes sign-ins once DNS proves the domain — without that,
      * anybody who may register a provider can claim any company's domain and
