@@ -197,7 +197,7 @@ const Security = () => {
   );
 };
 
-export const Route = createFileRoute("/_protected/settings/security")({
+export const Route = createFileRoute("/_protected/account/security")({
   staticData: { crumb: "Security" },
   loader: () => getTwoFactorState(),
   component: Security,

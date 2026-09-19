@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { UserRound } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
 import { Button } from "../ui/button.js";
@@ -69,7 +70,18 @@ export const Sidebar = (props: {
     </div>
 
     <div className="flex flex-col gap-2">
-      <p className="truncate font-mono text-xs text-muted-foreground">{props.email}</p>
+      {
+        /*
+        The account lives here rather than in the settings nav, because it is
+        not the organization's: it follows the person between workspaces, and
+        putting it beside "Members" and "Billing" is how somebody goes looking
+        for their own password under an admin permission they do not have.
+      */
+      }
+      <Link to="/account" className={item} activeProps={{ className: active }}>
+        <UserRound className="size-4" aria-hidden />
+        <span className="truncate">{props.email}</span>
+      </Link>
       <Button type="button" variant="outline" size="sm" onClick={props.onSignOut}>
         Sign out
       </Button>

@@ -70,6 +70,17 @@ const command = Command.make(
     const sql = yield* SqlClient.SqlClient;
     yield* sql`update "user" set "role" = 'admin' where "email" = ${STAFF}`;
 
+    /**
+     * Marked verified, because otherwise every seeded page carries the "your
+     * email address is not verified" banner and the thing you came to look at
+     * is underneath it. Sign-up cannot do this — following the link is the
+     * point — so the seed does what a person would have done by now.
+     */
+    yield* sql`
+      update "user" set "emailVerified" = true
+      where "email" = any(${PEOPLE.map((person) => person.email)})
+    `;
+
     yield* Console.log(`\nEverybody's password is: ${PASSWORD}`);
     yield* Console.log(`Staff (for apps/admin): ${STAFF}`);
     yield* Console.log("\nSign in at http://localhost:5173");

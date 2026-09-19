@@ -195,7 +195,7 @@ TOTP, not OTP over email. A second factor delivered to the address that recovers
 the first is a second lock with the same key, and on the email-OTP sign-in path
 this deployment already offers it would be the same channel twice.
 
-Staff enrol at `/settings/security` like anybody else, and `/auth/two-factor`
+Staff enrol at `/account/security` like anybody else, and `/auth/two-factor`
 is where a sign-in stops once they have.
 
 What is left, and worth saying: the TOTP secret and the backup codes sit in

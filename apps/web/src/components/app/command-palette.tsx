@@ -3,7 +3,7 @@ import { useAtomValue } from "@effect/atom-react";
 import type { LinkProps } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { contactsAtom } from "@vantion/core/atoms/Contact";
-import { settingsGroups } from "@vantion/ui/settings/settings-nav";
+import { accountItems, settingsGroups } from "@vantion/ui/settings/settings-nav";
 import {
   Command,
   CommandDialog,
@@ -100,6 +100,30 @@ export const CommandPalette = () => {
                 </CommandItem>
               ))
             )}
+          </CommandGroup>
+
+          {
+            /*
+            Account is its own group, not folded into Settings, because it is
+            not the organization's — the same split the two navs make. Reading
+            from `accountItems` keeps the promise the nav file makes: a page
+            that exists in a sidebar and not in ⌘K is a page half the app
+            cannot reach.
+          */
+          }
+          <CommandGroup heading="Account">
+            {accountItems.map(({ icon: Icon, label, to }) => (
+              <CommandItem
+                key={to}
+                value={`account ${label}`}
+                onSelect={() => {
+                  go(to);
+                }}
+              >
+                <Icon className="size-4" aria-hidden />
+                {label}
+              </CommandItem>
+            ))}
           </CommandGroup>
 
           {AsyncResult.isSuccess(contacts) && contacts.value.length > 0 && (

@@ -110,6 +110,35 @@ is carried, since React Native has no cookie jar and `@better-auth/expo` puts th
 keychain instead. `docs/mobile.md` has the three seams Metro needs and is explicit that the app
 compiles and bundles but has not been run on a device here.
 
+## The account is not the organization's
+
+`/settings/*` belongs to a workspace and is gated on what somebody may do inside
+it. `/account/*` belongs to the person and follows them between organizations —
+their name, their password, their sessions, their second factor. Two areas
+rather than two sections of one, because mixing them is how "delete account"
+ends up beside "delete organization", and how a member with no admin rights goes
+looking for their own password behind a permission check.
+
+Two-factor moved there for exactly that reason: single sign-on decides how an
+_organization_ admits people and stays in settings; a second factor is one
+person's own credential.
+
+The session list drops the **token at the server boundary**, not in the
+component. better-auth returns it on every row and it is the credential itself —
+narrowing in `server/reads/account.ts` is what keeps it out of the dehydrated
+state written into the page, where a leak would be invisible. A test asserts the
+table renders nothing that could be used as one.
+
+Changing a password revokes every other session, because the usual reason to
+change one is that somebody else may know it. Changing the **email address** is
+deliberately absent rather than half-built: better-auth has to mail the new
+address before it takes effect, or an account is stolen by typing, so it is a
+verification flow rather than a field.
+
+`accountItems` feeds both the account nav and the command palette, the same way
+`settingsGroups` does — a page that exists in a sidebar and not in ⌘K is a page
+half the application cannot reach.
+
 ## Seeding a local database
 
 `pnpm seed` fills a local database with three organizations that mirror
@@ -176,7 +205,7 @@ the same way — `auth.ts` answers who is asking, `queries/` holds the procedure
 — because one file holding the authentication _and_ every read is the one that
 grows a procedure somebody forgot to put `requireStaff` in front of.
 
-`/settings/security` and `/settings/sso` are server-rendered too, and they go
+`/account/security` and `/settings/sso` are server-rendered too, and they go
 through **better-auth's client** rather than `serverRpc` — there is no RPC in
 front of those endpoints, deliberately, because `/sso/providers` already filters
 to what the caller administers and already strips the client secret. `asCaller()`
@@ -275,7 +304,7 @@ particular error", is how every error added later inherits the wrong message.
 
 `useHydrated` is for what is **not** a form: **a control whose only job is to
 run a handler is disabled until React is listening.** The upload button on
-`/files`, the assistant's Send, the "Set up" on `/settings/security` — all three
+`/files`, the assistant's Send, the "Set up" on `/account/security` — all three
 look live in the server's markup and all three did nothing when pressed,
 silently, which is the worst version of a bug. Disabling them until hydration is
 honest, and it is the only signal the markup gives a browser test that the page
@@ -1164,7 +1193,7 @@ work is moving**: an outbox that only grows explains a webhook that never came,
 a switched-off endpoint explains one that stopped last week. Counts, like
 everything else here.
 
-`/settings/security` is where anybody enrols, and `/auth/two-factor` is the step a sign-in
+`/account/security` is where anybody enrols, and `/auth/two-factor` is the step a sign-in
 stops at once they have. That second page is not optional: with 2FA on, better-auth answers a
 correct password with `twoFactorRedirect` rather than a session, so without somewhere to send
 the browser the sign-in looks like a silent success followed by no session — indistinguishable

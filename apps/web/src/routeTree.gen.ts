@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
+import { Route as ProtectedAccountRouteRouteImport } from './routes/_protected/account/route'
 import { Route as ProtectedAssistantRouteImport } from './routes/_protected/assistant'
 import { Route as ProtectedContactsRouteImport } from './routes/_protected/contacts'
 import { Route as ProtectedFilesRouteImport } from './routes/_protected/files'
@@ -25,6 +26,9 @@ import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSsoRouteImport } from './routes/auth/sso'
 import { Route as AuthTwoFactorRouteImport } from './routes/auth/two-factor'
 import { Route as AuthVerifiedRouteImport } from './routes/auth/verified'
+import { Route as ProtectedAccountIndexRouteImport } from './routes/_protected/account/index'
+import { Route as ProtectedAccountSecurityRouteImport } from './routes/_protected/account/security'
+import { Route as ProtectedAccountSessionsRouteImport } from './routes/_protected/account/sessions'
 import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
 import { Route as ProtectedSettingsApiKeysRouteImport } from './routes/_protected/settings/api-keys'
 import { Route as ProtectedSettingsAuditRouteImport } from './routes/_protected/settings/audit'
@@ -32,7 +36,6 @@ import { Route as ProtectedSettingsBillingRouteImport } from './routes/_protecte
 import { Route as ProtectedSettingsGeneralRouteImport } from './routes/_protected/settings/general'
 import { Route as ProtectedSettingsMembersRouteImport } from './routes/_protected/settings/members'
 import { Route as ProtectedSettingsRolesRouteImport } from './routes/_protected/settings/roles'
-import { Route as ProtectedSettingsSecurityRouteImport } from './routes/_protected/settings/security'
 import { Route as ProtectedSettingsSsoRouteImport } from './routes/_protected/settings/sso'
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from './routes/auth/accept-invitation/$invitationId'
 
@@ -48,6 +51,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedAccountRouteRoute = ProtectedAccountRouteRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedAssistantRoute = ProtectedAssistantRouteImport.update({
@@ -115,6 +123,23 @@ const AuthVerifiedRoute = AuthVerifiedRouteImport.update({
   path: '/verified',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const ProtectedAccountIndexRoute = ProtectedAccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedAccountRouteRoute,
+} as any)
+const ProtectedAccountSecurityRoute =
+  ProtectedAccountSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => ProtectedAccountRouteRoute,
+  } as any)
+const ProtectedAccountSessionsRoute =
+  ProtectedAccountSessionsRouteImport.update({
+    id: '/sessions',
+    path: '/sessions',
+    getParentRoute: () => ProtectedAccountRouteRoute,
+  } as any)
 const ProtectedSettingsIndexRoute = ProtectedSettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -154,12 +179,6 @@ const ProtectedSettingsRolesRoute = ProtectedSettingsRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => ProtectedSettingsRouteRoute,
 } as any)
-const ProtectedSettingsSecurityRoute =
-  ProtectedSettingsSecurityRouteImport.update({
-    id: '/security',
-    path: '/security',
-    getParentRoute: () => ProtectedSettingsRouteRoute,
-  } as any)
 const ProtectedSettingsSsoRoute = ProtectedSettingsSsoRouteImport.update({
   id: '/sso',
   path: '/sso',
@@ -175,6 +194,7 @@ const AuthAcceptInvitationInvitationIdRoute =
 export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/': typeof ProtectedIndexRoute
+  '/account': typeof ProtectedAccountRouteRouteWithChildren
   '/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/assistant': typeof ProtectedAssistantRoute
   '/contacts': typeof ProtectedContactsRoute
@@ -188,15 +208,17 @@ export interface FileRoutesByFullPath {
   '/auth/sso': typeof AuthSsoRoute
   '/auth/two-factor': typeof AuthTwoFactorRoute
   '/auth/verified': typeof AuthVerifiedRoute
+  '/account/security': typeof ProtectedAccountSecurityRoute
+  '/account/sessions': typeof ProtectedAccountSessionsRoute
   '/settings/api-keys': typeof ProtectedSettingsApiKeysRoute
   '/settings/audit': typeof ProtectedSettingsAuditRoute
   '/settings/billing': typeof ProtectedSettingsBillingRoute
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
-  '/settings/security': typeof ProtectedSettingsSecurityRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
+  '/account/': typeof ProtectedAccountIndexRoute
   '/settings/': typeof ProtectedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -214,21 +236,24 @@ export interface FileRoutesByTo {
   '/auth/two-factor': typeof AuthTwoFactorRoute
   '/auth/verified': typeof AuthVerifiedRoute
   '/': typeof ProtectedIndexRoute
+  '/account/security': typeof ProtectedAccountSecurityRoute
+  '/account/sessions': typeof ProtectedAccountSessionsRoute
   '/settings/api-keys': typeof ProtectedSettingsApiKeysRoute
   '/settings/audit': typeof ProtectedSettingsAuditRoute
   '/settings/billing': typeof ProtectedSettingsBillingRoute
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
-  '/settings/security': typeof ProtectedSettingsSecurityRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
+  '/account': typeof ProtectedAccountIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
+  '/_protected/account': typeof ProtectedAccountRouteRouteWithChildren
   '/_protected/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/_protected/assistant': typeof ProtectedAssistantRoute
   '/_protected/contacts': typeof ProtectedContactsRoute
@@ -243,15 +268,17 @@ export interface FileRoutesById {
   '/auth/two-factor': typeof AuthTwoFactorRoute
   '/auth/verified': typeof AuthVerifiedRoute
   '/_protected/': typeof ProtectedIndexRoute
+  '/_protected/account/security': typeof ProtectedAccountSecurityRoute
+  '/_protected/account/sessions': typeof ProtectedAccountSessionsRoute
   '/_protected/settings/api-keys': typeof ProtectedSettingsApiKeysRoute
   '/_protected/settings/audit': typeof ProtectedSettingsAuditRoute
   '/_protected/settings/billing': typeof ProtectedSettingsBillingRoute
   '/_protected/settings/general': typeof ProtectedSettingsGeneralRoute
   '/_protected/settings/members': typeof ProtectedSettingsMembersRoute
   '/_protected/settings/roles': typeof ProtectedSettingsRolesRoute
-  '/_protected/settings/security': typeof ProtectedSettingsSecurityRoute
   '/_protected/settings/sso': typeof ProtectedSettingsSsoRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
+  '/_protected/account/': typeof ProtectedAccountIndexRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
 }
 export interface FileRouteTypes {
@@ -259,6 +286,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/auth'
     | '/'
+    | '/account'
     | '/settings'
     | '/assistant'
     | '/contacts'
@@ -272,15 +300,17 @@ export interface FileRouteTypes {
     | '/auth/sso'
     | '/auth/two-factor'
     | '/auth/verified'
+    | '/account/security'
+    | '/account/sessions'
     | '/settings/api-keys'
     | '/settings/audit'
     | '/settings/billing'
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
-    | '/settings/security'
     | '/settings/sso'
     | '/auth/accept-invitation/$invitationId'
+    | '/account/'
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -298,20 +328,23 @@ export interface FileRouteTypes {
     | '/auth/two-factor'
     | '/auth/verified'
     | '/'
+    | '/account/security'
+    | '/account/sessions'
     | '/settings/api-keys'
     | '/settings/audit'
     | '/settings/billing'
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
-    | '/settings/security'
     | '/settings/sso'
     | '/auth/accept-invitation/$invitationId'
+    | '/account'
     | '/settings'
   id:
     | '__root__'
     | '/auth'
     | '/_protected'
+    | '/_protected/account'
     | '/_protected/settings'
     | '/_protected/assistant'
     | '/_protected/contacts'
@@ -326,15 +359,17 @@ export interface FileRouteTypes {
     | '/auth/two-factor'
     | '/auth/verified'
     | '/_protected/'
+    | '/_protected/account/security'
+    | '/_protected/account/sessions'
     | '/_protected/settings/api-keys'
     | '/_protected/settings/audit'
     | '/_protected/settings/billing'
     | '/_protected/settings/general'
     | '/_protected/settings/members'
     | '/_protected/settings/roles'
-    | '/_protected/settings/security'
     | '/_protected/settings/sso'
     | '/auth/accept-invitation/$invitationId'
+    | '/_protected/account/'
     | '/_protected/settings/'
   fileRoutesById: FileRoutesById
 }
@@ -364,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof ProtectedIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/account': {
+      id: '/_protected/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof ProtectedAccountRouteRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/assistant': {
@@ -457,6 +499,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthVerifiedRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_protected/account/': {
+      id: '/_protected/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof ProtectedAccountIndexRouteImport
+      parentRoute: typeof ProtectedAccountRouteRoute
+    }
+    '/_protected/account/security': {
+      id: '/_protected/account/security'
+      path: '/security'
+      fullPath: '/account/security'
+      preLoaderRoute: typeof ProtectedAccountSecurityRouteImport
+      parentRoute: typeof ProtectedAccountRouteRoute
+    }
+    '/_protected/account/sessions': {
+      id: '/_protected/account/sessions'
+      path: '/sessions'
+      fullPath: '/account/sessions'
+      preLoaderRoute: typeof ProtectedAccountSessionsRouteImport
+      parentRoute: typeof ProtectedAccountRouteRoute
+    }
     '/_protected/settings/': {
       id: '/_protected/settings/'
       path: '/'
@@ -506,13 +569,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsRolesRouteImport
       parentRoute: typeof ProtectedSettingsRouteRoute
     }
-    '/_protected/settings/security': {
-      id: '/_protected/settings/security'
-      path: '/security'
-      fullPath: '/settings/security'
-      preLoaderRoute: typeof ProtectedSettingsSecurityRouteImport
-      parentRoute: typeof ProtectedSettingsRouteRoute
-    }
     '/_protected/settings/sso': {
       id: '/_protected/settings/sso'
       path: '/sso'
@@ -560,6 +616,23 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
+interface ProtectedAccountRouteRouteChildren {
+  ProtectedAccountSecurityRoute: typeof ProtectedAccountSecurityRoute
+  ProtectedAccountSessionsRoute: typeof ProtectedAccountSessionsRoute
+  ProtectedAccountIndexRoute: typeof ProtectedAccountIndexRoute
+}
+
+const ProtectedAccountRouteRouteChildren: ProtectedAccountRouteRouteChildren = {
+  ProtectedAccountSecurityRoute: ProtectedAccountSecurityRoute,
+  ProtectedAccountSessionsRoute: ProtectedAccountSessionsRoute,
+  ProtectedAccountIndexRoute: ProtectedAccountIndexRoute,
+}
+
+const ProtectedAccountRouteRouteWithChildren =
+  ProtectedAccountRouteRoute._addFileChildren(
+    ProtectedAccountRouteRouteChildren,
+  )
+
 interface ProtectedSettingsRouteRouteChildren {
   ProtectedSettingsApiKeysRoute: typeof ProtectedSettingsApiKeysRoute
   ProtectedSettingsAuditRoute: typeof ProtectedSettingsAuditRoute
@@ -567,7 +640,6 @@ interface ProtectedSettingsRouteRouteChildren {
   ProtectedSettingsGeneralRoute: typeof ProtectedSettingsGeneralRoute
   ProtectedSettingsMembersRoute: typeof ProtectedSettingsMembersRoute
   ProtectedSettingsRolesRoute: typeof ProtectedSettingsRolesRoute
-  ProtectedSettingsSecurityRoute: typeof ProtectedSettingsSecurityRoute
   ProtectedSettingsSsoRoute: typeof ProtectedSettingsSsoRoute
   ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
 }
@@ -580,7 +652,6 @@ const ProtectedSettingsRouteRouteChildren: ProtectedSettingsRouteRouteChildren =
     ProtectedSettingsGeneralRoute: ProtectedSettingsGeneralRoute,
     ProtectedSettingsMembersRoute: ProtectedSettingsMembersRoute,
     ProtectedSettingsRolesRoute: ProtectedSettingsRolesRoute,
-    ProtectedSettingsSecurityRoute: ProtectedSettingsSecurityRoute,
     ProtectedSettingsSsoRoute: ProtectedSettingsSsoRoute,
     ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
   }
@@ -591,6 +662,7 @@ const ProtectedSettingsRouteRouteWithChildren =
   )
 
 interface ProtectedRouteChildren {
+  ProtectedAccountRouteRoute: typeof ProtectedAccountRouteRouteWithChildren
   ProtectedSettingsRouteRoute: typeof ProtectedSettingsRouteRouteWithChildren
   ProtectedAssistantRoute: typeof ProtectedAssistantRoute
   ProtectedContactsRoute: typeof ProtectedContactsRoute
@@ -599,6 +671,7 @@ interface ProtectedRouteChildren {
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedAccountRouteRoute: ProtectedAccountRouteRouteWithChildren,
   ProtectedSettingsRouteRoute: ProtectedSettingsRouteRouteWithChildren,
   ProtectedAssistantRoute: ProtectedAssistantRoute,
   ProtectedContactsRoute: ProtectedContactsRoute,

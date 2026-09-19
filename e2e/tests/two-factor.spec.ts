@@ -2,7 +2,7 @@ import { expect, test } from "../fixtures.js";
 
 test.describe("two-factor", () => {
   test("is offered, and off until somebody turns it on", async ({ signedIn }) => {
-    await signedIn.goto("/settings/security");
+    await signedIn.goto("/account/security");
 
     await expect(signedIn.getByRole("heading", { name: "Two-factor authentication" }))
       .toBeVisible();
@@ -10,11 +10,18 @@ test.describe("two-factor", () => {
     await expect(signedIn.getByRole("button", { name: "Set up" })).toBeVisible();
   });
 
-  test("is reachable from the settings navigation", async ({ signedIn }) => {
-    await signedIn.goto("/settings/general");
+  /**
+   * From the **account** navigation, not the organization's. A second factor is
+   * one person's own credential, so it moved out of `/settings` when the
+   * account got an area of its own — and this test moved with it rather than
+   * being deleted, because "can somebody actually get there" is what it was
+   * always checking.
+   */
+  test("is reachable from the account navigation", async ({ signedIn }) => {
+    await signedIn.goto("/account");
     await signedIn.getByRole("link", { name: "Security" }).click();
 
-    await expect(signedIn).toHaveURL(/\/settings\/security$/);
+    await expect(signedIn).toHaveURL(/\/account\/security$/);
   });
 
   /**
@@ -23,7 +30,7 @@ test.describe("two-factor", () => {
    * owner out rather than a way to protect them.
    */
   test("asks for the password before changing how the account signs in", async ({ signedIn }) => {
-    await signedIn.goto("/settings/security");
+    await signedIn.goto("/account/security");
     await signedIn.getByRole("button", { name: "Set up" }).click();
 
     await expect(signedIn.getByLabel("Password")).toBeVisible();

@@ -5,8 +5,10 @@ import {
   CreditCard,
   Fingerprint,
   KeyRound,
+  MonitorSmartphone,
   ScrollText,
   ShieldCheck,
+  UserRound,
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -41,11 +43,36 @@ export const settingsGroups: ReadonlyArray<{
   {
     label: "Governance",
     items: [
-      { to: "/settings/security", label: "Security", icon: ShieldCheck },
+      /**
+       * Single sign-on is here and two-factor is not, which is the line this
+       * whole split is drawn on: SSO decides how an *organization* admits
+       * people, a second factor is one person's own credential. That one used
+       * to sit here and now lives under `/account`.
+       */
       { to: "/settings/sso", label: "Single sign-on", icon: Fingerprint },
       { to: "/settings/audit", label: "Audit log", icon: ScrollText },
     ],
   },
+];
+
+/**
+ * Personal settings, which are deliberately **not** part of the organization
+ * dashboard.
+ *
+ * Everything under `/settings` belongs to a workspace and is gated on what
+ * somebody may do inside it; everything here belongs to the person and follows
+ * them between organizations. Mixing them is how "delete account" ends up next
+ * to "delete organization", and how a member with no admin rights finds their
+ * own password behind a permission check.
+ */
+export const accountItems: ReadonlyArray<{
+  readonly to: NonNullable<LinkProps["to"]>;
+  readonly label: string;
+  readonly icon: LucideIcon;
+}> = [
+  { to: "/account", label: "Profile", icon: UserRound },
+  { to: "/account/security", label: "Security", icon: ShieldCheck },
+  { to: "/account/sessions", label: "Sessions", icon: MonitorSmartphone },
 ];
 
 const item =
@@ -73,6 +100,24 @@ export const SettingsNav = () => (
           </Link>
         ))}
       </div>
+    ))}
+  </nav>
+);
+
+/** The same narrow nav, for the account pane. */
+export const AccountNav = () => (
+  <nav className="flex w-44 shrink-0 flex-col gap-1">
+    {accountItems.map(({ to, label, icon: Icon }) => (
+      <Link
+        key={to}
+        to={to}
+        className={item}
+        activeProps={{ className: active }}
+        activeOptions={{ exact: to === "/account" }}
+      >
+        <Icon className="size-3.5" aria-hidden />
+        {label}
+      </Link>
     ))}
   </nav>
 );
