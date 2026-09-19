@@ -1,0 +1,10 @@
+{
+  "versionGroups": [
+    {
+      "label": "NativeWind v4 is a Tailwind 3 integration, and everything else here is on Tailwind 4. apps/mobile therefore pins its own rather than taking the catalog's; docs/mobile.md says why. This is the one deliberate divergence, and naming it here is what stops it being mistaken for drift.",
+      "dependencies": ["tailwindcss"],
+      "packages": ["@vantion/mobile"],
+      "isIgnored": true
+    }
+  ]
+}

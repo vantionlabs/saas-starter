@@ -23,12 +23,10 @@
     "@vantion/module-jobs": "workspace:*",
     "@vantion/module-webhooks": "workspace:*",
     "@vantion/telemetry": "workspace:*",
-    "effect": "catalog:",
-    "pg": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@testcontainers/postgresql": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
     "vite": "catalog:",

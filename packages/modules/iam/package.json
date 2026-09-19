@@ -30,7 +30,6 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@testcontainers/postgresql": "catalog:",
     "@types/pg": "catalog:",
     "vitest": "catalog:"
   }

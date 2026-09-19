@@ -11,7 +11,7 @@
     "pnpm": ">=10.12.4"
   },
   "scripts": {
-    "prepare": "effect-tsgo patch --oxlint",
+    "prepare": "effect-tsgo patch --oxlint && lefthook install",
     "dev": "pnpm --parallel --filter @vantion/server --filter @vantion/web --filter @vantion/worker dev",
     "build": "pnpm --filter @vantion/domain --filter @vantion/database --filter @vantion/server --filter @vantion/worker --filter @vantion/web build",
     "check": "tsc -b tsconfig.json && tsc -p tsconfig.tools.json",
@@ -32,19 +32,29 @@
     "brand": "pnpm --filter @vantion/brand dev",
     "marketing": "pnpm --filter @vantion/marketing dev",
     "design": "pnpm --filter @vantion/design dev",
-    "admin": "pnpm --filter @vantion/admin dev"
+    "admin": "pnpm --filter @vantion/admin dev",
+    "knip": "knip",
+    "secrets": "secretlint --secretlintignore .secretlintignore '**/*'",
+    "deps:check": "syncpack lint",
+    "hygiene": "pnpm knip && pnpm deps:check && pnpm secrets",
+    "preflight": "pnpm format && pnpm check && pnpm lint && pnpm hygiene && pnpm test"
   },
   "devDependencies": {
     "@effect/tsgo": "0.36.5",
     "@effect/vitest": "catalog:",
+    "@secretlint/secretlint-rule-preset-recommend": "catalog:",
     "@types/node": "catalog:",
     "@vantion/scripts": "workspace:*",
     "@vitest/coverage-v8": "^4.1.10",
     "dprint": "^0.55.2",
     "effect": "catalog:",
+    "knip": "catalog:",
+    "lefthook": "catalog:",
     "oxlint": "1.78.0",
     "oxlint-tsgolint": "7.0.2001",
     "railway": "catalog:",
+    "secretlint": "catalog:",
+    "syncpack": "catalog:",
     "tsx": "catalog:",
     "typescript": "^7.0.2",
     "vitest": "catalog:"

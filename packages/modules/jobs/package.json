@@ -22,12 +22,10 @@
     "@vantion/telemetry": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "bullmq": "catalog:",
-    "effect": "catalog:",
-    "ioredis": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@testcontainers/postgresql": "catalog:",
     "vitest": "catalog:"
   }
 }

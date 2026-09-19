@@ -23,7 +23,6 @@
     "figma:json": "tsx figma.ts --json"
   },
   "devDependencies": {
-    "@effect/vitest": "catalog:",
     "tsx": "catalog:",
     "vitest": "catalog:"
   },

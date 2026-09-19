@@ -22,7 +22,6 @@
     "ioredis": "catalog:"
   },
   "devDependencies": {
-    "@effect/vitest": "catalog:",
     "vitest": "catalog:"
   }
 }

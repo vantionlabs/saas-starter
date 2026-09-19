@@ -1,0 +1,10 @@
+# Read by ripgrep, and therefore by every agent that searches this repository.
+#
+# `repos/` is 3,558 files of vendored Effect source. Reading it deliberately is
+# the whole point — `AGENTS.md` says to, before writing Effect code — but having
+# it in the results of every unrelated search is noise that costs an agent
+# context and attention on every single query.
+#
+# `rg --no-ignore` still reaches it, which is what a deliberate read looks like.
+repos/
+pnpm-lock.yaml

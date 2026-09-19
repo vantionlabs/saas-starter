@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@effect/platform-node": "catalog:",
-    "@effect/sql-pg": "catalog:",
     "@vantion/database": "workspace:*",
     "@vantion/redis": "workspace:*",
     "@vantion/domain": "workspace:*",
@@ -36,18 +35,15 @@
     "@vantion/module-iam": "workspace:*",
     "@vantion/module-notifications": "workspace:*",
     "@vantion/telemetry": "workspace:*",
-    "better-auth": "catalog:",
     "effect": "catalog:",
     "pg": "catalog:"
   },
   "devDependencies": {
-    "@effect/vitest": "catalog:",
     "@testcontainers/postgresql": "catalog:",
     "@types/node": "catalog:",
     "@types/pg": "catalog:",
     "tsx": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "zod": "catalog:"
+    "vitest": "catalog:"
   }
 }

@@ -17,10 +17,7 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "@base-ui/react": "catalog:",
     "@effect/atom-react": "catalog:",
-    "@effect/platform-browser": "catalog:",
-    "@lucas-barake/effect-form": "catalog:",
     "@lucas-barake/effect-form-react": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
@@ -37,16 +34,12 @@
     "@vantion/ui": "workspace:*",
     "@better-auth/sso": "catalog:",
     "better-auth": "catalog:",
-    "class-variance-authority": "catalog:",
-    "clsx": "catalog:",
-    "cmdk": "catalog:",
     "effect": "catalog:",
     "web-vitals": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "sonner": "catalog:",
-    "tailwind-merge": "catalog:"
+    "sonner": "catalog:"
   },
   "peerDependencies": {
     "react": "catalog:",
@@ -55,7 +48,6 @@
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@tailwindcss/vite": "catalog:",
-    "@tanstack/router-plugin": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@testing-library/user-event": "catalog:",

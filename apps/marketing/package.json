@@ -34,7 +34,6 @@
     "tailwindcss": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "@tanstack/router-plugin": "catalog:",
     "nitro": "catalog:"
   }
 }

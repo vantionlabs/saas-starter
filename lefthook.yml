@@ -1,0 +1,34 @@
+# Runs on commits made by a person or another tool.
+#
+# The Claude hooks in `.claude/hooks/` only fire when an agent edits a file, so
+# they cover exactly the case where somebody is already watching. This covers
+# the other one.
+#
+# Installed by `pnpm prepare`. `LEFTHOOK=0 git commit` skips it, and a commit
+# that genuinely needs skipping is a commit somebody should have to type that on.
+
+pre-commit:
+  parallel: true
+  commands:
+    # Formatting the staged files rather than the tree, and restaging what it
+    # changed — so a commit is never the thing that introduces a format diff.
+    format:
+      glob: "*.{ts,tsx,js,mjs,json,jsonc,md,css,yml,yaml}"
+      exclude: "repos/**"
+      run: pnpm exec dprint fmt {staged_files}
+      stage_fixed: true
+
+    # The one check that cannot be caught later: a secret in a commit is in the
+    # history whether or not the next commit removes it, and this repository is
+    # a public template.
+    secrets:
+      run: pnpm exec secretlint --secretlintignore .secretlintignore {staged_files}
+
+commit-msg:
+  commands:
+    # `RULES.md` asks for a conventional subject; this is the half of that a
+    # regex can decide.
+    subject:
+      run: |
+        head -1 {1} | grep -qE '^(feat|fix|refactor|perf|docs|test|chore|build|ci)(\([a-z0-9-]+\))?!?: .+' \
+          || { echo "commit subject must be conventional, e.g. feat(iam): what changed"; exit 1; }

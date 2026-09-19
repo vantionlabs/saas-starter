@@ -411,6 +411,35 @@ Two sets stay `.mjs`, and neither is an oversight:
 - **`scripts/oxlint-rules/*.mjs`** are loaded by oxlint itself, which reads JavaScript. There
   is no TypeScript to convert them to that oxlint could run.
 
+## Hygiene, and what each tool is actually for
+
+`pnpm hygiene` is knip, syncpack and secretlint, and CI runs the same command rather than three
+steps of its own — a failure there is reproducible by typing one thing.
+
+- **knip** walks the import graph for unused files, exports and dependencies. Its first run
+  removed 26 dependencies and 15 devDependencies that nothing imported, and seven catalog
+  entries left behind with them. What it cannot see is in `knip.jsonc` with a reason beside it:
+  binaries are run rather than imported, some workspace dependencies exist for `tsc -b`
+  ordering, and `@lucas-barake/effect-form` must stay in the catalog because
+  `vendor-sources.test.ts` asserts it is there.
+- **syncpack** compares every manifest against the catalog. The single deliberate divergence —
+  `apps/mobile` pinning Tailwind 3 for NativeWind v4 — is declared in `.syncpackrc.json`, which
+  is what stops it reading as drift.
+- **secretlint** scans for credentials. Verified by planting one: AWS's _documented example_
+  keys are allowlisted by the preset, so a probe using them proves nothing, and a realistic
+  key is caught.
+
+`lefthook` runs formatting and secretlint on staged files at commit time. The Claude hooks in
+`.claude/hooks/` only fire when an agent edits a file — that is the case where somebody is
+already watching; this is the other one. A secret in a commit is in the history whether or not
+the next commit removes it, and this repository is a public template.
+
+`.ignore` keeps `repos/` out of ripgrep, and therefore out of every agent search. Reading it
+deliberately is the point and `rg --no-ignore` still does; having 3,558 vendored files in the
+results of every unrelated query is attention spent for nothing.
+
+`pnpm preflight` is format, check, lint, hygiene and test in the order they should run.
+
 ## Commands
 
 |                                              |                                                                    |

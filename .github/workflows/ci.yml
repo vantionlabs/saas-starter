@@ -34,6 +34,15 @@ jobs:
 
       - run: pnpm lint
 
+      # Dead code, mismatched versions, and secrets. Cheap enough to sit in the
+      # same job rather than pay for a third install: knip walks the import
+      # graph, syncpack compares every manifest against the catalog, and
+      # secretlint reads the tree.
+      #
+      # `pnpm hygiene` is the same command a person runs, so a failure here is
+      # reproducible without reading this file.
+      - run: pnpm hygiene
+
       # Docker is available on ubuntu-latest, so the testcontainers-backed
       # Postgres started by test/global-setup.ts runs here rather than skipping.
       #

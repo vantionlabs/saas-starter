@@ -25,7 +25,6 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@testcontainers/postgresql": "catalog:",
     "vitest": "catalog:"
   }
 }

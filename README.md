@@ -89,6 +89,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
 - ✅ **Tests that gate** — 380 unit, 45 browser, an eval set with a baseline, all in CI
+- ✅ **Hygiene that gates** — dead code, version drift and secrets, in the same CI job
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
