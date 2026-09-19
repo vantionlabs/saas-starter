@@ -41,6 +41,7 @@
     "e2e:ui": "pnpm --filter @vantion/e2e test:ui",
     "evals": "pnpm --filter @vantion/evals evals",
     "preflight": "pnpm format && pnpm check && pnpm lint && pnpm hygiene && pnpm test",
+    "gate": "pnpm preflight && pnpm e2e",
     "knip": "knip",
     "secrets": "secretlint --secretlintignore .secretlintignore '**/*'",
     "deps:check": "syncpack lint",

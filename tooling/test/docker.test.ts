@@ -1,6 +1,12 @@
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { readDockerfile, requiredManifestDirs, workspacePackages } from "../DockerManifests.js";
+import {
+  builtPackages,
+  readDockerfile,
+  requiredBuildTargets,
+  requiredManifestDirs,
+  workspacePackages,
+} from "../DockerManifests.js";
 
 const REPO = path.join(import.meta.dirname, "..", "..");
 
@@ -45,6 +51,32 @@ describe("image manifests", () => {
     const { copied } = readDockerfile(REPO, app);
 
     expect([...copied].filter((dir) => !required.has(dir))).toEqual([]);
+  });
+
+  /**
+   * The second failure the nightly found, and the reason it is worth a test of
+   * its own: copying a manifest installs a package, it does not build one.
+   *
+   * A workspace package resolves to `build/src/*.js` under its `default` export
+   * condition, and `.dockerignore` keeps build output out of the context — so a
+   * *value* imported from a module does not resolve until something has built
+   * it, while every type-only import beside it is erased and never notices.
+   * `MAX_UPLOAD_BYTES` in `routes/_protected/files.tsx` was one such line among
+   * sixteen imports from the same packages.
+   *
+   * `tsc -b` follows project references, so five of the six images were correct
+   * by accident: building `@vantion/domain` built the modules under it. That is
+   * the same fact written in a second place, and an app depending on something
+   * `domain` does not reference would be wrong in a way only a bundle shows.
+   * `--filter "<app>..."` says it once, and this asserts it.
+   */
+  it.each(IMAGES)("%s builds every package it imports values from", (app) => {
+    const required = requiredBuildTargets(REPO, app);
+    const built = builtPackages(REPO, app);
+
+    const missing = required.filter((name) => !built.has(name));
+    expect(missing, `apps/${app}/Dockerfile builds its app but not:\n${missing.join("\n")}`)
+      .toEqual([]);
   });
 
   /**

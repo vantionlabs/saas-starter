@@ -446,7 +446,16 @@ is the answer to that, and this is the break it was written for.
 deliberately is the point and `rg --no-ignore` still does; having 3,558 vendored files in the
 results of every unrelated query is attention spent for nothing.
 
-`pnpm preflight` is format, check, lint, hygiene and test in the order they should run.
+`pnpm preflight` is format, check, lint, hygiene and test in the order they should run, and
+`pnpm gate` is that plus e2e. Two names because they answer different questions: `preflight` is
+the inner loop, run constantly, and putting a Postgres container and two servers behind it
+would make the command typed twenty times a day cost what the one typed twice a day should.
+`gate` is what a slice has to pass before it is called done.
+
+Neither builds an image, which is deliberate and is why `build:images` is separate: six cold
+builds is half an hour. What a build would have caught is covered instead by
+`tooling/test/docker.test.ts` in the fast gate, by a single server image in CI, and by the
+nightly matrix for the rest.
 
 ## Commands
 
@@ -468,6 +477,7 @@ results of every unrelated query is attention spent for nothing.
 | `pnpm fix`                                   | `format` then `lint:fix` — what to run before reading a diff       |
 | `pnpm e2e:install`                           | the one Playwright browser the suite needs, once                   |
 | `pnpm preflight`                             | format, check, lint, hygiene and test, in that order               |
+| `pnpm gate`                                  | `preflight` and then e2e — what a slice has to pass                |
 
 The second half of `pnpm check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,

@@ -32,7 +32,13 @@ COPY scripts/package.json scripts/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm --filter @vantion/brand build
+# `...` is pnpm for "and its dependencies", and it is the rule for every image
+# here rather than a flourish. A workspace package resolves to `build/src/*.js`
+# under its `default` condition, `.dockerignore` keeps build output out of the
+# context, and a value imported from one does not resolve until something has
+# built it — while every type-only import beside it is erased and does not
+# notice. `tooling/test/docker.test.ts` asserts the set is complete.
+RUN pnpm --filter "@vantion/brand..." build
 
 FROM nginx:alpine
 

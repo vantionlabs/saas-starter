@@ -25,6 +25,16 @@ export interface WorkspacePackage {
   /** Repository-relative, which is how a Dockerfile spells it. */
   readonly dir: string;
   readonly workspaceDeps: ReadonlySet<string>;
+  /**
+   * Whether a consumer importing a *value* from this package needs it built
+   * first: true when its `default` export condition points into `build/`.
+   *
+   * That condition is what a bundler and Metro resolve through, and build
+   * output is in neither a fresh checkout nor a Docker context. Type-only
+   * imports are erased and resolve nothing, which is why this failed on one
+   * line out of sixteen rather than everywhere at once.
+   */
+  readonly buildRequired: boolean;
 }
 
 /**
@@ -61,6 +71,8 @@ export const workspacePackages = (repo: string): Map<string, WorkspacePackage> =
       fs.readFileSync(path.join(repo, dir, "package.json"), "utf8"),
     ) as {
       name: string;
+      scripts?: Record<string, string>;
+      exports?: Record<string, unknown>;
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
@@ -72,7 +84,21 @@ export const workspacePackages = (repo: string): Map<string, WorkspacePackage> =
         .map(([name]) => name),
     );
 
-    packages.set(manifest.name, { name: manifest.name, dir, workspaceDeps });
+    /**
+     * The `default` condition specifically, not `development`: every dev tool
+     * here asks for `development` and gets source, and a Docker build or a
+     * Metro bundle is exactly the case that does not.
+     */
+    const subpath = manifest.exports?.["./*"] ?? manifest.exports?.["."];
+    const fallback = typeof subpath === "object" && subpath !== null
+      ? (subpath as Record<string, unknown>)["default"]
+      : subpath;
+
+    const buildRequired = manifest.scripts?.["build"] !== undefined
+      && typeof fallback === "string"
+      && fallback.includes("/build/");
+
+    packages.set(manifest.name, { name: manifest.name, dir, workspaceDeps, buildRequired });
   }
 
   return packages;
@@ -117,9 +143,17 @@ const closure = (
   return seen;
 };
 
+interface BuildFilter {
+  readonly name: string;
+  /** `--filter "@vantion/web..."` — pnpm for "and its dependencies". */
+  readonly withDeps: boolean;
+}
+
 export interface DockerfileFacts {
   readonly app: string;
-  /** Workspace packages named by a `--filter` in a `RUN pnpm … build`. */
+  /** Every `--filter` in a `RUN pnpm … build`, as written. */
+  readonly filters: Array<BuildFilter>;
+  /** Just their names, which is what the manifest closure is rooted at. */
   readonly built: Array<string>;
   /** Directories whose `package.json` the `deps` stage copies. */
   readonly copied: Set<string>;
@@ -140,16 +174,52 @@ const captures = (source: string, pattern: RegExp): Array<string> =>
 export const readDockerfile = (repo: string, app: string): DockerfileFacts => {
   const source = fs.readFileSync(path.join(repo, "apps", app, "Dockerfile"), "utf8");
 
-  const built = [...source.matchAll(/^RUN pnpm .*--filter.*\bbuild\b.*$/gm)]
+  const filters = [...source.matchAll(/^RUN pnpm .*--filter.*\bbuild\b.*$/gm)]
     .flatMap(([line]) => captures(line, /--filter (\S+)/g))
-    // `--filter "@vantion/web..."` — quotes because a shell would eat nothing
-    // here but a reader might, and `...` meaning "and its dependencies", which
-    // the closure computes anyway.
-    .map((filter) => filter.replace(/^["']|["']$/g, "").replace(/\.{3}$/, ""));
+    .map((raw) => {
+      // The quotes are for the reader; the shell would eat nothing here either
+      // way. `...` is pnpm for "and its dependencies".
+      const unquoted = raw.replace(/^["']|["']$/g, "");
+      const withDeps = unquoted.endsWith("...");
+      return { name: withDeps ? unquoted.slice(0, -3) : unquoted, withDeps };
+    });
 
   const copied = new Set(captures(source, /^COPY (\S+)\/package\.json/gm));
 
-  return { app, built, copied };
+  return { app, filters, built: filters.map(({ name }) => name), copied };
+};
+
+/** What `RUN pnpm … build` actually builds, with `...` expanded. */
+export const builtPackages = (repo: string, app: string): Set<string> => {
+  const packages = workspacePackages(repo);
+  const { filters } = readDockerfile(repo, app);
+
+  const built = new Set<string>();
+  for (const { name, withDeps } of filters) {
+    if (withDeps) { for (const dep of closure(packages, [name])) built.add(dep); }
+    else built.add(name);
+  }
+
+  return built;
+};
+
+/**
+ * What this image has to build before its app, because a value imported from
+ * one of these resolves to build output a fresh context does not have.
+ *
+ * `tsc -b` does follow project references, so building `@vantion/domain` builds
+ * the modules beneath it and an image can be correct without naming them. This
+ * is deliberately stricter: the reference graph is a second place the same fact
+ * is written, and an app depending on something `domain` does not reference
+ * would be wrong in a way only a bundle would show.
+ */
+export const requiredBuildTargets = (repo: string, app: string): Array<string> => {
+  const packages = workspacePackages(repo);
+  const self = `@vantion/${app}`;
+
+  return [...closure(packages, [self])]
+    .filter((name) => name !== self && packages.get(name)?.buildRequired === true)
+    .sort();
 };
 
 /** The directories `app`'s `deps` stage must copy, sorted as they should be written. */

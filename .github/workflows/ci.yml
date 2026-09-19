@@ -90,3 +90,41 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report/
           retention-days: 7
+
+  # One image, every push. The other five are nightly.
+  #
+  # This job exists because of a failure nothing else here could see: a root
+  # `prepare` script gained a command needing `git`, which the build image does
+  # not carry, and every image broke while `check` and `e2e` stayed green. The
+  # next thing to notice would have been a deploy.
+  #
+  # The API image is the one worth paying for on every push — it builds
+  # `@vantion/domain` and therefore every module, plus the database package and
+  # two Vite bundles, so it exercises more of the graph than the other five put
+  # together. Whether the *others* build is a question the nightly matrix
+  # answers; whether a change broke images *at all* is answered here, on the
+  # push that caused it.
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      # The layer cache is what makes this affordable. `deps` installs from a
+      # fixed set of manifests, so a source-only change reuses it and the job is
+      # a build rather than an install; `type=gha` keeps that across runs.
+      #
+      # `mode=max` caches intermediate stages too, not just the final one, which
+      # for a multi-stage build is the difference between caching the install
+      # and caching nothing that matters.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/server/Dockerfile
+          # Never pushed: the question is whether it builds, and a registry
+          # would need credentials this workflow has no business holding.
+          push: false
+          load: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
