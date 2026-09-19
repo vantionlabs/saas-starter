@@ -2,10 +2,17 @@ import { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
 import { AuditEntry } from "@vantion/module-iam/audit/Audit";
 import type { OrgId } from "@vantion/module-iam/identity/Identity";
 import type { Role } from "@vantion/module-iam/identity/Permission";
+import { Membership } from "@vantion/module-iam/organization/OrganizationRpc";
 import { Effect, Schema } from "effect";
 import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "../AppRpc.js";
 import { Keys } from "../Keys.js";
+
+/** Rendered on the server; the key and schema are shared with its loader. */
+export const organizationsSerial = {
+  key: "organizations",
+  schema: AsyncResult.Schema({ success: Schema.Array(Membership) }),
+};
 
 export const organizationsAtom = Atom.withReactivity([Keys.organization])(
   AppRpc.runtime.atom(
@@ -15,7 +22,7 @@ export const organizationsAtom = Atom.withReactivity([Keys.organization])(
       return yield* client("ListMyOrganizations", undefined);
     }),
   ),
-);
+).pipe(Atom.serializable(organizationsSerial));
 
 /**
  * Both writes invalidate `organization`, so the session, this list and every

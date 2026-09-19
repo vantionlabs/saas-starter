@@ -1,4 +1,6 @@
-import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { hydrated } from "@/server/hydration.js";
+import { listMyOrganizations } from "@/server/reads/organization.js";
+import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   deleteOrganizationAtom,
@@ -10,7 +12,6 @@ import { Button } from "@vantion/ui/ui/button";
 import { Input } from "@vantion/ui/ui/input";
 import { Label } from "@vantion/ui/ui/label";
 import { Separator } from "@vantion/ui/ui/separator";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
@@ -35,7 +36,11 @@ const General = () => {
     setName(active?.name ?? "");
   }
 
-  if (active === undefined) return <Skeleton className="h-64 w-full" />;
+  /**
+   * Hydrated before first paint, so this is the unreachable arm: a caller
+   * always belongs to at least their personal organization.
+   */
+  if (active === undefined) return null;
 
   const current = name === "" ? active.name : name;
 
@@ -104,7 +109,14 @@ const General = () => {
   );
 };
 
+const GeneralRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <General />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/settings/general")({
   staticData: { crumb: "General" },
-  component: General,
+  loader: () => listMyOrganizations(),
+  component: GeneralRoute,
 });

@@ -1,4 +1,6 @@
-import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { hydrated } from "@/server/hydration.js";
+import { listConversations } from "@/server/reads/assistant.js";
+import { HydrationBoundary, useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Ask } from "@vantion/core/atoms/Assistant";
 import {
@@ -11,7 +13,6 @@ import type { Chunk, ConversationId } from "@vantion/module-assistant/AssistantR
 import { QueryError } from "@vantion/ui/app/query-error";
 import { Conversation, emptyTurn, type Turn } from "@vantion/ui/assistant/conversation";
 import { PromptBar } from "@vantion/ui/assistant/prompt-bar";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
@@ -154,7 +155,8 @@ const Assistant = () => {
     return <QueryError result={conversations} subject="the assistant" />;
   }
 
-  if (!AsyncResult.isSuccess(conversations)) return <Skeleton className="h-96 w-full" />;
+  /** Hydrated before first paint; this is the unreachable arm. */
+  if (!AsyncResult.isSuccess(conversations)) return null;
 
   return (
     <section className="flex h-full min-h-0 flex-col gap-4">
@@ -176,7 +178,15 @@ const Assistant = () => {
   );
 };
 
+const AssistantRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <Assistant />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/assistant")({
   staticData: { crumb: "Assistant" },
-  component: Assistant,
+  /** The list only — a thread streams, and belongs to whichever is open. */
+  loader: () => listConversations(),
+  component: AssistantRoute,
 });

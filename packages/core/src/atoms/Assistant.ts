@@ -1,9 +1,21 @@
 import type { Chunk } from "@vantion/module-assistant/AssistantRpc";
-import { ConversationId, Thread } from "@vantion/module-assistant/AssistantRpc";
-import { Effect, Stream } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { Conversation, ConversationId, Thread } from "@vantion/module-assistant/AssistantRpc";
+import { Effect, Schema, Stream } from "effect";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "../AppRpc.js";
 import { Keys } from "../Keys.js";
+
+/**
+ * The list is rendered on the server; the messages are not.
+ *
+ * A conversation's thread is per-conversation and arrives by stream, so there
+ * is no single value for a loader to fetch. The list of conversations is an
+ * ordinary read and behaves like every other one.
+ */
+export const conversationsSerial = {
+  key: "conversations",
+  schema: AsyncResult.Schema({ success: Schema.Array(Conversation) }),
+};
 
 export const conversationsAtom = Atom.withReactivity([Keys.organization, Keys.assistant])(
   AppRpc.runtime.atom(
@@ -13,7 +25,7 @@ export const conversationsAtom = Atom.withReactivity([Keys.organization, Keys.as
       return yield* client("ListConversations", undefined);
     }),
   ),
-);
+).pipe(Atom.serializable(conversationsSerial));
 
 export const startConversationAtom = AppRpc.runtime.fn<void>()(
   () =>

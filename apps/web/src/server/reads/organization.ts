@@ -1,7 +1,11 @@
 import { dehydrate } from "@/server/hydration.js";
 import { serverRpc } from "@/server/rpc.js";
 import { createServerFn } from "@tanstack/react-start";
-import { apiKeysSerial, auditLogSerial } from "@vantion/core/atoms/Organization";
+import {
+  apiKeysSerial,
+  auditLogSerial,
+  organizationsSerial,
+} from "@vantion/core/atoms/Organization";
 
 export const listApiKeys = createServerFn({ method: "GET" }).handler(async () =>
   dehydrate(apiKeysSerial, await serverRpc((client) => client("ListApiKeys", undefined)))
@@ -16,5 +20,13 @@ export const listAuditLog = createServerFn({ method: "GET" }).handler(async () =
   dehydrate(
     auditLogSerial,
     await serverRpc((client) => client("ListAuditLog", { limit: 100 })),
+  )
+);
+
+/** The organizations this caller belongs to, for the settings screen. */
+export const listMyOrganizations = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(
+    organizationsSerial,
+    await serverRpc((client) => client("ListMyOrganizations", undefined)),
   )
 );
