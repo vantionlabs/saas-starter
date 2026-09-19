@@ -1,5 +1,5 @@
 import { hydrated } from "@/server/hydration.js";
-import { listAuditLog } from "@/server/reads.js";
+import { listAuditLog } from "@/server/reads/organization.js";
 import { HydrationBoundary, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { auditLogAtom } from "@vantion/core/atoms/Organization";

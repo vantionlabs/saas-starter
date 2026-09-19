@@ -1,3 +1,4 @@
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { apiUrl } from "@vantion/core/ApiUrl";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
 import { Effect, Layer } from "effect";
@@ -41,12 +42,12 @@ const rpcUrl = () => {
 };
 
 /**
- * One layer per request, because the cookie is per request.
+ * One layer per request, because the caller is per request.
  *
- * Cheap enough to build each time — it is a `fetch` client and an ndjson codec,
- * no pool and no connection — and the alternative is a module-level client
- * holding one caller's session, which is the shape of bug that serves one
- * tenant's data to another.
+ * Cheap enough to build each time — a `fetch` client and an ndjson codec, no
+ * pool and no connection — and the alternative is a module-level client holding
+ * one caller's session, which is the shape of bug that serves one tenant's data
+ * to another.
  */
 const protocol = (cookie: string) =>
   RpcClient.layerProtocolHttp({
@@ -57,25 +58,43 @@ const protocol = (cookie: string) =>
     Layer.provide(FetchHttpClient.layer),
   );
 
+/**
+ * The caller's cookie, taken from the request being handled.
+ *
+ * Read here rather than passed in, which is the whole point: every server
+ * function ran `getRequestHeader("cookie")` and handed the result along, so the
+ * one thing that must never be forgotten was repeated at every call site and
+ * was a parameter somebody could pass the wrong value for. There is exactly one
+ * right answer inside a request, and this is where it is known.
+ *
+ * Only the cookie is forwarded. Passing the whole header set through to an
+ * internal service sends `host`, `content-length` and whatever else a proxy
+ * added, none of which describes the caller and some of which is actively wrong
+ * for a different request.
+ */
+const callerCookie = () => getRequestHeader("cookie") ?? "";
+
 const makeClient = RpcClient.make(AppRpcs, { flatten: true });
 
 /** The flattened client, named by inference so it cannot drift from the group. */
 type Client = Effect.Success<typeof makeClient>;
 
 /**
- * Runs one procedure as the caller who made this request.
+ * Runs one procedure **as the caller who made this request**.
  *
  * Flattened like `AppRpc`, so a call reads the same on both sides:
- * `client("ListContacts", undefined)`.
+ * `serverRpc((client) => client("ListContacts", undefined))`.
+ *
+ * Authentication is not this function's decision and not the route guard's
+ * either: the cookie goes to the API, and `AuthMiddleware` there refuses what
+ * it should. A loader that forgot its guard would render an error, not somebody
+ * else's data.
  */
-export const serverRpc = <A, E>(
-  cookie: string | undefined,
-  use: (client: Client) => Effect.Effect<A, E>,
-): Promise<A> =>
+export const serverRpc = <A, E>(use: (client: Client) => Effect.Effect<A, E>): Promise<A> =>
   Effect.runPromise(
     makeClient.pipe(
       Effect.flatMap(use),
-      Effect.provide(protocol(cookie ?? "")),
+      Effect.provide(protocol(callerCookie())),
       Effect.scoped,
     ),
   );

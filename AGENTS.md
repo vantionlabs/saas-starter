@@ -125,9 +125,23 @@ behind it at all — the loader only arranges for it to arrive already full.
 Three pieces, and the middle one is where the mistake is easy to make.
 `apps/web/src/server/rpc.ts` is the RPC client as the server uses it: the
 browser's client sends `credentials: "include"` and lets the platform attach the
-session, and there is no platform here, so the cookie is forwarded explicitly.
-`apps/web/src/server/reads.ts` is a server function per read. And hydration puts
-the result into the atom.
+session, and there is no platform here, so the cookie is forwarded — **read from
+the request inside `serverRpc`, not passed in**. It was a parameter at every
+call site once, which made the one thing that must never be forgotten into one
+somebody could pass the wrong value for. Only the cookie goes: handing a whole
+header set to an internal service sends `host`, `content-length` and whatever a
+proxy added, none of which describes the caller.
+
+`apps/web/src/server/reads/` is a server function per read, one file per concern
+the way `packages/core/src/atoms/` is split. `apps/admin/src/server/` divides
+the same way — `auth.ts` answers who is asking, `queries/` holds the procedures
+— because one file holding the authentication _and_ every read is the one that
+grows a procedure somebody forgot to put `requireStaff` in front of.
+
+Server functions are for **GETs**. A write is a form on the client, and the RPC
+behind it is already authenticated by `AuthMiddleware`: a loader that forgot its
+guard renders an error rather than somebody else's data. And hydration puts the
+result into the atom.
 
 **Hydration, not seeding.** `useAtomInitialValues` looks like the tool and is
 not: it marks the node **valid** — computed, fresh, done — so the atom never

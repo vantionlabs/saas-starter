@@ -1,6 +1,6 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
 import { hydrated } from "@/server/hydration.js";
-import { listFiles } from "@/server/reads.js";
+import { listFiles } from "@/server/reads/file.js";
 import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -98,8 +98,9 @@ const Files = () => {
            * and the file input below it only uploads when its `onChange` is
            * listened to. Server rendering puts both in the document first, so
            * without this the control looks live and silently does nothing —
-           * the same trap `ContactForm` fell into, and the reason `useHydrated`
-           * exists rather than each screen inventing its own signal.
+           * Forms do not need this — effect-form does not render its fields on
+           * the server at all, so there is nothing to type into early. A bare
+           * button is the case that does, and this is the signal it gives.
            */
           disabled={!hydrated || uploading.waiting || !permissions.includes("file:create")}
           onClick={() => input.current?.click()}

@@ -1,6 +1,6 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
 import { hydrated } from "@/server/hydration.js";
-import { getBilling } from "@/server/reads.js";
+import { getBilling } from "@/server/reads/billing.js";
 import { HydrationBoundary, useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { billingAtom, billingPortalAtom, checkoutAtom } from "@vantion/core/atoms/Billing";

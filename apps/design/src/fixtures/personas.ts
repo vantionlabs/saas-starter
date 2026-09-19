@@ -4,6 +4,7 @@ import { ContactId } from "@vantion/module-contact/ContactRpc";
 import { Contact } from "@vantion/module-contact/ContactRpc";
 import { CustomRole, OrganizationMember } from "@vantion/module-iam/access/AccessRpc";
 import { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
+import type { PersonView } from "@vantion/ui/admin/person-card";
 import type { StaffTrailRow } from "@vantion/ui/admin/staff-trail-table";
 import type { SsoProviderRow } from "@vantion/ui/settings/sso-panel";
 import { DateTime } from "effect";
@@ -39,6 +40,8 @@ export type Persona = {
    * one whose mistakes are least visible and most expensive.
    */
   readonly staffTrail: ReadonlyArray<StaffTrailRow>;
+  /** The result of a staff lookup, for the admin panel's person screen. */
+  readonly person: PersonView;
 };
 
 const at = (iso: string) => DateTime.makeUnsafe(new Date(iso));
@@ -96,6 +99,17 @@ const firstDay: Persona = {
   ],
   sso: [],
   staffTrail: [],
+  person: {
+    id: "usr_first",
+    email: "sam@acme.test",
+    name: "Sam",
+    emailVerified: false,
+    banned: false,
+    staff: false,
+    createdAt: "2026-09-19T09:55:00.000Z",
+    // Signed up and never finished, which is a real state rather than an error.
+    memberships: [],
+  },
 };
 
 /** The ordinary case, and the one most screenshots are taken of. */
@@ -188,6 +202,18 @@ const settled: Persona = {
       at: "2026-09-18T14:01:48.000Z",
     },
   ],
+  person: {
+    id: "usr_settled",
+    email: "ada@acme.test",
+    name: "Ada Lovelace",
+    emailVerified: true,
+    banned: false,
+    staff: false,
+    createdAt: "2026-04-02T10:12:00.000Z",
+    memberships: [
+      { organizationId: "org_8fc2", name: "Acme", slug: "acme", role: "owner" },
+    ],
+  },
 };
 
 /**
@@ -331,6 +357,36 @@ const crowded: Persona = {
       at: "2026-09-19T09:14:02.000Z",
     },
   ],
+  /**
+   * Somebody in four organizations at once, which is the case that decides
+   * whether this screen is a card or a table — a consultant working across
+   * several customers is exactly who support ends up looking up.
+   */
+  person: {
+    id: "usr_3f9a71c4e88b0011aa22",
+    email: "priya.ramachandran@northwind-industries.example",
+    name: "Priya Ramachandran",
+    emailVerified: true,
+    banned: false,
+    staff: false,
+    createdAt: "2025-11-14T08:03:00.000Z",
+    memberships: [
+      {
+        organizationId: "org_3f9a71c4e88b",
+        name: "Northwind Industries International",
+        slug: "northwind-industries-international",
+        role: "owner",
+      },
+      { organizationId: "org_0011aa22bb33", name: "Contoso", slug: "contoso", role: "admin" },
+      { organizationId: "org_44cc55dd66ee", name: "Fabrikam", slug: "fabrikam", role: "member" },
+      {
+        organizationId: "org_77ff88aa99bb",
+        name: "Tailspin Toys",
+        slug: "tailspin",
+        role: "member",
+      },
+    ],
+  },
 };
 
 export const personas: ReadonlyArray<Persona> = [firstDay, settled, crowded];

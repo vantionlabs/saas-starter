@@ -1,7 +1,7 @@
 import { RoleForm } from "@/components/access/role-form.js";
 import { RoleTable } from "@/components/access/role-table.js";
 import { hydrated } from "@/server/hydration.js";
-import { listRoles } from "@/server/reads.js";
+import { listRoles } from "@/server/reads/access.js";
 import { HydrationBoundary, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { rolesAtom } from "@vantion/core/atoms/Access";

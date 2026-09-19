@@ -263,6 +263,12 @@ importers:
 
   apps/admin:
     dependencies:
+      '@effect/atom-react':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(react@19.2.8)(scheduler@0.27.0)
+      '@lucas-barake/effect-form-react':
+        specifier: 'catalog:'
+        version: 0.26.0-beta.5(@effect/atom-react@4.0.0-rc.109(effect@4.0.0-rc.109)(react@19.2.8)(scheduler@0.27.0))(effect@4.0.0-rc.109)(react@19.2.8)
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.170.29(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -312,6 +318,9 @@ importers:
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@testing-library/user-event':
+        specifier: 'catalog:'
+        version: 14.6.4(@testing-library/dom@10.4.1)
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.18

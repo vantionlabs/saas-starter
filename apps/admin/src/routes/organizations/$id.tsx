@@ -1,6 +1,6 @@
-import { organization } from "@/server/staff.js";
+import { ReasonPrompt } from "@/components/reason-prompt.js";
+import { organization } from "@/server/queries/organizations.js";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ReasonPrompt } from "@vantion/ui/admin/reason-prompt";
 import * as React from "react";
 
 type Detail = Awaited<ReturnType<typeof organization>>;

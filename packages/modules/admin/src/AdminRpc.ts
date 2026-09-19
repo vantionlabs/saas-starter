@@ -78,6 +78,44 @@ export class StaffTrailEntry extends Schema.Class<StaffTrailEntry>("StaffTrailEn
   at: Schema.String,
 }) {}
 
+/** One organization this person belongs to, and what they are in it. */
+export class PersonMembership extends Schema.Class<PersonMembership>("PersonMembership")({
+  organizationId: Schema.String,
+  name: Schema.String,
+  slug: Schema.String,
+  role: Schema.String,
+}) {}
+
+/**
+ * A person, found by their exact address.
+ *
+ * The one read here organized by human rather than by tenant, because that is
+ * how a support ticket arrives. It carries no customer *data* — no contacts, no
+ * files, no counts — only who this account is and where it belongs, which is
+ * what decides where to look next.
+ */
+export class PersonProfile extends Schema.Class<PersonProfile>("PersonProfile")({
+  id: Schema.String,
+  email: Schema.String,
+  name: Schema.String,
+  emailVerified: Schema.Boolean,
+  banned: Schema.Boolean,
+  /** Whether this account is staff. The one field that is about us. */
+  staff: Schema.Boolean,
+  createdAt: Schema.String,
+  memberships: Schema.Array(PersonMembership),
+}) {}
+
+/**
+ * No account with that address.
+ *
+ * Typed rather than a defect, and it says exactly as much as it should: a
+ * caller who already knows the address learns whether it is a customer, which
+ * is the question they asked. Staff may look up anybody, so there is nothing
+ * narrower to protect here — and the attempt is recorded either way.
+ */
+export class PersonNotFound extends Schema.TaggedError<PersonNotFound>()("PersonNotFound", {}) {}
+
 export class AdminRpcs extends RpcGroup.make(
   Rpc.make("ListOrganizations", {
     payload: { reason: Reason },
@@ -101,6 +139,16 @@ export class AdminRpcs extends RpcGroup.make(
    * `ReasonRequired` is therefore absent from the error channel, which is the
    * compiler carrying the decision rather than a comment asking for it.
    */
+  /**
+   * Looked up by **exact** address. The payload has no room for a pattern,
+   * which is deliberate: a prefix search across every tenant would be an
+   * enumeration tool wearing a support screen's clothes.
+   */
+  Rpc.make("FindPerson", {
+    payload: { email: Schema.String, reason: Reason },
+    success: PersonProfile,
+    error: Schema.Union([NotStaff, ReasonRequired, PersonNotFound]),
+  }),
   Rpc.make("ListStaffTrail", {
     payload: {
       /**

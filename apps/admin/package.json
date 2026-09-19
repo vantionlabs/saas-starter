@@ -16,6 +16,8 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
+    "@effect/atom-react": "catalog:",
+    "@lucas-barake/effect-form-react": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "@vantion/database": "workspace:*",
@@ -32,14 +34,15 @@
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@tailwindcss/vite": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "nitro": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "@testing-library/jest-dom": "catalog:"
+    "vitest": "catalog:"
   }
 }

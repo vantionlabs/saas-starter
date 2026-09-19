@@ -1,11 +1,18 @@
-import { asStaff, runtime } from "@/server/runtime.js";
+import { runtime } from "@/server/runtime.js";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
-import { getOrganization, listOrganizations } from "@vantion/module-admin/Organizations";
 import { NotStaff, StaffResolver, TwoFactorRequired } from "@vantion/module-admin/StaffResolver";
-import { listStaffTrail } from "@vantion/module-admin/StaffTrail";
 import { createAuthClient } from "better-auth/client";
 import { Effect } from "effect";
+
+/**
+ * Who is asking, and whether they may be here at all.
+ *
+ * Only this: the procedures live in `server/queries/`, one file per concern,
+ * the way `packages/modules/admin/src/` is laid out. A single file holding the
+ * authentication *and* every read is the one that grows a procedure somebody
+ * forgot to put `requireStaff` in front of.
+ */
 
 /**
  * Where the session comes from: the customer-facing API, which owns the only
@@ -74,7 +81,7 @@ export const whoami = createServerFn({ method: "GET" }).handler(async () => {
  * in as a customer, or banned — three states an anonymous caller should not be
  * able to tell apart by asking.
  */
-const requireStaff = async () => {
+export const requireStaff = async () => {
   const staff = await currentStaff();
   if (staff === "needs-2fa") throw new TwoFactorRequired();
   /**
@@ -87,38 +94,3 @@ const requireStaff = async () => {
 
   return staff;
 };
-
-export const organizations = createServerFn({ method: "POST" })
-  .inputValidator((reason: string) => reason)
-  .handler(async ({ data }) => {
-    const staff = await requireStaff();
-
-    return asStaff(staff, listOrganizations(data));
-  });
-
-export const organization = createServerFn({ method: "POST" })
-  .inputValidator((input: { id: string; reason: string; }) => input)
-  .handler(async ({ data }) => {
-    const staff = await requireStaff();
-
-    return asStaff(staff, getOrganization(data.id, data.reason));
-  });
-
-/**
- * The trail, and the only staff procedure here that takes no reason.
- *
- * Oversight rather than access: it reads what staff have done, not what a
- * customer owns. `StaffTrail.ts` carries the argument — charging a ticket
- * number for checking on colleagues is how the checking stops, and routing it
- * through `crossTenant` would make every review append to the thing being
- * reviewed.
- *
- * It is still behind `requireStaff`, which is the part that matters.
- */
-export const staffTrail = createServerFn({ method: "POST" })
-  .inputValidator((limit: number) => limit)
-  .handler(async ({ data }) => {
-    const staff = await requireStaff();
-
-    return asStaff(staff, listStaffTrail(data));
-  });

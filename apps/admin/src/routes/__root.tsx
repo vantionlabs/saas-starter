@@ -1,5 +1,6 @@
 import "@/app.css";
-import { whoami } from "@/server/staff.js";
+import { whoami } from "@/server/auth.js";
+import { RegistryProvider } from "@effect/atom-react";
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 import type * as React from "react";
 
@@ -54,29 +55,40 @@ function Root() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-border flex items-center justify-between border-b px-6 py-3">
-        <nav className="flex items-center gap-4">
-          <Link to="/" className="text-sm font-semibold">
-            Admin
-          </Link>
-          {
-            /*
+    /**
+     * One registry per React tree, so one per request on the server. The
+     * module-level default would be shared by every request this process
+     * handles — which on the surface that reads across tenants is the last
+     * place to have state that outlives a caller.
+     */
+    <RegistryProvider defaultIdleTTL={30_000}>
+      <div className="min-h-screen">
+        <header className="border-border flex items-center justify-between border-b px-6 py-3">
+          <nav className="flex items-center gap-4">
+            <Link to="/" className="text-sm font-semibold">
+              Admin
+            </Link>
+            {
+              /*
             The trail is in the navigation rather than somewhere a reviewer has
             to know the URL of. A log that takes effort to find is a log nobody
             reads, and this one exists to be read by the people it records.
           */
-          }
-          <Link to="/audit" className="text-muted-foreground text-xs hover:underline">
-            Staff trail
-          </Link>
-        </nav>
-        <p className="text-muted-foreground text-xs">{viewer.email}</p>
-      </header>
-      <main className="mx-auto max-w-5xl px-6 py-8">
-        <Outlet />
-      </main>
-    </div>
+            }
+            <Link to="/people" className="text-muted-foreground text-xs hover:underline">
+              Find a person
+            </Link>
+            <Link to="/audit" className="text-muted-foreground text-xs hover:underline">
+              Staff trail
+            </Link>
+          </nav>
+          <p className="text-muted-foreground text-xs">{viewer.email}</p>
+        </header>
+        <main className="mx-auto max-w-5xl px-6 py-8">
+          <Outlet />
+        </main>
+      </div>
+    </RegistryProvider>
   );
 }
 

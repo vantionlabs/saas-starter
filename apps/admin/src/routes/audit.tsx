@@ -1,4 +1,4 @@
-import { staffTrail } from "@/server/staff.js";
+import { staffTrail } from "@/server/queries/trail.js";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { StaffTrailTable } from "@vantion/ui/admin/staff-trail-table";
 

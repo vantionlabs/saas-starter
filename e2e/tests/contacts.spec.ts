@@ -68,22 +68,19 @@ test.describe("contacts", () => {
     await expect(signedIn.getByRole("row").filter({ hasText: email })).toBeVisible();
   });
 
-  test("submitting an incomplete form says what is missing", async ({ signedIn }) => {
+  test("submitting an incomplete form says which field is missing", async ({ signedIn }) => {
     await signedIn.goto("/contacts");
-    const submit = signedIn.getByRole("button", { name: "Add contact" });
 
-    // Enabled once React is listening — before that it is disabled because a
-    // press would do nothing, which is a different thing from invalid input.
-    await expect(submit).toBeEnabled();
-
+    /**
+     * effect-form does not render its fields during SSR, so waiting for the
+     * input is waiting for hydration. Nothing here needs a retry or a sleep:
+     * the control does not exist until it works.
+     */
     await signedIn.getByLabel("Name").fill("Only A Name");
-    await submit.click();
+    await signedIn.getByRole("button", { name: "Add contact" }).click();
 
-    // By text, not by role: the page already carries a "verify your email"
-    // alert, and `getByRole("alert")` matches both.
-    await expect(
-      signedIn.getByText("Both a name and an email address are needed."),
-    ).toBeVisible();
+    // Per field, from the schema, rather than one sentence about the form.
+    await expect(signedIn.getByText("Enter your email address.")).toBeVisible();
     await expect(signedIn.getByRole("table")).toBeHidden();
   });
 });

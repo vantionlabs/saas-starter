@@ -1,6 +1,6 @@
 import { MemberOverrides } from "@/components/access/member-overrides.js";
 import { hydrated } from "@/server/hydration.js";
-import { listMembers } from "@/server/reads.js";
+import { listMembers } from "@/server/reads/access.js";
 import { HydrationBoundary, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { membersAtom } from "@vantion/core/atoms/Access";

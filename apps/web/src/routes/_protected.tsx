@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app/app-shell.js";
 import { hydrated } from "@/server/hydration.js";
-import { getIdentity } from "@/server/reads.js";
+import { getIdentity } from "@/server/reads/identity.js";
 import { getSession } from "@/server/session.js";
 import { HydrationBoundary } from "@effect/atom-react";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";

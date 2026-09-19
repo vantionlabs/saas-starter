@@ -1,6 +1,6 @@
 import { StatCards } from "@/components/dashboard/stat-cards.js";
 import { hydrated } from "@/server/hydration.js";
-import { getOverview } from "@/server/reads.js";
+import { getOverview } from "@/server/reads/contact.js";
 import { HydrationBoundary } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 

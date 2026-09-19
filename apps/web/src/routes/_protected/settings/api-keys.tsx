@@ -1,5 +1,5 @@
 import { hydrated } from "@/server/hydration.js";
-import { listApiKeys } from "@/server/reads.js";
+import { listApiKeys } from "@/server/reads/organization.js";
 import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { apiKeysAtom, createApiKeyAtom, revokeApiKeyAtom } from "@vantion/core/atoms/Organization";

@@ -1,17 +1,15 @@
+import { ContactForm } from "@/components/contact/contact-form.js";
 import { hydrated } from "@/server/hydration.js";
-import { listContacts } from "@/server/reads.js";
+import { listContacts } from "@/server/reads/contact.js";
 import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
-import { contactsAtom, createContactAtom, deleteContactAtom } from "@vantion/core/atoms/Contact";
+import { contactsAtom, deleteContactAtom } from "@vantion/core/atoms/Contact";
 import { QueryError } from "@vantion/ui/app/query-error";
-import { ContactForm } from "@vantion/ui/contact/contact-form";
 import { ContactTable } from "@vantion/ui/contact/contact-table";
 import { AsyncResult } from "effect/unstable/reactivity";
 
 const Contacts = () => {
   const contacts = useAtomValue(contactsAtom);
-  const create = useAtomSet(createContactAtom);
-  const creating = useAtomValue(createContactAtom);
   const remove = useAtomSet(deleteContactAtom);
 
   if (AsyncResult.isFailure(contacts)) {
@@ -33,7 +31,7 @@ const Contacts = () => {
         <p className="text-sm text-muted-foreground">People this organization can reach out to</p>
       </div>
 
-      <ContactForm pending={creating.waiting} onCreate={create} />
+      <ContactForm />
 
       <ContactTable contacts={rows} onDelete={remove} />
     </section>

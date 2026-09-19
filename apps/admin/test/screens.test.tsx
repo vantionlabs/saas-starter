@@ -1,7 +1,8 @@
-import { describe, expect, it } from "@effect/vitest";
+import { LookupPrompt, ReasonPrompt } from "@/components/reason-prompt.js";
+import { describe, expect, it, vi } from "@effect/vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { OrganizationTable } from "@vantion/ui/admin/organization-table";
-import { ReasonPrompt } from "@vantion/ui/admin/reason-prompt";
 
 const rows = [
   {
@@ -16,24 +17,71 @@ const rows = [
 
 describe("the reason prompt", () => {
   /**
-   * The control, as a component. A reason box beside the data rather than in
-   * front of it is one nobody fills in, so the button is unusable until
-   * something is typed.
+   * The gate this whole surface rests on: a read that has not been explained
+   * does not happen. effect-form does the refusing, which is why the assertion
+   * is that `onSubmit` was never called rather than that a button was disabled
+   * — a disabled button is one way to refuse and not the only one.
    */
-  it("will not continue until a reason is given", () => {
+  it("will not read anything until a reason is given", async () => {
+    const onSubmit = vi.fn();
+
     render(
       <ReasonPrompt
         title="Organizations"
         description="Recorded."
         busy={false}
-        onSubmit={() => {}}
+        onSubmit={onSubmit}
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    await userEvent.click(await screen.findByRole("button", { name: "Continue" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(await screen.findByText(/A reason is needed/)).toBeInTheDocument();
   });
 
-  it("says that what is typed is kept", () => {
+  it("passes the reason on once it has one", async () => {
+    const onSubmit = vi.fn();
+
+    render(
+      <ReasonPrompt
+        title="Organizations"
+        description="Recorded."
+        busy={false}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    await userEvent.type(await screen.findByLabelText("Why are you looking?"), "SUP-1024");
+    await userEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("SUP-1024"));
+  });
+
+  /**
+   * The lookup asks for the address as well, and it is just as required: a
+   * reason with nobody to look up would be a recorded read of nothing.
+   */
+  it("will not search without the address being searched for", async () => {
+    const onSubmit = vi.fn();
+
+    render(
+      <LookupPrompt
+        title="Find a person"
+        description="Recorded."
+        busy={false}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    await userEvent.type(await screen.findByLabelText("Why are you looking?"), "SUP-1");
+    await userEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(await screen.findByText(/Enter the address to look up/)).toBeInTheDocument();
+  });
+
+  it("says that what is typed is kept", async () => {
     render(
       <ReasonPrompt
         title="Organizations"
@@ -43,7 +91,7 @@ describe("the reason prompt", () => {
       />,
     );
 
-    expect(screen.getByText(/Recorded against your name/)).toBeInTheDocument();
+    expect(await screen.findByText(/Recorded against your name/)).toBeInTheDocument();
   });
 });
 

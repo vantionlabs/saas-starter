@@ -1,4 +1,5 @@
 import { personaById, personas } from "@/fixtures/personas.js";
+import { AdminPerson } from "@/screens/admin-person.js";
 import { Admin } from "@/screens/admin.js";
 import { ApiKeys } from "@/screens/api-keys.js";
 import { Assistant } from "@/screens/assistant.js";
@@ -32,6 +33,7 @@ import {
   ShieldAlert,
   Sparkles,
   Users,
+  UserSearch,
   UserSquare,
 } from "lucide-react";
 
@@ -62,6 +64,7 @@ const nav = [
   { to: "/marketing", label: "Marketing", icon: Megaphone },
   { to: "/brand", label: "Brand", icon: Palette },
   { to: "/admin", label: "Staff trail", icon: ShieldAlert },
+  { to: "/admin-person", label: "Find a person", icon: UserSearch },
 ];
 
 const PersonaPicker = () => {
@@ -156,6 +159,7 @@ export const routeTree = rootRoute.addChildren([
   screen("/marketing", Marketing),
   screen("/brand", Brand),
   screen("/admin", Admin),
+  screen("/admin-person", AdminPerson),
 ]);
 
 export const router = createRouter({ routeTree });

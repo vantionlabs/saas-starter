@@ -1,8 +1,8 @@
-import { organizations } from "@/server/staff.js";
+import { ReasonPrompt } from "@/components/reason-prompt.js";
+import { organizations } from "@/server/queries/organizations.js";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { AdminOrganizationRow } from "@vantion/ui/admin/organization-table";
 import { OrganizationTable } from "@vantion/ui/admin/organization-table";
-import { ReasonPrompt } from "@vantion/ui/admin/reason-prompt";
 import * as React from "react";
 
 /**
