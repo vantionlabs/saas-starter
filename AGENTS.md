@@ -719,6 +719,53 @@ teaches people to ignore both. The SDK is loaded through a dynamic import, so a 
 without a DSN never pays for it — Vite splits it into its own chunk, which is why the
 worker's `main.js` is 478 kB and Sentry's 1.5 MB sits beside it unloaded.
 
+## Two database roles, and why the boundary is in Postgres
+
+`docker compose` bootstraps as `postgres` and never connects as it.
+`packages/database/src/roles/init.sql` makes the two roles that matter:
+
+- **`vantion`** is what every application process connects as, and it is
+  `NOBYPASSRLS`. A handler that forgets `withOrgScope` therefore reads nothing
+  rather than reading everybody.
+- **`admin`** holds `BYPASSRLS`, for the cross-tenant surface. Which process may
+  cross tenants is decided by Postgres rather than by a lint rule or a reviewer,
+  which is the whole reason there are two.
+
+**This was not true until recently, and everything below follows from finding
+that out.** The compose file set `POSTGRES_USER: vantion`, which makes it the
+bootstrap _superuser_ — so every row-level security policy in this schema was
+inert, locally and in the test suite, while `pg_class.relrowsecurity` read true.
+`packages/database/test/Role.test.ts` now asserts the connection cannot bypass
+and that no policied table is left unFORCEd, because a suite pointed at a
+superuser passes every tenancy test while proving nothing.
+
+Switching the role on found **two production bugs** that could not have been
+seen before, both the same shape: a worker escape on `using` but not on
+`with check`, and an UPDATE is checked by both.
+
+- `Relay.run` claimed a batch and then could not write `relayedAt` back, so
+  every pass was refused and **no background job would ever have been
+  delivered**.
+- A delivery could not clear or increment an endpoint's `consecutiveFailures`,
+  so a dead endpoint would never be switched off.
+
+`0012_worker_writes.sql` splits both policies by command: INSERT stays exactly
+as strict as it was — a scoped caller writes only its own organization, the
+worker only the org-less system rows — and the worker gains the ability to
+update what it is already allowed to read.
+
+It also found an **authorisation bug**. `PermissionResolver` read
+`memberPermission` straight off the pool with no scope and no organization in
+the predicate, so under a policy it returned nothing and every per-member
+override was silently ignored — including a **revoke**, which means a permission
+somebody had explicitly taken away stayed granted. It now takes one connection,
+scopes it, and filters by organization as well: both, never either.
+
+Tests seed through `withOrgScopeFor` rather than writing rows a policy would
+refuse. That is not a concession to the tests — it is the product's own write
+path, and a fixture that needs more privilege than the application has is a
+fixture describing a state the application cannot produce.
+
 Migrations are applied by a script, never at boot — two instances starting together would both
 migrate. `packages/database` owns them:
 

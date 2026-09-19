@@ -1,6 +1,7 @@
 import { CurrentUser, Identity, OrgId, UserId } from "@/identity/Identity.js";
 import { withOrgScope } from "@/identity/OrgScope.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgTest, testDbUrl } from "@vantion/database/PgTest";
 import { Effect, Layer } from "effect";
 import { SqlClient } from "effect/unstable/sql";
@@ -44,6 +45,16 @@ describe.skipIf(testDbUrl() === undefined)("row-level security", () => {
 
         yield* sql`drop role if exists vantion_rls_test`;
         yield* sql`create role vantion_rls_test`;
+        /**
+         * Creating a role is not being allowed to become one.
+         *
+         * Since Postgres 16 a `CREATEROLE` role gets `ADMIN OPTION` on what it
+         * creates, and `ADMIN` no longer implies `SET` — so `set role` is
+         * refused with "permission denied" on a role this very statement made.
+         * It only ever worked here because the connection was a superuser,
+         * which is the thing this test exists to stop relying on.
+         */
+        yield* sql`grant vantion_rls_test to current_user with set true`;
         yield* sql`grant select, insert, update, delete on "contact" to vantion_rls_test`;
         yield* sql`grant select on "organization" to vantion_rls_test`;
 
@@ -51,9 +62,12 @@ describe.skipIf(testDbUrl() === undefined)("row-level security", () => {
           yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
                      values (${org}, ${org}, ${org}, now())
                      on conflict ("id") do nothing`;
-          yield* sql`insert into "contact" ("id", "organizationId", "email", "fullName")
-                     values (${`c_${org}`}, ${org}, ${`${org}@example.com`}, ${org})
-                     on conflict ("id") do nothing`;
+          yield* withOrgScopeFor(
+            org,
+            sql`insert into "contact" ("id", "organizationId", "email", "fullName")
+                values (${`c_${org}`}, ${org}, ${`${org}@example.com`}, ${org})
+                on conflict ("id") do nothing`,
+          );
         }
 
         const seenByA = yield* asUnprivilegedRole(

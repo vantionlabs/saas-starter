@@ -83,10 +83,13 @@ docker(
   CONTAINER,
   "-e",
   "POSTGRES_DB=vantion_e2e",
+  // The bootstrap user is a superuser, and a superuser ignores row-level
+  // security even on a FORCEd table. The application must not be one, so this
+  // container bootstraps as `postgres` and the app role is made below.
   "-e",
-  "POSTGRES_USER=vantion",
+  "POSTGRES_USER=postgres",
   "-e",
-  "POSTGRES_PASSWORD=vantion",
+  "POSTGRES_PASSWORD=postgres",
   "-p",
   `127.0.0.1:${port}:5432`,
   // No volume: the tests want an empty database every run, and not persisting
@@ -96,12 +99,26 @@ docker(
 
 const url = `postgresql://vantion:vantion@127.0.0.1:${port}/vantion_e2e`;
 
-// `pg_isready` reports the server is accepting connections, which is the thing
-// the migration runner is about to need. Polling it beats a fixed sleep.
+// A real query against the target database, not `pg_isready`.
+//
+// The entrypoint starts the server on a unix socket to bootstrap it, and
+// `pg_isready` says yes during that window — before `POSTGRES_DB` exists. The
+// first thing to touch it then fails with "database does not exist", which
+// reads like a configuration error rather than a race.
 const deadline = Date.now() + 60_000;
 for (;;) {
   try {
-    docker("exec", CONTAINER, "pg_isready", "-U", "vantion", "-d", "vantion_e2e");
+    dockerQuietly(
+      "exec",
+      CONTAINER,
+      "psql",
+      "-U",
+      "postgres",
+      "-d",
+      "vantion_e2e",
+      "-c",
+      "select 1",
+    );
     break;
   } catch {
     if (Date.now() > deadline) {
@@ -111,9 +128,51 @@ for (;;) {
   }
 }
 
+// The two roles the schema's security model assumes.
+//
+// `vantion` is what the application connects as and can bypass nothing, so the
+// browser suite proves isolation rather than assuming it. `admin` is the
+// cross-tenant role and is the only one here that may bypass — the boundary
+// lives in Postgres rather than in a reviewer's attention.
+const psql = (sql) =>
+  docker(
+    "exec",
+    "-e",
+    "PGPASSWORD=postgres",
+    CONTAINER,
+    "psql",
+    "-U",
+    "postgres",
+    "-d",
+    "vantion_e2e",
+    "-v",
+    "ON_ERROR_STOP=1",
+    "-c",
+    sql,
+  );
+
+psql(
+  `do $$ begin
+     if not exists (select from pg_roles where rolname = 'vantion') then
+       create role vantion login password 'vantion' nosuperuser nobypassrls createrole;
+     end if;
+     if not exists (select from pg_roles where rolname = 'admin') then
+       create role admin login password 'admin' nosuperuser bypassrls;
+     end if;
+   end $$;`,
+);
+psql(`grant all on database "vantion_e2e" to vantion`);
+psql(`grant all on schema public to vantion`);
+psql(`grant connect on database "vantion_e2e" to admin`);
+psql(`grant usage on schema public to admin`);
+
 // The same runner `pnpm dev` uses, so the browser tests and a developer's own
-// database cannot converge on different schemas.
+// database cannot converge on different schemas. Run as `vantion`, which
+// therefore owns the tables — and owns them without being exempt from their
+// policies, because every one of them is FORCEd.
 migrate(url);
+
+psql(`grant select, insert, update, delete on all tables in schema public to admin`);
 writeEnv(url, CONTAINER);
 
 console.log(`e2e database ready on port ${port}`);

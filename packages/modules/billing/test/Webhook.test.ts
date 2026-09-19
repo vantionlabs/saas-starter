@@ -2,6 +2,7 @@ import { SubscriptionEvent } from "@/StripeClient.js";
 import { layerDatabase } from "@/Subscriptions.js";
 import { apply } from "@/Webhook.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withWorkerScope } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { EntitlementResolver } from "@vantion/module-iam/identity/EntitlementResolver";
@@ -34,19 +35,24 @@ const reset = Effect.fnUntraced(function*() {
 
   yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
              values (${ORG}, ${ORG}, ${ORG}, now()) on conflict ("id") do nothing`;
-  yield* sql`delete from "subscription" where "organizationId" = ${ORG}`;
-  yield* sql`delete from "stripeEvent" where "id" like 'evt_%'`;
+  yield* withWorkerScope(sql`delete from "subscription" where "organizationId" = ${ORG}`);
+  yield* withWorkerScope(sql`delete from "stripeEvent" where "id" like 'evt_%'`);
 });
 
 const stored = Effect.fnUntraced(function*() {
   const sql = yield* SqlClient.SqlClient;
 
-  const rows = yield* sql<
-    { plan: string; status: string; seats: number; lastEventCreated: string; }
-  >`
-    select "plan", "status", "seats", "lastEventCreated" from "subscription"
-    where "organizationId" = ${ORG}
-  `;
+  /**
+   * `withWorkerScope`, not an organization scope: `subscription` is written and
+   * read by the webhook, which has no session, and its policy says so. Reading
+   * it any other way here would be reading it in a way nothing does.
+   */
+  const rows = yield* withWorkerScope(
+    sql<{ plan: string; status: string; seats: number; lastEventCreated: string; }>`
+      select "plan", "status", "seats", "lastEventCreated" from "subscription"
+      where "organizationId" = ${ORG}
+    `,
+  );
 
   return rows[0];
 });

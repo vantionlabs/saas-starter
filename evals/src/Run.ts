@@ -1,3 +1,4 @@
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { AgentModule } from "@vantion/module-agent/Module";
@@ -95,18 +96,24 @@ const seed = Effect.fnUntraced(function*(org: string) {
   yield* sql`insert into "user" ("id", "name", "email", "emailVerified", "createdAt", "updatedAt")
              values (${`user_${org}`}, ${org}, ${`${org}@example.com`}, true, now(), now())
              on conflict ("id") do nothing`;
-  yield* sql`insert into "contact" ("id", "organizationId", "email", "fullName")
-             values (${`${org}_ada`}, ${org}, 'ada@example.com', 'Ada Lovelace')
-             on conflict ("id") do nothing`;
+  yield* withOrgScopeFor(
+    org,
+    sql`insert into "contact" ("id", "organizationId", "email", "fullName")
+        values (${`${org}_ada`}, ${org}, 'ada@example.com', 'Ada Lovelace')
+        on conflict ("id") do nothing`,
+  );
 
   // A second tenant with a recognisable contact, so a leak would be visible in
   // the answer rather than merely absent from it.
   yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
              values ('othertenant', 'othertenant', 'othertenant', now())
              on conflict ("id") do nothing`;
-  yield* sql`insert into "contact" ("id", "organizationId", "email", "fullName")
-             values ('othertenant_secret', 'othertenant', 'secret@othertenant.test', 'othertenant')
-             on conflict ("id") do nothing`;
+  yield* withOrgScopeFor(
+    "othertenant",
+    sql`insert into "contact" ("id", "organizationId", "email", "fullName")
+        values ('othertenant_secret', 'othertenant', 'secret@othertenant.test', 'othertenant')
+        on conflict ("id") do nothing`,
+  );
 });
 
 export const observe = (testCase: Case, harness: Harness = configured) =>

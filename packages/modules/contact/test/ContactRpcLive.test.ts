@@ -2,6 +2,7 @@ import { ContactRpcs } from "@/ContactRpc.js";
 import { ContactRpcLive } from "@/ContactRpcLive.js";
 import { ContactStore } from "@/ContactStore.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { AuthMiddleware } from "@vantion/module-iam/identity/AuthMiddleware";
@@ -54,15 +55,23 @@ describe.skipIf(testDbUrl() === undefined)("ContactRpcLive", () => {
         yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
                    values ('org_events', 'org_events', 'org_events', now())
                    on conflict ("id") do nothing`;
-        yield* sql`delete from "outboxEvent" where "organizationId" = 'org_events'`;
-        yield* sql`delete from "contact" where "organizationId" = 'org_events'`;
+        yield* withOrgScopeFor(
+          "org_events",
+          Effect.gen(function*() {
+            yield* sql`delete from "outboxEvent" where "organizationId" = 'org_events'`;
+            yield* sql`delete from "contact" where "organizationId" = 'org_events'`;
+          }),
+        );
 
         const client = yield* RpcTest.makeClient(ContactRpcs);
         yield* client.CreateContact({ email: "subscribed@example.com", fullName: "Subscribed" });
 
-        const events = yield* sql<{ kind: string; payload: { email: string; }; }>`
-          select "kind", "payload" from "outboxEvent" where "organizationId" = 'org_events'
-        `;
+        const events = yield* withOrgScopeFor(
+          "org_events",
+          sql<{ kind: string; payload: { email: string; }; }>`
+            select "kind", "payload" from "outboxEvent" where "organizationId" = 'org_events'
+          `,
+        );
 
         expect(events).toHaveLength(1);
         expect(events[0]?.kind).toBe("contact.created");
@@ -90,9 +99,12 @@ describe.skipIf(testDbUrl() === undefined)("ContactRpcLive", () => {
           yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
                      values (${org}, ${org}, ${org}, now()) on conflict ("id") do nothing`;
         }
-        yield* sql`insert into "contact" ("id", "organizationId", "email", "fullName")
-                   values ('c_theirs', 'org_theirs', 'them@example.com', 'Theirs')
-                   on conflict ("id") do nothing`;
+        yield* withOrgScopeFor(
+          "org_theirs",
+          sql`insert into "contact" ("id", "organizationId", "email", "fullName")
+              values ('c_theirs', 'org_theirs', 'them@example.com', 'Theirs')
+              on conflict ("id") do nothing`,
+        );
 
         yield* client.CreateContact({ email: "mine@example.com", fullName: "Mine" });
 
@@ -104,7 +116,10 @@ describe.skipIf(testDbUrl() === undefined)("ContactRpcLive", () => {
 
         // Naming another tenant's contact must not delete it either.
         yield* client.DeleteContact({ id: listed[0]!.id });
-        const survivors = yield* sql`select 1 from "contact" where "id" = 'c_theirs'`;
+        const survivors = yield* withOrgScopeFor(
+          "org_theirs",
+          sql`select 1 from "contact" where "id" = 'c_theirs'`,
+        );
         expect(survivors).toHaveLength(1);
 
         yield* sql`delete from "organization" where "id" in ('org_mine', 'org_theirs')`;

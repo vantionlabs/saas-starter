@@ -2,6 +2,7 @@ import { deliver } from "@/Delivery.js";
 import { FAILURE_LIMIT, register } from "@/Endpoints.js";
 import { ID_HEADER, SIGNATURE_HEADER, verify } from "@/Signature.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
@@ -65,8 +66,13 @@ const reset = Effect.fnUntraced(function*() {
 
   yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
              values (${ORG}, ${ORG}, ${ORG}, now()) on conflict ("id") do nothing`;
-  yield* sql`delete from "webhookDelivery" where "organizationId" = ${ORG}`;
-  yield* sql`delete from "webhookEndpoint" where "organizationId" = ${ORG}`;
+  yield* withOrgScopeFor(
+    ORG,
+    Effect.gen(function*() {
+      yield* sql`delete from "webhookDelivery" where "organizationId" = ${ORG}`;
+      yield* sql`delete from "webhookEndpoint" where "organizationId" = ${ORG}`;
+    }),
+  );
 });
 
 const envelope = (id: string) => ({
@@ -79,9 +85,12 @@ const envelope = (id: string) => ({
 const endpointRow = Effect.fnUntraced(function*(id: string) {
   const sql = yield* SqlClient.SqlClient;
 
-  const rows = yield* sql<{ active: boolean; consecutiveFailures: number; }>`
-    select "active", "consecutiveFailures" from "webhookEndpoint" where "id" = ${id}
-  `;
+  const rows = yield* withOrgScopeFor(
+    ORG,
+    sql<{ active: boolean; consecutiveFailures: number; }>`
+      select "active", "consecutiveFailures" from "webhookEndpoint" where "id" = ${id}
+    `,
+  );
 
   return rows[0];
 });
@@ -145,9 +154,12 @@ describe.skipIf(testDbUrl() === undefined)("webhook delivery", () => {
         yield* Effect.promise(() => server.close());
 
         const sql = yield* SqlClient.SqlClient;
-        const rows = yield* sql<{ attempts: number; }>`
-          select "attempts" from "webhookDelivery" where "eventId" = 'evt_3'
-        `;
+        const rows = yield* withOrgScopeFor(
+          ORG,
+          sql<{ attempts: number; }>`
+            select "attempts" from "webhookDelivery" where "eventId" = 'evt_3'
+          `,
+        );
 
         expect(rows).toHaveLength(1);
         expect(rows[0]?.attempts).toBe(2);
@@ -169,9 +181,12 @@ describe.skipIf(testDbUrl() === undefined)("webhook delivery", () => {
         expect((yield* endpointRow(endpoint.id))?.consecutiveFailures).toBe(1);
 
         const sql = yield* SqlClient.SqlClient;
-        const rows = yield* sql<{ status: string; responseStatus: number; }>`
-          select "status", "responseStatus" from "webhookDelivery" where "eventId" = 'evt_4'
-        `;
+        const rows = yield* withOrgScopeFor(
+          ORG,
+          sql<{ status: string; responseStatus: number; }>`
+            select "status", "responseStatus" from "webhookDelivery" where "eventId" = 'evt_4'
+          `,
+        );
         expect(rows[0]?.status).toBe("failed");
         expect(rows[0]?.responseStatus).toBe(500);
       }));

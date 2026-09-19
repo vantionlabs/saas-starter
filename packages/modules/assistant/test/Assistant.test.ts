@@ -3,6 +3,7 @@ import type { Chunk } from "@/AssistantRpc.js";
 import { AssistantRpcLive } from "@/AssistantRpcLive.js";
 import { layerScripted } from "@/Model.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { AgentModule } from "@vantion/module-agent/Module";
@@ -91,9 +92,12 @@ describe.skipIf(testDbUrl() === undefined)("the assistant", () => {
         const sql = yield* SqlClient.SqlClient;
 
         yield* seed("chat_a");
-        yield* sql`insert into "contact" ("id", "organizationId", "email", "fullName")
-                   values ('chat_a_ada', 'chat_a', 'ada@example.com', 'Ada')
-                   on conflict ("id") do nothing`;
+        yield* withOrgScopeFor(
+          "chat_a",
+          sql`insert into "contact" ("id", "organizationId", "email", "fullName")
+              values ('chat_a_ada', 'chat_a', 'ada@example.com', 'Ada')
+              on conflict ("id") do nothing`,
+        );
 
         const conversation = yield* client.StartConversation();
         const said = yield* chunks(
@@ -137,9 +141,10 @@ describe.skipIf(testDbUrl() === undefined)("the assistant", () => {
         // has to name the arguments rather than only the tool.
         expect(approval?._tag === "Approval" ? approval.summary : "").toContain("grace@navy.test");
 
-        const before = yield* sql`
-          select 1 from "contact" where "organizationId" = 'chat_approval'
-        `;
+        const before = yield* withOrgScopeFor(
+          "chat_approval",
+          sql`select 1 from "contact" where "organizationId" = 'chat_approval'`,
+        );
         expect(before, "the contact was created before anybody approved it").toHaveLength(0);
 
         yield* chunks(
@@ -150,9 +155,12 @@ describe.skipIf(testDbUrl() === undefined)("the assistant", () => {
           }),
         );
 
-        const after = yield* sql<{ email: string; }>`
-          select "email" from "contact" where "organizationId" = 'chat_approval'
-        `;
+        const after = yield* withOrgScopeFor(
+          "chat_approval",
+          sql<{ email: string; }>`
+            select "email" from "contact" where "organizationId" = 'chat_approval'
+          `,
+        );
         expect(after.map((row) => row.email)).toEqual(["grace@navy.test"]);
       }));
 
@@ -180,9 +188,10 @@ describe.skipIf(testDbUrl() === undefined)("the assistant", () => {
           }),
         );
 
-        const rows = yield* sql`
-          select 1 from "contact" where "email" = 'declined@navy.test'
-        `;
+        const rows = yield* withOrgScopeFor(
+          "chat_approval",
+          sql`select 1 from "contact" where "email" = 'declined@navy.test'`,
+        );
         expect(rows).toHaveLength(0);
       }));
   });
@@ -195,11 +204,14 @@ describe.skipIf(testDbUrl() === undefined)("the assistant", () => {
 
         yield* seed("chat_tenant");
         yield* seed("chat_other");
-        yield* sql`
-          insert into "conversation" ("id", "organizationId", "userId", "title")
-          values ('theirs', 'chat_other', 'user_chat_other', 'Theirs')
-          on conflict ("id") do nothing
-        `;
+        yield* withOrgScopeFor(
+          "chat_other",
+          sql`
+            insert into "conversation" ("id", "organizationId", "userId", "title")
+            values ('theirs', 'chat_other', 'user_chat_other', 'Theirs')
+            on conflict ("id") do nothing
+          `,
+        );
 
         expect(yield* client.ListConversations()).toHaveLength(0);
 

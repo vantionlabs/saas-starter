@@ -1,6 +1,7 @@
 import { AgentToolkitLive } from "@/ToolkitLive.js";
 import { AgentToolkit, ToolRefused } from "@/Tools.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { ContactStore } from "@vantion/module-contact/ContactStore";
@@ -73,9 +74,12 @@ const seed = Effect.fnUntraced(function*(org: string, contacts: ReadonlyArray<st
              values (${org}, ${org}, ${org}, now()) on conflict ("id") do nothing`;
 
   for (const name of contacts) {
-    yield* sql`insert into "contact" ("id", "organizationId", "email", "fullName")
-               values (${`${org}_${name}`}, ${org}, ${`${name}@example.com`}, ${name})
-               on conflict ("id") do nothing`;
+    yield* withOrgScopeFor(
+      org,
+      sql`insert into "contact" ("id", "organizationId", "email", "fullName")
+          values (${`${org}_${name}`}, ${org}, ${`${name}@example.com`}, ${name})
+          on conflict ("id") do nothing`,
+    );
   }
 });
 

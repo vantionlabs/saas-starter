@@ -8,9 +8,16 @@
 --
 -- FORCE is still not enough on its own. Superusers, and any role holding
 -- BYPASSRLS, ignore row-level security entirely. DATABASE_URL must therefore
--- point at an unprivileged role — `docker compose` provisions `vantion`, which is
--- not a superuser. Connecting as a superuser silently disables every policy
--- below while leaving `pg_class.relrowsecurity` reading true.
+-- point at an unprivileged role: `docker compose` bootstraps as `postgres` and
+-- `src/roles/init.sql` makes `vantion`, which is NOBYPASSRLS and is what the
+-- application connects as.
+--
+-- This paragraph used to claim that was already the case and it was not. The
+-- compose file set POSTGRES_USER to `vantion`, which makes it the bootstrap
+-- *superuser* — so every policy in this schema was inert, locally and in the
+-- test suite, while `pg_class.relrowsecurity` read true. Connecting as a
+-- superuser disables all of this silently, which is why
+-- `packages/database/test/Role.test.ts` now asserts the connection cannot.
 
 create table if not exists "contact" (
   "id" text not null primary key,

@@ -1,5 +1,6 @@
 import { dispatch } from "#src/Handlers.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { ContactStore } from "@vantion/module-contact/ContactStore";
@@ -72,10 +73,15 @@ describe.skipIf(testDbUrl() === undefined)("contact to webhook", () => {
         const sql = yield* SqlClient.SqlClient;
         yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
                    values (${ORG}, ${ORG}, ${ORG}, now()) on conflict ("id") do nothing`;
-        yield* sql`delete from "webhookDelivery" where "organizationId" = ${ORG}`;
-        yield* sql`delete from "webhookEndpoint" where "organizationId" = ${ORG}`;
-        yield* sql`delete from "outboxEvent" where "organizationId" = ${ORG}`;
-        yield* sql`delete from "contact" where "organizationId" = ${ORG}`;
+        yield* withOrgScopeFor(
+          ORG,
+          Effect.gen(function*() {
+            yield* sql`delete from "webhookDelivery" where "organizationId" = ${ORG}`;
+            yield* sql`delete from "webhookEndpoint" where "organizationId" = ${ORG}`;
+            yield* sql`delete from "outboxEvent" where "organizationId" = ${ORG}`;
+            yield* sql`delete from "contact" where "organizationId" = ${ORG}`;
+          }),
+        );
 
         const server = receiver();
         const url = yield* Effect.promise(() => server.listen());
@@ -109,9 +115,12 @@ describe.skipIf(testDbUrl() === undefined)("contact to webhook", () => {
         expect(envelope.type).toBe("contact.created");
         expect(envelope.data.email).toBe("chained@example.test");
 
-        const recorded = yield* sql<{ status: string; }>`
-          select "status" from "webhookDelivery" where "organizationId" = ${ORG}
-        `;
+        const recorded = yield* withOrgScopeFor(
+          ORG,
+          sql<{ status: string; }>`
+            select "status" from "webhookDelivery" where "organizationId" = ${ORG}
+          `,
+        );
         expect(recorded[0]?.status).toBe("delivered");
       }));
   });

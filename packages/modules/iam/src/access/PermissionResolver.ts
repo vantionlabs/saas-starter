@@ -41,32 +41,69 @@ export class PermissionResolver
         readonly role: string;
       }) =>
         Effect.promise(async () => {
-          const [custom, overrides] = await Promise.all([
-            pool.query<{ permission: string; }>(
-              `select "permission" from "organizationRole" where "organizationId" = $1 and "role" = $2`,
-              [options.organizationId, options.role],
-            ),
-            pool.query<{ permission: string; granted: boolean; }>(
-              `select "permission", "granted" from "memberPermission" where "memberId" = $1`,
-              [options.memberId],
-            ),
-          ]);
+          /**
+           * One connection, scoped, for both reads.
+           *
+           * `memberPermission` carries a row-level security policy keyed on
+           * `app.current_org`, and this used to read it off the pool with no
+           * scope and no organization in the predicate — so on a database where
+           * the policy is actually in force it returned nothing, every
+           * per-member override was silently ignored, and a **revoked**
+           * permission stayed granted. It only ever worked because the
+           * connection could bypass the policy, which `0002_rls.sql` says in
+           * its own second paragraph must never be true.
+           *
+           * The organization is in the predicate as well, which is this
+           * repository's rule rather than belt and braces: a role holding
+           * BYPASSRLS ignores the policy even on a FORCEd table, and a managed
+           * Postgres often hands you one.
+           */
+          const client = await pool.connect();
 
-          // A custom role with unparseable permissions grants nothing rather
-          // than throwing — better-auth logs and rejects, and failing open here
-          // would be worse than a caller seeing too little.
-          const customRoleGrants = custom.rows.flatMap((row) => {
-            const parsed = Schema.decodeUnknownSync(CustomRoleGrants)(JSON.parse(row.permission));
+          try {
+            await client.query("begin");
+            await client.query(`select set_config('app.current_org', $1, true)`, [
+              options.organizationId,
+            ]);
 
-            return flatten(parsed);
-          });
+            const [custom, overrides] = await Promise.all([
+              client.query<{ permission: string; }>(
+                `select "permission" from "organizationRole" where "organizationId" = $1 and "role" = $2`,
+                [options.organizationId, options.role],
+              ),
+              client.query<{ permission: string; granted: boolean; }>(
+                `select "permission", "granted" from "memberPermission"
+                 where "memberId" = $1 and "organizationId" = $2`,
+                [options.memberId, options.organizationId],
+              ),
+            ]);
 
-          return resolvePermissions({
-            role: options.role,
-            customRoleGrants,
-            overrides: overrides.rows as ReadonlyArray<Override>,
-          });
+            await client.query("commit");
+
+            return { custom, overrides };
+          } catch (error) {
+            await client.query("rollback").catch(() => {});
+            throw error;
+          } finally {
+            client.release();
+          }
         }).pipe(
+          Effect.map(({ custom, overrides }) => {
+            // A custom role with unparseable permissions grants nothing rather
+            // than throwing — better-auth logs and rejects, and failing open
+            // here would be worse than a caller seeing too little.
+            const customRoleGrants = custom.rows.flatMap((row) => {
+              const parsed = Schema.decodeUnknownSync(CustomRoleGrants)(JSON.parse(row.permission));
+
+              return flatten(parsed);
+            });
+
+            return resolvePermissions({
+              role: options.role,
+              customRoleGrants,
+              overrides: overrides.rows as ReadonlyArray<Override>,
+            });
+          }),
           Effect.map((permissions) => Array.from(permissions)),
           // Authorisation must not fail open: if the lookup breaks, the caller
           // gets their role's permissions and nothing more.

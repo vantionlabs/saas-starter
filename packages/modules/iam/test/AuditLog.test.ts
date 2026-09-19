@@ -1,5 +1,6 @@
 import { AuditLog } from "@/audit/AuditLog.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
@@ -25,16 +26,27 @@ const reset = Effect.fnUntraced(function*() {
 
   yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
              values (${ORG}, ${ORG}, ${ORG}, now()) on conflict ("id") do nothing`;
-  yield* sql`delete from "auditEntry" where "organizationId" = ${ORG}`;
+  yield* withOrgScopeFor(ORG, sql`delete from "auditEntry" where "organizationId" = ${ORG}`);
 });
 
+/**
+ * Read the way the product reads it — scoped.
+ *
+ * `auditEntry` carries a policy, and the connection this suite uses can no
+ * longer bypass one. An unscoped select here returns nothing and the assertion
+ * fails with "expected undefined", which says nothing about the cause; the
+ * point of the policy is that it applies to this query too.
+ */
 const entries = Effect.fnUntraced(function*() {
   const sql = yield* SqlClient.SqlClient;
 
-  return yield* sql<{ action: string; outcome: string; detail: string; actorEmail: string; }>`
-    select "action", "outcome", "detail", "actorEmail" from "auditEntry"
-    where "organizationId" = ${ORG} order by "at"
-  `;
+  return yield* withOrgScopeFor(
+    ORG,
+    sql<{ action: string; outcome: string; detail: string; actorEmail: string; }>`
+      select "action", "outcome", "detail", "actorEmail" from "auditEntry"
+      where "organizationId" = ${ORG} order by "at"
+    `,
+  );
 });
 
 describe.skipIf(testDbUrl() === undefined)("AuditLog", () => {

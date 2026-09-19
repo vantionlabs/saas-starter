@@ -2,6 +2,7 @@ import { FilesRpcs } from "@/FilesRpc.js";
 import { FilesRpcLive } from "@/FilesRpcLive.js";
 import { ObjectStore } from "@/ObjectStore.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { AuthMiddleware } from "@vantion/module-iam/identity/AuthMiddleware";
@@ -129,12 +130,15 @@ describe.skipIf(testDbUrl() === undefined)("FilesRpcLive", () => {
 
         yield* seedOrg("files_tenant_a");
         yield* seedOrg("files_tenant_b");
-        yield* sql`
-          insert into "file" ("id", "organizationId", "key", "name", "contentType", "size", "status")
-          values ('intruder', 'files_tenant_b', 'files_tenant_b/intruder', 'theirs.pdf',
-                  'application/pdf', 99, 'ready')
-          on conflict ("id") do nothing
-        `;
+        yield* withOrgScopeFor(
+          "files_tenant_b",
+          sql`
+            insert into "file" ("id", "organizationId", "key", "name", "contentType", "size", "status")
+            values ('intruder', 'files_tenant_b', 'files_tenant_b/intruder', 'theirs.pdf',
+                    'application/pdf', 99, 'ready')
+            on conflict ("id") do nothing
+          `,
+        );
         objects.set("files_tenant_b/intruder", 99);
 
         expect(yield* Effect.flip(client.CompleteUpload({ id: "intruder" as never })))
@@ -147,7 +151,10 @@ describe.skipIf(testDbUrl() === undefined)("FilesRpcLive", () => {
         // tenant's row and bytes are both still there.
         yield* client.DeleteFile({ id: "intruder" as never });
 
-        const survivors = yield* sql`select 1 from "file" where "id" = 'intruder'`;
+        const survivors = yield* withOrgScopeFor(
+          "files_tenant_b",
+          sql`select 1 from "file" where "id" = 'intruder'`,
+        );
         expect(survivors).toHaveLength(1);
         expect(objects.get("files_tenant_b/intruder")).toBe(99);
       }));
@@ -163,12 +170,15 @@ describe.skipIf(testDbUrl() === undefined)("FilesRpcLive", () => {
 
         yield* seedOrg("files_full");
         // 100 MB is the free plan's allowance, and this is all of it.
-        yield* sql`
-          insert into "file" ("id", "organizationId", "key", "name", "contentType", "size", "status")
-          values ('big', 'files_full', 'files_full/big', 'big.bin', 'application/octet-stream',
-                  ${100 * 1024 * 1024}, 'ready')
-          on conflict ("id") do update set "size" = excluded."size"
-        `;
+        yield* withOrgScopeFor(
+          "files_full",
+          sql`
+            insert into "file" ("id", "organizationId", "key", "name", "contentType", "size", "status")
+            values ('big', 'files_full', 'files_full/big', 'big.bin', 'application/octet-stream',
+                    ${100 * 1024 * 1024}, 'ready')
+            on conflict ("id") do update set "size" = excluded."size"
+          `,
+        );
 
         expect(
           yield* Effect.flip(

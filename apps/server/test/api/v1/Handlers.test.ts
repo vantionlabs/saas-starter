@@ -1,4 +1,5 @@
 import { NodeHttpPlatform, NodeServices } from "@effect/platform-node";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
@@ -47,10 +48,13 @@ const seedKey = (org: string, role: string) =>
       insert into "organization" ("id", "name", "slug", "createdAt")
       values (${org}, ${org}, ${org}, now()) on conflict do nothing
     `;
-    yield* sql`
-      insert into "apiKey" ("id", "organizationId", "name", "hash", "hint", "role")
-      values (${randomUUID()}, ${org}, 'test', ${hash}, ${key.slice(11, 19)}, ${role})
-    `;
+    yield* withOrgScopeFor(
+      org,
+      sql`
+        insert into "apiKey" ("id", "organizationId", "name", "hash", "hint", "role")
+        values (${randomUUID()}, ${org}, 'test', ${hash}, ${key.slice(11, 19)}, ${role})
+      `,
+    );
 
     return key;
   });

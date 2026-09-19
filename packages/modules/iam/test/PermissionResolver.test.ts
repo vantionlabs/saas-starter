@@ -1,5 +1,6 @@
 import { PermissionResolver } from "@/access/PermissionResolver.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { Effect, Layer } from "effect";
@@ -27,7 +28,10 @@ const cleanup = Effect.fnUntraced(function*() {
   const sql = yield* SqlClient.SqlClient;
 
   yield* sql`delete from "organizationRole" where "organizationId" = 'org_perm'`;
-  yield* sql`delete from "memberPermission" where "organizationId" = 'org_perm'`;
+  yield* withOrgScopeFor(
+    "org_perm",
+    sql`delete from "memberPermission" where "organizationId" = 'org_perm'`,
+  );
   yield* sql`delete from "organization" where "id" = 'org_perm'`;
   yield* sql`delete from "user" where "id" = 'user_perm'`;
 });
@@ -62,8 +66,11 @@ describe.skipIf(testDbUrl() === undefined)("PermissionResolver", () => {
         const resolver = yield* PermissionResolver;
 
         yield* seed("admin");
-        yield* sql`insert into "memberPermission" ("id", "organizationId", "memberId", "permission", "granted")
-                   values ('mp_1', 'org_perm', 'member_perm', 'member:delete', false)`;
+        yield* withOrgScopeFor(
+          "org_perm",
+          sql`insert into "memberPermission" ("id", "organizationId", "memberId", "permission", "granted")
+              values ('mp_1', 'org_perm', 'member_perm', 'member:delete', false)`,
+        );
 
         const permissions = yield* resolver.resolve({
           organizationId: "org_perm",

@@ -3,6 +3,7 @@ import { JobQueue } from "@/JobQueue.js";
 import { enqueue } from "@/Outbox.js";
 import { relayOnce } from "@/Relay.js";
 import { describe, expect, it } from "@effect/vitest";
+import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
 import { CurrentUser, Identity, OrgId, UserId } from "@vantion/module-iam/identity/Identity";
@@ -42,18 +43,21 @@ const reset = Effect.fnUntraced(function*() {
     yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
                values (${org}, ${org}, ${org}, now()) on conflict ("id") do nothing`;
   }
-  yield* sql`delete from "outboxEvent" where "organizationId" in ${sql.in([ORG, OTHER])}`;
+  for (const org of [ORG, OTHER]) {
+    yield* withOrgScopeFor(org, sql`delete from "outboxEvent" where "organizationId" = ${org}`);
+  }
 });
 
 const rows = Effect.fnUntraced(function*(org: string) {
   const sql = yield* SqlClient.SqlClient;
 
-  return yield* sql<
-    { kind: string; payload: unknown; maxAttempts: number; relayedAt: Date | null; }
-  >`
-    select "kind", "payload", "maxAttempts", "relayedAt" from "outboxEvent"
-    where "organizationId" = ${org} order by "createdAt"
-  `;
+  return yield* withOrgScopeFor(
+    org,
+    sql<{ kind: string; payload: unknown; maxAttempts: number; relayedAt: Date | null; }>`
+      select "kind", "payload", "maxAttempts", "relayedAt" from "outboxEvent"
+      where "organizationId" = ${org} order by "createdAt"
+    `,
+  );
 });
 
 describe.skipIf(testDbUrl() === undefined)("outbox", () => {
