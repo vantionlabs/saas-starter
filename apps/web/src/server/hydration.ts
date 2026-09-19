@@ -88,14 +88,23 @@ export const hydrated = (
  * Hydrating every match's data above the shell means nothing has read an atom
  * yet when the values land.
  */
+const isDehydrated = (value: unknown): value is Dehydrated =>
+  typeof value === "object" && value !== null && "key" in value && "dehydratedAt" in value;
+
 export const useHydratedMatches = (): Array<Hydration.DehydratedAtomValue> => {
   const loaderData = useRouterState({
     select: (state) => state.matches.map((match) => match.loaderData),
   });
 
+  /**
+   * A route may hydrate more than one read, and `/settings/sso` is why: it
+   * renders providers *and* needs the plan, because single sign-on is gated on
+   * an entitlement. So a loader returns either one of these or a list of them,
+   * and both shapes land here.
+   */
   return hydrated(
-    ...loaderData.filter((data): data is Dehydrated =>
-      typeof data === "object" && data !== null && "key" in data && "dehydratedAt" in data
+    ...loaderData.flatMap((data) =>
+      Array.isArray(data) ? data.filter(isDehydrated) : isDehydrated(data) ? [data] : []
     ),
   );
 };

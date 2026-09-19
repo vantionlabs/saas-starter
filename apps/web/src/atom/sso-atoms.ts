@@ -1,7 +1,7 @@
 import { authClient } from "@/iam/auth-client.js";
 import { Keys } from "@vantion/core/Keys";
 import { Effect, Schema } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 
 /**
  * Single sign-on goes through the auth client, not through RPC.
@@ -75,14 +75,53 @@ export type SsoProvider = NonNullable<
  * what makes switching organization re-read it rather than leaving the previous
  * tenant's providers on screen.
  */
+/**
+ * What the screen actually renders, which is five fields.
+ *
+ * Narrowed here rather than carrying better-auth's whole inferred provider: the
+ * atom is server-rendered, and hydration needs a schema. A schema for the full
+ * shape would be the copy this file warns about two comments up — it carries a
+ * nested `oidcConfig` nothing on this page reads, and it would drift the moment
+ * better-auth changed it. Four of these are `SsoProviderRow` in `@vantion/ui`,
+ * the panel's own contract; `organizationId` is the fifth because the screen
+ * filters on it.
+ */
+const ProviderRow = Schema.Struct({
+  /**
+   * Nullable, and that is not incidental: a provider with no organization is a
+   * personal one, which no plan gates. The screen filters on this, so a null
+   * simply never matches the active organization.
+   */
+  organizationId: Schema.NullOr(Schema.String),
+  providerId: Schema.String,
+  domain: Schema.String,
+  issuer: Schema.String,
+  domainVerified: Schema.Boolean,
+});
+
+export type SsoProviderRow = typeof ProviderRow.Type;
+
+export const ssoSerial = {
+  key: "ssoProviders",
+  schema: AsyncResult.Schema({ success: Schema.Array(ProviderRow) }),
+};
+
 export const ssoProvidersAtom = Atom.withReactivity([Keys.organization])(
   Atom.make(
     Effect.promise(() => authClient.sso.providers()).pipe(
       Effect.flatMap(orFail),
-      Effect.map((data): ReadonlyArray<SsoProvider> => data.providers),
+      Effect.map((data): ReadonlyArray<SsoProviderRow> =>
+        data.providers.map((provider: SsoProvider) => ({
+          organizationId: provider.organizationId,
+          providerId: provider.providerId,
+          domain: provider.domain,
+          issuer: provider.issuer,
+          domainVerified: provider.domainVerified,
+        }))
+      ),
     ),
   ),
-);
+).pipe(Atom.serializable(ssoSerial));
 
 export interface RegisterProvider {
   readonly organizationId: string;

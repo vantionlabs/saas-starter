@@ -176,6 +176,24 @@ the same way — `auth.ts` answers who is asking, `queries/` holds the procedure
 — because one file holding the authentication _and_ every read is the one that
 grows a procedure somebody forgot to put `requireStaff` in front of.
 
+`/settings/security` and `/settings/sso` are server-rendered too, and they go
+through **better-auth's client** rather than `serverRpc` — there is no RPC in
+front of those endpoints, deliberately, because `/sso/providers` already filters
+to what the caller administers and already strips the client secret. `asCaller()`
+forwards the request's cookie to it, the same move `server/session.ts` has made
+for the session since SSR landed.
+
+The SSO atom carries five fields rather than better-auth's whole inferred
+provider. Hydration needs a schema, and a schema for the full shape would be the
+copy this repository warns about: it has a nested `oidcConfig` nothing on that
+page reads and would drift the moment better-auth changed it. Four of the five
+are `SsoProviderRow` in `@vantion/ui` — the panel's own contract — and
+`organizationId` is the fifth because the screen filters on it.
+
+A route may hydrate more than one read, and that screen is why: it lists
+providers _and_ needs the plan, since single sign-on is gated on an entitlement.
+A loader returns one dehydrated read or a list of them.
+
 Server functions are for **GETs**, and `tooling/test/server-functions.test.ts`
 keeps it that way — the rule is invisible at the call site, because
 `createServerFn({ method: "POST" })` reads perfectly well and says nothing about

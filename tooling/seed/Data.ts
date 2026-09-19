@@ -82,7 +82,7 @@ export const TENANTS: ReadonlyArray<Tenant> = [
     contacts: contacts(6, "acme.test"),
     plan: "pro",
     status: "active",
-    customRoles: [{ role: "support", permissions: ["contact:read", "audit:read"] }],
+    customRoles: [{ role: "support", permissions: ["contact:read", "member:read"] }],
     stuckEvents: 0,
     endpoints: [{ url: "https://acme.test/hooks/vantion", active: true, failures: 0 }],
   },
@@ -100,8 +100,8 @@ export const TENANTS: ReadonlyArray<Tenant> = [
      */
     status: "past_due",
     customRoles: [
-      { role: "auditor", permissions: ["audit:read"] },
-      { role: "integrator", permissions: ["apikey:create", "apikey:read", "webhook:manage"] },
+      { role: "auditor", permissions: ["member:read", "billing:read"] },
+      { role: "integrator", permissions: ["contact:read", "contact:create", "file:create"] },
     ],
     // A backed-up outbox and a dead endpoint: the two things the admin panel's
     // health counts exist to explain.

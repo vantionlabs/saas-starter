@@ -5,6 +5,7 @@ import {
   verifyTotp,
 } from "@/atom/two-factor-atoms.js";
 import type { TwoFactorFailed } from "@/atom/two-factor-atoms.js";
+import { getTwoFactorState } from "@/server/reads/security.js";
 import { useAtomRefresh, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { QueryError } from "@vantion/ui/app/query-error";
@@ -20,7 +21,6 @@ import {
 } from "@vantion/ui/ui/dialog";
 import { Input } from "@vantion/ui/ui/input";
 import { Label } from "@vantion/ui/ui/label";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Cause, Effect, Option } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
@@ -57,7 +57,8 @@ const Security = () => {
     return <QueryError result={state} subject="your security settings" />;
   }
 
-  if (!AsyncResult.isSuccess(state)) return <Skeleton className="h-64 w-full" />;
+  /** Hydrated before this paints; the unreachable arm rather than a wait. */
+  if (!AsyncResult.isSuccess(state)) return null;
 
   const run = async <A,>(effect: Effect.Effect<A, TwoFactorFailed>, fallback: string) => {
     setBusy(true);
@@ -198,5 +199,6 @@ const Security = () => {
 
 export const Route = createFileRoute("/_protected/settings/security")({
   staticData: { crumb: "Security" },
+  loader: () => getTwoFactorState(),
   component: Security,
 });

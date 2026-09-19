@@ -1,4 +1,4 @@
-import { getRequestHeader } from "@tanstack/react-start/server";
+import { callerCookie } from "@/server/caller.js";
 import { apiUrl } from "@vantion/core/ApiUrl";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
 import { Effect, Layer } from "effect";
@@ -57,22 +57,6 @@ const protocol = (cookie: string) =>
     Layer.provide(RpcSerialization.layerNdjson),
     Layer.provide(FetchHttpClient.layer),
   );
-
-/**
- * The caller's cookie, taken from the request being handled.
- *
- * Read here rather than passed in, which is the whole point: every server
- * function ran `getRequestHeader("cookie")` and handed the result along, so the
- * one thing that must never be forgotten was repeated at every call site and
- * was a parameter somebody could pass the wrong value for. There is exactly one
- * right answer inside a request, and this is where it is known.
- *
- * Only the cookie is forwarded. Passing the whole header set through to an
- * internal service sends `host`, `content-length` and whatever else a proxy
- * added, none of which describes the caller and some of which is actively wrong
- * for a different request.
- */
-const callerCookie = () => getRequestHeader("cookie") ?? "";
 
 const makeClient = RpcClient.make(AppRpcs, { flatten: true });
 

@@ -1,6 +1,6 @@
 import { authClient } from "@/iam/auth-client.js";
 import { Effect, Schema } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 
 /**
  * Enrolment, through the auth client for the same reason single sign-on goes
@@ -77,6 +77,17 @@ export const signInWithBackupCode = (code: string) =>
  * and the system `role` are fields its plugins own and write, and copying them
  * into our `Identity` would be two places for one fact.
  */
+/**
+ * Server-rendered, so the security screen does not flash a skeleton over two
+ * booleans the session already knows.
+ */
+export const twoFactorSerial = {
+  key: "twoFactor",
+  schema: AsyncResult.Schema({
+    success: Schema.Struct({ enabled: Schema.Boolean, required: Schema.Boolean }),
+  }),
+};
+
 export const twoFactorStateAtom = Atom.make(
   Effect.promise(() => authClient.getSession()).pipe(
     Effect.map((result) => {
@@ -93,4 +104,4 @@ export const twoFactorStateAtom = Atom.make(
       };
     }),
   ),
-);
+).pipe(Atom.serializable(twoFactorSerial));

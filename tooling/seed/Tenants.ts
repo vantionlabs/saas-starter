@@ -1,4 +1,6 @@
 import { withOrgScopeFor, withWorkerScope } from "@vantion/database/OrgScope";
+import type { Permission } from "@vantion/module-iam/identity/Permission";
+import { toGrants } from "@vantion/module-iam/identity/Permission";
 import { Effect } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 
@@ -19,8 +21,15 @@ export interface Tenant {
   readonly contacts: ReadonlyArray<{ readonly fullName: string; readonly email: string; }>;
   readonly plan: "free" | "pro" | "scale";
   readonly status: "active" | "past_due" | "canceled" | "none";
+  /**
+   * Typed against the real `Permission` union, so an invented one is a compile
+   * error rather than a screen that dies on "Schema validation failed". The
+   * first draft granted `audit:read`, `apikey:create` and `webhook:manage` —
+   * none of which are resources this product has — and nothing said so until
+   * the roles page refused to decode them.
+   */
   readonly customRoles: ReadonlyArray<
-    { readonly role: string; readonly permissions: ReadonlyArray<string>; }
+    { readonly role: string; readonly permissions: ReadonlyArray<Permission>; }
   >;
   /** Left unrelayed, so the admin panel has an outbox to show as waiting. */
   readonly stuckEvents: number;
@@ -94,17 +103,26 @@ export const seedTenant = Effect.fnUntraced(function*(tenant: Tenant) {
     `;
   }
 
+  /**
+   * One row per **role**, with the grants as JSON — better-auth's own shape,
+   * which `ListRoles` reads back with `JSON.parse` and `fromGrants`.
+   *
+   * The first version of this wrote a row per permission holding the bare
+   * string `contact:read`, and the roles screen died on
+   * `Unexpected token 'c', "contact:read" is not valid JSON`. A fixture is only
+   * as good as its fidelity to the thing that writes the row for real, so the
+   * encoding here is `toGrants` — the product's own function — rather than a
+   * shape guessed from the column name.
+   */
   for (const custom of tenant.customRoles) {
-    for (const permission of custom.permissions) {
-      yield* sql`
-        insert into "organizationRole" ("id", "organizationId", "role", "permission", "createdAt")
-        values (
-          ${`r_${tenant.slug}_${custom.role}_${permission}`}, ${orgId}, ${custom.role},
-          ${permission}, now()
-        )
-        on conflict ("id") do nothing
-      `;
-    }
+    yield* sql`
+      insert into "organizationRole" ("id", "organizationId", "role", "permission", "createdAt")
+      values (
+        ${`r_${tenant.slug}_${custom.role}`}, ${orgId}, ${custom.role},
+        ${JSON.stringify(toGrants(custom.permissions))}, now()
+      )
+      on conflict ("id") do nothing
+    `;
   }
 
   yield* withOrgScopeFor(

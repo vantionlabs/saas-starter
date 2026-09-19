@@ -5,6 +5,8 @@ import {
   ssoProvidersAtom,
   verifyDomainAtom,
 } from "@/atom/sso-atoms.js";
+import { getBilling } from "@/server/reads/billing.js";
+import { listSsoProviders } from "@/server/reads/sso.js";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { billingAtom } from "@vantion/core/atoms/Billing";
@@ -22,7 +24,6 @@ import {
 } from "@vantion/ui/ui/dialog";
 import { Input } from "@vantion/ui/ui/input";
 import { Label } from "@vantion/ui/ui/label";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Cause, Exit, Option } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
@@ -88,11 +89,16 @@ const Sso = () => {
     return <QueryError result={providers} subject="single sign-on" />;
   }
 
+  /**
+   * All three are hydrated before this paints — the providers by this route,
+   * the identity and the plan by the ones above it — so this is the
+   * unreachable arm rather than a loading state.
+   */
   if (
     !AsyncResult.isSuccess(providers) || !AsyncResult.isSuccess(session)
     || !AsyncResult.isSuccess(billing)
   ) {
-    return <Skeleton className="h-96 w-full" />;
+    return null;
   }
 
   const identity = session.value;
@@ -231,5 +237,12 @@ const Sso = () => {
 
 export const Route = createFileRoute("/_protected/settings/sso")({
   staticData: { crumb: "Single sign-on" },
+  /**
+   * Two reads, because the screen needs both: the providers it lists and the
+   * plan that decides whether single sign-on is available at all. In parallel —
+   * neither depends on the other, and doing them in turn would make the page
+   * wait for the slower one twice.
+   */
+  loader: () => Promise.all([listSsoProviders(), getBilling()]),
   component: Sso,
 });
