@@ -1,4 +1,5 @@
 import { expo } from "@better-auth/expo";
+import { sso } from "@better-auth/sso";
 import { renderEmail } from "@vantion/emails/Render";
 import { EmailOtp } from "@vantion/emails/templates/EmailOtp";
 import { Invitation } from "@vantion/emails/templates/Invitation";
@@ -7,6 +8,7 @@ import { ResetPassword } from "@vantion/emails/templates/ResetPassword";
 import { VerifyEmail } from "@vantion/emails/templates/VerifyEmail";
 import type { EmailMessage } from "@vantion/module-notifications/Mailer";
 import { betterAuth } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getMigrations } from "better-auth/db/migration";
 import { emailOTP, magicLink, organization } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
@@ -35,6 +37,15 @@ export interface MakeAuthOptions {
    * startup — which is what makes an upgrade take effect immediately.
    */
   readonly seatsFor: (organizationId: string) => Promise<number>;
+  /**
+   * Whether the organization's plan carries single sign-on.
+   *
+   * Separate from `seatsFor` because it answers a different question and is
+   * asked at a different moment — before a provider may be registered, rather
+   * than before a seat is filled. Like the seat limit it is a function rather
+   * than a value, so an upgrade takes effect on the next request.
+   */
+  readonly ssoEntitled: (organizationId: string) => Promise<boolean>;
   readonly baseURL: string;
   readonly secret: string;
   readonly trustedOrigins: ReadonlyArray<string>;
@@ -230,7 +241,76 @@ const authOptions = (options: MakeAuthOptions) => ({
      * authenticate, not a way around authenticating.
      */
     expo(),
+
+    /**
+     * Single sign-on, OIDC and SAML 2.0, configured per organization.
+     *
+     * Which is the shape B2B actually needs: one tenant is on Okta, the next on
+     * Entra, and both arrive at the same deployment. A provider carries the
+     * organization that owns it and the email domain that routes to it, so
+     * `/sign-in/sso` can take an address and find the right identity provider
+     * without the person choosing from a list of other people's employers.
+     */
+    sso({
+      /**
+       * A provider does not work until its domain is proved by DNS.
+       *
+       * This is the whole security story and it is not optional. Without it,
+       * anybody who can register a provider can claim `acme.com` and become
+       * the identity provider for everyone whose address ends that way —
+       * account takeover with a settings form in front of it. better-auth's own
+       * documentation says as much where it deprecates `trustEmailVerified`,
+       * which is left off here for the same reason.
+       */
+      domainVerification: { enabled: true },
+
+      /**
+       * Somebody arriving through an organization's provider joins that
+       * organization as a member.
+       *
+       * `member` rather than `admin` because the provider says who somebody is,
+       * not what they may do. An identity provider that could mint admins would
+       * make the organization's permission model a property of somebody else's
+       * directory.
+       */
+      organizationProvisioning: { defaultRole: "member" },
+    }),
   ],
+
+  /**
+   * The entitlement check better-auth cannot make for itself.
+   *
+   * It already refuses a registration from somebody who is not an owner or
+   * admin of the organization — that is `hasOrgAdminRole` inside the plugin,
+   * and `Permission.ts` matches it deliberately rather than duplicating it.
+   * What it cannot know is whether the organization is *paying* for SSO, which
+   * is an `Entitlement` and lives in a table it has never heard of.
+   *
+   * A `before` hook rather than a check in our own handler, because this
+   * endpoint is better-auth's: a check anywhere else is one a request straight
+   * to `/api/auth/sso/register` walks past. The seat limit taught that lesson
+   * from the other direction.
+   */
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== "/sso/register") return;
+
+      const organizationId = (ctx.body as { organizationId?: unknown; } | undefined)
+        ?.organizationId;
+
+      /**
+       * A provider with no organization is a personal one, which no plan gates.
+       * The organization case is the one that costs money.
+       */
+      if (typeof organizationId !== "string" || organizationId === "") return;
+
+      if (!await options.ssoEntitled(organizationId)) {
+        throw new APIError("FORBIDDEN", {
+          message: "This organization's plan does not include single sign-on.",
+        });
+      }
+    }),
+  },
 });
 
 export const makeAuth = (options: MakeAuthOptions): AuthInstance => {

@@ -27,6 +27,16 @@ export const statements = {
    * line `organization:delete` is drawn on.
    */
   billing: ["read", "manage"],
+  /**
+   * Who may configure single sign-on for the organization.
+   *
+   * Owner **and** admin, which is looser than `billing:manage` and is not our
+   * choice to make: `@better-auth/sso` owns the registration endpoint and
+   * checks `hasOrgAdminRole` itself. A tighter rule here would be one its own
+   * API walks straight past, so this matches it deliberately — the same lesson
+   * the seat limit taught. Tightening means changing both, together.
+   */
+  sso: ["read", "manage"],
   file: ["read", "create", "delete"],
 } as const satisfies Record<string, ReadonlyArray<string>>;
 
@@ -72,6 +82,7 @@ export const grantsFor: Record<Role, Grants> = {
     ac: ["create", "read", "update", "delete"],
     contact: ["read", "create", "update", "delete"],
     billing: ["read", "manage"],
+    sso: ["read", "manage"],
     file: ["read", "create", "delete"],
   },
   admin: {
@@ -82,6 +93,7 @@ export const grantsFor: Record<Role, Grants> = {
     ac: ["create", "read", "update", "delete"],
     contact: ["read", "create", "update", "delete"],
     billing: ["read"],
+    sso: ["read", "manage"],
     file: ["read", "create", "delete"],
   },
   member: {

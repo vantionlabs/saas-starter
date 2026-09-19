@@ -12,6 +12,7 @@ const featureLabels: Record<Feature, string> = {
   api_keys: "API keys",
   custom_roles: "Custom roles",
   webhooks: "Outbound webhooks",
+  sso: "Single sign-on",
 };
 
 const planLabels: Record<Plan, string> = { free: "Free", pro: "Pro", scale: "Scale" };

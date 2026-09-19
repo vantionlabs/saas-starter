@@ -2,6 +2,7 @@ import { PgPool } from "@vantion/database/PgPool";
 import type { EmailMessage } from "@vantion/module-notifications/Mailer";
 import { Mailer } from "@vantion/module-notifications/Mailer";
 import { Config, Context, Effect, Layer, Option, Redacted } from "effect";
+import { has } from "../identity/Entitlement.js";
 import { EntitlementResolver } from "../identity/EntitlementResolver.js";
 import type { AuthInstance } from "./Options.js";
 import { makeAuth } from "./Options.js";
@@ -50,6 +51,26 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
          */
         const cookieDomain = yield* Config.option(Config.nonEmptyString("AUTH_COOKIE_DOMAIN"));
 
+        /**
+         * Identity-provider origins an OIDC registration may fetch discovery
+         * from, comma-separated.
+         *
+         * better-auth checks a discovery URL against `trustedOrigins` before
+         * fetching it, which is right — the URL comes from whoever is
+         * registering the provider, and fetching an arbitrary one server-side
+         * is a request-forgery primitive aimed at the inside of your network.
+         *
+         * The consequence is that discovery cannot be self-serve: trusting a
+         * customer's IdP is an operator's decision and a restart. The settings
+         * screen therefore registers providers with explicit endpoints and
+         * `skipDiscovery`, which needs only a publicly routable host — so this
+         * variable is for the deployments that prefer discovery, and is empty
+         * by default.
+         */
+        const discoveryOrigins = yield* Config.nonEmptyString("SSO_DISCOVERY_ORIGINS").pipe(
+          Config.withDefault(""),
+        );
+
         const google = yield* Config.all({
           clientId: Config.nonEmptyString("GOOGLE_CLIENT_ID"),
           clientSecret: Config.nonEmptyString("GOOGLE_CLIENT_SECRET"),
@@ -73,6 +94,16 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
             Effect.runPromise(
               Effect.map(entitlements.resolve({ organizationId }), (e) => e.limits.seats),
             ),
+          /**
+           * Asked per registration, for the same reason the seat limit is asked
+           * per invitation: an upgrade should take effect on the next request
+           * rather than the next deploy.
+           */
+          ssoEntitled: (organizationId) =>
+            Effect.runPromise(
+              Effect.map(entitlements.resolve({ organizationId }), (e) =>
+                has(e.effectivePlan, "sso")),
+            ),
           baseURL,
           secret: Redacted.value(secret),
           /**
@@ -83,7 +114,13 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
            * magic link or an OAuth redirect fails without it. It matches
            * `scheme` in `apps/mobile/app.json`; change one and change both.
            */
-          trustedOrigins: [webUrl, "vantion://"],
+          trustedOrigins: [
+            webUrl,
+            "vantion://",
+            ...discoveryOrigins.split(",").map((origin) => origin.trim()).filter((origin) =>
+              origin !== ""
+            ),
+          ],
           cookieDomain: Option.getOrUndefined(cookieDomain),
           google: Option.getOrUndefined(google),
           sendEmail,

@@ -1,4 +1,4 @@
-import type { Plan } from "@vantion/module-iam/identity/Entitlement";
+import type { Feature, Plan } from "@vantion/module-iam/identity/Entitlement";
 import { features, limits } from "@vantion/module-iam/identity/Entitlement";
 import { Check } from "lucide-react";
 
@@ -16,11 +16,18 @@ import { Check } from "lucide-react";
  */
 export type PlanPrice = { readonly price: string; readonly cadence: string; };
 
-const featureLabels = {
+/**
+ * Typed against `Feature` rather than inferred, so a new plan feature is a
+ * compiler error here the day it is declared. Inferred, an unlabelled feature
+ * renders as nothing — a bullet point that silently disappears from a pricing
+ * page is exactly the class of error this whole file exists to prevent.
+ */
+export const featureLabels: Record<Feature, string> = {
   api_keys: "Public API and keys",
   custom_roles: "Custom roles and per-member overrides",
   webhooks: "Outbound webhooks",
-} as const;
+  sso: "Single sign-on — SAML and OIDC",
+};
 
 const order: ReadonlyArray<Plan> = ["free", "pro", "scale"];
 

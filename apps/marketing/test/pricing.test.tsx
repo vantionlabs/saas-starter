@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@effect/vitest";
-import { Pricing } from "@vantion/ui/marketing/pricing";
+import { featureLabels, Pricing } from "@vantion/ui/marketing/pricing";
 
 const prices = {
   free: { price: "Free", cadence: "for one team" },
@@ -30,13 +30,24 @@ describe("the pricing table", () => {
     }
   });
 
+  /**
+   * Driven from the plan rather than from a list retyped here.
+   *
+   * The first version asserted a count of three and three literal labels, which
+   * made adding `sso` to a plan fail a test about the *page*. Which features a
+   * plan carries is a pricing decision; that every one of them is shown, and
+   * shown with words, is the property this file is for.
+   */
   it("lists every feature a plan actually carries", () => {
     render(<Pricing prices={prices} />);
 
-    expect([...features.scale]).toHaveLength(3);
+    for (const plan of plans) {
+      for (const feature of features[plan]) {
+        const label = featureLabels[feature];
 
-    for (const label of ["Public API and keys", "Custom roles", "Outbound webhooks"]) {
-      expect(screen.getAllByText(new RegExp(label)).length).toBeGreaterThan(0);
+        expect(label, `${feature} has no label`).not.toBe("");
+        expect(screen.getAllByText(new RegExp(label)).length, label).toBeGreaterThan(0);
+      }
     }
   });
 

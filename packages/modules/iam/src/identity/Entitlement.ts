@@ -17,7 +17,7 @@ export const Plan = Schema.Literals(["free", "pro", "scale"]);
 export type Plan = typeof Plan.Type;
 
 /** A capability a plan switches on. Booleans only — quantities are `limits`. */
-export const Feature = Schema.Literals(["api_keys", "custom_roles", "webhooks"]);
+export const Feature = Schema.Literals(["api_keys", "custom_roles", "webhooks", "sso"]);
 export type Feature = typeof Feature.Type;
 
 /**
@@ -36,7 +36,7 @@ export type Feature = typeof Feature.Type;
 export const features: Record<Plan, ReadonlySet<Feature>> = {
   free: new Set<Feature>(["api_keys"]),
   pro: new Set<Feature>(["api_keys", "custom_roles"]),
-  scale: new Set<Feature>(["api_keys", "custom_roles", "webhooks"]),
+  scale: new Set<Feature>(["api_keys", "custom_roles", "webhooks", "sso"]),
 };
 
 export type Limits = {

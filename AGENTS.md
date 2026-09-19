@@ -489,6 +489,40 @@ a duplicate a handler can tolerate is a better failure than a job that silently 
 Without `REDIS_URL` the queue is in-memory, the same way the mailer writes to the log without
 a Resend key. The outbox is still transactional; nothing survives a restart.
 
+Single sign-on is `@better-auth/sso`, per organization: a provider carries the
+organization that owns it and the email domain that routes to it, so `/sign-in/sso`
+takes an address and finds the right identity provider. OIDC and SAML 2.0 both.
+
+Two questions gate it and they are asked in two places because they fail separately.
+Whether the _person_ may is `hasOrgAdminRole` inside the plugin's own handler — owner
+or admin — and `Permission.ts` carries `sso:manage` with the same grants deliberately,
+so our screens ask what better-auth will ask again. Whether the _organization_ may is
+`feature("sso")`, which better-auth cannot answer because a plan lives in a table its
+plugin has never heard of; that is a `before` hook calling `ssoEntitled`, resolved per
+request so an upgrade lands on the next registration rather than the next deploy.
+
+`domainVerification` is on, and it is the whole security story. Without it anybody who
+may register a provider can claim `acme.com` and become the identity provider for
+everyone whose address ends that way. A registered provider therefore routes nothing
+until DNS carries its token, and a test asserts `domainVerified` is false on the way
+out — a provider that works too early works exactly like one that works.
+
+The settings screen registers **explicit endpoints** with `skipDiscovery` rather than
+by discovery. better-auth checks a discovery URL against `trustedOrigins` before
+fetching it, which is right — the URL comes from whoever is registering the provider —
+but it makes discovery an operator's decision and a restart. Explicit endpoints need
+only be publicly routable, so adding a customer's IdP is a row.
+`SSO_DISCOVERY_ORIGINS` exists for deployments that prefer the other way, and is empty.
+
+`ssoProvider` is the first organization-owned table here with **no row-level security**,
+and `0011_sso.sql` says why at length: better-auth writes it outside any `withOrgScope`
+transaction, so a policy in the usual shape would refuse its inserts, and one that made
+room for a null `app.current_org` would permit every unscoped read while still reporting
+`relrowsecurity` as true. That is the appearance of defence, which is worse than none.
+`member`, `invitation` and `organizationRole` are unpolicied for the same reason.
+`docs/sso.md` is explicit that no sign-in has been performed against a real identity
+provider in this repository.
+
 The seat limit is enforced inside better-auth rather than by a policy of ours. It owns the
 invitation endpoints, so a check on our side is one an invitation created through its own API
 walks straight past — `membershipLimit` asks per invitation, which is also what makes an

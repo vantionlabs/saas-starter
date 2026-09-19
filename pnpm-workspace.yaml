@@ -50,10 +50,14 @@ catalog:
   "@types/react": ^19.2.18
   "@types/react-dom": ^19.2.4
   "@vitejs/plugin-react": ^6.0.5
-  better-auth: ^1.6.29
+  # 1.6.33 rather than 1.6.29 because `@better-auth/sso` peers on it, and its
+  # endpoints mount inside the same instance — a plugin one patch ahead of its
+  # host is a runtime mismatch the compiler cannot see.
+  better-auth: ~1.6.33
   # Pinned to better-auth's own minor: 1.7 reaches for `better-auth/cookies/utils`,
   # a subpath 1.6 does not export, and the failure is a bundle that will not build.
   "@better-auth/expo": ~1.6.33
+  "@better-auth/sso": ~1.6.33
   "@lucas-barake/effect-form": 0.25.0-beta.6
   "@lucas-barake/effect-form-react": 0.26.0-beta.5
   nitro: ^3.0.260610-beta
