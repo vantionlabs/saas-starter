@@ -1,5 +1,5 @@
 import { PgPool } from "@vantion/database/PgPool";
-import { Context, Effect, Layer, Schema } from "effect";
+import { Config, Context, Effect, Layer, Schema } from "effect";
 import { Staff } from "./Staff.js";
 
 /**
@@ -44,12 +44,34 @@ export interface StaffResolverService {
  */
 const ADMIN_ROLES: ReadonlySet<string> = new Set(["admin"]);
 
+/**
+ * Whether a second factor is a condition of reaching this surface. **Off.**
+ *
+ * The role is the authorisation gate and always was: 2FA does not decide who
+ * may read across tenants, it decides how strongly somebody proved they are
+ * the person who may. Those are different questions and only the first belongs
+ * in a starter's defaults.
+ *
+ * What turning it on buys is narrow and worth stating, because this surface
+ * holds `ADMIN_DATABASE_URL`: a stolen staff session is cross-tenant read
+ * access to every customer, and a role check cannot tell a stolen session from
+ * a real one. A deployment with real customer data should set this.
+ *
+ * What it costs is why it is not the default: the first staff member has to
+ * enrol at `/settings/security` before the panel opens at all, which is
+ * friction a template should not impose on somebody trying it out.
+ */
+const REQUIRE_TWO_FACTOR = Config.boolean("ADMIN_REQUIRE_2FA").pipe(
+  Config.withDefault(false),
+);
+
 export class StaffResolver extends Context.Service<StaffResolver, StaffResolverService>()(
   "StaffResolver",
 ) {
   static layer: Layer.Layer<StaffResolver, never, PgPool> = Layer.effect(StaffResolver)(
     Effect.gen(function*() {
       const pool = yield* PgPool;
+      const requireTwoFactor = yield* REQUIRE_TWO_FACTOR.pipe(Effect.orDie);
 
       return {
         resolve: (userId: string) =>
@@ -80,17 +102,11 @@ export class StaffResolver extends Context.Service<StaffResolver, StaffResolverS
               }
 
               /**
-               * A second factor is not optional here.
-               *
-               * `apps/admin` reads across every tenant, and its whole
-               * protection is that somebody proved they are staff — which
-               * without this is one password and one session cookie. The
-               * product offers 2FA to customers; this *requires* it of the
-               * people who can see everybody's data, and requires it on every
-               * request rather than at enrolment, so turning it off closes the
-               * panel immediately.
+               * Checked per request when the deployment asks for it, so
+               * turning 2FA off closes the panel immediately rather than at the
+               * end of a session.
                */
-              if (row.twoFactorEnabled !== true) {
+              if (requireTwoFactor && row.twoFactorEnabled !== true) {
                 return Effect.fail(new TwoFactorRequired());
               }
 

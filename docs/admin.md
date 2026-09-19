@@ -166,18 +166,25 @@ until it has an answer: `ReasonPrompt` stands in front of the list rather than
 beside it, because a reason box that can be skipped is one that is always
 empty. Its button is unusable until something is typed, and a test asserts that.
 
-**Staff sign in through the ordinary sign-in page, and must hold a second
-factor.** `whoami` resolves per request against `user.role` _and_
-`user.twoFactorEnabled`, so revoking either lands on somebody's next request
-rather than when their session happens to expire — and turning 2FA off closes
-the panel immediately.
+**Staff sign in through the ordinary sign-in page.** `whoami` resolves per
+request against `user.role`, so revoking somebody lands on their next request
+rather than when their session happens to expire.
 
-Required here and merely offered to customers, because the asymmetry is real:
-an organization's owner can destroy their own organization, and staff can read
-everybody's. A surface whose entire protection is "somebody proved they are
-staff" is, without a second factor, one password and one session cookie.
+**`ADMIN_REQUIRE_2FA` adds a second factor to that, and is off.** The role is
+the authorisation gate and always was — 2FA does not decide who may read across
+tenants, it decides how strongly somebody proved they are the person who may.
+Those are different questions, and only the first belongs in a starter's
+defaults. The first staff member would otherwise have to enrol before the panel
+opened at all.
 
-`TwoFactorRequired` is the **only** refusal on this surface that names itself.
+**Set it for a deployment with real customer data.** This surface holds
+`ADMIN_DATABASE_URL`, so a stolen staff session is cross-tenant read access to
+every customer, and a role check cannot tell a stolen session from a real one.
+With it on the check runs per request, so turning 2FA off closes the panel
+immediately.
+
+When it is on, `TwoFactorRequired` is the **only** refusal on this surface that
+names itself.
 Everything else answers identically whether the caller is signed out, a
 customer, or banned — but somebody holding the staff role has already proved who
 they are, so there is nothing left to leak, and "enrol a second factor" is the

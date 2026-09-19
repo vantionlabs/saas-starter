@@ -43,8 +43,8 @@ export const TwoFactorPanel = (props: {
     {props.required && !props.enabled
       ? (
         <p className="text-sm">
-          Your account administers this deployment, so this is <strong>required</strong>{" "}
-          — the admin panel stays closed until it is on.
+          Your account administers this deployment, which means it can read every customer's data. A
+          deployment may <strong>require</strong> a second factor before the admin panel opens.
         </p>
       )
       : null}

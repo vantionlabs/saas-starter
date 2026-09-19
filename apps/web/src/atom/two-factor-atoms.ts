@@ -86,8 +86,9 @@ export const twoFactorStateAtom = Atom.make(
 
       return {
         enabled: user?.twoFactorEnabled === true,
-        // Staff cannot open the admin panel without it, so the screen says so
-        // rather than leaving somebody to discover it at the door.
+        // Staff can read every customer's data, so the screen says so. Whether
+        // the admin panel actually demands it is `ADMIN_REQUIRE_2FA`, which is
+        // the server's business and off by default.
         required: user?.role === "admin",
       };
     }),

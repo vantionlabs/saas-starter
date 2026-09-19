@@ -8,7 +8,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { pgClientConfig, PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
-import { Effect, Layer, Redacted } from "effect";
+import { ConfigProvider, Effect, Layer, Redacted } from "effect";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import { RpcTest } from "effect/unstable/rpc";
 import { SqlClient } from "effect/unstable/sql";
@@ -209,26 +209,18 @@ describe.skipIf(testDbUrl() === undefined)("staff", () => {
       }).pipe(Effect.provide(PgLive)));
 
     /**
-     * The panel reads across every tenant, so its whole protection is that
-     * somebody proved they are staff — which without a second factor is one
-     * password and one session cookie.
-     *
-     * Checked on every request rather than at enrolment, so turning 2FA off
-     * closes the panel immediately rather than at the end of a session.
+     * The role is the gate, and by default it is the whole gate. A second
+     * factor decides how strongly somebody proved they are the person who may,
+     * which is a different question and a deployment's to answer.
      */
-    it.effect("refuses staff who have not enrolled a second factor", () =>
+    it.effect("admits staff without a second factor unless the deployment asks", () =>
       Effect.gen(function*() {
         yield* user("staff_no_2fa", "admin", false, false);
 
         const resolver = yield* StaffResolver;
-        const failure = yield* Effect.flip(resolver.resolve("staff_no_2fa"));
 
-        /**
-         * Named, unlike every other refusal here. This caller has already
-         * proved who they are, so there is nothing left to leak — and it is
-         * the only refusal on this surface they can act on.
-         */
-        expect(failure._tag).toBe("TwoFactorRequired");
+        expect((yield* resolver.resolve("staff_no_2fa")).email)
+          .toBe("staff_no_2fa@example.com");
       }).pipe(Effect.provide(PgLive)));
 
     /** Unknown and not-staff are one answer, so neither confirms the other. */
@@ -241,3 +233,52 @@ describe.skipIf(testDbUrl() === undefined)("staff", () => {
       }));
   });
 });
+
+/**
+ * Its own `describe`, outside the block above, because that one already has a
+ * `StaffResolver` in context — and a resolver built there reads the requirement
+ * from whatever provider was in scope when *it* was built, not from one
+ * supplied later. Nesting a second provide inside it silently kept the first.
+ */
+describe.skipIf(testDbUrl() === undefined)(
+  "staff, when the deployment demands a second factor",
+  () => {
+    const strict = StaffResolver.layer.pipe(
+      Layer.provide(PgPoolTest),
+      Layer.provide(
+        ConfigProvider.layer(ConfigProvider.fromEnvRecord({ ADMIN_REQUIRE_2FA: "true" })),
+      ),
+    );
+
+    it.layer(Layer.mergeAll(strict, PgLive.pipe(Layer.provide(PgPoolTest))))("resolution", (it) => {
+      /**
+       * Worth having on for a real deployment: this surface holds
+       * `ADMIN_DATABASE_URL`, so a stolen staff session is cross-tenant read
+       * access to every customer, and a role check cannot tell a stolen session
+       * from a real one.
+       */
+      it.effect("refuses staff who have not enrolled one", () =>
+        Effect.gen(function*() {
+          const sql = yield* SqlClient.SqlClient;
+
+          yield* sql`
+          insert into "user" ("id", "name", "email", "emailVerified", "role", "banned",
+                              "twoFactorEnabled", "createdAt", "updatedAt")
+          values ('staff_strict', 'strict', 'strict@example.com', true, 'admin', false,
+                  false, now(), now())
+          on conflict ("id") do update set "twoFactorEnabled" = false
+        `;
+
+          const resolver = yield* StaffResolver;
+          const failure = yield* Effect.flip(resolver.resolve("staff_strict"));
+
+          /**
+           * Named, unlike every other refusal here. This caller has already
+           * proved who they are, so there is nothing left to leak — and it is the
+           * only refusal on this surface they can act on.
+           */
+          expect(failure._tag).toBe("TwoFactorRequired");
+        }));
+    });
+  },
+);

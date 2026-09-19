@@ -857,13 +857,15 @@ so somebody who closed the dialog without scanning would be locked out at their 
 The backup codes are shown exactly once and said to be — better-auth stores them hashed, so
 "show them again" is not a feature anybody can build.
 
-Staff must also hold a **second factor**. `StaffResolver` reads `twoFactorEnabled` alongside
-the role on every request, so turning 2FA off closes the panel immediately rather than at the
-end of a session. Required of staff and merely offered to customers, because the asymmetry is
-real: an owner can destroy their own organization, staff can read everybody's, and a surface
-whose whole protection is "somebody proved they are staff" is otherwise one password and one
-cookie. TOTP rather than OTP over email — a second factor sent to the address that recovers
-the first is a second lock with the same key.
+Staff **may** also be required to hold a second factor, behind `ADMIN_REQUIRE_2FA`, which is
+off. The role is the authorisation gate and always was: 2FA decides how strongly somebody
+proved they are the person who may, which is a different question and a deployment's to answer.
+Off by default because the first staff member would otherwise have to enrol before the panel
+opened at all — and worth setting for real customer data, because this surface holds
+`ADMIN_DATABASE_URL` and a role check cannot tell a stolen session from a real one. With it on
+the check runs per request, so turning 2FA off closes the panel immediately. TOTP rather than
+OTP over email — a second factor sent to the address that recovers the first is a second lock
+with the same key.
 
 `TwoFactorRequired` is the one refusal on that surface that names itself, and the reason is
 that the caller has already proved who they are: there is nothing left to leak, and it is the
