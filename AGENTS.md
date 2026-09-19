@@ -728,6 +728,35 @@ worker's `main.js` is 478 kB and Sentry's 1.5 MB sits beside it unloaded.
 
 ## Two database roles, and why the boundary is in Postgres
 
+`packages/modules/admin` is what uses the second one, and it is the only thing that does.
+`AdminSql` is a **separate service tag** from `SqlClient` rather than a second implementation
+of it: a handler asking for `SqlClient` gets the scoped connection, and reaching the other
+means naming it. `layerAdminSql` refuses when `ADMIN_DATABASE_URL` is unset instead of falling
+back — every other port here has a credential-free layer, and this one must not, because the
+only thing to fall back to is the connection that must never read across tenants.
+
+`crossTenant(action, read)` is the only way to use it. It takes what is being done, the
+organization it concerns if it concerns one, and **why** — and the reason is neither optional
+nor derived, because a log of reads with no reasons in it is one nobody can review. The record
+is written first and in the same transaction as the read, so a read that succeeded cannot have
+gone unrecorded. It takes the read rather than returning a client for the same reason: a
+function handing back `AdminSql` is one somebody calls once and uses forever.
+
+`adminAudit` carries a policy that is never true — `using (false) with check (false)` — so the
+application role, which owns the table because it runs the migrations, can neither read nor
+write a row of it. A staff trail the application can write to is one a compromised application
+can rewrite.
+
+`Staff` is its own type, not an `Identity` with a flag. `Identity` carries an `orgId` because
+every other caller acts inside exactly one organization; a flag would let a caller for whom
+that field is meaningless reach every handler that takes one, with nothing for the compiler to
+say about it.
+
+**`apps/server` does not register this module and must not.** The process serving customer
+traffic should not hold the credential, which is why the admin application will serve its own
+procedures. `docs/admin.md` has the whole argument and is explicit that no such application
+exists yet.
+
 `docker compose` bootstraps as `postgres` and never connects as it.
 `packages/database/src/roles/init.sql` makes the two roles that matter:
 

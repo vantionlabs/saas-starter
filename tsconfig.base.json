@@ -92,6 +92,9 @@
       ],
       "@vantion/module-assistant/*": [
         "./packages/modules/assistant/src/*.js"
+      ],
+      "@vantion/module-admin/*": [
+        "./packages/modules/admin/src/*.js"
       ]
     }
   }
