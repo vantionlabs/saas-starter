@@ -1,6 +1,24 @@
 # Build
 
-One vertical slice at a time.
+One vertical slice at a time, from the table in `SPEC.md`.
+
+## Where the list comes from
+
+`SPEC.md` §5 is the slice table, and it is the input to this phase rather than a
+record of it. Take the topmost row that is not `landed`, mark it `building`, and
+set it to `landed` when the gate passes. If there is no spec, discovery has not
+finished.
+
+Two of its columns are binding. **Tenant-owned** decides whether the slice owes a
+row-level security policy, `withOrgScope`, and a case in
+`e2e/tests/tenancy.spec.ts`. **Shown by** names what must exist before the row can
+be called landed — a slice nobody can demonstrate is a slice nobody can tell is
+finished.
+
+Anything not in the table is scope. It goes in the spec with a reason beside it,
+in §5 or §7, rather than being absorbed quietly: the cut list is the section
+people reopen, and an item that reappears without a reason is one that will be
+cut again next time at the same cost.
 
 ## A slice
 

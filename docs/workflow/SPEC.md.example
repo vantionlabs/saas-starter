@@ -1,0 +1,147 @@
+# `<Product>` — the spec
+
+Copy this to `docs/workflow/SPEC.md` at the end of discovery and fill it in.
+
+One document, written once and read at the start of every build session. It is
+the handover between the phase that decides what to build and the phase that
+builds it — what is in, what is out, in what order, and what has already been
+decided so that nobody decides it a second time differently.
+
+**It is committed**, unlike `STATE.md`. `STATE.md` is where the work got to and
+changes every session; this is what the work _is_, and a change to it deserves a
+diff and a reason. When the two disagree, this one is right and `STATE.md` is
+stale.
+
+Replace every `<…>`. A section left as a placeholder is a section the build phase
+will improvise, and improvised scope is how a cut feature comes back.
+
+```
+Product:     <name>
+Written:     <date>
+Author:      <who ran discovery>
+Supersedes:  <a previous version of this file, or —>
+```
+
+## 1. Who this is for
+
+`<A job title, a company size, and what their week looks like. Specific enough
+that you could show it to somebody and they could say "no, that is not us".>`
+
+Not a persona. If it would fit on a poster it is too wide, and a spec that opens
+with "teams who want to move faster" has not begun.
+
+## 2. What they do instead today
+
+`<The incumbent: a spreadsheet, an inbox rule, a contractor, a competitor, or
+nothing at all. Name it, and name what it costs them — in money if you know, in
+hours if you do not.>`
+
+**Their price is your ceiling:** `<£x a month, or the hours a week it eats>`.
+
+Every product competes with something, and "nothing" is a real answer that
+usually means the pain is not felt yet. If you cannot name the incumbent, you do
+not yet know what you are replacing.
+
+## 3. The riskiest assumption
+
+> `<One sentence. The thing that, if false, makes the rest of this pointless.>`
+
+**Status:** `<unproven | proven by <what>, on <date> | disproven — stop>`
+
+Carried forward from discovery verbatim. It is almost never "can we build it",
+and the build phase's job is to reach the moment it can be tested rather than to
+finish the list. A spec that loses this builds the wrong thing exactly on
+schedule.
+
+## 4. What this does
+
+`<One paragraph, present tense, addressed to the person in §1. No technology in
+it — if the paragraph needs a noun from this repository to make sense, it is
+describing the implementation rather than the product.>`
+
+## 5. The slices
+
+Each row is a **vertical slice**: schema, handler, screen and tests, working end
+to end. Not "the backend for X" — half a thing cannot be demonstrated and cannot
+be cut, which are the only two things you will want to do with it.
+
+Rows are in dependency order and none may depend on one below it. Build takes the
+topmost row that is not `landed`, and does not start the next until the whole
+gate passes — `pnpm check && pnpm lint && pnpm test`, plus `pnpm e2e` when the
+slice touched a route or a handler.
+
+| #   | Slice                          | Module                | Tenant-owned | Shown by                               | State |
+| --- | ------------------------------ | --------------------- | ------------ | -------------------------------------- | ----- |
+| 1   | `<what a person can now do>`   | `<name>` / existing   | yes / no     | `<the test that fails if it breaks>`   | todo  |
+| 2   | …                              | …                     | …            | …                                      | todo  |
+
+`State` is one of `todo`, `building`, `landed`.
+
+**Tenant-owned is not a formality.** _Yes_ commits you to a row-level security
+policy in the style of `0002_rls.sql` **and** `withOrgScope` around every query —
+both, never either — plus a case in `e2e/tests/tenancy.spec.ts`. _No_ is a
+declaration that every organization sees the same rows, which is sometimes right
+and should be somebody's decision rather than an omission.
+
+**Shown by is a test, a screen or a curl**, named. "It works" is not a
+demonstration, and a slice whose column is empty is a slice nobody can tell is
+finished.
+
+How many rows fit: [01-discover.md](01-discover.md#how-much-fits) has the
+measured cost of the modules in this repository, which is better evidence than
+anybody's estimate.
+
+## 6. The data
+
+New tables only. What the starter already carries — users, organizations,
+members, roles, permissions, API keys, the audit log, and the rest — is not
+listed here.
+
+| Table      | Owned by              | Why it is not a column on something that exists |
+| ---------- | --------------------- | ----------------------------------------------- |
+| `<name>`   | organization / global | `<reason>`                                      |
+
+The third column earns its place: most new tables should have been a column, and
+writing the reason down is what catches the ones that should.
+
+## 7. Not in this, and why
+
+As important as §5, and the section people actually reopen. Write the reason and
+not just the item — "cut for time" expires the moment there is time, whereas "the
+first ten customers do this by hand and that is fine" still holds in a year.
+
+- `<item>` — `<why>`
+
+When it will not fit, cut in this order: a second frontend or anything
+cross-tenant, then configurability, then integrations beyond the first, then the
+dashboard. **Never cut** tenant isolation, the audit trail, or the tests that
+prove both — they are what a security review asks about, and retrofitting them
+costs more than building them did.
+
+## 8. Decisions already taken
+
+The ones that would otherwise be argued twice, with the reason attached so the
+argument does not need a third round.
+
+| Decision   | Because    | Taken by | On       |
+| ---------- | ---------- | -------- | -------- |
+| `<what>`   | `<reason>` | `<who>`  | `<date>` |
+
+A decision with no reason recorded is one somebody will reverse in good faith.
+
+## 9. Open questions
+
+Each with a name against it and the date after which answering it costs rework. A
+question with neither is a note, and belongs somewhere else.
+
+| Question   | Blocks   | Needed by | Who      |
+| ---------- | -------- | --------- | -------- |
+| `<what>`   | slice #n | `<date>`  | `<name>` |
+
+## 10. Done means
+
+`<The specific list that makes this product shippable. The general checklist —
+migrations applied, isolation tests green, secrets set, health checks answering —
+is in 04-ship.md; this is the part only this product has.>`
+
+- [ ] `<…>`

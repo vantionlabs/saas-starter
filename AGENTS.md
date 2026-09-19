@@ -267,6 +267,35 @@ For the same reason `ApiKeyAuth.authenticate` takes the presented key rather tha
 transport is asking, so the public API and anything else — an MCP server, a worker — share one
 implementation instead of two.
 
+## What the work is, and where it got to
+
+`docs/workflow/` holds the four phases — discover, prototype, build, ship — and
+two files carry a product between sessions, answering different questions.
+
+`SPEC.md` is **what the work is**: who it is for, the riskiest assumption, the
+slices in dependency order, and what was cut with the reason beside it. Discovery
+writes it from `SPEC.md.example`; it is committed, because a change to the scope
+deserves a diff and somebody's name on it. `/product-build` takes the topmost
+slice that is not `landed` rather than building what the conversation suggests —
+a feature list improvised at build time is how a cut item quietly returns.
+
+Two of its columns are binding. **Tenant-owned** is what commits a slice to a
+row-level security policy, `withOrgScope`, and a case in
+`e2e/tests/tenancy.spec.ts`, so a blank one is a decision nobody took. **Shown
+by** names what must exist before a row may be called landed, because a slice
+nobody can demonstrate is a slice nobody can tell is finished.
+
+`STATE.md` is **where the work got to**. It is gitignored and read back by
+`SessionStart`, which is the only reason a thread survives a context window
+closing. When the two disagree the spec is right and `STATE.md` is stale.
+
+Neither file is in this repository, only their templates — the starter has no
+product. `tooling/test/workflow.test.ts` keeps the two ends of that handover
+honest: the section numbers the commands cite, the columns they read, the states
+they set, which of the two files is ignored, and every link between the phase
+documents. A command telling an agent to read a section that has been renamed
+reads exactly like one that is right.
+
 ## Read the vendored Effect source before writing Effect code
 
 `repos/effect` is the full Effect monorepo, vendored with `git subtree` at exactly the version

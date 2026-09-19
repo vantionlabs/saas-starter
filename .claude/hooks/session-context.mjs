@@ -45,9 +45,24 @@ const lines = [
 ];
 
 /**
- * Product work outlives any context window. `docs/workflow/STATE.md` is where
- * each phase writes what it did, and this is the half that reads it back —
- * without it the loop restarts every time a session does.
+ * Product work outlives any context window, and two files carry it across one.
+ *
+ * The spec is what the work *is* — it is long, so this names it rather than
+ * printing it; a session that is about to build must open it, because the slice
+ * table is the input to that phase rather than a record of it.
+ */
+const spec = path.join(root, "docs", "workflow", "SPEC.md");
+if (fs.existsSync(spec)) {
+  lines.push(
+    "",
+    "This repository has a product spec at `docs/workflow/SPEC.md`. Read it before building anything: its §5 is the slice table, and `/product-build` takes the topmost row that is not `landed` rather than whatever the conversation suggests.",
+  );
+}
+
+/**
+ * `STATE.md` is where the work *got to*. It is short and changes every session,
+ * so it is printed in full — without it the loop restarts every time a session
+ * does.
  */
 const state = path.join(root, "docs", "workflow", "STATE.md");
 if (fs.existsSync(state)) {

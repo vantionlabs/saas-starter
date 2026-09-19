@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="327 unit tests" src="https://img.shields.io/badge/tests-327-2EAD33?style=flat-square" />
+  <img alt="334 unit tests" src="https://img.shields.io/badge/tests-334-2EAD33?style=flat-square" />
   <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -85,7 +85,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 327 unit, 37 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 334 unit, 37 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -204,17 +204,20 @@ and a cut        for designers    next starts     passing
 feature list     to refine
 ```
 
-| Phase         | Produces                                                      | Refuses to advance until           |
-| ------------- | ------------------------------------------------------------- | ---------------------------------- |
-| **Discover**  | the riskiest assumption, written down, and a cut feature list | the assumption is written          |
-| **Prototype** | real screens against the real shell, no new tables            | no migration was needed            |
-| **Build**     | vertical slices — schema, handler, screen, tests              | each slice passes the whole gate   |
-| **Ship**      | deployed, documented, with tenant isolation proven            | nothing on the checklist is untrue |
+| Phase         | Produces                                                     | Refuses to advance until           |
+| ------------- | ------------------------------------------------------------ | ---------------------------------- |
+| **Discover**  | a written riskiest assumption, and a spec with a slice table | the assumption is written          |
+| **Prototype** | real screens against the real shell, no new tables           | no migration was needed            |
+| **Build**     | vertical slices — schema, handler, screen, tests             | each slice passes the whole gate   |
+| **Ship**      | deployed, documented, with tenant isolation proven           | nothing on the checklist is untrue |
 
 The gates are the method; everything else is detail. `docs/workflow/` has each
-phase written out, and `STATE.md` is where a phase records what it did. That
-file is read back at the start of the next session, because product work outlives
-any context window.
+phase written out, and two files carry a product between sessions. `SPEC.md` is
+what the work **is** — filled in from `SPEC.md.example` at the end of discovery,
+committed, and read by `/product-build` instead of re-deriving scope from a
+conversation nobody can open again. `STATE.md` is where the work **got to**,
+gitignored, and read back at the start of every session because product work
+outlives any context window.
 
 ## Docs to design to dev
 
@@ -222,7 +225,12 @@ The path an idea takes, and where each artefact lives.
 
 **1 · Written first.** Discovery produces prose, not tickets: who this is for,
 what they do instead today, and the one assumption that makes the rest pointless
-if it is false. It lands in `docs/workflow/01-discovery.md`.
+if it is false. It lands in `docs/workflow/SPEC.md`, whose §5 turns the surviving
+feature list into slices — each with the module that owns it, whether it is
+tenant-owned, and what demonstrates it. That column is what commits a slice to a
+row-level security policy and a tenancy test, so leaving one blank is a decision
+nobody took. How many rows fit is a measured question, not a felt one:
+`01-discover.md` has what each module in this repository actually cost.
 
 **2 · Designed against the real components.** `apps/design` renders the product's
 own screens — the same `@vantion/ui` the app uses — fed by **persona fixtures**
@@ -598,11 +606,10 @@ says so rather than leaving you to find out.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|           | What                                    | Why it is not here yet                                                                                                  |
-| --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Next**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.  |
-| **Later** | SSO and SAML                            | The heaviest remaining item, and the one enterprise deals actually ask for.                                             |
-| **Later** | An admin panel                          | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |
+|           | What           | Why it is not here yet                                                                                                  |
+| --------- | -------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Next**  | SSO and SAML   | The heaviest remaining item, and the one enterprise deals actually ask for.                                             |
+| **Later** | An admin panel | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |
 
 ## What it deliberately does not do
 

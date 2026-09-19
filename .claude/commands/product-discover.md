@@ -18,10 +18,20 @@ Read `docs/workflow/01-discover.md` and follow it. In short:
 4. **Cut the feature list to what the build phase can hold**, given that this
    repository already ships auth, organizations, roles, row-level security, an
    audit trail, API keys and a public API. Most products need far less new code
-   than they think.
+   than they think. The "How much fits" table in that file is measured from this
+   repository's own modules — cut against it rather than against optimism.
+5. **Write the spec.** Copy `docs/workflow/SPEC.md.example` to
+   `docs/workflow/SPEC.md` and fill in every section. The feature list becomes
+   §5, the slice table, in dependency order and with the tenant-owned column
+   answered for each row — that column is what commits a slice to a row-level
+   security policy and a tenancy test, so an unanswered one is a decision nobody
+   took.
 
-Write the result to `docs/workflow/01-discovery.md` and update
-`docs/workflow/STATE.md`.
+Then update `docs/workflow/STATE.md`.
+
+The spec is the phase's real output, and it is committed. `/product-build` reads
+it instead of re-deriving scope from a conversation nobody can open again, so a
+section left as a placeholder is scope the build phase will improvise.
 
 **Refuse to advance while the riskiest assumption is unwritten.** Skipping it
 builds the wrong thing on schedule.

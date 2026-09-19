@@ -10,22 +10,35 @@ built and already tested in this repository, so the work goes on the part that i
 specific to the product. That part is usually smaller than it looks before
 somebody writes it down.
 
-| Phase                        | Command              | Produces                                             |
-| ---------------------------- | -------------------- | ---------------------------------------------------- |
-| [Discover](01-discover.md)   | `/product-discover`  | A written riskiest assumption and a cut feature list |
-| [Prototype](02-prototype.md) | `/product-prototype` | Real screens against the real shell, no new tables   |
-| [Build](03-build.md)         | `/product-build`     | Vertical slices, each one green before the next      |
-| [Ship](04-ship.md)           | `/product-ship`      | Deployed, with the isolation tests still passing     |
+| Phase                        | Command              | Produces                                           |
+| ---------------------------- | -------------------- | -------------------------------------------------- |
+| [Discover](01-discover.md)   | `/product-discover`  | `SPEC.md` — the assumption, and the slices         |
+| [Prototype](02-prototype.md) | `/product-prototype` | Real screens against the real shell, no new tables |
+| [Build](03-build.md)         | `/product-build`     | Vertical slices, each one green before the next    |
+| [Ship](04-ship.md)           | `/product-ship`      | Deployed, with the isolation tests still passing   |
 
 ## How to run it
 
-The four slash commands drive the phases. Each reads its file here, does the
-work, and writes where it got to in `STATE.md` — which `SessionStart` reads back
-at the start of the next session. A product outlives any context window, and that
-file is the only reason the thread survives one closing.
+The four slash commands drive the phases. Each reads its file here and does the
+work.
 
-Copy `STATE.md.example` to `STATE.md` when you start. It is gitignored, because
-it describes one product rather than the starter.
+Two files carry a product between sessions, and they answer different questions.
+
+**`SPEC.md` is what the work is.** Discovery writes it, from `SPEC.md.example`,
+and every build session reads it: who this is for, the riskiest assumption, the
+slices in dependency order, and what was cut with the reason attached. It is
+**committed**, because a change to the scope deserves a diff and somebody's name
+on it. `/product-build` takes the topmost slice that is not `landed` rather than
+building what the conversation suggests — a feature list improvised at build time
+is how a cut item quietly returns.
+
+**`STATE.md` is where the work got to.** Each phase writes it, `SessionStart`
+reads it back, and it is the only reason the thread survives a context window
+closing. Copy `STATE.md.example` to `STATE.md` when you start; it is gitignored,
+because it describes one product rather than the starter and it changes every
+session.
+
+When the two disagree, the spec is right and `STATE.md` is stale.
 
 ## The gates
 
