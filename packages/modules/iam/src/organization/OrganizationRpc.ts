@@ -38,6 +38,20 @@ export class NotAMember extends Schema.TaggedError<NotAMember>()("NotAMember", {
 }) {}
 
 /**
+ * A workspace's name, declared once because three places ask for it.
+ *
+ * `CreateOrganization`, `RenameOrganization` and the onboarding wizard's first
+ * step all take the same value, and the wizard is a form — so the rule and the
+ * sentence somebody reads when they break it belong in the contract, the way
+ * `ContactFields` does. It was `Schema.isNonEmpty()` with no message here and a
+ * readable copy on the screen, which is two declarations of one rule where the
+ * server's is the version nobody can read.
+ */
+export const OrganizationFields = {
+  name: Schema.String.check(Schema.isNonEmpty({ message: "Enter a name." })),
+};
+
+/**
  * Organization management, kept apart from the identity group because these
  * handlers reach the database and those do not.
  */
@@ -46,7 +60,7 @@ export const OrganizationRpcs = RpcGroup.make(
   Rpc.make("ListMyOrganizations", { success: Schema.Array(Membership) }),
   /** Creates an organization and makes the caller its owner. */
   Rpc.make("CreateOrganization", {
-    payload: { name: Schema.String.check(Schema.isNonEmpty()) },
+    payload: OrganizationFields,
     success: Membership,
   }),
   /** Points the current session at another of the caller\'s organizations. */
@@ -60,7 +74,7 @@ export const OrganizationRpcs = RpcGroup.make(
    * demonstration that policies gate real procedures.
    */
   Rpc.make("RenameOrganization", {
-    payload: { name: Schema.String.check(Schema.isNonEmpty()) },
+    payload: OrganizationFields,
     success: Schema.Void,
     error: Forbidden,
   }),

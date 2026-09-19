@@ -1,6 +1,7 @@
 import type { Browser, Page } from "@playwright/test";
 import {
   addContact,
+  completeOnboarding,
   expect,
   nextClientAddress,
   signOutViaApi,
@@ -23,6 +24,12 @@ const newTenant = async (browser: Browser, prefix: string) => {
   const email = uniqueEmail(prefix);
 
   await signUpViaApi(page, email);
+  /**
+   * Past the setup wizard first. A fresh sign-up is redirected to it, so
+   * without this the contacts page below is never reached and the isolation
+   * assertions would pass against two empty wizards.
+   */
+  await completeOnboarding(page);
   await page.goto("/contacts");
 
   return { context, page, email };

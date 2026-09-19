@@ -1,3 +1,5 @@
+import { sessionAtom } from "@/atom/session-atoms.js";
+import { InviteForm } from "@/components/access/invite-form.js";
 import { MemberOverrides } from "@/components/access/member-overrides.js";
 import { listMembers } from "@/server/reads/access.js";
 import { useAtomValue } from "@effect/atom-react";
@@ -10,6 +12,7 @@ import * as React from "react";
 
 const Members = () => {
   const members = useAtomValue(membersAtom);
+  const session = useAtomValue(sessionAtom);
   const [expanded, setExpanded] = React.useState<string | undefined>(undefined);
 
   if (AsyncResult.isFailure(members)) {
@@ -23,10 +26,22 @@ const Members = () => {
    */
   const rows = AsyncResult.isSuccess(members) ? members.value : [];
   const current = rows.find((member) => member.memberId === expanded);
+  const permissions = AsyncResult.isSuccess(session) ? session.value.permissions : [];
 
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-sm font-medium">Members</h2>
+
+      {
+        /*
+        The same form the onboarding wizard's second step renders, and the
+        permission is better-auth's own name for it — its invitation endpoint
+        checks `invitation:create` before accepting, so asking anything else
+        here would be a screen that hides a button the API would have honoured,
+        or offers one it refuses.
+      */
+      }
+      {permissions.includes("invitation:create") && <InviteForm />}
 
       <MemberTable
         members={rows}

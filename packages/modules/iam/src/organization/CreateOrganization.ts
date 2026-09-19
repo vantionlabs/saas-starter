@@ -20,8 +20,19 @@ export const CreateOrganization = OrganizationRpcs.toLayerHandler(
 
     yield* sql.withTransaction(
       Effect.gen(function*() {
-        yield* sql`insert into "organization" ("id", "name", "slug", "createdAt")
-                   values (${orgId}, ${payload.name}, ${slug}, now())`;
+        /**
+         * Created already onboarded, and that is not a shortcut.
+         *
+         * The wizard's first step asks for a name, which this caller has just
+         * typed, and its second invites colleagues they can invite from
+         * settings — so sending somebody who is already inside the product
+         * through it would ask them to name the thing they just named. What
+         * onboarding is for is the organization sign-up makes on your behalf,
+         * which nobody chose anything about.
+         */
+        yield* sql`insert into "organization"
+                   ("id", "name", "slug", "createdAt", "onboardingStep", "onboardingCompletedAt")
+                   values (${orgId}, ${payload.name}, ${slug}, now(), 'done', now())`;
         yield* sql`insert into "member" ("id", "organizationId", "userId", "role", "createdAt")
                    values (${randomUUID()}, ${orgId}, ${identity.userId}, 'owner', now())`;
         // Land the caller in the organization they just made.

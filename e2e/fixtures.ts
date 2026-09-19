@@ -119,10 +119,45 @@ export const test = base.extend<Fixtures>({
 
   signedIn: async ({ page, signedInEmail }, use) => {
     await signUpViaApi(page, signedInEmail);
-    await page.goto("/");
+    await completeOnboarding(page);
     await use(page);
   },
 });
+
+/**
+ * Gets a brand-new account past the setup wizard.
+ *
+ * Every test here signs up its own user, and a fresh sign-up now lands on
+ * `/onboarding` — so without this, every test in the suite would be asserting
+ * against a wizard. It is a click rather than an HTTP call because there is no
+ * endpoint to call: finishing is an RPC procedure, and hand-rolling its
+ * envelope in a fixture would be testing a copy of the wire format.
+ *
+ * No hydration dance. That route is `ssr: "data-only"`, so the button does not
+ * exist in the document until React has rendered it, which means Playwright's
+ * ordinary wait for the element is already a wait for a live handler.
+ *
+ * `onboarding.spec.ts` skips this deliberately, since the wizard is what it is
+ * about.
+ */
+export const completeOnboarding = async (page: Page) => {
+  /**
+   * Its own `goto` rather than inspecting wherever the caller happened to be.
+   *
+   * The gate lives in a route loader, so the redirect into the wizard is
+   * resolved by the server and a full navigation lands on its final URL — while
+   * a client-side one, such as the hop a sign-in makes, passes through `/` on
+   * the way. Reading the URL at that moment saw `/`, returned having done
+   * nothing, and failed fifteen seconds later on an assertion about the
+   * dashboard.
+   */
+  await page.goto("/");
+
+  if (!page.url().includes("/onboarding")) return;
+
+  await page.getByRole("button", { name: "Skip for now" }).click();
+  await expectBase(page).toHaveURL(`${WEB_URL}/`);
+};
 
 /**
  * Repeats `interact` until `settle` holds.

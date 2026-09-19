@@ -7,6 +7,7 @@ import { AuditLog } from "./audit/AuditLog.js";
 import { Auth } from "./auth/Auth.js";
 import { AuthHttp } from "./auth/AuthHttp.js";
 import { AuthMiddlewareLive } from "./auth/AuthMiddlewareLive.js";
+import { OnboardingRpcLive } from "./onboarding/OnboardingRpcLive.js";
 import { OrganizationRpcLive } from "./organization/OrganizationRpcLive.js";
 import { IamRpcLive } from "./session/IamRpcLive.js";
 
@@ -35,6 +36,7 @@ import { IamRpcLive } from "./session/IamRpcLive.js";
 export const IamModule = Layer.mergeAll(
   IamRpcLive,
   OrganizationRpcLive,
+  OnboardingRpcLive,
   AccessRpcLive,
 ).pipe(
   Layer.provideMerge(AuthMiddlewareLive),

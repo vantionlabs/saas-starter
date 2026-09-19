@@ -25,4 +25,6 @@ export const Keys = {
   roles: "roles",
   members: "members",
   overrides: "overrides",
+  /** Where setting up a workspace got to. Each step of the wizard advances it. */
+  onboarding: "onboarding",
 } as const;

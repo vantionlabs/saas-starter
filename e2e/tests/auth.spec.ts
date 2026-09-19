@@ -1,7 +1,15 @@
-import { expect, PASSWORD, signOutViaApi, signUpViaApi, test, uniqueEmail } from "../fixtures.js";
+import {
+  completeOnboarding,
+  expect,
+  PASSWORD,
+  signOutViaApi,
+  signUpViaApi,
+  test,
+  uniqueEmail,
+} from "../fixtures.js";
 
 test.describe("sign up", () => {
-  test("creates an account through the form and lands on the dashboard", async ({ page }) => {
+  test("creates an account through the form and lands in the product", async ({ page }) => {
     const email = uniqueEmail("signup");
 
     await page.goto("/auth/sign-up");
@@ -9,8 +17,15 @@ test.describe("sign up", () => {
     await page.getByLabel("Password").fill(PASSWORD);
     await page.getByRole("button", { name: "Create account" }).click();
 
-    // The promise of the sign-up page is that there is no orgless state to land
-    // in: a personal organization exists by the time the dashboard renders.
+    /**
+     * A brand-new account lands on the wizard, not the dashboard, because its
+     * organization has not been set up — which is the promise of the sign-up
+     * page working rather than failing: the organization exists by the time
+     * anything renders, and what is missing is only the name for it.
+     */
+    await expect(page.getByRole("heading", { name: "Name your workspace" })).toBeVisible();
+
+    await completeOnboarding(page);
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
     await expect(page).toHaveURL("/");
   });
@@ -51,6 +66,15 @@ test.describe("sign in", () => {
     await page.getByLabel("Password").fill(PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
 
+    /**
+     * Signed up through the API, so this account has never seen the wizard and
+     * a sign-in lands there. Waiting on it is also what says the sign-in has
+     * actually completed — `completeOnboarding` navigates, and navigating
+     * while the form is still submitting lands back on this page.
+     */
+    await expect(page.getByRole("heading", { name: "Name your workspace" })).toBeVisible();
+
+    await completeOnboarding(page);
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   });
 

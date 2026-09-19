@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ProtectedAccountRouteRouteImport } from './routes/_protected/account/route'
 import { Route as ProtectedAssistantRouteImport } from './routes/_protected/assistant'
@@ -46,6 +47,11 @@ const ProtectedRoute = ProtectedRouteImport.update({
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
@@ -194,6 +200,7 @@ const AuthAcceptInvitationInvitationIdRoute =
 export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/': typeof ProtectedIndexRoute
+  '/onboarding': typeof OnboardingRoute
   '/account': typeof ProtectedAccountRouteRouteWithChildren
   '/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/assistant': typeof ProtectedAssistantRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
+  '/onboarding': typeof OnboardingRoute
   '/assistant': typeof ProtectedAssistantRoute
   '/contacts': typeof ProtectedContactsRoute
   '/files': typeof ProtectedFilesRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
+  '/onboarding': typeof OnboardingRoute
   '/_protected/account': typeof ProtectedAccountRouteRouteWithChildren
   '/_protected/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/_protected/assistant': typeof ProtectedAssistantRoute
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/auth'
     | '/'
+    | '/onboarding'
     | '/account'
     | '/settings'
     | '/assistant'
@@ -315,6 +325,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/onboarding'
     | '/assistant'
     | '/contacts'
     | '/files'
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/auth'
     | '/_protected'
+    | '/onboarding'
     | '/_protected/account'
     | '/_protected/settings'
     | '/_protected/assistant'
@@ -376,6 +388,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ProtectedRoute: typeof ProtectedRouteWithChildren
+  OnboardingRoute: typeof OnboardingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -392,6 +405,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/': {
@@ -686,6 +706,7 @@ const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ProtectedRoute: ProtectedRouteWithChildren,
+  OnboardingRoute: OnboardingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

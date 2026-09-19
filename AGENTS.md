@@ -207,6 +207,75 @@ verification flow rather than a field.
 `settingsGroups` does — a page that exists in a sidebar and not in ⌘K is a page
 half the application cannot reach.
 
+## Setting up a workspace
+
+Onboarding is **on the organization, not on the person**, and that is the decision
+the rest follows from. In a B2B product the thing being set up is the workspace;
+kept per user, the second colleague to join would be onboarded into an
+organization somebody else had already finished — asked to name a company that
+already has a name.
+
+Three states matter and a boolean carries two, so `organization` gained two
+nullable columns rather than a flag: `onboardingStep` says which step is next and
+`onboardingCompletedAt` says it is over, and answers "when" for free. They can
+legitimately disagree — an organization created before the feature existed is
+complete with no step, and somebody who skips is complete on step two.
+
+**The step is a write, not client state.** That is the whole of what makes it a
+wizard: closing the tab on step two and coming back tomorrow returns to step two.
+`SetOnboardingStep` names the step _reached_ rather than incrementing, so two
+tabs cannot disagree and finishing the same step twice leaves the same row.
+Finishing uses `coalesce`, because the column answers when a workspace was set up
+and a second visit to the last screen must not rewrite that.
+
+**The gate is `_protected`'s loader**, beside the identity read rather than in
+`beforeLoad`. The two reads are independent, so asked together with `Promise.all`
+they cost one round trip's latency; in `beforeLoad` the second would queue behind
+the session lookup the first already waited for. A `redirect` thrown from a loader
+is resolved on the server during SSR exactly as one thrown above it is, so there
+is still no flash of the application before it lands.
+
+`/onboarding` is **outside** `_protected`, or it would redirect to itself — and
+it would render the application chrome around a page whose argument is that the
+application is not ready. The cost is that everything the shell offers has to be
+offered again, which is exactly one thing: signing out. Without it, somebody who
+signed in as the wrong person has no way out but clearing a cookie. **Every step
+is skippable**, from the first, because a wizard somebody cannot leave is one they
+abandon at the browser tab instead; everything it asks for is in settings
+afterwards.
+
+An organization created through `CreateOrganization` is **born complete**. Its
+creator has just typed the name the first step asks for and is already inside the
+product, so sending them through would ask them to name what they just named.
+What onboarding is for is the organization sign-up makes on somebody's behalf,
+which nobody chose anything about. The seed marks its tenants complete for the
+same reason, and `0017_onboarding.sql` backfills every existing organization —
+without that, a migration meaning to add a feature takes the product away from
+everybody already using it.
+
+The second step is where **inviting somebody** landed, and it exposed a real gap:
+this repository had the whole receiving half — the email, the accept page, the
+seat limit — with no way to begin one. `InviteForm` is the same component on
+`/settings/members`, where it lives permanently, and it goes through better-auth
+rather than an RPC of ours because `membershipLimit` is enforced inside its
+invitation endpoint. Running out of seats is the one refusal named, because it is
+the only one somebody can act on.
+
+The whole of it is `ssr: "data-only"`, the choice `/auth` makes and for the same
+reason: the data phase decides both redirects on the server, and the forms cannot
+be server-rendered anyway, since effect-form sets its ready flag in a `useEffect`.
+
+Its chrome is `@vantion/ui/onboarding/onboarding-card`, so `apps/design` renders
+it, and it uses a real `h1` rather than `CardTitle` — that primitive renders a
+`div`, and on this page the title is the whole of what somebody is looking at.
+
+**Every browser test pays for this**, which is worth knowing before writing one:
+a fresh sign-up now lands on the wizard, so `e2e/fixtures.ts`'s `signedIn` calls
+`completeOnboarding` first. It does its own `goto` rather than inspecting wherever
+the caller happened to be — the gate is a loader, so a full navigation lands on
+its final URL while a client-side hop passes through `/` on the way, and reading
+the URL at that moment returns having done nothing.
+
 ## Seeding a local database
 
 `pnpm seed` fills a local database with three organizations that mirror

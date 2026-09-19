@@ -9,6 +9,7 @@ import { Contacts } from "@/screens/contacts.js";
 import { Dashboard } from "@/screens/dashboard.js";
 import { Marketing } from "@/screens/marketing.js";
 import { Members } from "@/screens/members.js";
+import { Onboarding } from "@/screens/onboarding.js";
 import { SignIn } from "@/screens/sign-in.js";
 import { Sso } from "@/screens/sso.js";
 import {
@@ -30,6 +31,7 @@ import {
   LogIn,
   Megaphone,
   Palette,
+  Rocket,
   ShieldAlert,
   Sparkles,
   Users,
@@ -55,6 +57,7 @@ const nav = [
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/sso", label: "Single sign-on", icon: Fingerprint },
   { to: "/sign-in", label: "Sign in", icon: LogIn },
+  { to: "/onboarding", label: "Onboarding", icon: Rocket },
   /**
    * The other two surfaces, on the same canvas.
    *
@@ -156,6 +159,7 @@ export const routeTree = rootRoute.addChildren([
   screen("/billing", Billing),
   screen("/sso", Sso),
   screen("/sign-in", SignIn),
+  screen("/onboarding", Onboarding),
   screen("/marketing", Marketing),
   screen("/brand", Brand),
   screen("/admin", Admin),

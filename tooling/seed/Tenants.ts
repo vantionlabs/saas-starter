@@ -83,9 +83,18 @@ export const seedTenant = Effect.fnUntraced(function*(tenant: Tenant) {
   const orgId = yield* personalOrgFor(ownerId);
   if (orgId === undefined) return { skipped: tenant.owner };
 
+  /**
+   * Marked onboarded, because naming the workspace is what the wizard exists
+   * to ask and this has just done it. Without the last two columns every
+   * seeded account would sign in to a setup screen instead of to the data the
+   * seed spent its time writing — which is the opposite of what it is for.
+   */
   yield* sql`
     update "organization"
-    set "name" = ${tenant.name}, "slug" = ${tenant.slug}
+    set "name" = ${tenant.name},
+        "slug" = ${tenant.slug},
+        "onboardingStep" = 'done',
+        "onboardingCompletedAt" = coalesce("onboardingCompletedAt", now())
     where "id" = ${orgId}
   `;
 
