@@ -5,6 +5,7 @@ import {
   switchOrganizationAtom,
 } from "@vantion/core/atoms/Organization";
 import type { Membership } from "@vantion/module-iam/organization/OrganizationRpc";
+import { Spinner } from "@vantion/ui/app/spinner";
 import { Button } from "@vantion/ui/ui/button";
 import { Input } from "@vantion/ui/ui/input";
 import { Exit } from "effect";
@@ -33,7 +34,13 @@ export const OrgSwitcher = () => {
   const [name, setName] = React.useState("");
 
   if (!AsyncResult.isSuccess(organizations)) {
-    return <p className="px-2 text-xs text-muted-foreground">loading…</p>;
+    /**
+     * A spinner rather than the word "loading". This one is in the shell on
+     * every page and is not server-rendered — the organization list is an RPC
+     * of its own — so it is a real wait, and a word in body text reads as
+     * content rather than as "not yet".
+     */
+    return <Spinner label="Loading organizations" className="px-2" />;
   }
 
   const active = organizations.value.find((membership) => membership.isActive);

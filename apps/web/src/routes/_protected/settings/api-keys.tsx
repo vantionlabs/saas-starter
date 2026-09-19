@@ -1,4 +1,6 @@
-import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { hydrated } from "@/server/hydration.js";
+import { listApiKeys } from "@/server/reads.js";
+import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { apiKeysAtom, createApiKeyAtom, revokeApiKeyAtom } from "@vantion/core/atoms/Organization";
 import type { Role } from "@vantion/module-iam/identity/Permission";
@@ -22,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@vantion/ui/ui/select";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { Copy, Plus } from "lucide-react";
@@ -66,11 +67,15 @@ const ApiKeys = () => {
         </Button>
       </div>
 
-      {AsyncResult.isInitial(keys)
-        ? <Skeleton className="h-48 w-full" />
-        : AsyncResult.isFailure(keys)
+      {/* Hydrated before first paint, so there is no loading arm to render. */}
+      {AsyncResult.isFailure(keys)
         ? <QueryError result={keys} subject="keys" />
-        : <ApiKeyTable keys={keys.value} onRevoke={onRevoke} />}
+        : (
+          <ApiKeyTable
+            keys={AsyncResult.isSuccess(keys) ? keys.value : []}
+            onRevoke={onRevoke}
+          />
+        )}
 
       <Dialog
         open={open}
@@ -181,7 +186,14 @@ const ApiKeys = () => {
   );
 };
 
+const ApiKeysRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <ApiKeys />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/settings/api-keys")({
   staticData: { crumb: "API keys" },
-  component: ApiKeys,
+  loader: () => listApiKeys(),
+  component: ApiKeysRoute,
 });

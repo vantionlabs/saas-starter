@@ -2,7 +2,11 @@ import { dehydrate } from "@/server/hydration.js";
 import { serverRpc } from "@/server/rpc.js";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
-import { contactsSerial } from "@vantion/core/atoms/Contact";
+import { membersSerial, rolesSerial } from "@vantion/core/atoms/Access";
+import { billingSerial } from "@vantion/core/atoms/Billing";
+import { contactsSerial, overviewSerial } from "@vantion/core/atoms/Contact";
+import { filesSerial } from "@vantion/core/atoms/File";
+import { apiKeysSerial, auditLogSerial } from "@vantion/core/atoms/Organization";
 
 /**
  * Every read that belongs in the document, as a server function per route.
@@ -26,5 +30,41 @@ export const listContacts = createServerFn({ method: "GET" }).handler(async () =
   dehydrate(
     contactsSerial,
     await serverRpc(cookie(), (client) => client("ListContacts", undefined)),
+  )
+);
+
+export const getOverview = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(overviewSerial, await serverRpc(cookie(), (client) => client("GetOverview", undefined)))
+);
+
+export const listFiles = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(filesSerial, await serverRpc(cookie(), (client) => client("ListFiles", undefined)))
+);
+
+export const listMembers = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(membersSerial, await serverRpc(cookie(), (client) => client("ListMembers", undefined)))
+);
+
+export const listRoles = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(rolesSerial, await serverRpc(cookie(), (client) => client("ListRoles", undefined)))
+);
+
+export const listApiKeys = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(apiKeysSerial, await serverRpc(cookie(), (client) => client("ListApiKeys", undefined)))
+);
+
+export const getBilling = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(billingSerial, await serverRpc(cookie(), (client) => client("GetBilling", undefined)))
+);
+
+/**
+ * A hundred, matching `auditLogAtom` exactly. A loader that fetched fifty would
+ * hydrate a shorter list than the atom asks for, and the page would silently
+ * grow the first time anything invalidated it.
+ */
+export const listAuditLog = createServerFn({ method: "GET" }).handler(async () =>
+  dehydrate(
+    auditLogSerial,
+    await serverRpc(cookie(), (client) => client("ListAuditLog", { limit: 100 })),
   )
 );

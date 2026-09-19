@@ -1,5 +1,7 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
-import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { hydrated } from "@/server/hydration.js";
+import { listFiles } from "@/server/reads.js";
+import { HydrationBoundary, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   deleteFileAtom,
@@ -73,12 +75,10 @@ const Files = () => {
     else tab.location.href = result.value;
   }, [download]);
 
-  if (AsyncResult.isInitial(files)) {
-    return <p className="text-muted-foreground text-sm">loading…</p>;
-  }
-
   if (AsyncResult.isFailure(files)) return <QueryError result={files} subject="files" />;
 
+  /** Hydrated before first paint; the empty list is the unreachable arm. */
+  const rows = AsyncResult.isSuccess(files) ? files.value : [];
   const permissions = AsyncResult.isSuccess(session) ? session.value.permissions : [];
 
   return (
@@ -107,7 +107,7 @@ const Files = () => {
       </div>
 
       <FileTable
-        files={files.value}
+        files={rows}
         canDelete={permissions.includes("file:delete")}
         onDownload={(id) => void onDownload(id)}
         onDelete={remove}
@@ -116,7 +116,14 @@ const Files = () => {
   );
 };
 
+const FilesRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <Files />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/files")({
   staticData: { crumb: "Files" },
-  component: Files,
+  loader: () => listFiles(),
+  component: FilesRoute,
 });

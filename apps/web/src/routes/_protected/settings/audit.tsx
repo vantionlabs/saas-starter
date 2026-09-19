@@ -1,9 +1,10 @@
-import { useAtomValue } from "@effect/atom-react";
+import { hydrated } from "@/server/hydration.js";
+import { listAuditLog } from "@/server/reads.js";
+import { HydrationBoundary, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { auditLogAtom } from "@vantion/core/atoms/Organization";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { AuditTable } from "@vantion/ui/settings/audit-table";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { AsyncResult } from "effect/unstable/reactivity";
 
 const Audit = () => {
@@ -19,16 +20,28 @@ const Audit = () => {
         </p>
       </div>
 
-      {AsyncResult.isInitial(entries)
-        ? <Skeleton className="h-64 w-full" />
-        : AsyncResult.isFailure(entries)
+      {
+        /*
+        No skeleton arm: the rows are hydrated before this paints. An empty list
+        is the unreachable fallback, and the table's own empty state says more
+        than a grey rectangle would.
+      */
+      }
+      {AsyncResult.isFailure(entries)
         ? <QueryError result={entries} subject="the audit log" />
-        : <AuditTable entries={entries.value} />}
+        : <AuditTable entries={AsyncResult.isSuccess(entries) ? entries.value : []} />}
     </section>
   );
 };
 
+const AuditRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <Audit />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/settings/audit")({
   staticData: { crumb: "Audit log" },
-  component: Audit,
+  loader: () => listAuditLog(),
+  component: AuditRoute,
 });

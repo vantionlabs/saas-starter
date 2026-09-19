@@ -1,12 +1,13 @@
 import { RoleForm } from "@/components/access/role-form.js";
 import { RoleTable } from "@/components/access/role-table.js";
-import { useAtomValue } from "@effect/atom-react";
+import { hydrated } from "@/server/hydration.js";
+import { listRoles } from "@/server/reads.js";
+import { HydrationBoundary, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { rolesAtom } from "@vantion/core/atoms/Access";
 import type { CustomRole } from "@vantion/module-iam/access/AccessRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
 import { Button } from "@vantion/ui/ui/button";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
 
@@ -15,14 +16,12 @@ const Roles = () => {
   const [editing, setEditing] = React.useState<CustomRole | undefined>(undefined);
   const [creating, setCreating] = React.useState(false);
 
-  if (AsyncResult.isInitial(roles)) {
-    return <Skeleton className="h-48 w-full" />;
-  }
-
   if (AsyncResult.isFailure(roles)) {
     return <QueryError result={roles} subject="roles" />;
   }
 
+  /** Hydrated before first paint; the empty list is the unreachable arm. */
+  const rows = AsyncResult.isSuccess(roles) ? roles.value : [];
   const open = creating || editing !== undefined;
   const close = () => {
     setCreating(false);
@@ -40,12 +39,19 @@ const Roles = () => {
 
       {open
         ? <RoleForm editing={editing} onDone={close} />
-        : <RoleTable roles={roles.value} onEdit={setEditing} />}
+        : <RoleTable roles={rows} onEdit={setEditing} />}
     </section>
   );
 };
 
+const RolesRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <Roles />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/settings/roles")({
   staticData: { crumb: "Roles" },
-  component: Roles,
+  loader: () => listRoles(),
+  component: RolesRoute,
 });

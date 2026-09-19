@@ -1,11 +1,13 @@
 import { sessionAtom } from "@/atom/session-atoms.js";
-import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { hydrated } from "@/server/hydration.js";
+import { getBilling } from "@/server/reads.js";
+import { HydrationBoundary, useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { billingAtom, billingPortalAtom, checkoutAtom } from "@vantion/core/atoms/Billing";
 import type { PaidPlan } from "@vantion/module-billing/BillingRpc";
 import { QueryError } from "@vantion/ui/app/query-error";
+import { SpinnerPanel } from "@vantion/ui/app/spinner";
 import { BillingPanel } from "@vantion/ui/settings/billing-panel";
-import { Skeleton } from "@vantion/ui/ui/skeleton";
 import { Exit } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import * as React from "react";
@@ -67,8 +69,14 @@ const Billing = () => {
     return <QueryError result={billing} subject="billing" />;
   }
 
+  /**
+   * The plan is hydrated; the caller's permissions are not. `sessionAtom` is an
+   * RPC of its own and still resolves in the browser, so this waits for one
+   * thing rather than two — a spinner, because somebody is waiting on work in
+   * flight, not a skeleton standing in for a page that never loaded.
+   */
   if (!AsyncResult.isSuccess(billing) || !AsyncResult.isSuccess(session)) {
-    return <Skeleton className="h-96 w-full" />;
+    return <SpinnerPanel label="Loading your plan" />;
   }
 
   return (
@@ -82,8 +90,15 @@ const Billing = () => {
   );
 };
 
+const BillingRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <Billing />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/settings/billing")({
   staticData: { crumb: "Billing" },
   validateSearch: (search: Record<string, unknown>) => ({ checkout: outcomeOf(search) }),
-  component: Billing,
+  loader: () => getBilling(),
+  component: BillingRoute,
 });

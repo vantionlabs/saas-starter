@@ -1,9 +1,23 @@
-import type { CustomRole, MemberOverride } from "@vantion/module-iam/access/AccessRpc";
+import type { MemberOverride } from "@vantion/module-iam/access/AccessRpc";
+import { CustomRole, OrganizationMember } from "@vantion/module-iam/access/AccessRpc";
 import type { Permission } from "@vantion/module-iam/identity/Permission";
-import { Effect } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { Effect, Schema } from "effect";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "../AppRpc.js";
 import { Keys } from "../Keys.js";
+
+/**
+ * Serialization metadata for the reads this app renders on the server.
+ *
+ * A key and a schema are what `Atom.serializable` needs, and the server needs
+ * the same pair to encode. Declared here beside the atom so the two halves
+ * cannot drift — a mismatched key hydrates nothing and the page quietly fetches
+ * again, which looks exactly like it working.
+ */
+export const rolesSerial = {
+  key: "roles",
+  schema: AsyncResult.Schema({ success: Schema.Array(CustomRole) }),
+};
 
 export const rolesAtom = Atom.withReactivity([Keys.organization, Keys.roles])(
   AppRpc.runtime.atom(
@@ -13,7 +27,12 @@ export const rolesAtom = Atom.withReactivity([Keys.organization, Keys.roles])(
       return yield* client("ListRoles", undefined);
     }),
   ),
-);
+).pipe(Atom.serializable(rolesSerial));
+
+export const membersSerial = {
+  key: "members",
+  schema: AsyncResult.Schema({ success: Schema.Array(OrganizationMember) }),
+};
 
 export const membersAtom = Atom.withReactivity([Keys.organization, Keys.members])(
   AppRpc.runtime.atom(
@@ -23,7 +42,7 @@ export const membersAtom = Atom.withReactivity([Keys.organization, Keys.members]
       return yield* client("ListMembers", undefined);
     }),
   ),
-);
+).pipe(Atom.serializable(membersSerial));
 
 /** Overrides for one member, keyed so each member gets its own atom. */
 export const memberOverridesAtom = Atom.family((memberId: string) =>

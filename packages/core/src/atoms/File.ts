@@ -1,9 +1,16 @@
 import { StorageUnavailable } from "@vantion/module-files/FilesErrors";
 import type { FileId } from "@vantion/module-files/FilesRpc";
-import { Effect } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { StoredFile } from "@vantion/module-files/FilesRpc";
+import { Effect, Schema } from "effect";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "../AppRpc.js";
 import { Keys } from "../Keys.js";
+
+/** Rendered on the server; the key and schema are shared with its loader. */
+export const filesSerial = {
+  key: "files",
+  schema: AsyncResult.Schema({ success: Schema.Array(StoredFile) }),
+};
 
 export const filesAtom = Atom.withReactivity([Keys.organization, Keys.files])(
   AppRpc.runtime.atom(
@@ -13,7 +20,7 @@ export const filesAtom = Atom.withReactivity([Keys.organization, Keys.files])(
       return yield* client("ListFiles", undefined);
     }),
   ),
-);
+).pipe(Atom.serializable(filesSerial));
 
 /**
  * The upload, all three steps of it.

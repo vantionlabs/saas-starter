@@ -15,6 +15,18 @@ test.describe("files", () => {
     await expect(signedIn.getByRole("heading", { name: "Files" })).toBeVisible();
     await expect(signedIn.getByText("No files yet")).toBeVisible();
 
+    /**
+     * Wait for the control before using it. `setInputFiles` fires a `change`
+     * event, and until React has attached there is nothing listening: the file
+     * lands on the input and no upload starts. The page is server-rendered, so
+     * it looks ready well before it is — and the Upload button is the one thing
+     * in the markup that says otherwise, since it stays disabled until both
+     * hydration and the caller's permissions have arrived.
+     */
+    await expect(signedIn.getByRole("button", { name: "Upload" })).toBeEnabled();
+
+    await expect(signedIn.getByRole("button", { name: "Upload" })).toBeEnabled();
+
     await signedIn.getByLabel("File to upload").setInputFiles({
       name: "report.txt",
       mimeType: "text/plain",
@@ -45,6 +57,8 @@ test.describe("files", () => {
 
   test("a link with a tampered signature is refused", async ({ signedIn, request }) => {
     await signedIn.goto("/files");
+
+    await expect(signedIn.getByRole("button", { name: "Upload" })).toBeEnabled();
 
     await signedIn.getByLabel("File to upload").setInputFiles({
       name: "private.txt",

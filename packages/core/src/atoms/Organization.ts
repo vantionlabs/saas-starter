@@ -1,7 +1,9 @@
+import { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
+import { AuditEntry } from "@vantion/module-iam/audit/Audit";
 import type { OrgId } from "@vantion/module-iam/identity/Identity";
 import type { Role } from "@vantion/module-iam/identity/Permission";
-import { Effect } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { Effect, Schema } from "effect";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { AppRpc } from "../AppRpc.js";
 import { Keys } from "../Keys.js";
 
@@ -52,6 +54,12 @@ export const deleteOrganizationAtom = AppRpc.runtime.fn<string>()(
   { reactivityKeys: [Keys.organization] },
 );
 
+/** Rendered on the server; the key and schema are shared with its loader. */
+export const apiKeysSerial = {
+  key: "apiKeys",
+  schema: AsyncResult.Schema({ success: Schema.Array(ApiKey) }),
+};
+
 export const apiKeysAtom = Atom.withReactivity([Keys.organization, Keys.apiKeys])(
   AppRpc.runtime.atom(
     Effect.gen(function*() {
@@ -60,7 +68,7 @@ export const apiKeysAtom = Atom.withReactivity([Keys.organization, Keys.apiKeys]
       return yield* client("ListApiKeys", undefined);
     }),
   ),
-);
+).pipe(Atom.serializable(apiKeysSerial));
 
 export const createApiKeyAtom = AppRpc.runtime.fn<
   { readonly name: string; readonly role: Role; }
@@ -84,6 +92,16 @@ export const revokeApiKeyAtom = AppRpc.runtime.fn<string>()(
   { reactivityKeys: [Keys.apiKeys] },
 );
 
+/**
+ * Rendered on the server. The limit is part of the read rather than a
+ * parameter, so the loader and the atom ask for the same hundred rows — a
+ * loader fetching fifty would hydrate a list the atom then replaces.
+ */
+export const auditLogSerial = {
+  key: "auditLog",
+  schema: AsyncResult.Schema({ success: Schema.Array(AuditEntry) }),
+};
+
 export const auditLogAtom = Atom.withReactivity([Keys.organization, Keys.audit])(
   AppRpc.runtime.atom(
     Effect.gen(function*() {
@@ -92,7 +110,7 @@ export const auditLogAtom = Atom.withReactivity([Keys.organization, Keys.audit])
       return yield* client("ListAuditLog", { limit: 100 });
     }),
   ),
-);
+).pipe(Atom.serializable(auditLogSerial));
 
 export const createOrganizationAtom = AppRpc.runtime.fn<string>()(
   (name) =>

@@ -1,4 +1,7 @@
 import { StatCards } from "@/components/dashboard/stat-cards.js";
+import { hydrated } from "@/server/hydration.js";
+import { getOverview } from "@/server/reads.js";
+import { HydrationBoundary } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
@@ -19,7 +22,19 @@ const Dashboard = () => (
   </section>
 );
 
+/**
+ * The boundary is here even though this component reads no atom: `StatCards`
+ * does, one level down, and hydration applies to the registry rather than to
+ * whoever happens to call `useAtomValue`.
+ */
+const DashboardRoute = () => (
+  <HydrationBoundary state={hydrated(Route.useLoaderData())}>
+    <Dashboard />
+  </HydrationBoundary>
+);
+
 export const Route = createFileRoute("/_protected/")({
   staticData: { crumb: "Dashboard" },
-  component: Dashboard,
+  loader: () => getOverview(),
+  component: DashboardRoute,
 });
