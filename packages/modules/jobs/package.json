@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@vantion/database": "workspace:*",
+    "@vantion/telemetry": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "bullmq": "catalog:",
     "effect": "catalog:",

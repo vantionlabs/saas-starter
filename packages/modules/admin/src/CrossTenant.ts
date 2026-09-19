@@ -1,4 +1,5 @@
-import { Effect, Schema } from "effect";
+import { crossTenantReads } from "@vantion/telemetry/Metrics";
+import { Effect, Metric, Schema } from "effect";
 import type { SqlError } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
 import { AdminSql } from "./AdminSql.js";
@@ -72,6 +73,17 @@ export const crossTenant = <A, R>(
             ${action.organizationId ?? null}, ${action.reason}
           )
         `;
+
+        /**
+         * `adminAudit` is the record of *which* reads and why; this is the
+         * shape of the curve. A support surface used twice a day that is
+         * suddenly used two hundred times is worth a page, and a row-level
+         * trail does not make that visible on its own.
+         */
+        yield* Metric.update(
+          Metric.withAttributes(crossTenantReads, { action: action.action }),
+          1,
+        );
 
         return yield* read(sql);
       }),

@@ -689,6 +689,25 @@ not to add manual logging on error paths because spans already carry the context
 makes that true. Each process passes its own name to `layerTelemetry`, so the API and the
 worker do not merge into one unreadable service.
 
+Metrics are the third question, and until recently nothing answered it. A span says what one
+request did; `ErrorTracker` says the same failure has happened four hundred times since
+Tuesday; neither says how deep the outbox is _right now_, or what share of deliveries are
+failing. Those are aggregates over time, which is what a metric is and what the other two
+cannot be turned into.
+
+`packages/telemetry/src/Metrics.ts` declares them in one place rather than beside the code
+that updates them, because a name is a contract with whatever is graphing it and one renamed
+in a module but not on the dashboard is a chart that silently goes flat — the failure where
+the code looks fine and the operator is last to know. A test asserts the names for that
+reason. They export through the same `OTEL_EXPORTER_OTLP_ENDPOINT` as the traces, on the same
+switch: a deployment that had to configure two destinations to get both would configure one.
+
+Six of them, each at the site that owns it — outbox depth and events relayed in `Relay.run`,
+deliveries by outcome and endpoints switched off in the webhooks module, cross-tenant reads in
+`crossTenant`, and refusals in the auth rate limiter. The last is the one worth naming: on the
+OTP path the limit _is_ the security boundary, so a limiter that has stopped engaging looks
+exactly like one nothing is testing.
+
 Error tracking is a separate question from tracing and is answered separately. A span says
 what one request did; `ErrorTracker` says the same failure has happened four hundred times
 since Tuesday and which release started it. Traces are not aggregation, and the gap between

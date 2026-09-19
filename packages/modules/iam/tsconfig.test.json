@@ -34,6 +34,9 @@
       "@vantion/database/*": [
         "../../../packages/database/src/*.js"
       ],
+      "@vantion/telemetry/*": [
+        "../../../packages/telemetry/src/*.js"
+      ],
       "@vantion/domain/*": [
         "../../../packages/domain/src/*.js"
       ],

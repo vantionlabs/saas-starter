@@ -1,5 +1,6 @@
 import { withWorkerScope } from "@vantion/database/OrgScope";
-import { Effect, Result, Schema } from "effect";
+import { webhookDeliveries } from "@vantion/telemetry/Metrics";
+import { Effect, Metric, Result, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/unstable/http";
 import { SqlClient } from "effect/unstable/sql";
 import { randomUUID } from "node:crypto";
@@ -99,6 +100,16 @@ export const deliver = Effect.fnUntraced(function*(options: {
     `).pipe(Effect.orDie);
 
     yield* recordOutcome({ endpointId: endpoint.id, delivered: ok });
+
+    /**
+     * One counter with an outcome attribute rather than two counters, so "what
+     * share of deliveries failed" is a query rather than arithmetic between
+     * series.
+     */
+    yield* Metric.update(
+      Metric.withAttributes(webhookDeliveries, { outcome: ok ? "delivered" : "failed" }),
+      1,
+    );
 
     if (ok) delivered += 1;
   }

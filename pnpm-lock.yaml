@@ -51,9 +51,15 @@ catalogs:
     '@opentelemetry/api':
       specifier: ^1.9.1
       version: 1.9.1
+    '@opentelemetry/exporter-metrics-otlp-http':
+      specifier: ^0.221.0
+      version: 0.221.0
     '@opentelemetry/exporter-trace-otlp-http':
       specifier: ^0.221.0
       version: 0.221.0
+    '@opentelemetry/sdk-metrics':
+      specifier: ^2.10.0
+      version: 2.10.0
     '@opentelemetry/sdk-trace-base':
       specifier: ^2.10.0
       version: 2.10.0
@@ -1096,6 +1102,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../iam
+      '@vantion/telemetry':
+        specifier: workspace:*
+        version: link:../../telemetry
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
@@ -1268,6 +1277,9 @@ importers:
       '@vantion/module-notifications':
         specifier: workspace:*
         version: link:../notifications
+      '@vantion/telemetry':
+        specifier: workspace:*
+        version: link:../../telemetry
       better-auth:
         specifier: 'catalog:'
         version: 1.6.33(@opentelemetry/api@1.9.1)(@tanstack/react-start@1.168.48(crossws@0.4.10(srvx@0.11.22))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.1)))(pg@8.23.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.10)
@@ -1299,6 +1311,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../iam
+      '@vantion/telemetry':
+        specifier: workspace:*
+        version: link:../../telemetry
       bullmq:
         specifier: 'catalog:'
         version: 5.81.5(redis@6.2.1(@opentelemetry/api@1.9.1))
@@ -1343,6 +1358,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../iam
+      '@vantion/telemetry':
+        specifier: workspace:*
+        version: link:../../telemetry
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
@@ -1362,9 +1380,15 @@ importers:
       '@opentelemetry/api':
         specifier: 'catalog:'
         version: 1.9.1
+      '@opentelemetry/exporter-metrics-otlp-http':
+        specifier: 'catalog:'
+        version: 0.221.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/exporter-trace-otlp-http':
         specifier: 'catalog:'
         version: 0.221.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-metrics':
+        specifier: 'catalog:'
+        version: 2.10.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-base':
         specifier: 'catalog:'
         version: 2.10.0(@opentelemetry/api@1.9.1)
@@ -2882,6 +2906,12 @@ packages:
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/exporter-metrics-otlp-http@0.221.0':
+    resolution: {integrity: sha512-sRfCKbOzgy8xZQV2as0RzIZlnCmCseCKZGLfRcrpo2CBngJDr+rPtX0zkG0+oUCV5kfQPUoW3W3C96Ag3Y/Clg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
 
   '@opentelemetry/exporter-trace-otlp-http@0.221.0':
     resolution: {integrity: sha512-AySXiKoC+meiWm6zdVj5T2LnPDZuatveBby1cMOeQteIWsYXAUxs8Sru13G2pVSPrUXz6vF+og7QVBX6GdC/oQ==}
@@ -9948,6 +9978,15 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/semantic-conventions': 1.43.0
+
+  '@opentelemetry/exporter-metrics-otlp-http@0.221.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/otlp-exporter-base': 0.221.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/otlp-transformer': 0.221.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-metrics': 2.10.0(@opentelemetry/api@1.9.1)
 
   '@opentelemetry/exporter-trace-otlp-http@0.221.0(@opentelemetry/api@1.9.1)':
     dependencies:

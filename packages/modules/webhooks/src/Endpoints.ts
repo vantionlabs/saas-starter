@@ -1,6 +1,7 @@
 import { withWorkerScope } from "@vantion/database/OrgScope";
 import { withOrgScope } from "@vantion/module-iam/identity/OrgScope";
-import { Effect } from "effect";
+import { webhookEndpointsDisabled } from "@vantion/telemetry/Metrics";
+import { Effect, Metric } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { randomBytes, randomUUID } from "node:crypto";
 
@@ -69,14 +70,26 @@ export const recordOutcome = Effect.fnUntraced(function*(options: {
 }) {
   const sql = yield* SqlClient.SqlClient;
 
-  yield* withWorkerScope(
+  const rows = yield* withWorkerScope(
     options.delivered
-      ? sql`update "webhookEndpoint" set "consecutiveFailures" = 0 where "id" = ${options.endpointId}`
-      : sql`
+      ? sql<
+        { active: boolean; }
+      >`update "webhookEndpoint" set "consecutiveFailures" = 0 where "id" = ${options.endpointId} returning "active"`
+      : sql<{ active: boolean; }>`
         update "webhookEndpoint"
         set "consecutiveFailures" = "consecutiveFailures" + 1,
             "active" = ("consecutiveFailures" + 1) < ${FAILURE_LIMIT}
         where "id" = ${options.endpointId}
+        returning "active"
       `,
   ).pipe(Effect.orDie);
+
+  /**
+   * Counted from what the statement returned rather than by reading the row
+   * back: the update is the moment it happens, and a second query could see a
+   * different answer.
+   */
+  if (!options.delivered && rows[0]?.active === false) {
+    yield* Metric.update(webhookEndpointsDisabled, 1);
+  }
 });

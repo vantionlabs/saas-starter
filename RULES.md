@@ -3,7 +3,11 @@
 - Effectful wrappers must use `Effect.fnUntraced` unless spans are required. Use `Effect.fn` when spans are needed. Do not write `(...args) => Effect.gen(function* () { ... })`.
 - An `Effect.fnUntraced` that only does `return yield* effect` is not allowed. Write the direct effect expression instead of wrapping it in a generator.
 - Yieldables are Effects. Pipe them directly outside generators. There is no conversion step.
-- All streaming implementations, including SSE and WebSockets, must use Effect `Stream`. SSE must use `effect/unstable/encoding/Sse` for framing. WebSockets must use first party Effect socket abstractions.
+- All streaming implementations must use Effect `Stream`. Streaming over RPC — which is
+  what the assistant and `Health.Watch` do — is `stream: true` on the procedure and
+  nothing else. If SSE is ever added, frame it with `effect/unstable/encoding/Sse`; for a
+  raw WebSocket, use Effect's own socket abstractions rather than a client library.
+  Nothing here uses either today, and this line said otherwise for several months.
 - Final live layers (`Rpc.toLayer`, service layers, middleware layers) must be typed as `Layer.Layer<ProvidedServices>`. Intermediate and test-exported layers must infer naturally. Use `Layer.orDie` only on final live compositions whose remaining errors are truly unrecoverable.
 - `Effect.orDie` converts every typed failure into a defect at once, so it is correct only where none of them is actionable. That is the ordinary case for a SQL statement whose failure modes are the database being unreachable, the query being wrong, or a row-level security check refusing it — all bugs, and none of them something a caller can act on.
 - Where a failure *is* actionable — a unique constraint a user can trip, a check constraint on their input — catch that case with `Effect.catchTag` and return a typed error, then die on the rest. Adding a constraint to a table is a reason to revisit the `orDie` on every statement that writes to it, because it is the moment a defect becomes a message somebody needed.

@@ -11,6 +11,9 @@
       "path": "../../database"
     },
     {
+      "path": "../../telemetry"
+    },
+    {
       "path": "../iam"
     }
   ],
@@ -27,6 +30,9 @@
       ],
       "@vantion/database/*": [
         "../../../packages/database/src/*.js"
+      ],
+      "@vantion/telemetry/*": [
+        "../../../packages/telemetry/src/*.js"
       ],
       "@vantion/module-iam/*": [
         "../../../packages/modules/iam/src/*.js"

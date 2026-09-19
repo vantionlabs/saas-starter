@@ -1,4 +1,5 @@
-import { Effect, Layer } from "effect";
+import { rateLimited } from "@vantion/telemetry/Metrics";
+import { Effect, Layer, Metric } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 import { RateLimiter } from "effect/unstable/persistence";
 import { Auth } from "./Auth.js";
@@ -68,6 +69,13 @@ export const AuthHttp = Layer.unwrap(
           );
 
           if (!allowed) {
+            /**
+             * On the OTP path the limit *is* the security boundary, so a
+             * limiter that has stopped engaging looks exactly like one that is
+             * simply not being tested. This is the difference.
+             */
+            yield* Metric.update(rateLimited, 1);
+
             return HttpServerResponse.text("Too many requests", { status: 429 });
           }
         }

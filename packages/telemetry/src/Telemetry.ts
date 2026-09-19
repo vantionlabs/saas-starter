@@ -2,7 +2,9 @@
 // imports @opentelemetry/sdk-trace-web — a browser dependency this server has no
 // reason to install, and whose absence stops the process booting at all.
 import * as NodeSdk from "@effect/opentelemetry/NodeSdk";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { Config, Effect, Option, Redacted } from "effect";
 
@@ -25,6 +27,12 @@ import { Config, Effect, Option, Redacted } from "effect";
  *
  * `Effect.withSpan` and `Effect.fn` are what produce the spans; this only
  * decides where they go.
+ *
+ * The same endpoint carries the **metrics** in `packages/telemetry/Metrics.ts`,
+ * on the same switch and for the same reason. Spans and aggregates answer
+ * different questions — one says what a request did, the other says how deep
+ * the outbox is right now — and a deployment that had to configure two
+ * destinations to get both would configure one.
  */
 export const layerTelemetry = (defaultServiceName: string) =>
   NodeSdk.layer(Effect.gen(function*() {
@@ -51,6 +59,19 @@ export const layerTelemetry = (defaultServiceName: string) =>
     return {
       resource: { serviceName },
       ...(Option.isNone(endpoint) ? {} : {
+        /**
+         * Pulled on an interval rather than pushed per update: a counter is
+         * incremented on hot paths, and exporting each increment would make
+         * the collector part of every webhook delivery.
+         */
+        metricReader: new PeriodicExportingMetricReader({
+          exporter: new OTLPMetricExporter({
+            url: `${endpoint.value.replace(/\/$/, "")}/v1/metrics`,
+            ...(Option.isNone(headers)
+              ? {}
+              : { headers: { authorization: Redacted.value(headers.value) } }),
+          }),
+        }),
         // Batched rather than simple: exporting a span per request synchronously
         // would put the collector on the critical path of every response.
         spanProcessor: new BatchSpanProcessor(

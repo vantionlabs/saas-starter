@@ -1,6 +1,7 @@
 import { withWorkerScope } from "@vantion/database/OrgScope";
+import { outboxPending, outboxRelayed } from "@vantion/telemetry/Metrics";
 import type { Duration } from "effect";
-import { Effect, Schedule } from "effect";
+import { Effect, Metric, Schedule } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 import { JobQueue } from "./JobQueue.js";
 
@@ -44,6 +45,18 @@ export const relayOnce = Effect.fnUntraced(function*(options?: { readonly batchS
         limit ${batchSize}
       `;
 
+      /**
+       * Sampled here rather than in its own query, because the pass has to
+       * count the remaining rows anyway to know whether it is keeping up. A
+       * depth that climbs and never comes back down is the clearest sign the
+       * relay has stopped, and it was invisible until this existed.
+       */
+      const [depth] = yield* sql<{ pending: string; }>`
+        select count(*) as "pending" from "outboxEvent" where "relayedAt" is null
+      `;
+
+      yield* Metric.update(outboxPending, Number(depth?.pending ?? 0));
+
       if (claimed.length === 0) return 0;
 
       for (const row of claimed) {
@@ -61,6 +74,8 @@ export const relayOnce = Effect.fnUntraced(function*(options?: { readonly batchS
         update "outboxEvent" set "relayedAt" = now()
         where "id" in ${sql.in(claimed.map((row) => row.id))}
       `;
+
+      yield* Metric.update(outboxRelayed, claimed.length);
 
       return claimed.length;
     }),
