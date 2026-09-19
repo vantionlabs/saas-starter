@@ -75,6 +75,32 @@ export const layerScripted: Layer.Layer<LanguageModel.LanguageModel | ModelStatu
           ]);
         }
 
+        if (asked.includes("who am i") || asked.includes("who i am")) {
+          return Stream.fromIterable<Response.StreamPartEncoded>([
+            {
+              type: "tool-call",
+              id: "scripted-call",
+              name: "WhoAmI",
+              params: {},
+              providerExecuted: false,
+            },
+            finish,
+          ]);
+        }
+
+        if (asked.includes("file")) {
+          return Stream.fromIterable<Response.StreamPartEncoded>([
+            {
+              type: "tool-call",
+              id: "scripted-call",
+              name: "ListFiles",
+              params: {},
+              providerExecuted: false,
+            },
+            finish,
+          ]);
+        }
+
         if (asked.includes("contact")) {
           return Stream.fromIterable<Response.StreamPartEncoded>([
             {

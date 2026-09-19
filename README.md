@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="262 unit tests" src="https://img.shields.io/badge/tests-262-2EAD33?style=flat-square" />
+  <img alt="278 unit tests" src="https://img.shields.io/badge/tests-278-2EAD33?style=flat-square" />
   <img alt="37 browser tests" src="https://img.shields.io/badge/browser-37-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -76,6 +76,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **Realtime** — the same RPC procedures over a websocket, with a worked stream
 - ✅ **MCP server** — your own product as tools in an editor, on the same permissions
 - ✅ **An assistant** — over your own data, with a screen, and writes it must ask for
+- ✅ **Evals** — a test set, deterministic checks and a baseline the build fails on
 - ✅ **App shell** — sidebar, command palette, breadcrumbs, empty states, light and dark
 
 **The platform** — what you build the next feature on.
@@ -84,7 +85,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, NativeWind, Figma and email
 - ✅ **A design app** — `apps/design`, the same components on persona fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 262 unit, 37 browser, testcontainers Postgres, all in CI
+- ✅ **Tests that gate** — 278 unit, 37 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -138,7 +139,7 @@ what makes vendoring pay: `repos/effect` is _one_ dependency, and having it in
 the tree gives an agent ground truth for nearly everything it will write.
 
 **Tests are deterministic by construction.** Logical clocks, layers swapped at
-the edges, and no sleeps. That is what lets a suite of 262 be a gate an agent
+the edges, and no sleeps. That is what lets a suite of 278 be a gate an agent
 runs between every slice, not something a human runs before lunch.
 
 The cost is honest: Effect v4 is a release candidate, the learning curve is real,
@@ -489,6 +490,7 @@ it.
 | `pnpm format` / `format:check` | dprint                                              |
 | `pnpm test`                    | vitest across `apps/*` and `packages/*`             |
 | `pnpm e2e`                     | Playwright, driving both servers in a browser       |
+| `pnpm evals`                   | the assistant's test set, against its baseline      |
 | `pnpm vendor`                  | re-vendor the upstream source under `repos/`        |
 
 Postgres-backed tests skip without a database. Either `docker compose up -d`, or
@@ -552,8 +554,10 @@ whoever (or whatever) picks the repo up cold. `RULES.md` holds the hard rules on
 Effect style, architecture, forms, observability and testing; read it before
 changing much. `knowledge/README.md` indexes the per-topic guides.
 
-`docs/workflow/` is the method, written out phase by phase, and `docs/figma.md`
-is the design workflow and its one account caveat.
+`docs/workflow/` is the method, written out phase by phase, `docs/figma.md` is
+the design workflow and its one account caveat, `docs/mcp.md` connects an editor
+to the MCP server, and `docs/evals.md` is the eval set and what its gate can
+honestly enforce.
 
 `repos/` vendors the Effect and effect-form sources at exactly the versions this
 repo depends on. Effect v4 is a release candidate whose APIs moved recently, so
@@ -582,7 +586,6 @@ open, and none of it is waiting behind a paid tier.
 | --------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | **Then**  | `packages/core` + `apps/mobile`         | The shared hooks and logic, then Expo and NativeWind against the same contract and the same tokens.                     |
 | **Then**  | `apps/marketing` and `apps/brand`       | The landing page and the brand kit — typography, colour, voice, motion, email footers.                                  |
-| **Next**  | Evals, with a baseline gate             | The assistant is built, tested and on screen; what is missing is a golden set that fails CI when an answer gets worse.  |
 | **Then**  | A spec template for the discovery phase | `/product-discover` describes the thinking; what is missing is the artefact it produces and `/product-build` consumes.  |
 | **Later** | SSO and SAML                            | The heaviest remaining item, and the one enterprise deals actually ask for.                                             |
 | **Later** | An admin panel                          | Cross-tenant by nature, so it steps outside the RLS guarantee everything else relies on and needs its own audited path. |

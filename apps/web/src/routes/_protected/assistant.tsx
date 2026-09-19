@@ -20,7 +20,12 @@ import { toast } from "sonner";
 /** Folds one chunk into what the screen is showing. */
 const fold = (turn: Turn, chunk: Chunk): Turn => {
   if (chunk._tag === "Text") return { ...turn, text: turn.text + chunk.text };
-  if (chunk._tag === "Tool") return { ...turn, tools: [...turn.tools, chunk.name] };
+  if (chunk._tag === "Tool") {
+    return {
+      ...turn,
+      tools: [...turn.tools, { name: chunk.name, refused: chunk.refused ?? undefined }],
+    };
+  }
 
   return {
     ...turn,

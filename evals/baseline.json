@@ -1,0 +1,11 @@
+{
+  "model": "scripted",
+  "recordedAt": "2026-09-19",
+  "categories": {
+    "approval": 1,
+    "permissions": 1,
+    "tenancy": 1,
+    "tools": 1
+  },
+  "knownFailures": []
+}

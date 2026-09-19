@@ -36,6 +36,11 @@ jobs:
 
       # Docker is available on ubuntu-latest, so the testcontainers-backed
       # Postgres started by test/global-setup.ts runs here rather than skipping.
+      #
+      # This includes the assistant's eval set: it is a Vitest project like any
+      # other, so the baseline gate is part of the same command rather than a
+      # job somebody can forget to add. See docs/evals.md for what that gate
+      # can honestly enforce without a model key.
       - run: pnpm test
 
   e2e:

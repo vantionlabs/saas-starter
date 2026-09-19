@@ -7,7 +7,9 @@ import { ToolChips } from "./tool-chip.js";
 /** What is happening right now, as distinct from what is already recorded. */
 export type Turn = {
   readonly text: string;
-  readonly tools: ReadonlyArray<string>;
+  readonly tools: ReadonlyArray<
+    { readonly name: string; readonly refused?: string | undefined; }
+  >;
   readonly approval:
     | { readonly approvalId: string; readonly tool: string; readonly summary: string; }
     | undefined;
@@ -71,11 +73,11 @@ export const Conversation = (props: {
           message.role === "user"
             ? <Bubble key={message.id}>{message.text}</Bubble>
             : message.role === "tool"
-            ? <ToolChips key={message.id} names={[message.toolName ?? message.text]} />
+            ? <ToolChips key={message.id} tools={[{ name: message.toolName ?? message.text }]} />
             : <Answer key={message.id} text={message.text} />
         )}
 
-        {props.turn.tools.length > 0 && <ToolChips names={props.turn.tools} />}
+        {props.turn.tools.length > 0 && <ToolChips tools={props.turn.tools} />}
 
         {props.turn.text !== "" && (
           <Answer text={props.turn.text} streaming={props.turn.streaming} />

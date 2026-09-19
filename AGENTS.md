@@ -139,6 +139,28 @@ kept it in React state and cleared it when the stream ended, which made the card
 vanish in the same frame: a turn _ending_ is not a turn _finishing_, and only the browser test
 could have caught the difference.
 
+`evals/` is the assistant's test set and the baseline the build compares against, and it runs
+inside `pnpm test` rather than beside it. What it can enforce on every push is the half that
+must hold whatever a model says — the right tool is reached for, a write stops and asks, a
+refusal comes back named, one tenant's question never reaches another's rows — so it runs
+against the scripted stand-in, deterministically and for nothing. The other half, whether a
+model _chooses_ well, needs a key and a baseline recorded for that model; `docs/evals.md` is
+clear about which is which, because a gate that pretends to measure quality is a gate somebody
+disables.
+
+Two rules decide it: a pass rate may drift five points, and a **new** critical failure fails
+the build whatever the rates say. A run is never compared against a baseline from a different
+model — that number would mean nothing, so it refuses.
+
+The cases are written in `vantionlabs/eval-harness`'s file format so the same file can be
+graded there against a rubric, with three columns of our own for what a text-only harness
+cannot express: an approval gate, a permission refusal, and which role is asking.
+
+One ordering is worth knowing, and `ASSIST-003` exists because of it: approval is evaluated
+_before_ the handler runs, so a gated tool stops to ask before reaching the policy that would
+refuse it. Putting a permission check inside `needsApproval` would put authorisation in a
+second place, so the case tests a refusal on a read instead.
+
 `apps/mcp` is that toolkit over stdio, which is how an editor starts an MCP server: a
 subprocess with credentials in its own configuration and no port to expose. It resolves
 `VANTION_API_KEY` once at boot through the same `ApiKeyAuth` the public API uses, so the

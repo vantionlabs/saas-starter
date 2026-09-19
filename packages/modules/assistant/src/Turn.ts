@@ -1,10 +1,15 @@
 import { AgentToolkit } from "@vantion/module-agent/Module";
-import { Effect, Ref, Result, Stream } from "effect";
-import { Chat, type Prompt } from "effect/unstable/ai";
+import { Effect, Ref, Stream } from "effect";
+import { Chat, type Prompt, type Response } from "effect/unstable/ai";
 import type { Chunk, ConversationId } from "./AssistantRpc.js";
 import { AssistantUnavailable } from "./AssistantRpc.js";
 import { appendMessage, saveState } from "./Conversations.js";
 import { describe } from "./Pending.js";
+
+/** A tool that returned its refusal rather than failing the turn. */
+const isRefusal = (result: unknown): result is { readonly required: string; } =>
+  typeof result === "object" && result !== null && "_tag" in result
+  && (result as { readonly _tag: unknown; })._tag === "ToolRefused";
 
 /**
  * How the assistant is told what it is.
@@ -55,36 +60,61 @@ export const runTurn = (options: {
     /** Tool calls by id, because an approval request names only the id. */
     const calls = new Map<string, { readonly name: string; readonly params: unknown; }>();
 
+    const toChunk = (
+      part: Response.StreamPart<typeof AgentToolkit["tools"]>,
+    ): Chunk | undefined => {
+      if (part.type === "text-delta") {
+        text += part.delta;
+
+        return { _tag: "Text", text: part.delta };
+      }
+
+      if (part.type === "tool-call") {
+        // Recorded, not announced: the chip is emitted on the result, which is
+        // what knows whether the tool was allowed to run.
+        calls.set(part.id, { name: part.name, params: part.params });
+
+        return undefined;
+      }
+
+      if (part.type === "tool-result") {
+        const refused = isRefusal(part.result) ? part.result.required : null;
+
+        tools.push(refused === null ? part.name : `${part.name} (refused)`);
+
+        return { _tag: "Tool", name: part.name, refused };
+      }
+
+      if (part.type === "tool-approval-request") {
+        const call = calls.get(part.toolCallId);
+
+        return {
+          _tag: "Approval",
+          approvalId: part.approvalId,
+          tool: call?.name ?? "a tool",
+          summary: call === undefined ? "a tool" : describe(call.name, call.params),
+        };
+      }
+
+      return undefined;
+    };
+
     return options.chat.streamText({
       prompt: options.say,
       toolkit: AgentToolkit,
     }).pipe(
-      Stream.filterMap((part) => {
-        if (part.type === "text-delta") {
-          text += part.delta;
+      /**
+       * One part in, at most one chunk out.
+       *
+       * `flatMap` over an empty stream rather than a filter, because the parts
+       * that produce nothing are most of them — text starts and ends, params
+       * arriving token by token, usage — and a filter that has to name a
+       * single "dropped" type cannot describe a union that wide.
+       */
+      Stream.flatMap((part) => {
+        const chunk = toChunk(part);
 
-          return Result.succeed<Chunk>({ _tag: "Text", text: part.delta });
-        }
-
-        if (part.type === "tool-call") {
-          tools.push(part.name);
-          calls.set(part.id, { name: part.name, params: part.params });
-
-          return Result.succeed<Chunk>({ _tag: "Tool", name: part.name });
-        }
-
-        if (part.type === "tool-approval-request") {
-          const call = calls.get(part.toolCallId);
-
-          return Result.succeed<Chunk>({
-            _tag: "Approval",
-            approvalId: part.approvalId,
-            tool: call?.name ?? "a tool",
-            summary: call === undefined ? "a tool" : describe(call.name, call.params),
-          });
-        }
-
-        return Result.fail(part);
+        return Stream.fromIterable(chunk === undefined ? [] : [chunk]);
       }),
       /**
        * A provider that is unreachable, over quota or misconfigured all arrive

@@ -1,0 +1,54 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": [
+    "src",
+    "test"
+  ],
+  "references": [
+    {
+      "path": "../packages/database"
+    },
+    {
+      "path": "../packages/modules/iam"
+    },
+    {
+      "path": "../packages/modules/contact"
+    },
+    {
+      "path": "../packages/modules/agent"
+    },
+    {
+      "path": "../packages/modules/assistant"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "tsBuildInfoFile": ".tsbuildinfo/evals.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@vantion/database/*": [
+        "../packages/database/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/module-contact/*": [
+        "../packages/modules/contact/src/*.js"
+      ],
+      "@vantion/module-agent/*": [
+        "../packages/modules/agent/src/*.js"
+      ],
+      "@vantion/module-assistant/*": [
+        "../packages/modules/assistant/src/*.js"
+      ]
+    }
+  }
+}

@@ -32,8 +32,16 @@ export class Message extends Schema.Class<Message>("Message")({
  */
 export const Chunk = Schema.Union([
   Schema.TaggedStruct("Text", { text: Schema.String }),
-  /** The assistant used a tool. Named, so the screen can say which. */
-  Schema.TaggedStruct("Tool", { name: Schema.String }),
+  /**
+   * The assistant used a tool. Named, so the screen can say which — and
+   * carrying the permission when the tool refused, because "it ran" and "it
+   * was not allowed to" are different things and a chip that showed only the
+   * first would be a lie of omission.
+   */
+  Schema.TaggedStruct("Tool", {
+    name: Schema.String,
+    refused: Schema.NullOr(Schema.String),
+  }),
   /**
    * The assistant wants to do something that writes, and is asking first.
    *

@@ -10,6 +10,9 @@ packages:
   - tooling
   # Browser tests, which drive both apps rather than importing from either.
   - e2e
+  # The eval set and its baseline gate. Its own package for the same reason
+  # e2e is: it drives the application rather than being part of it.
+  - evals
 
 # Effect v4 is tracked at an exact release candidate. Bumping the train means
 # editing this block only — every package manifest references `catalog:`.
@@ -68,6 +71,7 @@ catalog:
   resend: ^6.20.0
   stripe: ^19.2.0
   "web-vitals": ^6.2.2
+  yaml: ^2.9.1
   react-dom: ^19.2.8
   scheduler: ^0.27.0
   tailwindcss: ^4.3.3

@@ -18,7 +18,7 @@ export const Assistant = () => {
         messages={persona.conversation}
         turn={{
           text: "",
-          tools: ["SearchContacts"],
+          tools: [{ name: "SearchContacts" }, { name: "ListFiles", refused: "file:read" }],
           approval: {
             approvalId: "approval-fixture",
             tool: "CreateContact",
