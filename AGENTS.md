@@ -776,10 +776,24 @@ a constraint error instead of a row — the one read nobody could explain was th
 could see. An audit row is a statement about the past; a foreign key makes it one about the
 present.
 
-**`apps/server` does not register this module and must not.** The process serving customer
-traffic should not hold the credential, which is why the admin application will serve its own
-procedures. `docs/admin.md` has the whole argument and is explicit that no such application
-exists yet.
+`apps/admin` is that application: a TanStack Start app, its own deployable, and the only image
+given `ADMIN_DATABASE_URL`. The separation is the control rather than tidiness — a distinct
+origin can sit behind a VPN or an IP allowlist and a route inside `apps/web` cannot, nor can a
+cross-site scripting hole in the customer product reach across one.
+
+It calls its procedures **in process**. `apps/web` uses RPC because its server is a different
+process; this app's server _is_ the process holding the admin connection, so a wire format
+between them would be a contract with itself. `Organizations.ts` holds the procedures as plain
+effects, and `AdminRpcs` is the other transport over the same implementation — for a client
+that is not the page this process rendered.
+
+The reason comes before the data: each screen asks why and fetches nothing until it has an
+answer, because a reason box that can be skipped is one that is always empty. Staff sign in
+through the ordinary sign-in page, which is the honest limitation — this surface is only as
+strong as an individual's account, and `docs/admin.md` says so rather than implying otherwise.
+
+**`apps/server` does not register the admin module and must not.** The process serving customer traffic does not
+hold the credential.
 
 `docker compose` bootstraps as `postgres` and never connects as it.
 `packages/database/src/roles/init.sql` makes the two roles that matter:

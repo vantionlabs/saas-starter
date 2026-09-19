@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@vantion/tokens/tokens.css";
+
+/* The components live in a sibling package, which Tailwind does not scan. */
+@source "../../../packages/ui/src";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}

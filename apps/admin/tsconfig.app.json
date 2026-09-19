@@ -1,0 +1,50 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src",
+    "test"
+  ],
+  "references": [
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/tokens" },
+    { "path": "../../packages/database" },
+    { "path": "../../packages/modules/admin" },
+    { "path": "../../packages/modules/iam" }
+  ],
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "tsBuildInfoFile": ".tsbuildinfo/app.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "${configDir}/src/*"
+      ],
+      "@test/*": [
+        "${configDir}/test/*"
+      ],
+      "@vantion/database/*": [
+        "../../packages/database/src/*.js"
+      ],
+      "@vantion/module-admin/*": [
+        "../../packages/modules/admin/src/*.js"
+      ],
+      "@vantion/module-iam/*": [
+        "../../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/tokens/*": [
+        "../../packages/tokens/src/*.js"
+      ],
+      "@vantion/ui/*": [
+        "../../packages/ui/src/*.tsx"
+      ]
+    }
+  }
+}

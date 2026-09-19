@@ -146,12 +146,37 @@ The module is complete and serveable: `AdminModule` carries
 `CurrentStaff` in its requirements because who is asking is the host's to
 establish.
 
-**There is no admin application yet.** No `apps/admin`, no screens, and no
-process registering `AdminModule` — `apps/server` does not and must not — so
-nothing is served and `ADMIN_DATABASE_URL` is unset everywhere including CI.
-What lands next is the application: a TanStack Start app serving these
-procedures from its own process, so the credential never sits beside customer
-traffic.
+## The application
+
+`apps/admin` is a TanStack Start app and its own deployable. That separation is
+the control rather than tidiness: a distinct origin can sit behind a VPN, an IP
+allowlist, or simply off the public internet, and a route inside `apps/web`
+cannot be any of those — nor can a cross-site scripting hole in the customer
+product reach across one.
+
+**It calls its procedures in process.** `apps/web` talks to `apps/server` over
+RPC because its server is a different process; this app's server _is_ the
+process holding the admin connection, so a wire format between them would be a
+contract with itself. `Organizations.ts` holds the procedures as plain effects
+and `AdminRpcs` is the other transport over the same implementation — for a
+client that is not the page this process rendered.
+
+**The reason comes before the data.** Each screen asks why and fetches nothing
+until it has an answer: `ReasonPrompt` stands in front of the list rather than
+beside it, because a reason box that can be skipped is one that is always
+empty. Its button is unusable until something is typed, and a test asserts that.
+
+**Staff sign in through the ordinary sign-in page.** There is no separate
+credential, and that is the honest limitation: this surface is only as strong as
+an individual's account. `whoami` resolves per request against `user.role`, so
+revoking somebody lands on their next request — but a stolen staff session is a
+stolen staff session, and two-factor on those accounts is the mitigation this
+repository does not yet enforce.
+
+The session itself comes from the customer API, which owns the only better-auth
+instance — the same call `apps/web` makes, for the same reason: a second
+instance would be a second door onto one `user` table without `AuthHttp`'s rate
+limiter in front of it.
 
 Also owed, and worth naming: when a staff action concerns exactly one
 organization, that organization's own `auditEntry` should carry it too. A

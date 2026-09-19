@@ -31,7 +31,8 @@
     "mobile": "pnpm --filter @vantion/mobile dev",
     "brand": "pnpm --filter @vantion/brand dev",
     "marketing": "pnpm --filter @vantion/marketing dev",
-    "design": "pnpm --filter @vantion/design dev"
+    "design": "pnpm --filter @vantion/design dev",
+    "admin": "pnpm --filter @vantion/admin dev"
   },
   "devDependencies": {
     "@effect/tsgo": "0.36.5",

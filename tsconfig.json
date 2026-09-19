@@ -67,6 +67,9 @@
       "path": "apps/design"
     },
     {
+      "path": "apps/admin"
+    },
+    {
       "path": "apps/marketing"
     },
     {
