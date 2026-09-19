@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="364 unit tests" src="https://img.shields.io/badge/tests-364-2EAD33?style=flat-square" />
+  <img alt="365 unit tests" src="https://img.shields.io/badge/tests-365-2EAD33?style=flat-square" />
   <img alt="41 browser tests" src="https://img.shields.io/badge/browser-41-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
@@ -87,7 +87,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 364 unit, 41 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 365 unit, 41 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -585,7 +585,8 @@ changing much. `knowledge/README.md` indexes the per-topic guides.
 the design workflow and its one account caveat, `docs/mcp.md` connects an editor
 to the MCP server, `docs/evals.md` is the eval set and what its gate can honestly
 enforce, `docs/mobile.md` is the Expo app and the three seams it needs,
-`docs/admin.md` is the cross-tenant boundary and what enforces it, and
+`docs/admin.md` is the cross-tenant boundary and what enforces it,
+`docs/redis.md` is what Redis is for and what breaks without it, and
 `docs/sso.md` is single sign-on — who may turn it on, why the domain has to be
 proved, and what has not been tested against a real identity provider.
 

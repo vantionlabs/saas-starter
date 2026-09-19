@@ -46,12 +46,32 @@ export type Limits = {
   readonly webhookEndpoints: number;
   /** Everything uploaded, in megabytes. Checked before a URL is signed. */
   readonly storageMb: number;
+  /**
+   * Requests a minute an organization's API keys may make, counted together.
+   *
+   * Per organization rather than per key, because a key is a credential and a
+   * quota belongs to whoever is paying for it — issuing a second key should not
+   * double what a tenant may do.
+   */
+  readonly apiRequestsPerMinute: number;
 };
 
 export const limits: Record<Plan, Limits> = {
-  free: { seats: 3, apiKeys: 2, webhookEndpoints: 0, storageMb: 100 },
-  pro: { seats: 25, apiKeys: 10, webhookEndpoints: 5, storageMb: 5_000 },
-  scale: { seats: 250, apiKeys: 100, webhookEndpoints: 50, storageMb: 100_000 },
+  free: { seats: 3, apiKeys: 2, webhookEndpoints: 0, storageMb: 100, apiRequestsPerMinute: 60 },
+  pro: {
+    seats: 25,
+    apiKeys: 10,
+    webhookEndpoints: 5,
+    storageMb: 5_000,
+    apiRequestsPerMinute: 600,
+  },
+  scale: {
+    seats: 250,
+    apiKeys: 100,
+    webhookEndpoints: 50,
+    storageMb: 100_000,
+    apiRequestsPerMinute: 6_000,
+  },
 };
 
 export const has = (plan: Plan, feature: Feature): boolean => features[plan].has(feature);

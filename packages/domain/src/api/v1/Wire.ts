@@ -59,3 +59,16 @@ export class NotFound extends Schema.Class<NotFound>("NotFound")({
   error: Schema.tag("not_found"),
   message: Schema.String,
 }) {}
+
+/**
+ * 429, and part of the contract from now on.
+ *
+ * Adding a status to a versioned API is a change every client has to cope with,
+ * which is why it is declared here beside the others rather than returned ad
+ * hoc: it appears in the OpenAPI document, so a generated client knows to back
+ * off rather than treating it as an unknown failure.
+ */
+export class TooManyRequests extends Schema.Class<TooManyRequests>("TooManyRequests")({
+  error: Schema.tag("too_many_requests"),
+  message: Schema.String,
+}) {}

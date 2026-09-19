@@ -692,6 +692,9 @@ importers:
       '@vantion/module-notifications':
         specifier: workspace:*
         version: link:../../packages/modules/notifications
+      '@vantion/redis':
+        specifier: workspace:*
+        version: link:../../packages/redis
       '@vantion/telemetry':
         specifier: workspace:*
         version: link:../../packages/telemetry
@@ -1364,6 +1367,22 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109(effect@4.0.0-rc.109)(vitest@4.1.10)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)(yaml@2.9.1))
+
+  packages/redis:
+    dependencies:
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-rc.109
+      ioredis:
+        specifier: 'catalog:'
+        version: 5.11.1
     devDependencies:
       '@effect/vitest':
         specifier: 'catalog:'

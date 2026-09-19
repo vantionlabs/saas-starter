@@ -37,6 +37,9 @@
       "path": "packages/core"
     },
     {
+      "path": "packages/redis"
+    },
+    {
       "path": "packages/telemetry"
     },
     {

@@ -667,6 +667,30 @@ The storage allowance is a plan limit (`limits.storageMb`), checked before a URL
 rather than after the bytes land — the last moment the application can still say no is before it
 hands out permission to write.
 
+Rate limiting counts in **Redis when `REDIS_URL` is set**, memory when it is not, and the
+difference is a security property rather than a performance one. An in-memory store counts per
+process, so N replicas behind a load balancer give a caller N times the limit — and
+`AuthHttp.ts` says throttling _is_ the boundary on the OTP path, where twenty bits of entropy
+are only as strong as the number of attempts allowed. This shipped as `layerStoreMemory` with
+a comment offering Redis as a way to "share limits across workers", which undersold it: it is
+the `X-Forwarded-For` failure again, on the same endpoint, from a different direction. One
+instance without Redis is fine; more than one is not, and `docs/redis.md` says so.
+
+`packages/redis` builds the `Redis` service over **ioredis**, not the `NodeRedis` layer
+`@effect/platform-node` ships. BullMQ requires ioredis and is not negotiable, so the platform
+layer would mean two client libraries and two pools in one process; `Redis.make` wants one
+`send` function and builds script caching on top, so the adapter is twenty lines. It lives
+beside `packages/database` because `RULES.md` says a vendor wanted by more than one module
+becomes its own thing — jobs want it, rate limiting wants it, caching will.
+
+The **public API is rate limited too**, and was not at all before: a key could be called
+without bound, which on a versioned surface with no session and no captcha is the easiest
+thing here to abuse. The allowance is a plan limit, so an upgrade raises it on the next
+request, and it is keyed on the organization rather than the key — a key is a credential and
+a quota belongs to whoever pays for it, so a second key does not double what a tenant may do.
+`429` is declared in `api/v1/Wire.ts` beside the other statuses so it reaches the OpenAPI
+document; a generated client that does not know to back off will not.
+
 The auth endpoints are rate-limited per caller, and who the caller _is_ depends on
 `TRUST_PROXY`: the number of reverse proxies in front of this process, `0` by default and
 `1` on Railway. At `0` the socket address is used and `X-Forwarded-For` is ignored. Above it

@@ -62,6 +62,9 @@
       "@vantion/database/*": [
         "../../packages/database/src/*.js"
       ],
+      "@vantion/redis/*": [
+        "../../packages/redis/src/*.js"
+      ],
       "@vantion/telemetry/*": [
         "../../packages/telemetry/src/*.js"
       ],

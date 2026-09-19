@@ -11,6 +11,7 @@ import { FilesHttp, FilesModule } from "@vantion/module-files/Module";
 import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
 import { NotificationsModule } from "@vantion/module-notifications/Module";
+import { layerRateLimitStore } from "@vantion/redis/RateLimitStore";
 import { ErrorTracker, layerReporting } from "@vantion/telemetry/ErrorTracker";
 import { layerTelemetry } from "@vantion/telemetry/Telemetry";
 import { Config, Effect, Layer } from "effect";
@@ -131,9 +132,16 @@ const HttpLive = Layer.unwrap(
        */
       Layer.provide(BillingModule),
       Layer.provide(FilesModule),
-      // Swap `layerStoreMemory` for `layerStoreRedis` to share limits across workers.
+      /**
+       * Redis when `REDIS_URL` is set, memory when it is not — and the
+       * difference is not a performance one. An in-memory store counts per
+       * process, so N replicas give a caller N times the limit, and on the OTP
+       * path the limit is the security boundary rather than a politeness
+       * measure. This used to be `layerStoreMemory` with a comment suggesting
+       * the swap as an option.
+       */
       Layer.provide(RateLimiter.layer),
-      Layer.provide(RateLimiter.layerStoreMemory),
+      Layer.provide(layerRateLimitStore),
       Layer.provide(PgLive),
       Layer.provide(NotificationsModule),
       Layer.provide(PgPool.layer),

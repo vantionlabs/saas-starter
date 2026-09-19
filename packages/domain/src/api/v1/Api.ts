@@ -1,6 +1,13 @@
 import { Schema } from "effect";
 import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
-import { ContactV1, Forbidden, NewContactV1, NotFound, Unauthorized } from "./Wire.js";
+import {
+  ContactV1,
+  Forbidden,
+  NewContactV1,
+  NotFound,
+  TooManyRequests,
+  Unauthorized,
+} from "./Wire.js";
 
 /**
  * Version 1 of the public HTTP API.
@@ -31,6 +38,8 @@ const authErrors = [
   // 401, not 403: a missing or wrong key is a failure to authenticate.
   Unauthorized.pipe(HttpApiSchema.status(401)),
   Forbidden.pipe(HttpApiSchema.status(403)),
+  // Every endpoint, because the limit is checked before any of them runs.
+  TooManyRequests.pipe(HttpApiSchema.status(429)),
 ] as const;
 
 const contacts = HttpApiGroup.make("contacts")

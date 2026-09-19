@@ -3,16 +3,20 @@ import {
   ContactV1,
   Forbidden as ForbiddenBody,
   NotFound,
+  TooManyRequests,
   Unauthorized,
 } from "@vantion/domain/api/v1/Wire";
 import type { Contact } from "@vantion/module-contact/ContactRpc";
 import { ContactId } from "@vantion/module-contact/ContactRpc";
 import { ContactStore } from "@vantion/module-contact/ContactStore";
 import { ApiKeyAuth, bearerToken, denialMessage } from "@vantion/module-iam/apikey/ApiKeyAuth";
+import { EntitlementResolver } from "@vantion/module-iam/identity/EntitlementResolver";
 import { CurrentUser } from "@vantion/module-iam/identity/Identity";
-import { Effect } from "effect";
+import { rateLimited } from "@vantion/telemetry/Metrics";
+import { Effect, Metric } from "effect";
 import { HttpServerRequest } from "effect/unstable/http";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
+import { RateLimiter } from "effect/unstable/persistence";
 
 /**
  * The v1 handlers.
@@ -28,6 +32,7 @@ import { HttpApiBuilder } from "effect/unstable/httpapi";
 const asKey = <A, E, R>(effect: Effect.Effect<A, E, R | CurrentUser>) =>
   Effect.gen(function*() {
     const auth = yield* ApiKeyAuth;
+    const entitlements = yield* EntitlementResolver;
     const request = yield* HttpServerRequest.HttpServerRequest;
 
     // HTTP is this transport's business, not the service's.
@@ -37,6 +42,54 @@ const asKey = <A, E, R>(effect: Effect.Effect<A, E, R | CurrentUser>) =>
         new Unauthorized({ error: "unauthorized", message: denialMessage(denied) })
       ),
     );
+
+    /**
+     * The public API had no limit at all until this.
+     *
+     * Keyed on the **organization**, not the key and not the address: a key is
+     * a credential and a quota belongs to whoever is paying for it, so issuing
+     * a second key should not double what a tenant may do. The allowance is a
+     * plan limit, so an upgrade raises it on the next request.
+     *
+     * Counted in the same store as the auth endpoints — Redis when there is
+     * Redis — which is what makes it one limit across every replica rather than
+     * one each.
+     */
+    const limiter = yield* RateLimiter.RateLimiter;
+    const entitlement = yield* entitlements.resolve({ organizationId: identity.orgId });
+
+    const allowed = yield* limiter.consume({
+      key: `api:v1:${identity.orgId}`,
+      limit: entitlement.limits.apiRequestsPerMinute,
+      window: "1 minute",
+      onExceeded: "fail",
+    }).pipe(
+      Effect.as(true),
+      // A store failure must not take the API down, and an exceeded limit is
+      // the caller's problem rather than a defect — the same reading
+      // `AuthHttp` takes.
+      Effect.catchTag(
+        "RateLimiterError",
+        (error) => Effect.succeed(error.reason._tag !== "RateLimitExceeded"),
+      ),
+    );
+
+    if (!allowed) {
+      yield* Metric.update(rateLimited, 1);
+
+      /**
+       * `Effect.fail`, not `yield*` on the value: these wire errors are
+       * `Schema.Class` rather than `Schema.TaggedError`, deliberately — one
+       * class per status, so the response code is chosen by matching the
+       * declared schema. They are data, not effects.
+       */
+      return yield* Effect.fail(
+        new TooManyRequests({
+          error: "too_many_requests",
+          message: "This organization has made too many requests. Try again shortly.",
+        }),
+      );
+    }
 
     return yield* Effect.provideService(effect, CurrentUser, identity);
   });

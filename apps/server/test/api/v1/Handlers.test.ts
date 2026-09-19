@@ -7,10 +7,13 @@ import { ContactStore } from "@vantion/module-contact/ContactStore";
 import { PermissionResolver } from "@vantion/module-iam/access/PermissionResolver";
 import { KEY_PREFIX } from "@vantion/module-iam/apikey/ApiKey";
 import { ApiKeyAuth } from "@vantion/module-iam/apikey/ApiKeyAuth";
+import { limits } from "@vantion/module-iam/identity/Entitlement";
+import { EntitlementResolver } from "@vantion/module-iam/identity/EntitlementResolver";
 import { ApiV1Live } from "@vantion/server/api/v1/Handlers";
 import { Effect, Layer } from "effect";
 import { Etag, HttpRouter } from "effect/unstable/http";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
+import { RateLimiter } from "effect/unstable/persistence";
 import { SqlClient } from "effect/unstable/sql";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -30,6 +33,19 @@ const app = HttpRouter.toWebHandler(
     HttpRouter.provideRequest(
       ApiKeyAuth.layer.pipe(Layer.provide(PermissionResolver.layer), Layer.provide(Sql)),
     ),
+    /**
+     * The public API is rate limited per organization now, so a request needs
+     * a limiter and something to tell it the plan's allowance. `provideRequest`
+     * for the same reason `ApiKeyAuth` uses it: these are resolved per request,
+     * not once for the router.
+     *
+     * Memory and the free plan here — what is under test is the contract, not
+     * where the counter lives.
+     */
+    HttpRouter.provideRequest(
+      RateLimiter.layer.pipe(Layer.provide(RateLimiter.layerStoreMemory)),
+    ),
+    HttpRouter.provideRequest(EntitlementResolver.layerFree),
     Layer.provide(Etag.layer),
     Layer.provide(NodeHttpPlatform.layer),
     Layer.provide(NodeServices.layer),
@@ -73,9 +89,18 @@ const call = (key: string | undefined, path: string, init?: RequestInit) =>
 describe.skipIf(testDbUrl() === undefined)("v1 contacts", () => {
   const orgA = `org_a_${randomUUID().slice(0, 8)}`;
   const orgB = `org_b_${randomUUID().slice(0, 8)}`;
+  /**
+   * A tenant of its own for the rate-limit test, because that test spends the
+   * whole budget. Sharing `orgA` would make every test after it fail with a
+   * 429, and every test before it silently reduce the allowance the assertion
+   * counts on — an order dependence nobody would look for.
+   */
+  const orgC = `org_c_${randomUUID().slice(0, 8)}`;
   let owner = "";
   let member = "";
   let other = "";
+  let throttledOwner = "";
+  let throttledSecond = "";
 
   beforeAll(async () => {
     const run = <A>(effect: Effect.Effect<A, unknown, SqlClient.SqlClient>) =>
@@ -86,6 +111,8 @@ describe.skipIf(testDbUrl() === undefined)("v1 contacts", () => {
     owner = await run(seedKey(orgA, "owner"));
     member = await run(seedKey(orgA, "member"));
     other = await run(seedKey(orgB, "owner"));
+    throttledOwner = await run(seedKey(orgC, "owner"));
+    throttledSecond = await run(seedKey(orgC, "member"));
   });
 
   afterAll(() => app.dispose());
@@ -141,6 +168,35 @@ describe.skipIf(testDbUrl() === undefined)("v1 contacts", () => {
     // 404 rather than 403: to this key the row does not exist at all.
     expect((await call(other, `/contacts/${created.id}`, { method: "DELETE" })).status).toBe(404);
     expect((await call(owner, `/contacts/${created.id}`, { method: "DELETE" })).status).toBe(204);
+  });
+
+  /**
+   * The public API had no limit at all until recently — an API key could be
+   * hammered without bound, which on a versioned surface with no captcha and no
+   * session is the easiest thing in the product to abuse.
+   *
+   * The allowance is a plan limit, so this asserts the free plan's, and it is
+   * keyed on the **organization**: the second key below is a different
+   * credential in the same tenant, and it must find the budget already spent.
+   */
+  it("limits an organization's requests, not each of its keys separately", async () => {
+    const allowance = limits.free.apiRequestsPerMinute;
+
+    for (let i = 0; i < allowance; i += 1) {
+      const response = await call(throttledOwner, "/contacts");
+      expect(response.status, `request ${i} of ${allowance}`).toBe(200);
+    }
+
+    expect((await call(throttledOwner, "/contacts")).status).toBe(429);
+
+    const refused = await call(throttledSecond, "/contacts");
+    expect(refused.status, "a second key in the same organization got its own budget")
+      .toBe(429);
+
+    expect(await refused.json()).toMatchObject({ error: "too_many_requests" });
+
+    // Another tenant is unaffected, which is the other half of "per organization".
+    expect((await call(other, "/contacts")).status).toBe(200);
   });
 
   it("answers 404 for a delete that matched nothing", async () => {

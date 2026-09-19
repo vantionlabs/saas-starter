@@ -25,6 +25,7 @@
     "@effect/platform-node": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@vantion/database": "workspace:*",
+    "@vantion/redis": "workspace:*",
     "@vantion/domain": "workspace:*",
     "@vantion/module-agent": "workspace:*",
     "@vantion/module-assistant": "workspace:*",
