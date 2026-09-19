@@ -15,7 +15,7 @@
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
   <img alt="377 unit tests" src="https://img.shields.io/badge/tests-377-2EAD33?style=flat-square" />
-  <img alt="41 browser tests" src="https://img.shields.io/badge/browser-41-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+  <img alt="45 browser tests" src="https://img.shields.io/badge/browser-45-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
 <p align="center">
@@ -65,7 +65,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **Auth** — password, magic link, email OTP, Google; sessions resolved server-side
 - ✅ **Single sign-on** — OIDC and SAML per organization, routed by email domain, DNS-verified
 - ✅ **Admin panel** — its own app on its own database role, every cross-tenant read recorded
-- ✅ **Two-factor** — TOTP with backup codes, offered to customers and required of staff
+- ✅ **Two-factor** — TOTP with backup codes, a settings screen, and the sign-in step it adds
 - ✅ **Organizations** — members, invitations, seats, org switcher, a personal org per user
 - ✅ **Access control** — built-in roles, custom roles, per-member overrides, one permission model
 - ✅ **Tenant isolation** — Postgres RLS _and_ `withOrgScope`, proven by browser tests
@@ -88,7 +88,7 @@ Both are MIT. Nothing is held back for a paid tier.
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
-- ✅ **Tests that gate** — 377 unit, 41 browser, an eval set with a baseline, all in CI
+- ✅ **Tests that gate** — 377 unit, 45 browser, an eval set with a baseline, all in CI
 - ✅ **Operations** — `/health`, `/ready`, OpenTelemetry and error tracking in all
   three processes, web vitals in the browser, a Dockerfile per app, Railway IaC
   covering all of it
@@ -622,9 +622,9 @@ says so rather than leaving you to find out.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|          | What                             | Why it is not here yet                                                                                                     |
-| -------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Next** | A settings screen for two-factor | The plugin and the staff requirement are in; customers can enrol through the API but have nowhere to do it in the product. |
+|          | What                                             | Why it is not here yet                                                                      |
+| -------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| **Next** | The last `.mjs` scripts on `effect/unstable/cli` | `sync:skills` and `new:module` are still plain JavaScript in an otherwise typed repository. |
 
 ## What it deliberately does not do
 

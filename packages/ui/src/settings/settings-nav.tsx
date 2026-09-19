@@ -41,6 +41,7 @@ export const settingsGroups: ReadonlyArray<{
   {
     label: "Governance",
     items: [
+      { to: "/settings/security", label: "Security", icon: ShieldCheck },
       { to: "/settings/sso", label: "Single sign-on", icon: Fingerprint },
       { to: "/settings/audit", label: "Audit log", icon: ScrollText },
     ],

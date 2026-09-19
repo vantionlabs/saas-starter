@@ -31,9 +31,23 @@ export type SessionUser = NonNullable<
  * The client reports a rejection in `error` rather than by throwing, so an
  * absent `data` is the whole test.
  */
+/**
+ * Only the shape this function uses, not `Pick<typeof authClient, …>`.
+ *
+ * That `Pick` carried better-auth's whole inferred client type, so adding a
+ * plugin — which changes the inference — stopped a test's stub from being
+ * assignable to it, even though the stub still had everything this code
+ * touches. A seam should name what it needs.
+ */
+interface SessionReader {
+  readonly getSession: (
+    options: { readonly fetchOptions: { readonly headers: { readonly cookie: string; }; }; },
+  ) => Promise<{ readonly data: { readonly user: SessionUser; } | null; }>;
+}
+
 export const resolveSession = async (
   cookie: string | undefined,
-  client: Pick<typeof authClient, "getSession"> = authClient,
+  client: SessionReader = authClient,
 ): Promise<SessionUser | null> => {
   // No cookie, no round trip. An anonymous first paint is the common case.
   if (cookie === undefined || cookie === "") return null;

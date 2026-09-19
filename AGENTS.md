@@ -844,6 +844,19 @@ every other caller acts inside exactly one organization; a flag would let a call
 that field is meaningless reach every handler that takes one, with nothing for the compiler to
 say about it.
 
+`/settings/security` is where anybody enrols, and `/auth/two-factor` is the step a sign-in
+stops at once they have. That second page is not optional: with 2FA on, better-auth answers a
+correct password with `twoFactorRedirect` rather than a session, so without somewhere to send
+the browser the sign-in looks like a silent success followed by no session — indistinguishable
+from a broken cookie.
+
+Enabling or disabling asks for the password again, because doing either from a session somebody
+else has stolen would be a way to lock the owner out rather than a way to protect them. And
+enrolment is not finished until a code from the app verifies: `enable` already switched it on,
+so somebody who closed the dialog without scanning would be locked out at their next sign-in.
+The backup codes are shown exactly once and said to be — better-auth stores them hashed, so
+"show them again" is not a feature anybody can build.
+
 Staff must also hold a **second factor**. `StaffResolver` reads `twoFactorEnabled` alongside
 the role on every request, so turning 2FA off closes the panel immediately rather than at the
 end of a session. Required of staff and merely offered to customers, because the asymmetry is

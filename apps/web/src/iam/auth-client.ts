@@ -1,5 +1,10 @@
 import { ssoClient } from "@better-auth/sso/client";
-import { emailOTPClient, magicLinkClient, organizationClient } from "better-auth/client/plugins";
+import {
+  emailOTPClient,
+  magicLinkClient,
+  organizationClient,
+  twoFactorClient,
+} from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 /**
@@ -51,5 +56,17 @@ export const authClient = createAuthClient({
      * back.
      */
     ssoClient({ domainVerification: { enabled: true } }),
+
+    /**
+     * Second factor, and the reason sign-in has a second page now.
+     *
+     * When an account has 2FA on, better-auth answers a correct password with
+     * `twoFactorRedirect` rather than a session: the credentials were right and
+     * the sign-in is not finished. The client sends the browser here, and
+     * `/auth/two-factor` is the only place that can complete it — without this
+     * option that response looks to a caller like a silent success followed by
+     * no session, which is indistinguishable from a broken cookie.
+     */
+    twoFactorClient({ twoFactorPage: "/auth/two-factor" }),
   ],
 });
