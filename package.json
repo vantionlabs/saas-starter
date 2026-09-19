@@ -26,7 +26,7 @@
     "coverage": "vitest run --coverage",
     "clean": "rm -rf apps/*/build apps/*/.tsbuildinfo packages/*/build packages/*/.tsbuildinfo packages/modules/*/build packages/modules/*/.tsbuildinfo apps/web/dist apps/web/.output apps/web/.tanstack coverage",
     "sync:skills": "node scripts/sync-effect-skills.mjs",
-    "vendor": "node scripts/vendor.mjs",
+    "vendor": "tsx scripts/vendor.ts",
     "new:module": "node tooling/new-module.mjs",
     "mobile": "pnpm --filter @vantion/mobile dev",
     "brand": "pnpm --filter @vantion/brand dev",

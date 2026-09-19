@@ -379,8 +379,25 @@ pnpm vendor effect       # just one
 
 Not `git subtree pull`. This history is squashed at publication, and a repository
 generated from the template starts with no history at all, so a pull has no merge base
-to work from. `scripts/vendor.mjs` removes the directory and adds the subtree afresh,
+to work from. `scripts/vendor.ts` removes the directory and adds the subtree afresh,
 which works in any history and does not conflict the way a pull across 3,500 files does.
+
+## Tooling is TypeScript, and its CLIs are Effect's
+
+`scripts/vendor.ts` is the worked example: `effect/unstable/cli` rather than a `.mjs` reading
+`process.argv`. This was the one corner of an otherwise fully typed repository where an
+argument was a string nobody had checked, and the CLI is not ceremony — `--help` and shell
+completions are generated rather than written, the argument is validated against the sources
+that actually exist, and the handler is an ordinary `Effect`, so what used to be
+`process.exit(1)` in four places is now two typed errors.
+
+It runs under `tsx`, the same way `packages/database`'s migration runner does.
+`NodeServices.layer` provides the whole of the CLI's `Environment` — filesystem, path, stdio,
+terminal, child process — in one layer.
+
+`scripts/sync-effect-skills.mjs` and `tooling/new-module.mjs` have not been converted. They
+are larger and `new-module.mjs` has its own tests against the current interface; they should
+follow, and this note exists so that the inconsistency is a plan rather than an oversight.
 
 ## Commands
 

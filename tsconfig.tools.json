@@ -18,6 +18,7 @@
     "packages/*/vitest.config.ts",
     "e2e/*.ts",
     "e2e/tests/*.ts",
+    "scripts/*.ts",
     "tooling/*.ts",
     "tooling/test/*.ts",
     "packages/tokens/*.ts"
