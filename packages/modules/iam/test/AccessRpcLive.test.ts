@@ -1,4 +1,5 @@
 import { AccessRpcLive } from "@/access/AccessRpcLive.js";
+import { PermissionCache } from "@/access/CachedPermissions.js";
 import { describe, expect, it } from "@effect/vitest";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
@@ -28,6 +29,12 @@ const identity = (org: string, role: string) =>
  */
 const as = (org: string, role: string) =>
   AccessRpcLive.pipe(
+    /**
+     * These handlers drop cached permissions after they write. The cache is off
+     * by default, so the no-op is what production runs too — what is under test
+     * here is the writing, and `CachedPermissions.test.ts` covers the dropping.
+     */
+    Layer.provideMerge(PermissionCache.layerNoop),
     Layer.provideMerge(
       Layer.succeed(AuthMiddleware)(
         AuthMiddleware.of((effect) =>

@@ -1,5 +1,6 @@
 import { Layer } from "effect";
 import { AccessRpcLive } from "./access/AccessRpcLive.js";
+import { layerCachedPermissions } from "./access/CachedPermissions.js";
 import { PermissionResolver } from "./access/PermissionResolver.js";
 import { ApiKeyAuth } from "./apikey/ApiKeyAuth.js";
 import { AuditLog } from "./audit/AuditLog.js";
@@ -39,6 +40,13 @@ export const IamModule = Layer.mergeAll(
   Layer.provideMerge(AuthMiddlewareLive),
   Layer.provideMerge(ApiKeyAuth.layer),
   Layer.provideMerge(AuditLog.layer),
+  /**
+   * The resolver, wrapped by a cache that is off unless `PERMISSION_CACHE_TTL`
+   * says otherwise. At zero it returns the inner resolver untouched, so the
+   * default costs nothing — see `access/CachedPermissions.ts` for why the
+   * default is off and what turning it on buys.
+   */
+  Layer.provideMerge(layerCachedPermissions),
   Layer.provideMerge(PermissionResolver.layer),
   Layer.provideMerge(Auth.layer),
 );
