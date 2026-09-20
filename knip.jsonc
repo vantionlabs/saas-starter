@@ -4,8 +4,6 @@
     // 3,558 files of somebody else's source. Reading it is the point; auditing
     // it is not ours to do.
     "repos/**",
-    // Written by the router plugin on every build.
-    "**/routeTree.gen.ts",
     // A vendored third-party skill. Ours to install and read, not to audit.
     ".claude/skills/impeccable/**",
   ],
@@ -16,23 +14,18 @@
   // not enough — the plugin has to be off.
   "metro": false,
   "playwright": false,
-  // Tools run as commands, never imported. Knip sees the manifest entry and no
-  // import, which for a CLI is the normal state rather than a finding.
-  "ignoreBinaries": ["railway", "tsx", "playwright", "dprint", "oxlint"],
   "ignoreDependencies": [
-    // Declared so Tailwind and the Vite plugins resolve them from the app doing
-    // the scanning, not because app code imports them.
-    "@tailwindcss/vite",
-    "tailwindcss",
-    "@vitejs/plugin-react",
-    "nitro",
-    // Run as commands from `package.json` scripts and from `lefthook.yml`.
-    "knip",
-    "lefthook",
-    "secretlint",
+    /**
+     * Named in `lefthook.yml` and in `.secretlintrc.json`, neither of which
+     * knip reads, and run as a command rather than imported.
+     */
     "@secretlint/secretlint-rule-preset-recommend",
-    "syncpack",
-    "railway",
+    /**
+     * The runtime every `.ts` script here is executed with — `pnpm vendor`,
+     * the migration runner, `new:module`. Knip resolves the binary from the
+     * scripts that call it and still counts the manifest entry as unused,
+     * because nothing `import`s it.
+     */
     "tsx",
     // Knip's Expo plugin infers these from `app.json` keys that are core Expo
     // configuration — `userInterfaceStyle` is not `expo-system-ui`. Verified by
@@ -53,13 +46,6 @@
     "@vantion/module-iam",
     "@vantion/module-files",
     "@vantion/module-contact",
-    /**
-     * Nothing declares it, and it must stay: `scripts/vendor-sources.json`
-     * names it as the catalog pin that `repos/effect-form` is vendored at, and
-     * `tooling/test/vendor-sources.test.ts` fails if the catalog has no such
-     * entry. The `-react` package is what application code imports.
-     */
-    "@lucas-barake/effect-form",
     // Metro resolves these from the app root rather than through an import.
     "react-native-css-interop",
     // Used by `@vantion/ui` components this app renders, and declared here so
@@ -103,8 +89,6 @@
     },
     ".": {
       "entry": [
-        "scripts/**/*.{ts,mjs}",
-        "tooling/**/*.ts",
         ".claude/hooks/*.mjs",
         // Read by `railway config plan|apply`, never imported.
         ".railway/railway.ts"

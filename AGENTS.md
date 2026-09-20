@@ -805,9 +805,18 @@ steps of its own — a failure there is reproducible by typing one thing.
 - **knip** walks the import graph for unused files, exports and dependencies. Its first run
   removed 26 dependencies and 15 devDependencies that nothing imported, and seven catalog
   entries left behind with them. What it cannot see is in `knip.jsonc` with a reason beside it:
-  binaries are run rather than imported, some workspace dependencies exist for `tsc -b`
-  ordering, and `@lucas-barake/effect-form` must stay in the catalog because
+  some workspace dependencies exist only for `tsc -b` ordering, Metro and Tailwind resolve
+  packages nothing imports, and `@lucas-barake/effect-form` must stay in the catalog because
   `vendor-sources.test.ts` asserts it is there.
+
+  **Read its configuration hints rather than ignoring them.** They are advisory and easy to
+  scroll past, and twenty of them accumulated — most were entries the tool had learned to
+  resolve by itself, so the config was describing a version of knip that no longer existed.
+  Clearing them is mostly deletion, and what it left behind was the interesting part: two
+  `entry` patterns matching nothing, because `apps/mcp/test` and `packages/redis/test` were
+  **empty directories**. A package with a test script, a vitest config and no tests looks
+  exactly like a package with tests, in every summary anybody reads. Both have them now, and
+  the config is silent.
 - **syncpack** compares every manifest against the catalog. The single deliberate divergence —
   `apps/mobile` pinning Tailwind 3 for NativeWind v4 — is declared in `.syncpackrc.json`, which
   is what stops it reading as drift.
