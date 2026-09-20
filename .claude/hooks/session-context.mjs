@@ -12,9 +12,17 @@ import { projectDir } from "./lib.mjs";
 
 const root = projectDir();
 
+/**
+ * The catalog lives in the root `package.json` under `workspaces.catalog`,
+ * which is where bun keeps it. pnpm's `pnpm-workspace.yaml` is gone.
+ */
 const effectVersion = () => {
-  const catalog = fs.readFileSync(path.join(root, "pnpm-workspace.yaml"), "utf8");
-  return catalog.match(/^\s+effect:\s*(\S+)/m)?.[1] ?? "unknown";
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+    return manifest.workspaces?.catalog?.effect ?? "unknown";
+  } catch {
+    return "unknown";
+  }
 };
 
 const vendored = fs.existsSync(path.join(root, "repos", "effect", "packages"));
@@ -48,7 +56,7 @@ const lines = [
   "This repository uses ~20 of Effect's ~120 modules. Before writing something that does not resemble the code already here — bounding concurrency, caching a decision, batching a lookup, a process that must survive a restart, a script with arguments — read `knowledge/rules/effect-reach-for.md`. It is keyed on the problem, not the module name.",
   vendored
     ? "Its source is vendored at `repos/effect`. Read the real signature there before using an API you have not already read this session; it outranks RULES.md, knowledge/ and your own recall, in that order."
-    : "`repos/effect` is MISSING. Run `pnpm vendor` — without it there is no authority for Effect APIs and recall is not one.",
+    : "`repos/effect` is MISSING. Run `bun run vendor` — without it there is no authority for Effect APIs and recall is not one.",
 ];
 
 /**
@@ -83,7 +91,7 @@ if (fs.existsSync(state)) {
 
 if (!postgres()) {
   lines.push(
-    "Postgres is not running, so the database-backed tests will skip rather than fail. `docker compose up -d` before trusting a green `pnpm test`.",
+    "Postgres is not running, so the database-backed tests will skip rather than fail. `docker compose up -d` before trusting a green `bun run test`.",
   );
 }
 

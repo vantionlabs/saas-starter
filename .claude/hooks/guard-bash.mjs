@@ -21,7 +21,7 @@ const REFUSALS = [
   {
     pattern: /(^|[\s;&|])(rm|mv|cp)\s[^|;&]*\brepos\//,
     why:
-      "`repos/` is vendored upstream source and the authority this repo reads Effect APIs from. Re-vendor it with `pnpm vendor` instead of editing it by hand.",
+      "`repos/` is vendored upstream source and the authority this repo reads Effect APIs from. Re-vendor it with `bun run vendor` instead of editing it by hand.",
   },
   {
     /**

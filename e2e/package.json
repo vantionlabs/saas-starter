@@ -5,20 +5,20 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "test": "tsx run.ts",
-    "test:ui": "tsx run.ts --ui",
-    "test:headed": "tsx run.ts --headed",
-    "test:debug": "tsx run.ts --debug",
+    "test": "bun run.ts",
+    "test:ui": "bun run.ts --ui",
+    "test:headed": "bun run.ts --headed",
+    "test:debug": "bun run.ts --debug",
     "report": "playwright show-report",
-    "install-browsers": "playwright install chromium"
+    "install-browsers": "playwright install chromium",
+    "install-browsers:ci": "playwright install --with-deps chromium"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
-    "@types/node": "catalog:",
-    "tsx": "catalog:"
+    "@types/node": "catalog:"
   },
   "dependencies": {
-    "@effect/platform-node": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "effect": "catalog:"
   }
 }

@@ -19,7 +19,7 @@ repos/effect-form
     Copyright (c) 2024 Lucas Barake
     MIT Licence. Full text at repos/effect-form/LICENSE.
 
-Both are vendored at the versions pinned in pnpm-workspace.yaml and are
+Both are vendored at the versions pinned in package.json and are
 read-only reference material. Nothing in this repository imports from them.
 
 --------------------------------------------------------------------------

@@ -7,7 +7,7 @@ const ROOT = path.join(import.meta.dirname, "..");
 /**
  * Ports of their own, deliberately not 3000 and 5173.
  *
- * `pnpm dev` is usually already running when someone reaches for these tests,
+ * `bun run dev` is usually already running when someone reaches for these tests,
  * and `strictPort` in the web app's Vite config means a collision is a hard
  * failure rather than a quiet move to another port.
  */
@@ -29,7 +29,7 @@ const readDatabaseUrl = () => {
 
   if (!fs.existsSync(file)) {
     throw new Error(
-      "no e2e database recorded — run `pnpm --filter @vantion/e2e test`, which prepares one,\n"
+      "no e2e database recorded — run `bun run --filter @vantion/e2e test`, which prepares one,\n"
         + "rather than invoking `playwright test` directly.",
     );
   }
@@ -99,7 +99,7 @@ export default defineConfig({
   /**
    * Capped rather than left to the default of half the cores.
    *
-   * These run against `vite dev` and `tsx watch`, not a build: the servers
+   * These run against `vite dev` and `bun --watch`, not a build: the servers
    * compile on demand, and enough concurrent first-hits leaves a route still
    * loading when the assertion times out. The failure then reads as a missing
    * element rather than as a slow one, which is a bad hour for whoever meets it
@@ -133,7 +133,7 @@ export default defineConfig({
   ],
 
   /**
-   * Both halves of the app, started the way `pnpm dev` starts them.
+   * Both halves of the app, started the way `bun run dev` starts them.
    *
    * `reuseExistingServer` is off even locally: these run on their own ports
    * against their own database, so a server already listening there is a stale
@@ -141,7 +141,7 @@ export default defineConfig({
    */
   webServer: [
     {
-      command: "pnpm --filter @vantion/server dev",
+      command: "bun run --filter @vantion/server dev",
       cwd: ROOT,
       url: `${API_URL}/health`,
       env: serverEnv,
@@ -151,7 +151,7 @@ export default defineConfig({
       stderr: "pipe",
     },
     {
-      command: "pnpm --filter @vantion/web dev",
+      command: "bun run --filter @vantion/web dev",
       cwd: ROOT,
       url: WEB_URL,
       env: serverEnv,

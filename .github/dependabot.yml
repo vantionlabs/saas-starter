@@ -1,8 +1,8 @@
 # Actions only, deliberately.
 #
-# The npm side is pinned through `pnpm-workspace.yaml`'s catalog and tracks an
+# The npm side is pinned through `package.json`'s catalog and tracks an
 # Effect release candidate that moves weekly — a bot opening a pull request per
-# bump would be noise, and `pnpm vendor` has to run alongside any Effect change
+# bump would be noise, and `bun run vendor` has to run alongside any Effect change
 # so the vendored source stays the version that is installed. `syncpack update`
 # is how that is done, by a person, in one commit.
 #

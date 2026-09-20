@@ -51,7 +51,7 @@ and the editors, and a wrong entry is worse than none.
 
 ## Why the tokens are generated rather than drawn
 
-`pnpm --filter @vantion/tokens figma:script` prints a Plugin API script built
+`bun run --filter @vantion/tokens figma:script` prints a Plugin API script built
 from `packages/tokens/src/tokens.ts`. Two properties matter:
 
 **The values cannot drift.** The same file produces the stylesheet the web app
@@ -63,7 +63,7 @@ month.
 running it twice updates the variables rather than adding a second set.
 
 It is printed rather than executed by the build: writing to Figma needs a file
-key and a seat that can edit, neither of which belongs in `pnpm build`.
+key and a seat that can edit, neither of which belongs in `bun run build`.
 
 ## Colour, honestly
 

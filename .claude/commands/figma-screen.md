@@ -8,7 +8,7 @@ Push a screen into Figma: **$ARGUMENTS**
 1. **Load `figma-use` and `figma-generate-design`.** The second is the one that
    knows how to assemble a page from a design system rather than drawing a
    picture of one; skipping it produces a flat mock nobody can edit.
-2. Run `pnpm design` and open the screen with the persona that shows it best.
+2. Run `bun run design` and open the screen with the persona that shows it best.
    `crowded` is usually the right one — the long names and full tables are what a
    designer actually needs to see, and `settled` flatters the layout.
 3. Sync the variables first if they have changed: `/figma-tokens`. A screen

@@ -18,14 +18,13 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "catalog:",
-    "@aws-sdk/s3-request-presigner": "catalog:",
     "@vantion/database": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
+    "@types/bun": "catalog:",
     "vitest": "catalog:"
   }
 }

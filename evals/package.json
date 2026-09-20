@@ -5,12 +5,12 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "evals": "tsx run.ts",
+    "evals": "bun run.ts",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
-    "@effect/platform-node": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@vantion/database": "workspace:*",
     "@vantion/module-agent": "workspace:*",
     "@vantion/module-assistant": "workspace:*",
@@ -22,7 +22,6 @@
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "tsx": "catalog:",
     "vitest": "catalog:"
   }
 }

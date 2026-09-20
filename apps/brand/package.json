@@ -6,20 +6,21 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && vite build --ssr src/render.tsx --outDir .ssr && tsx prerender.ts",
+    "build": "tsc -b tsconfig.json && bun run bundle",
     "preview": "vite preview",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bundle": "vite build && vite build --ssr src/render.tsx --outDir .ssr && bun prerender.ts"
   },
   "dependencies": {
+    "@effect/platform-bun": "catalog:",
+    "@vantion/emails": "workspace:*",
     "@vantion/tokens": "workspace:*",
     "@vantion/ui": "workspace:*",
+    "effect": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "@vantion/emails": "workspace:*",
-    "@effect/platform-node": "catalog:",
-    "effect": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
@@ -31,7 +32,6 @@
     "@vitejs/plugin-react": "catalog:",
     "jsdom": "catalog:",
     "tailwindcss": "catalog:",
-    "tsx": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   }

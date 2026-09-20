@@ -6,11 +6,12 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "tsc -b tsconfig.json && bun run bundle",
     "preview": "vite preview",
-    "start": "node .output/server/index.mjs",
+    "start": "bun .output/server/index.mjs",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bundle": "vite build"
   },
   "dependencies": {
     "@vantion/module-iam": "workspace:*",

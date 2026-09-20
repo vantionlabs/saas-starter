@@ -1,4 +1,4 @@
-import { NodeHttpServer, NodeRuntime } from "@effect/platform-node";
+import { BunHttpServer, BunRuntime } from "@effect/platform-bun";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { ApiV1 } from "@vantion/domain/api/v1/Api";
@@ -21,7 +21,6 @@ import { HttpRouter } from "effect/unstable/http";
 import { HttpApiBuilder, HttpApiScalar } from "effect/unstable/httpapi";
 import { RateLimiter } from "effect/unstable/persistence";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
-import * as Http from "node:http";
 import { ApiV1Live } from "./api/v1/Handlers.js";
 
 /**
@@ -156,7 +155,7 @@ const HttpLive = Layer.unwrap(
       Layer.provide(PgLive),
       Layer.provide(NotificationsModule),
       Layer.provide(PgPool.layer),
-      Layer.provide(NodeHttpServer.layer(() => Http.createServer(), { port })),
+      Layer.provide(BunHttpServer.layer({ port })),
     );
   }),
 );
@@ -172,7 +171,7 @@ const HttpLive = Layer.unwrap(
  * most needed for is the failure that takes the process down, and a logger
  * installed within the graph is gone by the time that is reported.
  */
-NodeRuntime.runMain(
+BunRuntime.runMain(
   Layer.launch(HttpLive).pipe(
     Effect.provide(layerTelemetry("vantion-server")),
     Effect.provide(layerReporting("api").pipe(Layer.provide(ErrorTracker.layer))),

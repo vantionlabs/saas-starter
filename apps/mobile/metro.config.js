@@ -11,8 +11,8 @@ const config = getDefaultConfig(projectRoot);
  * Metro has to be told about the monorepo, twice.
  *
  * `watchFolders` is what makes a change in `packages/core` reload the app;
- * `nodeModulesPaths` is what lets it resolve a dependency pnpm hoisted to the
- * root. Neither is inferred, and the failure without them is a module-not-found
+ * `nodeModulesPaths` is what lets it resolve a dependency installed at the
+ * workspace root rather than beside the app. Neither is inferred, and the failure without them is a module-not-found
  * for a package that is plainly installed.
  */
 config.watchFolders = [workspaceRoot];
@@ -24,9 +24,11 @@ config.resolver.nodeModulesPaths = [
  * Hierarchical lookup stays *on*, which is the opposite of the advice written
  * for Yarn workspaces.
  *
- * pnpm does not hoist: `expo-router` lives in `.pnpm/...` and requires
- * `@expo/metro-runtime` from beside itself. Disabling the walk up the tree —
- * the usual monorepo tidying — is exactly what makes that unresolvable.
+ * bun's linker is isolated, like pnpm's before it: a package lives under
+ * `node_modules/.bun/…` and is symlinked into place, so `expo-router` requires
+ * `@expo/metro-runtime` from beside *itself* rather than from the app. Disabling
+ * the walk up the tree — the usual monorepo tidying — is exactly what makes that
+ * unresolvable.
  */
 config.resolver.unstable_enableSymlinks = true;
 

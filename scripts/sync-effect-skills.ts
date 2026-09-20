@@ -2,16 +2,16 @@
 /**
  * Syncs the Effect skill guides from `lucas-barake/dotfiles` into
  * `knowledge/skills/`, then re-applies the corrections that bring them in line
- * with the `effect` version pinned in `pnpm-workspace.yaml`.
+ * with the `effect` version pinned in `package.json`.
  *
  * The upstream guides are not pinned to our Effect version and carry API
  * spellings that no longer exist in v4. Every correction below was verified
  * against `repos/effect` before being encoded here. See `AGENTS.md`.
  *
- *   pnpm sync:skills
- *   pnpm sync:skills --dry-run
+ *   bun run sync:skills
+ *   bun run sync:skills --dry-run
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Data, Effect } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import * as fs from "node:fs/promises";
@@ -384,6 +384,6 @@ const command = Command.make(
   ({ dryRun }) => sync(dryRun),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );

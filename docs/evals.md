@@ -1,7 +1,7 @@
 # Evals
 
 `evals/` is the assistant's test set, its checks, and a baseline the build
-compares against. `pnpm evals` runs it; `pnpm test` runs it too, which is what
+compares against. `bun run evals` runs it; `bun run test` runs it too, which is what
 makes it a gate rather than a report.
 
 ## Two halves, and only one can be a required check
@@ -40,8 +40,8 @@ rewrites its history.
 ## The gate
 
 ```
-pnpm evals                    run and report
-pnpm evals --update-baseline  record what this run scored
+bun run evals                    run and report
+bun run evals --update-baseline  record what this run scored
 ```
 
 Two rules, and the second is the one that matters:

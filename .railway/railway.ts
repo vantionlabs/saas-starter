@@ -135,8 +135,8 @@ export default defineRailway((ctx) => {
         "packages/database/**",
         "packages/domain/**",
         "package.json",
-        "pnpm-lock.yaml",
-        "pnpm-workspace.yaml",
+        "bun.lock",
+        "package.json",
       ],
     },
     deploy: {
@@ -145,7 +145,7 @@ export default defineRailway((ctx) => {
        * which is the whole reason they are a script rather than something the
        * server does at boot, where two starting instances would both migrate.
        */
-      preDeployCommand: ["node packages/database/build/bundle/migrate.js"],
+      preDeployCommand: ["bun packages/database/build/bundle/migrate.js"],
       healthcheckPath: "/health",
       healthcheckTimeout: 30,
       restartPolicyType: "ON_FAILURE",
@@ -212,8 +212,8 @@ export default defineRailway((ctx) => {
         "packages/modules/jobs/**",
         "packages/modules/webhooks/**",
         "package.json",
-        "pnpm-lock.yaml",
-        "pnpm-workspace.yaml",
+        "bun.lock",
+        "package.json",
       ],
     },
     deploy: {
@@ -248,8 +248,8 @@ export default defineRailway((ctx) => {
         "apps/web/**",
         "packages/domain/**",
         "package.json",
-        "pnpm-lock.yaml",
-        "pnpm-workspace.yaml",
+        "bun.lock",
+        "package.json",
       ],
     },
     deploy: {
@@ -293,7 +293,7 @@ export default defineRailway((ctx) => {
         "packages/ui/**",
         "packages/tokens/**",
         "packages/modules/iam/**",
-        "pnpm-lock.yaml",
+        "bun.lock",
       ],
     },
     deploy: {
@@ -314,7 +314,7 @@ export default defineRailway((ctx) => {
         "packages/ui/**",
         "packages/tokens/**",
         "packages/emails/**",
-        "pnpm-lock.yaml",
+        "bun.lock",
       ],
     },
     deploy: {

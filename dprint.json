@@ -21,7 +21,7 @@
     "**/node_modules",
     "**/.tsbuildinfo",
     "**/*.tsbuildinfo",
-    "pnpm-lock.yaml",
+    "bun.lock",
     "flake.lock",
     "knowledge",
     "RULES.md",

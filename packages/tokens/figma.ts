@@ -6,7 +6,7 @@
  * key and a seat that can edit, none of which belong in a build step. The
  * `/figma-tokens` command pipes this into `use_figma`.
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import { figmaVariables, figmaVariableScript } from "./src/figma.ts";
@@ -22,6 +22,6 @@ const command = Command.make(
     Console.log(json ? JSON.stringify(figmaVariables(), null, 2) : figmaVariableScript()),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );

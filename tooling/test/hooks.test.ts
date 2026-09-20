@@ -65,7 +65,7 @@ describe("guard-bash", () => {
         "git push --force-with-lease",
         "git push origin main",
         "git commit -m 'a change'",
-        "pnpm test",
+        "bun run test",
         "rm -rf apps/server/build",
         "cat repos/effect/packages/effect/src/Config.ts",
       ]

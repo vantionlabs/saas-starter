@@ -10,10 +10,11 @@
   },
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "tsc -b tsconfig.json && bun run bundle",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
-    "start": "node .output/server/index.mjs"
+    "start": "bun .output/server/index.mjs",
+    "bundle": "vite build"
   },
   "dependencies": {
     "@effect/atom-react": "catalog:",

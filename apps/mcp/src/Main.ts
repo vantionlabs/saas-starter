@@ -1,4 +1,4 @@
-import { NodeRuntime, NodeStdio } from "@effect/platform-node";
+import { BunRuntime, BunStdio } from "@effect/platform-bun";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { AgentModule, AgentToolkit } from "@vantion/module-agent/Module";
@@ -58,7 +58,7 @@ const McpLive = McpServer.toolkit(AgentToolkit).pipe(
       protocols: [McpProtocol.v2025_06_18, McpProtocol.v2025_03_26, McpProtocol.v2024_11_05],
     }),
   ),
-  Layer.provide(NodeStdio.layer),
+  Layer.provide(BunStdio.layer),
 );
 
-NodeRuntime.runMain(Layer.launch(McpLive));
+BunRuntime.runMain(Layer.launch(McpLive));

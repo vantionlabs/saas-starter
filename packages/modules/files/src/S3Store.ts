@@ -2,12 +2,25 @@ import { Effect, Layer, Option } from "effect";
 import { ObjectStore, StorageUnavailable } from "./ObjectStore.js";
 
 /**
- * The durable store, in its own file and imported dynamically, so a deployment
- * without credentials never loads the AWS SDK.
+ * The durable store, on Bun's own S3 client.
  *
- * Written against the S3 API rather than against AWS: `endpoint` is what makes
- * the same code work on R2, Tigris, MinIO or Backblaze, and that choice belongs
- * to whoever deploys this rather than to this file.
+ * It used to be `@aws-sdk/client-s3` plus `@aws-sdk/s3-request-presigner`,
+ * loaded through a dynamic `import` so a deployment without credentials never
+ * paid for them. Bun ships an S3 client in the runtime, so there is nothing to
+ * load and nothing to install: two dependencies left with this change, and one
+ * of them is the package whose absence once surfaced as
+ * `Cannot find module '@aws-sdk/client-s3'` from a missing `COPY` line.
+ *
+ * `Bun.S3Client` rather than an import, deliberately. The global exists wherever
+ * this file can run and needs no bundler configuration; `ObjectStore.ts` still
+ * reaches this module through a dynamic import, so a process with no bucket
+ * never evaluates it at all.
+ *
+ * Still written against the **S3 API** rather than against AWS: `endpoint` is
+ * what makes the same code work on R2, Tigris, MinIO or Backblaze, and that
+ * choice belongs to whoever deploys this. Bun defaults to path-style addressing,
+ * which is what those need — `virtualHostedStyle` is the opt-out and is not
+ * taken here.
  */
 export const layerS3 = (options: {
   readonly bucket: string;
@@ -17,27 +30,13 @@ export const layerS3 = (options: {
   readonly secretAccessKey: string;
 }): Layer.Layer<ObjectStore> =>
   Layer.effect(ObjectStore)(
-    Effect.gen(function*() {
-      const [
-        { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client },
-        { getSignedUrl },
-      ] = yield* Effect.promise(
-        () =>
-          Promise.all([
-            import("@aws-sdk/client-s3"),
-            import("@aws-sdk/s3-request-presigner"),
-          ]),
-      );
-
-      const client = new S3Client({
+    Effect.sync(() => {
+      const client = new Bun.S3Client({
+        bucket: options.bucket,
         region: options.region,
-        ...(options.endpoint === undefined
-          ? {}
-          : { endpoint: options.endpoint, forcePathStyle: true }),
-        credentials: {
-          accessKeyId: options.accessKeyId,
-          secretAccessKey: options.secretAccessKey,
-        },
+        accessKeyId: options.accessKeyId,
+        secretAccessKey: options.secretAccessKey,
+        ...(options.endpoint === undefined ? {} : { endpoint: options.endpoint }),
       });
 
       const unreachable = () => new StorageUnavailable({ reason: "Unreachable" });
@@ -45,18 +44,20 @@ export const layerS3 = (options: {
       return {
         durable: true,
 
+        /**
+         * `presign` is synchronous here — it signs a string, it does not call
+         * anything — which is why this is `Effect.try` rather than the
+         * `tryPromise` the SDK needed. Nothing reaches the network until the
+         * browser uses the URL.
+         */
         presignUpload: (key, request) =>
-          Effect.tryPromise({
+          Effect.try({
             try: () =>
-              getSignedUrl(
-                client,
-                new PutObjectCommand({
-                  Bucket: options.bucket,
-                  Key: key,
-                  ContentType: request.contentType,
-                }),
-                { expiresIn: request.expiresInSeconds },
-              ),
+              client.presign(key, {
+                method: "PUT",
+                expiresIn: request.expiresInSeconds,
+                type: request.contentType,
+              }),
             catch: unreachable,
           }).pipe(
             Effect.map((url) => ({
@@ -70,32 +71,24 @@ export const layerS3 = (options: {
           ),
 
         presignDownload: (key, request) =>
-          Effect.tryPromise({
+          Effect.try({
             try: () =>
-              getSignedUrl(
-                client,
-                new GetObjectCommand({
-                  Bucket: options.bucket,
-                  Key: key,
-                  // Overrides what the object was stored as, and is part of the
-                  // signature, so the same rule holds here as locally.
-                  ...(request.contentType === undefined
-                    ? {}
-                    : { ResponseContentType: request.contentType }),
-                }),
-                { expiresIn: request.expiresInSeconds },
-              ),
+              client.presign(key, {
+                method: "GET",
+                expiresIn: request.expiresInSeconds,
+                // Overrides what the object was stored as, and is part of the
+                // signature, so the same rule holds here as locally.
+                ...(request.contentType === undefined ? {} : { type: request.contentType }),
+              }),
             catch: unreachable,
           }),
 
         size: (key) =>
           Effect.tryPromise({
-            try: () =>
-              client.send(new HeadObjectCommand({ Bucket: options.bucket, Key: key })).then(
-                (head) => Option.fromUndefinedOr(head.ContentLength),
-              ),
+            try: () => client.stat(key),
             catch: unreachable,
           }).pipe(
+            Effect.map((stat) => Option.some(stat.size)),
             // A missing object is an answer, not a failure: it is how an
             // abandoned upload is told apart from a broken bucket.
             Effect.catchTag("StorageUnavailable", () => Effect.succeed(Option.none())),
@@ -103,7 +96,7 @@ export const layerS3 = (options: {
 
         remove: (key) =>
           Effect.tryPromise({
-            try: () => client.send(new DeleteObjectCommand({ Bucket: options.bucket, Key: key })),
+            try: () => client.delete(key),
             catch: unreachable,
           }).pipe(Effect.asVoid),
       };

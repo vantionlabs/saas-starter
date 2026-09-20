@@ -14,8 +14,8 @@ Synced from
 by `scripts/sync-effect-skills.mjs`, which re-applies the corrections above on every run:
 
 ```
-pnpm sync:skills            # fetch upstream, correct, write
-pnpm sync:skills --dry-run  # report what would change, write nothing
+bun run sync:skills            # fetch upstream, correct, write
+bun run sync:skills --dry-run  # report what would change, write nothing
 ```
 
 The script fails and writes nothing if any known v4 drift survives — that means upstream changed

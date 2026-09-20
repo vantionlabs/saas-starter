@@ -8,7 +8,7 @@ Sync `@vantion/tokens` into the Figma file at: **$ARGUMENTS**
 1. **Load the `figma-use` skill first.** The Figma MCP server requires it before
    every `use_figma` call, and it is the authority on API spelling — where it and
    the generated script disagree, the skill is right and the script is stale.
-2. Generate the script: `pnpm --filter @vantion/tokens figma:script`. It is
+2. Generate the script: `bun run --filter @vantion/tokens figma:script`. It is
    produced from `packages/tokens/src/tokens.ts`, so the values cannot drift from
    the ones the web app and the Expo app use, and it upserts rather than
    appends — a design system is synced repeatedly, not created once.

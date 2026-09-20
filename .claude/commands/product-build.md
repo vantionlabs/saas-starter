@@ -24,11 +24,11 @@ Then read `docs/workflow/03-build.md` and follow it, and read `RULES.md` before
 writing anything.
 
 Work in **vertical slices**, one feature at a time, and do not start the next
-until the previous passes `pnpm check && pnpm lint && pnpm test` — plus `pnpm e2e`
+until the previous passes `bun run check && bun run lint && bun run test` — plus `bun run e2e`
 when the slice touched a route or a handler. A slice that compiles is not a slice
 that works.
 
-For a new feature area, `pnpm new:module <name>` scaffolds the package and
+For a new feature area, `bun run new:module <name>` scaffolds the package and
 registers it. Then, per `RULES.md`: one file per operation built with
 `toLayerHandler`, an `*RpcLive.ts` that only merges them, a `Module.ts` root
 layer, and — for anything tenant-owned — a row-level security policy in the style

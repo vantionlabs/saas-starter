@@ -22,7 +22,7 @@
   <img alt="Effect 4" src="https://img.shields.io/badge/Effect_4-2233f0?style=flat-square" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Node 22" src="https://img.shields.io/badge/Node_22-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
-  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white" />
+  <img alt="Bun" src="https://img.shields.io/badge/Bun-000000?style=flat-square&logo=bun&logoColor=white" />
   <img alt="Postgres" src="https://img.shields.io/badge/Postgres-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
   <img alt="Redis" src="https://img.shields.io/badge/Redis-FF4438?style=flat-square&logo=redis&logoColor=white" />
   <img alt="React 19" src="https://img.shields.io/badge/React_19-149ECA?style=flat-square&logo=react&logoColor=white" />
@@ -84,7 +84,7 @@ Both are MIT. Nothing is held back for a paid tier.
 
 **The platform** — what you build the next feature on.
 
-- ✅ **Feature modules** — `pnpm new:module <name>` scaffolds and registers a vertical slice
+- ✅ **Feature modules** — `bun run new:module <name>` scaffolds and registers a vertical slice
 - ✅ **One design system** — `@vantion/tokens` feeds the web app, the phone, Figma and email
 - ✅ **A design app** — one canvas for product, marketing and brand, on fixtures, no backend
 - ✅ **Figma both ways** — generate a library and screens from code, pull refinements back
@@ -248,7 +248,7 @@ screens are seen under the conditions that break them:
 | `crowded`   | forty-character names and two dozen rows — the state that breaks a layout |
 
 The persona travels in the query string, so a designer can send a link to exactly
-the state they mean rather than describing it. `pnpm design`.
+the state they mean rather than describing it. `bun run design`.
 
 **3 · Into Figma, as a design system.** `/figma-tokens` syncs `@vantion/tokens`
 into a file's variables; `/figma-screen` assembles a screen _from those
@@ -257,10 +257,10 @@ brings the change back — deciding first whether it is a **token**, a
 **component**, or a **screen**, because those are three different files and
 getting it wrong is how a one-off colour ends up hardcoded in a route.
 
-**4 · Built in slices.** `pnpm new:module <name>` scaffolds a feature package and
+**4 · Built in slices.** `bun run new:module <name>` scaffolds a feature package and
 registers it. Each slice is schema, handler, screen and tests, and does not start
-until the previous one passes `pnpm check && pnpm lint && pnpm test`, plus
-`pnpm e2e` when it touched a route.
+until the previous one passes `bun run check && bun run lint && bun run test`, plus
+`bun run e2e` when it touched a route.
 
 **5 · Shipped.** `railway config plan` shows the diff before `railway config
 apply` performs it, so a deployment is reviewable the way a pull request is.
@@ -403,11 +403,11 @@ below. The Postgres container now bootstraps as `postgres` and provisions the
 application's role separately, and the script that does it only runs when the
 volume is first created.
 
-You need Node 22+, pnpm, and Postgres. (`docker compose up -d` gives you the
+You need Bun 1.4+ and Postgres. (`docker compose up -d` gives you the
 database if you would rather not run one.) A Nix flake is included but optional.
 
 ```bash
-pnpm install
+bun install
 cp .env.example .env
 ```
 
@@ -418,11 +418,11 @@ Apply the schema — the migration runner reads the same `.env` — then start b
 servers:
 
 ```bash
-pnpm --filter @vantion/database migrate
+bun run --filter @vantion/database migrate
 ```
 
 ```bash
-pnpm dev
+bun run dev
 ```
 
 The API is on `http://localhost:3000` and the front end on
@@ -505,34 +505,34 @@ it.
 
 ## Commands
 
-|                                |                                                     |
-| ------------------------------ | --------------------------------------------------- |
-| `pnpm dev`                     | API, front end and worker together                  |
-| `pnpm design`                  | the design app, on persona fixtures                 |
-| `pnpm marketing`               | the marketing site, server-rendered                 |
-| `pnpm brand`                   | the brand kit, generated from the tokens            |
-| `pnpm mobile`                  | the Expo app, against the same API                  |
-| `pnpm new:module <name>`       | scaffold a feature package and register it          |
-| `pnpm build`                   | deployable artifacts for every package              |
-| `pnpm check`                   | `tsc -b` across all project references              |
-| `pnpm lint`                    | oxlint, including Effect type-aware and local rules |
-| `pnpm format` / `format:check` | dprint                                              |
-| `pnpm test`                    | vitest across `apps/*` and `packages/*`             |
-| `pnpm e2e`                     | Playwright, driving both servers in a browser       |
-| `pnpm evals`                   | the assistant's test set, against its baseline      |
-| `pnpm vendor`                  | re-vendor the upstream source under `repos/`        |
+|                                   |                                                     |
+| --------------------------------- | --------------------------------------------------- |
+| `bun run dev`                     | API, front end and worker together                  |
+| `bun run design`                  | the design app, on persona fixtures                 |
+| `bun run marketing`               | the marketing site, server-rendered                 |
+| `bun run brand`                   | the brand kit, generated from the tokens            |
+| `bun run mobile`                  | the Expo app, against the same API                  |
+| `bun run new:module <name>`       | scaffold a feature package and register it          |
+| `bun run build`                   | deployable artifacts for every package              |
+| `bun run check`                   | `tsc -b` across all project references              |
+| `bun run lint`                    | oxlint, including Effect type-aware and local rules |
+| `bun run format` / `format:check` | dprint                                              |
+| `bun run test`                    | vitest across `apps/*` and `packages/*`             |
+| `bun run e2e`                     | Playwright, driving both servers in a browser       |
+| `bun run evals`                   | the assistant's test set, against its baseline      |
+| `bun run vendor`                  | re-vendor the upstream source under `repos/`        |
 
 Postgres-backed tests skip without a database. Either `docker compose up -d`, or
 point at an existing instance with `TEST_DB_URL=postgresql://...`.
 
-`pnpm e2e` runs the browser suite in `e2e/`. It needs no setup and no running
+`bun run e2e` runs the browser suite in `e2e/`. It needs no setup and no running
 app: it starts its own Postgres on a free port, applies the migrations, runs
 both servers on ports of their own, and cleans up after itself. Run
-`pnpm --filter @vantion/e2e install-browsers` once first.
+`bun run --filter @vantion/e2e install-browsers` once first.
 
 ## Deploying
 
-`pnpm build` produces the API bundled to `apps/server/build/bundle/main.js`, the
+`bun run build` produces the API bundled to `apps/server/build/bundle/main.js`, the
 web app's Nitro output in `apps/web/.output/`, and the migration runner with its
 `.sql` files beside it. The API is bundled rather than merely compiled because
 the workspace packages export TypeScript source, which `tsc` output alone would
@@ -600,10 +600,22 @@ proved, and what has not been tested against a real identity provider.
 repo depends on. Effect v4 is a release candidate whose APIs moved recently, so
 read the real signature there instead of trusting recall, including your own.
 
+## Bun, and the one place it is not
+
+`bun install`, `bun run dev`, `bun run test`. The API, the worker and the MCP server boot
+under Bun through `@effect/platform-bun`, and every script in `scripts/`, `tooling/`,
+`e2e/` and `evals/` is a `.ts` file Bun executes directly. `.bun-version` pins it.
+
+Node is still required, for one reason: **vitest is a Node program** and does not survive
+the Bun runtime. Vite, Playwright and Metro are Node programs too — Bun invokes them and
+Node runs them. `.nvmrc` pins that side. A repository claiming to be pure Bun while
+shipping a `setup-node` step in its CI would be telling you something untrue, so this says
+it instead.
+
 ## Status
 
 **Effect v4 is a release candidate.** This repo pins one exact version
-(`4.0.0-rc.109`, in `pnpm-workspace.yaml`) and vendors its source under `repos/`
+(`4.0.0-rc.109`, in `package.json`) and vendors its source under `repos/`
 so the APIs you read are the APIs you have. That is a stronger position than
 most, but it is still an RC: `effect/unstable/*` means unstable, and a bump is a
 deliberate step rather than a background one.

@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 /**
  * A brand kit, which is a document: it has to read without JavaScript.
  *
- * `pnpm build` renders the page to `index.html` after Vite bundles it (see
+ * `bun run build` renders the page to `index.html` after Vite bundles it (see
  * `prerender.mjs`), which is why this is a plain SPA config rather than
  * TanStack Start: there is no session to resolve, nothing to fetch and one
  * route, so a server would be machinery with nothing to do — but a crawler and

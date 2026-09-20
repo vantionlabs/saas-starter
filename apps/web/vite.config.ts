@@ -34,11 +34,11 @@ export default defineConfig(({ command, mode }) => {
      * One variable the dev server needs in its own process, and only there.
      *
      * A deployment does not have this problem: `PORT` is whatever the platform
-     * assigned that container. `pnpm dev` is one shell and one `.env` for two
+     * assigned that container. `bun run dev` is one shell and one `.env` for two
      * servers, so it is sorted out here instead.
      *
      * Nitro's plugin takes `PORT` as the dev server's port, and that variable
-     * belongs to the API — so left alone both halves of `pnpm dev` bind the same
+     * belongs to the API — so left alone both halves of `bun run dev` bind the same
      * one and whichever loses is invisible.
      */
     process.env["PORT"] = String(port);

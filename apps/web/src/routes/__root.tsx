@@ -3,6 +3,7 @@ import "@/app.css";
 import { installClientTelemetry } from "@/telemetry/install.js";
 import { reporter } from "@/telemetry/Reporter.js";
 import { HydrationBoundary, RegistryProvider } from "@effect/atom-react";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { NotFound } from "@vantion/ui/app/not-found";
 import { RouteCrash } from "@vantion/ui/app/route-crash";
@@ -27,12 +28,21 @@ import * as React from "react";
  * about first. `RouteCrash` stays presentational and `apps/design` keeps
  * rendering it without a telemetry pipeline behind it.
  */
-const ReportedCrash = (props: { readonly error: Error; }) => {
+const ReportedCrash = (props: ErrorComponentProps) => {
+  /**
+   * `error` is `unknown`, which is the router being right: a `throw` carries
+   * whatever it was given, and a rejected promise arrives here as a string
+   * often enough. The reporter already takes `unknown` — it has the whole value
+   * and knows better than this what to do with it — so the only narrowing is
+   * the sentence the screen shows.
+   */
+  const message = props.error instanceof Error ? props.error.message : String(props.error);
+
   React.useEffect(() => {
     reporter.error(props.error, { kind: "route-boundary" });
   }, [props.error]);
 
-  return <RouteCrash error={props.error} />;
+  return <RouteCrash message={message} />;
 };
 
 export const Route = createRootRoute({

@@ -29,8 +29,8 @@ cannot be demonstrated or cut.
 Do not start the next slice until the previous passes:
 
 ```
-pnpm check && pnpm lint && pnpm test
-pnpm e2e        # when the slice touched a route or a handler
+bun run check && bun run lint && bun run test
+bun run e2e        # when the slice touched a route or a handler
 ```
 
 **The gate, not the compiler.** On this repository that has already caught a Node
@@ -41,7 +41,7 @@ compiler is not evidence the thing runs.
 ## Starting a feature area
 
 ```
-pnpm new:module <name>
+bun run new:module <name>
 ```
 
 writes `packages/modules/<name>` and registers it. Then, per `RULES.md`:

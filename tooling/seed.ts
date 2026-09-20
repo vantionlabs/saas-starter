@@ -9,16 +9,16 @@
  * canvas show the same three situations.
  *
  *   docker compose up -d
- *   pnpm --filter @vantion/database migrate
- *   pnpm dev          # the API has to be up: users are created through it
- *   pnpm seed
+ *   bun run --filter @vantion/database migrate
+ *   bun run dev          # the API has to be up: users are created through it
+ *   bun run seed
  *
  * It is **re-runnable**. Every insert is `on conflict do nothing` against a
  * fixed id, and an address that already exists is not a failure — so running it
  * twice is a no-op rather than a duplicate, and running it after a migration is
  * how you get the new tables filled.
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { Console, Effect, Layer } from "effect";
@@ -87,10 +87,10 @@ const command = Command.make(
   }),
 );
 
-NodeRuntime.runMain(
+BunRuntime.runMain(
   Command.run(command, { version: "0.0.0" }).pipe(
     Effect.provide(
-      Layer.mergeAll(NodeServices.layer, PgLive.pipe(Layer.provideMerge(PgPool.layer))),
+      Layer.mergeAll(BunServices.layer, PgLive.pipe(Layer.provideMerge(PgPool.layer))),
     ),
   ),
 );

@@ -67,7 +67,7 @@ be cut, which are the only two things you will want to do with it.
 
 Rows are in dependency order and none may depend on one below it. Build takes the
 topmost row that is not `landed`, and does not start the next until the whole
-gate passes — `pnpm check && pnpm lint && pnpm test`, plus `pnpm e2e` when the
+gate passes — `bun run check && bun run lint && bun run test`, plus `bun run e2e` when the
 slice touched a route or a handler.
 
 | #   | Slice                          | Module                | Tenant-owned | Shown by                               | State |

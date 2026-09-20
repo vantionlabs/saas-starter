@@ -17,31 +17,39 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
 
+      # bun runs everything this repository wrote. Node is here for one reason:
+      # **vitest is a Node program**, and it does not survive the Bun runtime —
+      # `bun --bun vitest run` dies with "Worker exited unexpectedly" whatever
+      # the pool, on this many projects. Vite, Playwright and Metro are Node
+      # programs too; bun invokes them, Node executes them. Pinned rather than
+      # taken from the runner, so a test failure is never the runner's version.
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
-          cache: pnpm
+
 
       # Runs the `prepare` script, which patches TypeScript and oxlint with the
       # Effect language service.
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
 
-      - run: pnpm format:check
+      - run: bun run format:check
 
-      - run: pnpm check
+      - run: bun run check
 
-      - run: pnpm lint
+      - run: bun run lint
 
       # Dead code, mismatched versions, and secrets. Cheap enough to sit in the
       # same job rather than pay for a third install: knip walks the import
       # graph, syncpack compares every manifest against the catalog, and
       # secretlint reads the tree.
       #
-      # `pnpm hygiene` is the same command a person runs, so a failure here is
+      # `bun run hygiene` is the same command a person runs, so a failure here is
       # reproducible without reading this file.
-      - run: pnpm hygiene
+      - run: bun run hygiene
 
       # Docker is available on ubuntu-latest, so the testcontainers-backed
       # Postgres started by test/global-setup.ts runs here rather than skipping.
@@ -50,21 +58,29 @@ jobs:
       # other, so the baseline gate is part of the same command rather than a
       # job somebody can forget to add. See docs/evals.md for what that gate
       # can honestly enforce without a model key.
-      - run: pnpm test
+      - run: bun run test
 
   e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
 
+      # bun runs everything this repository wrote. Node is here for one reason:
+      # **vitest is a Node program**, and it does not survive the Bun runtime —
+      # `bun --bun vitest run` dies with "Worker exited unexpectedly" whatever
+      # the pool, on this many projects. Vite, Playwright and Metro are Node
+      # programs too; bun invokes them, Node executes them. Pinned rather than
+      # taken from the runner, so a test failure is never the runner's version.
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
-          cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+
+      - run: bun install --frozen-lockfile
 
       # The browser is ~130MB and changes only when Playwright does, so it is
       # keyed on the lockfile rather than downloaded every run.
@@ -72,16 +88,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock') }}
 
       # Only the one browser the suite runs in. `--with-deps` installs the
       # system libraries the runner image does not ship, and those are not in
       # the cache — so this step runs either way and only the download is saved.
-      - run: pnpm --filter @vantion/e2e exec playwright install --with-deps chromium
+      - run: bun run --filter @vantion/e2e install-browsers:ci
 
       # Starts its own Postgres container on a free port, applies the
       # migrations, runs both servers, and removes the container afterwards.
-      - run: pnpm e2e
+      - run: bun run e2e
 
       - uses: actions/upload-artifact@v4
         # The report is only worth keeping when there is a failure to explain.

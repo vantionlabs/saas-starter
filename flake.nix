@@ -22,22 +22,20 @@
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [
-            corepack
-            nodejs_22
-            nodePackages.pnpm
+            bun
             postgresql
             git
           ];
 
           shellHook = ''
-            corepack enable 2>/dev/null || true
-
             echo "vantion dev shell"
-            echo "  node    $(node --version)"
-            echo "  pnpm    $(pnpm --version 2>/dev/null || echo '(run: corepack enable)')"
+            echo "  bun     $(bun --version)"
             echo "  psql    $(psql --version | cut -d' ' -f3)"
             echo ""
             echo "  postgres server: docker compose up -d"
+            echo ""
+            echo "  nixpkgs pins bun for this shell; .bun-version is what CI and"
+            echo "  a non-nix machine read. Keep the two within a minor of each other."
           '';
         };
       });

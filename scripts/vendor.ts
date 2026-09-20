@@ -17,7 +17,7 @@
  * that is an ordinary `Effect` — so the failure modes below are typed errors
  * instead of `process.exit(1)` in four places.
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Data, Effect } from "effect";
 import { Argument, Command } from "effect/unstable/cli";
 import { execFileSync } from "node:child_process";
@@ -72,7 +72,7 @@ const vendor = Effect.fnUntraced(function*(name: string) {
   yield* git("subtree", "add", `--prefix=${source.prefix}`, source.url, source.ref, "--squash");
 
   yield* Console.log(
-    `    vendored. check it against the \`${source.catalogPin}\` pin in pnpm-workspace.yaml.`,
+    `    vendored. check it against the \`${source.catalogPin}\` pin in package.json.`,
   );
 });
 
@@ -104,6 +104,6 @@ const command = Command.make(
   }),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );

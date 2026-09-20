@@ -1,4 +1,4 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env bun
 /**
  * Gives the browser tests a Postgres of their own, on a port nothing else holds.
  *
@@ -44,7 +44,7 @@ const dockerQuietly = (...args: ReadonlyArray<string>) =>
   execFileSync("docker", [...args], { stdio: "ignore" });
 
 const migrate = (url: string) =>
-  execFileSync("pnpm", ["--filter", "@vantion/database", "migrate"], {
+  execFileSync("bun", ["run", "--filter", "@vantion/database", "migrate"], {
     cwd: ROOT,
     stdio: "inherit",
     env: { ...process.env, DATABASE_URL: url },
@@ -169,7 +169,7 @@ psql(`grant all on schema public to vantion`);
 psql(`grant connect on database "vantion_e2e" to admin`);
 psql(`grant usage on schema public to admin`);
 
-// The same runner `pnpm dev` uses, so the browser tests and a developer's own
+// The same runner `bun run dev` uses, so the browser tests and a developer's own
 // database cannot converge on different schemas. Run as `vantion`, which
 // therefore owns the tables — and owns them without being exempt from their
 // policies, because every one of them is FORCEd.

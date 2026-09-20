@@ -1,5 +1,5 @@
 import { runtime } from "@/server/runtime.js";
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { NotStaff, StaffResolver, TwoFactorRequired } from "@vantion/module-admin/StaffResolver";
 import { createAuthClient } from "better-auth/client";
@@ -38,7 +38,21 @@ const auth = createAuthClient({
  * session payload, so revoking somebody's staff role takes effect on their next
  * request instead of whenever their session happens to expire.
  */
-const currentStaff = async () => {
+/**
+ * Wrapped in `createServerOnlyFn`, which is not decoration.
+ *
+ * This module imports `runtime`, and `runtime` reaches `pg`. `whoami` below is
+ * a `createServerFn` whose handler is stripped from the client bundle, but
+ * `currentStaff` was a plain exported-through function the bundler could not
+ * prove never runs in a browser — so the whole module, and `pg` with it, was
+ * pulled toward the client and TanStack Start's import protection refused the
+ * build outright. It is right to: a Postgres driver in a browser bundle is a
+ * connection string looking for somewhere to leak.
+ *
+ * Marking it says the thing that was previously only true by convention, and
+ * says it to the bundler rather than to a reader.
+ */
+const currentStaff = createServerOnlyFn(async () => {
   const cookie = getRequestHeader("cookie");
   if (cookie === undefined || cookie === "") return null;
 
@@ -62,7 +76,7 @@ const currentStaff = async () => {
       Effect.catchTag("TwoFactorRequired", () => Effect.succeed("needs-2fa" as const)),
     ),
   );
-};
+});
 
 /** Whether to show the panel at all. Nothing else is exposed about the caller. */
 export const whoami = createServerFn({ method: "GET" }).handler(async () => {

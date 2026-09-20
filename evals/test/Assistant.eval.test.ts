@@ -19,7 +19,7 @@ import { Effect } from "effect";
  * answer differently each time.
  *
  * The quality half — does a model choose well, does the answer read properly —
- * runs from `pnpm evals` with a key, against a baseline somebody records for
+ * runs from `bun run evals` with a key, against a baseline somebody records for
  * that model. Both use this harness; only one can be a required check.
  */
 describe.skipIf(testDbUrl() === undefined)("the eval set", () => {

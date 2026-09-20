@@ -9,7 +9,7 @@ import { migrate } from "../Migrations.js";
  * should happen deliberately and once — not as a side effect of a deploy that
  * might be rolling several instances.
  *
- * `pnpm --filter @vantion/database migrate`
+ * `bun run --filter @vantion/database migrate`
  */
 const url = process.env["DATABASE_URL"];
 

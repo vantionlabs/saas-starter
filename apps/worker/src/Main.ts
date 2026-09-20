@@ -1,5 +1,5 @@
 import { dispatch } from "#src/Handlers.js";
-import { NodeRuntime } from "@effect/platform-node";
+import { BunRuntime } from "@effect/platform-bun";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPool } from "@vantion/database/PgPool";
 import { JobQueue } from "@vantion/module-jobs/JobQueue";
@@ -73,7 +73,7 @@ const WorkerLive = Layer.effectDiscard(
  * It names itself `vantion-worker` so its spans do not merge with the API's.
  * Two services reporting under one name is a trace nobody can read.
  */
-NodeRuntime.runMain(
+BunRuntime.runMain(
   Layer.launch(WorkerLive).pipe(
     Effect.provide(layerTelemetry("vantion-worker")),
     Effect.provide(layerReporting("worker").pipe(Layer.provide(ErrorTracker.layer))),

@@ -20,13 +20,6 @@
      * knip reads, and run as a command rather than imported.
      */
     "@secretlint/secretlint-rule-preset-recommend",
-    /**
-     * The runtime every `.ts` script here is executed with — `pnpm vendor`,
-     * the migration runner, `new:module`. Knip resolves the binary from the
-     * scripts that call it and still counts the manifest entry as unused,
-     * because nothing `import`s it.
-     */
-    "tsx",
     // Knip's Expo plugin infers these from `app.json` keys that are core Expo
     // configuration — `userInterfaceStyle` is not `expo-system-ui`. Verified by
     // reading the file rather than by installing two packages to quieten it.
@@ -86,6 +79,18 @@
     },
     "evals": {
       "entry": ["*.ts", "src/**/*.ts", "test/**/*.test.ts"]
+    },
+    /**
+     * `scripts` and `tooling` are workspaces of their own, so their entry
+     * points are theirs to declare — the root's patterns never reached them,
+     * which is what knip's "no matches" hint was pointing at. Everything here
+     * is run by name from a `package.json` script rather than imported.
+     */
+    "scripts": {
+      "entry": ["*.ts", "oxlint-rules/*.mjs"]
+    },
+    "tooling": {
+      "entry": ["*.ts", "seed/*.ts", "test/**/*.test.ts"]
     },
     ".": {
       "entry": [

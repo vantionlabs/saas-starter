@@ -8,13 +8,17 @@ const sources: Record<string, { readonly ref: string; readonly catalogPin: strin
   fs.readFileSync(path.join(ROOT, "scripts", "vendor-sources.json"), "utf8"),
 );
 
-/** The catalog is YAML, and one line per pin is all that needs reading. */
+/**
+ * The catalog is `workspaces.catalog` in the root manifest, which is where bun
+ * keeps it. It used to be parsed out of `package.json` by regex; JSON is
+ * the better half of that trade, since a pin is now read rather than matched.
+ */
 const catalogVersion = (name: string): string | undefined => {
-  const workspace = fs.readFileSync(path.join(ROOT, "pnpm-workspace.yaml"), "utf8");
-  const quoted = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = new RegExp(`^\\s*"?${quoted}"?:\\s*\\^?(\\S+)$`, "m").exec(workspace);
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8")) as {
+    readonly workspaces?: { readonly catalog?: Record<string, string>; };
+  };
 
-  return match?.[1];
+  return manifest.workspaces?.catalog?.[name]?.replace(/^[\^~]/, "");
 };
 
 /**

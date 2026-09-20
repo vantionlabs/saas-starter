@@ -33,8 +33,8 @@ plugin, and `vantion://` is a trusted origin — change the scheme in
 ## Running it
 
 ```
-pnpm mobile              # expo start
-pnpm --filter @vantion/mobile ios
+bun run mobile              # expo start
+bun run --filter @vantion/mobile ios
 ```
 
 Point it at an API with `EXPO_PUBLIC_API_URL`. On a simulator `localhost` is the
@@ -71,9 +71,9 @@ pick is not the range the SDK was built against. The first attempt here used
 
 ## What has been verified, and what has not
 
-`pnpm check` type-checks it, `pnpm test` covers the theme conversion, and
-`pnpm --filter @vantion/mobile build` bundles it with `expo export`. **It has not
+`bun run check` type-checks it, `bun run test` covers the theme conversion, and
+`bun run --filter @vantion/mobile build` bundles it with `expo export`. **It has not
 been run on a simulator or a device in this repository.** Treat the screens as a
 starting point that compiles and bundles rather than as a shipped application —
-the first `pnpm mobile` on your own machine is the first time anybody will have
+the first `bun run mobile` on your own machine is the first time anybody will have
 seen it move.

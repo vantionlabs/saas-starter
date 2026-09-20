@@ -3,7 +3,7 @@
 #   docker build -f apps/admin/Dockerfile -t vantion-admin .
 #
 # Built from the repository root for the same reason every other image here is:
-# pnpm resolves a workspace package against the root lockfile and every sibling
+# a workspace package resolves against the root lockfile and every sibling
 # manifest.
 #
 # This is a separate deployable rather than a route inside `apps/web`, and the
@@ -15,14 +15,11 @@
 # It talks to the API for one thing: resolving a session. Everything else runs
 # in this process, against its own connection.
 
-FROM node:22-slim AS base
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
-RUN corepack enable
+FROM oven/bun:1.4.2-debian AS base
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json bun.lock ./
 # Every workspace package this image's build reaches, and no more.
 # `tooling/test/docker.test.ts` computes the set and fails with the lines
 # to paste, so this block is generated rather than remembered.
@@ -45,30 +42,33 @@ COPY packages/telemetry/package.json packages/telemetry/
 COPY packages/tokens/package.json packages/tokens/
 COPY packages/ui/package.json packages/ui/
 COPY scripts/package.json scripts/
-RUN pnpm install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
-# `...` is pnpm for "and its dependencies", and it is the rule for every image
-# here rather than a flourish. A workspace package resolves to `build/src/*.js`
-# under its `default` condition, `.dockerignore` keeps build output out of the
-# context, and a value imported from one does not resolve until something has
-# built it — while every type-only import beside it is erased and does not
-# notice. `tooling/test/docker.test.ts` asserts the set is complete.
-# `--workspace-concurrency=1` because `tsc -b` in one package builds the
-# *projects* of the packages it references, and several here reference the same
-# ones: `modules/agent` and `modules/assistant` both reference
-# `packages/database`. Run in parallel, two `tsc` processes write that project's
-# output and `.tsbuildinfo` at once, and a third reads it half-written —
-# `error TS2306: File 'src/PgTest.ts' is not a module`, on a file that is one.
+# Two steps, and the split is the point.
 #
-# No package-level ordering fixes it: pnpm orders by `package.json`, and the
-# duplicated work is inside tsc's own reference graph. The race was always here
-# — the old filter list ran two such processes — and building the whole closure
-# made it likely rather than rare. Serialising costs about a minute.
-RUN pnpm --workspace-concurrency=1 --filter "@vantion/admin..." build
+# `tsc -b` once over this image's own tsconfig, which follows project references
+# and therefore builds every package the app reaches. Then the bundles, which
+# are independent and may run at once.
+#
+# pnpm needed `--workspace-concurrency=1` here: it fanned `build` out across
+# packages, each starting its own `tsc -b`, and several reference the same
+# projects — two processes writing one project's output and `.tsbuildinfo` while
+# a third read it half-written, surfacing as `error TS2306: File 'src/PgTest.ts'
+# is not a module` on a file that is one. bun has no such flag and does not need
+# one: with the type build hoisted out there is only ever one `tsc`. The race is
+# gone by construction rather than serialised around.
+#
+# A workspace package resolves to `build/src/*.js` under its `default` condition
+# and `.dockerignore` keeps build output out of the context, so a value imported
+# from one does not resolve until something has built it — while every type-only
+# import beside it is erased and does not notice.
+# `tooling/test/docker.test.ts` asserts the manifest set matches this closure.
+RUN bunx tsc -b apps/admin/tsconfig.json
+RUN bun run --filter @vantion/admin bundle
 
-FROM node:22-alpine AS runtime
+FROM oven/bun:1.4.2-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=5174
@@ -77,4 +77,4 @@ COPY --from=build /app/apps/admin/.output ./apps/admin/.output
 
 WORKDIR /app/apps/admin
 EXPOSE 5174
-CMD ["node", ".output/server/index.mjs"]
+CMD ["bun", ".output/server/index.mjs"]

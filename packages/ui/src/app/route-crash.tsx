@@ -12,8 +12,15 @@ import { Button } from "../ui/button.js";
  *
  * The message is deliberately not an apology and not a stack trace: it says what
  * to try, and leaves the detail in the console where it is actually readable.
+ *
+ * It takes the **message** rather than an error, which is the whole of what it
+ * renders. A route boundary catches whatever was thrown, and that is `unknown`
+ * — a rejected promise arrives here as a string often enough. Narrowing at the
+ * boundary and handing a sentence to a presentational component is the right
+ * side of that seam: `apps/design` renders this without fabricating an `Error`
+ * to do it.
  */
-export const RouteCrash = (props: { readonly error: Error; }) => (
+export const RouteCrash = (props: { readonly message: string; }) => (
   <div className="flex flex-col items-start gap-4 p-8">
     <div className="flex items-start gap-3">
       <TriangleAlert className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
@@ -26,7 +33,7 @@ export const RouteCrash = (props: { readonly error: Error; }) => (
     </div>
 
     <p className="text-muted-foreground max-w-lg font-mono text-xs break-words">
-      {props.error.message}
+      {props.message}
     </p>
 
     <Button

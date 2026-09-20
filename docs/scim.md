@@ -77,7 +77,7 @@ add somebody to an organization is always one that creates them.
 A row in `user` with no password, an `account` row linking it to the provider,
 and a `member` row in the token's organization. They sign in through SSO; there
 is no credential to set, which is why writing `user` directly is right here and
-wrong in `pnpm seed`.
+wrong in `bun run seed`.
 
 They also get a **personal organization**, because every account here does —
 `databaseHooks.user.create.after` is unconditional and the product has no orgless

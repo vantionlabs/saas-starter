@@ -108,7 +108,7 @@
 - `repos/effect` outranks every other source for Effect APIs. Precedence is `repos/effect`, then this file, then `knowledge/`, then recall. Where an example in this file or in `knowledge/` contradicts the vendored source, the vendored source is correct and the doc is stale. The rule's intent still stands, only the API spelling defers.
 - `repos/effect` is the whole Effect monorepo, so it also covers `@effect/atom-react`, `@effect/vitest`, `@effect/sql-pg`, `@effect/platform-node`, and the AI packages under `packages/`.
 - `repos/effect-form` is the vendored form library at the beta versions installed here. Its v4 API has no published docs, so read its source before using it.
-- Re-vendor with `pnpm vendor [name]` when the matching pinned version in `pnpm-workspace.yaml` moves. Do not use `git subtree pull`: this history is squashed at publication and a generated template repo has no history at all, so there is no merge base for it to find.
+- Re-vendor with `bun run vendor [name]` when the matching pinned version in `package.json` moves. Do not use `git subtree pull`: this history is squashed at publication and a generated template repo has no history at all, so there is no merge base for it to find.
 
 ## Commit And PR Writing
 

@@ -1,4 +1,4 @@
-import { NodeRuntime } from "@effect/platform-node";
+import { BunRuntime } from "@effect/platform-bun";
 import { Effect } from "effect";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -62,4 +62,4 @@ const main = Effect.gen(function*() {
   if (!verdict.ok) return yield* Effect.sync(() => process.exit(1));
 });
 
-NodeRuntime.runMain(main);
+BunRuntime.runMain(main);

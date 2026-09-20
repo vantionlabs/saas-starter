@@ -1,4 +1,3 @@
-import { NodeHttpPlatform, NodeServices } from "@effect/platform-node";
 import { withOrgScopeFor } from "@vantion/database/OrgScope";
 import { PgLive } from "@vantion/database/PgLive";
 import { PgPoolTest, testDbUrl } from "@vantion/database/PgTest";
@@ -10,8 +9,8 @@ import { ApiKeyAuth } from "@vantion/module-iam/apikey/ApiKeyAuth";
 import { limits } from "@vantion/module-iam/identity/Entitlement";
 import { EntitlementResolver } from "@vantion/module-iam/identity/EntitlementResolver";
 import { ApiV1Live } from "@vantion/server/api/v1/Handlers";
-import { Effect, Layer } from "effect";
-import { Etag, HttpRouter } from "effect/unstable/http";
+import { Effect, FileSystem, Layer, Path } from "effect";
+import { Etag, HttpPlatform, HttpRouter } from "effect/unstable/http";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { RateLimiter } from "effect/unstable/persistence";
 import { SqlClient } from "effect/unstable/sql";
@@ -47,8 +46,21 @@ const app = HttpRouter.toWebHandler(
     ),
     HttpRouter.provideRequest(EntitlementResolver.layerFree),
     Layer.provide(Etag.layer),
-    Layer.provide(NodeHttpPlatform.layer),
-    Layer.provide(NodeServices.layer),
+    /**
+     * A filesystem that is not one, and the platform built on it.
+     *
+     * The application runs on Bun and provides `BunHttpPlatform`; this file
+     * runs under **vitest, which is a Node program** — importing
+     * `@effect/platform-bun` here fails on `Cannot find package 'bun'`, because
+     * that module only exists inside the Bun runtime. Reaching for
+     * `@effect/platform-node` instead would work and would be a lie: the thing
+     * under test is the contract at `/api/v1`, and no handler on it touches a
+     * file. `layerNoop` says that, and removes the runtime from the question
+     * entirely.
+     */
+    Layer.provide(HttpPlatform.layer),
+    Layer.provide(FileSystem.layerNoop({})),
+    Layer.provide(Path.layer),
   ),
   { disableLogger: true },
 );

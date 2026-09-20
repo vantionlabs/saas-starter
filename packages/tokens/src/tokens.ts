@@ -7,7 +7,7 @@
  * which turns these into Figma variables. A palette that lives in a stylesheet
  * can be read by one of those three.
  *
- * `src/tokens.css` is generated from this file by `pnpm --filter @vantion/tokens
+ * `src/tokens.css` is generated from this file by `bun run --filter @vantion/tokens
  * build`, and a test fails if the two drift.
  */
 

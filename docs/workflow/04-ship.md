@@ -4,7 +4,7 @@
 
 Do not deploy while any of these is untrue. Say which one, and fix it.
 
-- [ ] `pnpm check && pnpm lint && pnpm format:check && pnpm test && pnpm e2e` all pass
+- [ ] `bun run check && bun run lint && bun run format:check && bun run test && bun run e2e` all pass
 - [ ] every tenant-owned table added has a row-level security policy
 - [ ] `e2e/tests/tenancy.spec.ts` still passes with the new tables in place
 - [ ] no secret is committed; `.env.example` documents every variable the app reads

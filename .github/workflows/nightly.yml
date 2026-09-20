@@ -33,21 +33,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      # bun runs everything this repository wrote. Node is here for one reason:
+      # **vitest is a Node program**, and it does not survive the Bun runtime —
+      # `bun --bun vitest run` dies with "Worker exited unexpectedly" whatever
+      # the pool, on this many projects. Vite, Playwright and Metro are Node
+      # programs too; bun invokes them, Node executes them. Pinned rather than
+      # taken from the runner, so a test failure is never the runner's version.
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
-          cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+
+      - run: bun install --frozen-lockfile
 
       # An Expo SDK is a matched set, and the way this breaks is a transitive
       # bump landing a React Native the SDK was not built against — which the
       # type-checker cannot see and only a bundle finds.
-      # With its dependencies: Metro resolves `@vantion/tokens` through the
-      # `default` condition, which is built output, and a bare filter builds
-      # only the app — `Cannot find module '@vantion/tokens/build/src/color.js'`.
-      - run: pnpm --filter "@vantion/mobile..." build
+      # The types first, in one `tsc -b`: Metro resolves `@vantion/tokens`
+      # through the `default` condition, which is built output, so bundling
+      # before anything has built it fails on
+      # `Cannot find module '@vantion/tokens/build/src/color.js'`. pnpm said
+      # this with a `...` suffix; `tsc -b` following project references says it
+      # without one.
+      - run: bunx tsc -b apps/mobile/tsconfig.json
+      - run: bun run --filter @vantion/mobile build
 
   images:
     runs-on: ubuntu-latest
@@ -59,6 +72,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Built from the repository root, because pnpm resolves a workspace
+      # Built from the repository root, because a workspace package resolves
       # package against the root lockfile and every sibling manifest.
       - run: docker build -f apps/${{ matrix.app }}/Dockerfile -t vantion-${{ matrix.app }} .

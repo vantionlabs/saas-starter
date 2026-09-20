@@ -1,6 +1,6 @@
 # SaaS starter
 
-Effect v4 monorepo. pnpm workspace + `tsc -b` project references, oxlint + dprint, vitest.
+Effect v4 monorepo. bun workspace + `tsc -b` project references, oxlint + dprint, vitest.
 
 `apps/` holds what deploys — `apps/server` is the Effect API, `apps/web` is the TanStack Start
 front end, `apps/worker` runs the outbox relay and the jobs it feeds, and each owns its
@@ -26,7 +26,7 @@ Only the product screens have personas, because only they have states you cannot
 a backend. A persona is a whole tenant's worth of data rather
 than a card on a wall: `first-day` where every list is empty, `settled` for the ordinary case,
 and `crowded` for the long names and many rows that actually break a layout. The persona
-travels in the query string, so a designer can link to exactly the state they mean. `pnpm
+travels in the query string, so a designer can link to exactly the state they mean. `bun run
 design`.
 
 `apps/marketing` is the marketing site: several pages, server-rendered with TanStack Start for
@@ -319,7 +319,7 @@ the URL at that moment returns having done nothing.
 
 ## Seeding a local database
 
-`pnpm seed` fills a local database with three organizations that mirror
+`bun run seed` fills a local database with three organizations that mirror
 `apps/design`'s personas — a first day, an ordinary tenant, and the crowded one
 whose long names and many rows are what actually break a layout. An empty
 application proves nothing: every list is its empty state, no screen is seen
@@ -345,10 +345,10 @@ It is re-runnable: fixed ids with `on conflict do nothing`, and an address that
 already exists is not a failure.
 
 ```
-pnpm services          # postgres, redis, jaeger
-pnpm db:migrate
-pnpm dev               # the API must be up; users are created through it
-pnpm seed
+bun run services          # postgres, redis, jaeger
+bun run db:migrate
+bun run dev               # the API must be up; users are created through it
+bun run seed
 ```
 
 Everybody's password is `seedpassword`, and `staff@vantion.co` is the account
@@ -606,7 +606,7 @@ vanish in the same frame: a turn _ending_ is not a turn _finishing_, and only th
 could have caught the difference.
 
 `evals/` is the assistant's test set and the baseline the build compares against, and it runs
-inside `pnpm test` rather than beside it. What it can enforce on every push is the half that
+inside `bun run test` rather than beside it. What it can enforce on every push is the half that
 must hold whatever a model says — the right tool is reached for, a write stops and asks, a
 refusal comes back named, one tenant's question never reaches another's rows — so it runs
 against the scripted stand-in, deterministically and for nothing. The other half, whether a
@@ -637,7 +637,7 @@ the blast radius. `docs/mcp.md` has the editor configuration and says so plainly
 is the measure of whether this is working: an application composes modules and owns almost
 nothing itself.
 
-`pnpm new:module <name>` writes a module and registers it. A module is five config files
+`bun run new:module <name>` writes a module and registers it. A module is five config files
 before it is a line of code, two of which register it elsewhere — a reference in
 `tsconfig.json`, a path in `tsconfig.base.json` — and by the fifth module one of those gets
 forgotten, with the failure reading as a resolution error three files away. It also writes a
@@ -692,7 +692,7 @@ reads exactly like one that is right.
 ## Read the vendored Effect source before writing Effect code
 
 `repos/effect` is the full Effect monorepo, vendored with `git subtree` at exactly the version
-this repo depends on (`effect` in `pnpm-workspace.yaml`, currently `4.0.0-rc.109`).
+this repo depends on (`effect` in `package.json`, currently `4.0.0-rc.109`).
 
 That word _exactly_ is load-bearing, and it was briefly untrue. Both sources were vendored from
 `main`, where a package's version field still reads as the last release while the source has
@@ -747,7 +747,7 @@ reading the vendored source or by a compiler error, not inferred:
 `Latch.makeUnsafe`, `Ref.makeUnsafe`, and `Deferred.makeUnsafe` are **real** and were left alone —
 `makeUnsafe` is only wrong on schemas.
 
-`knowledge/skills/` diverges from the upstream dotfiles repo on purpose. `pnpm sync:skills`
+`knowledge/skills/` diverges from the upstream dotfiles repo on purpose. `bun run sync:skills`
 re-applies every correction above after fetching, and fails without writing if any known drift
 survives — so a sync cannot silently reintroduce v4-invalid APIs.
 
@@ -762,8 +762,8 @@ Assume more drift exists than is listed here. Check the source.
 Re-vendor a copy when its pinned version moves:
 
 ```
-pnpm vendor              # every source in scripts/vendor-sources.json
-pnpm vendor effect       # just one
+bun run vendor              # every source in scripts/vendor-sources.json
+bun run vendor effect       # just one
 ```
 
 Not `git subtree pull`. This history is squashed at publication, and a repository
@@ -787,7 +787,7 @@ terminal, child process — in one layer.
 Everything that can be TypeScript now is: `sync:skills`, `new:module`, the tokens scripts, the
 whole e2e harness, the eval runner and the brand prerender. Each takes its flags through
 `Flag`/`Argument` and reports failures as typed errors rather than `process.exit(1)`, and
-`tsconfig.tools.json` covers them so `pnpm check` type-checks them like everything else.
+`tsconfig.tools.json` covers them so `bun run check` type-checks them like everything else.
 
 Two sets stay `.mjs`, and neither is an oversight:
 
@@ -797,9 +797,78 @@ Two sets stay `.mjs`, and neither is an oversight:
 - **`scripts/oxlint-rules/*.mjs`** are loaded by oxlint itself, which reads JavaScript. There
   is no TypeScript to convert them to that oxlint could run.
 
+## bun runs this, and the one place it does not
+
+**bun is the package manager, the script runner and the runtime.** `bun install`,
+`bun run dev`, `bun run test`; the API, the worker and the MCP server all boot under it
+through `@effect/platform-bun`; every `.ts` in `scripts/`, `tooling/`, `e2e/` and `evals/`
+is executed directly with no transpile step in front of it. `.bun-version` pins the
+version, and it is the file CI reads.
+
+**Node is still installed, for exactly one reason: vitest is a Node program.** It does not
+survive the Bun runtime — `bun --bun vitest run` dies with `Worker exited unexpectedly`
+whatever the pool, on this many projects — and that is upstream's to fix rather than ours
+to work around. Vite, Playwright and Metro are Node programs too; bun invokes them and
+Node executes them. `.nvmrc` therefore stays, and CI installs both. Saying this plainly
+beats a README claiming a pure-bun repository that has a `setup-node` step in it.
+
+That split has one consequence worth knowing before writing a test. **A test may not
+import `@effect/platform-bun`**: that package reaches for the `bun` built-in module, which
+only exists inside the Bun runtime, and under vitest the import fails with
+`Cannot find package 'bun'`. `apps/server/test/api/v1/Handlers.test.ts` hit it and the fix
+was not to reach for `@effect/platform-node` instead — that would have worked and would
+have been a lie about what runs in production. It provides `HttpPlatform.layer` over
+`FileSystem.layerNoop({})`, which is honest: nothing on `/api/v1` touches a file, so the
+runtime is not part of the question.
+
+**The catalog moved into `package.json`.** bun keeps it at `workspaces.catalog`, so
+`pnpm-workspace.yaml` is gone and the two things that read a pin — `SessionStart` and
+`vendor-sources.test.ts` — read JSON now instead of matching YAML with a regex.
+
+**Two `overrides` exist and both are load-bearing.** `@lucas-barake/effect-form` is forced
+to `0.25.0-beta.6`: the range its `-react` package asks for is `^0.25.0-beta.6`, which
+semver says includes the _stable_ `0.25.0` — and that one still targets Effect v3, so bun
+resolving it (correctly) broke every form with `Cannot find module 'effect/dist/ParseResult.js'`.
+pnpm had been conservative about prereleases and hidden it. `@effect/platform-node-shared`
+is pinned to `4.0.0-rc.109` for the same class of reason: it drifted to rc.116 through a
+caret and expects an `effect` this repository does not have. Every `@effect/*` package
+being on one RC is an invariant this repo has always depended on and had never written
+down.
+
+**`--workspace-concurrency=1` has no bun equivalent, and no longer needs one.** pnpm fanned
+`build` out across packages, each starting its own `tsc -b`, and the race that caused is
+described under Docker below. The build now does the types **once** — `tsc -b` over the
+app's tsconfig, which follows project references — and then the bundles, which are
+independent. Each deployable therefore has a `bundle` script that is the Vite half of its
+`build`. The race is gone by construction rather than serialised around, which is the
+better answer pnpm's flag was hiding.
+
+**Object storage is Bun's own client.** `S3Store.ts` was `@aws-sdk/client-s3` plus
+`@aws-sdk/s3-request-presigner`, loaded through a dynamic `import` so a deployment without
+credentials never paid for them; `Bun.S3Client` is in the runtime, so there is nothing to
+load and two fewer dependencies to install. It covers exactly the four operations this
+module needs — presigned PUT, presigned GET, `stat` for the size, `delete` — and `type` in
+its presign options is what keeps the **content-type inside the signature**, which is the
+part that stops an upload being served back as `text/html`.
+
+**Redis and Postgres stay where they are, and both refusals have a reason.** Bun ships a
+Redis client, and adopting it would mean _two_ clients in one process rather than one:
+BullMQ requires ioredis and is not negotiable, so Bun's would be additional rather than
+replacing. It also documents no Sentinel and no Cluster, and Effect's `Redis` service is
+built on `SCRIPT LOAD` and cached `EVALSHA`, which its docs do not mention.
+
+Bun ships a Postgres client too, and `@effect/sql-pg` is not a driver here — it is the seam
+`withOrgScope`, `withWorkerScope`, every RLS policy and the typed `SqlError` classification
+run through. Swapping it means writing a new Effect `SqlClient`, which is a rewrite of the
+most consequential code in this repository for no visible gain. The specific risk is worth
+naming: Bun creates named prepared statements for queries it infers are static, and tenant
+isolation here depends on `set_config('app.current_org', …)` holding for the queries that
+follow it on the same pooled connection. That is exactly where automatic statement caching
+goes subtly wrong, and the failure mode is one tenant reading another's rows.
+
 ## Hygiene, and what each tool is actually for
 
-`pnpm hygiene` is knip, syncpack and secretlint, and CI runs the same command rather than three
+`bun run hygiene` is knip, syncpack and secretlint, and CI runs the same command rather than three
 steps of its own — a failure there is reproducible by typing one thing.
 
 - **knip** walks the import graph for unused files, exports and dependencies. Its first run
@@ -831,9 +900,9 @@ the next commit removes it, and this repository is a public template.
 
 It installs itself from the root `prepare` script, which is guarded on a git checkout existing
 — and that guard is load-bearing rather than defensive. `prepare` also runs inside every
-`pnpm install --frozen-lockfile`, which is the first line of all six Dockerfiles, and the build
+`bun install --frozen-lockfile`, which is the first line of all six Dockerfiles, and the build
 image carries no `git`; an unguarded `lefthook install` therefore failed every image build at
-once while `pnpm check`, `pnpm lint` and the whole test suite stayed green. Nothing in CI built
+once while `bun run check`, `bun run lint` and the whole test suite stayed green. Nothing in CI built
 an image, so the next thing to notice would have been a deploy. `.github/workflows/nightly.yml`
 is the answer to that, and this is the break it was written for.
 
@@ -841,8 +910,8 @@ is the answer to that, and this is the break it was written for.
 deliberately is the point and `rg --no-ignore` still does; having 3,558 vendored files in the
 results of every unrelated query is attention spent for nothing.
 
-`pnpm preflight` is format, check, lint, hygiene and test in the order they should run, and
-`pnpm gate` is that plus e2e. Two names because they answer different questions: `preflight` is
+`bun run preflight` is format, check, lint, hygiene and test in the order they should run, and
+`bun run gate` is that plus e2e. Two names because they answer different questions: `preflight` is
 the inner loop, run constantly, and putting a Postgres container and two servers behind it
 would make the command typed twenty times a day cost what the one typed twice a day should.
 `gate` is what a slice has to pass before it is called done.
@@ -854,42 +923,42 @@ nightly matrix for the rest.
 
 ## Commands
 
-|                                              |                                                                    |
-| -------------------------------------------- | ------------------------------------------------------------------ |
-| `pnpm dev`                                   | API server and the Start client together, in parallel              |
-| `pnpm build`                                 | deployable artifacts for the database, API and web packages        |
-| `pnpm check`                                 | `tsc -b` across all project references, then the config files      |
-| `pnpm lint`                                  | oxlint, incl. Effect type-aware rules and the local `app/*` plugin |
-| `pnpm format` / `format:check`               | dprint                                                             |
-| `pnpm test`                                  | vitest across `apps/*` and `packages/*`                            |
-| `pnpm e2e`                                   | Playwright, driving both servers in a browser                      |
-| `pnpm new:module <name>`                     | scaffolds `packages/modules/<name>` and registers it               |
-| `pnpm design`                                | the product-design app, on persona fixtures                        |
-| `pnpm --filter @vantion/tokens figma:script` | the Figma variable sync, printed                                   |
-| `pnpm services`                              | Postgres, Redis and Jaeger, via `docker compose`                   |
-| `pnpm db:migrate`                            | applies the migrations to `DATABASE_URL`                           |
-| `pnpm build:images`                          | all six deployable images                                          |
-| `pnpm fix`                                   | `format` then `lint:fix` — what to run before reading a diff       |
-| `pnpm e2e:install`                           | the one Playwright browser the suite needs, once                   |
-| `pnpm preflight`                             | format, check, lint, hygiene and test, in that order               |
-| `pnpm gate`                                  | `preflight` and then e2e — what a slice has to pass                |
+|                                                 |                                                                    |
+| ----------------------------------------------- | ------------------------------------------------------------------ |
+| `bun run dev`                                   | API server and the Start client together, in parallel              |
+| `bun run build`                                 | deployable artifacts for the database, API and web packages        |
+| `bun run check`                                 | `tsc -b` across all project references, then the config files      |
+| `bun run lint`                                  | oxlint, incl. Effect type-aware rules and the local `app/*` plugin |
+| `bun run format` / `format:check`               | dprint                                                             |
+| `bun run test`                                  | vitest across `apps/*` and `packages/*`                            |
+| `bun run e2e`                                   | Playwright, driving both servers in a browser                      |
+| `bun run new:module <name>`                     | scaffolds `packages/modules/<name>` and registers it               |
+| `bun run design`                                | the product-design app, on persona fixtures                        |
+| `bun run --filter @vantion/tokens figma:script` | the Figma variable sync, printed                                   |
+| `bun run services`                              | Postgres, Redis and Jaeger, via `docker compose`                   |
+| `bun run db:migrate`                            | applies the migrations to `DATABASE_URL`                           |
+| `bun run build:images`                          | all six deployable images                                          |
+| `bun run fix`                                   | `format` then `lint:fix` — what to run before reading a diff       |
+| `bun run e2e:install`                           | the one Playwright browser the suite needs, once                   |
+| `bun run preflight`                             | format, check, lint, hygiene and test, in that order               |
+| `bun run gate`                                  | `preflight` and then e2e — what a slice has to pass                |
 
-The second half of `pnpm check` is `tsconfig.tools.json`, which type-checks what
+The second half of `bun run check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,
 `setupTests.ts`, and `.railway/railway.ts`. These are ordinary TypeScript that
 nothing else compiles, so without it an error there surfaces only when the tool
 that loads the file runs.
 
-`pnpm dev` reads the repo-root `.env` — copy `.env.example` and fill it in. The API server's
+`bun run dev` reads the repo-root `.env` — copy `.env.example` and fill it in. The API server's
 port is `PORT`; the client derives its own from `WEB_URL`, so the two cannot drift apart.
 
 Postgres-backed tests need a database. They skip without one. Either `docker compose up -d`,
 or point at an existing instance with `TEST_DB_URL=postgresql://...`.
 
-`pnpm e2e` is the browser suite in `e2e/`, and it needs nothing set up. It starts a Postgres
+`bun run e2e` is the browser suite in `e2e/`, and it needs nothing set up. It starts a Postgres
 container of its own on a free port, applies the migrations, runs both servers on 3100 and
-5273 so a running `pnpm dev` is undisturbed, and removes the container afterwards even when
-the run fails. `pnpm --filter @vantion/e2e install-browsers` once, first.
+5273 so a running `bun run dev` is undisturbed, and removes the container afterwards even when
+the run fails. `bun run --filter @vantion/e2e install-browsers` once, first.
 
 Each test signs up its own user, so no two share a tenant and they run in parallel against one
 database — which is also why none of them truncates a table. The suite presents a different
@@ -913,7 +982,7 @@ at `/api/v1/docs`. Both transports run over the same stores, so a handler is not
 `packages/domain/src/api/v1/Wire.ts` is the frozen contract and explains what may change in it.
 `GET /health` is liveness and `GET /ready` is readiness.
 
-`pnpm build` compiles every package and bundles the two runnable entry points with Vite — the
+`bun run build` compiles every package and bundles the two runnable entry points with Vite — the
 same tool the web app is built with, configured the same way. The API runs from
 `apps/server/build/bundle/main.js`, the web server's `apps/web/.output/server/index.mjs` is the web server, and the migration runner sits at
 `packages/database/build/bundle/migrate.js` with its `.sql` files beside it.
@@ -930,27 +999,31 @@ plain Node gets the built output. `apps/server` does the same for its own intern
 imports, which is why they are Node subpath imports rather than a `@/` alias a bundler would have
 had to rewrite.
 
-`pnpm dev` runs the three that make the product; `pnpm dev:all` runs every app, which is
-rarely what you want and occasionally exactly what you want. `pnpm services:reset` is the one
+`bun run dev` runs the three that make the product; `bun run dev:all` runs every app, which is
+rarely what you want and occasionally exactly what you want. `bun run services:reset` is the one
 to know the shape of: it takes the volumes with it, so it discards the database.
 
-Each app owns a `Dockerfile`, built from the repository root because pnpm resolves a workspace
-package against the root lockfile and every sibling manifest:
+Each app owns a `Dockerfile`, built from the repository root, because a workspace package
+resolves against the root lockfile and every sibling manifest:
 
 ```
 docker build -f apps/server/Dockerfile -t vantion-api .
 docker build -f apps/web/Dockerfile    -t vantion-web .
 ```
 
-Every image builds with `--workspace-concurrency=1`, and so does `pnpm build`. `tsc -b` in one
-package builds the _projects_ of the packages it references, and several here reference the
-same ones — `modules/agent` and `modules/assistant` both reference `packages/database`. Run in
-parallel, two `tsc` processes write that project's output and `.tsbuildinfo` at once and a
-third reads it half-written, which surfaces as `error TS2306: File 'src/PgTest.ts' is not a
-module` on a file that is one. No package-level ordering fixes it: pnpm orders by
-`package.json` and the duplicated work is inside tsc's own reference graph. The race was always
-here; building the whole closure made it likely rather than rare, and it appeared in CI while
-passing three times locally.
+Every image, and `bun run build`, does the types **once** and then the bundles: `tsc -b` over
+the app's own tsconfig, then `bun run --filter … bundle`. That split is not tidiness, it is a
+race being removed.
+
+`tsc -b` in one package builds the _projects_ of the packages it references, and several here
+reference the same ones — `modules/agent` and `modules/assistant` both reference
+`packages/database`. Fanned out across packages, two `tsc` processes write that project's
+output and `.tsbuildinfo` at once while a third reads it half-written, which surfaces as
+`error TS2306: File 'src/PgTest.ts' is not a module` on a file that is one. pnpm needed
+`--workspace-concurrency=1` to stop it, and bun has no such flag — but with the type build
+hoisted out there is only ever one `tsc`, so there is nothing left to serialise. The race was
+always here; building the whole closure made it likely rather than rare, and it appeared in CI
+while passing three times locally.
 
 Each one's `deps` stage copies only the manifests that image's build reaches, so a source
 change does not reinstall the world and no image pulls React Native, Expo or Playwright. That
@@ -963,22 +1036,23 @@ a missing `COPY` line reported as a missing npm package.
 `tooling/test/docker.test.ts` computes the workspace closure of whatever each Dockerfile says
 it builds and asserts the copied set is exactly that — both directions, because a manifest an
 image does not need is a layer invalidated by a change that cannot affect it. It runs in
-`pnpm test`, and its failure prints the `COPY` lines to paste.
+`bun run test`, and its failure prints the `COPY` lines to paste.
 
-An image also has to **build what it depends on**, which is what `pnpm --filter "@vantion/web..."`
-means — the `...` is pnpm for "and its dependencies". A workspace package resolves to
-`build/src/*.js` under its `default` export condition, and `.dockerignore` keeps build output
-out of the context, so a value imported from a module does not resolve until something has
-built it. Type-only imports are erased and never notice, which is why this surfaced on exactly
-one line: `MAX_UPLOAD_BYTES` in `routes/_protected/files.tsx`. The API and worker images never
-hit it because they already build `@vantion/domain` first, which builds every module on the way.
+An image also has to **build what it depends on**, and that is what the `tsc -b` line does:
+project references are followed, so naming the app builds every package it reaches. pnpm said
+the same thing with a `...` suffix on the filter, which bun does not have and does not need.
+
+A workspace package resolves to `build/src/*.js` under its `default` export condition, and
+`.dockerignore` keeps build output out of the context, so a value imported from a module does
+not resolve until something has built it. Type-only imports are erased and never notice, which
+is why this surfaced on exactly one line: `MAX_UPLOAD_BYTES` in `routes/_protected/files.tsx`.
 
 The same applies outside Docker. The nightly mobile job bundles with Metro, which resolves
 `@vantion/tokens` through `default` as well, and a bare filter fails on
 `Cannot find module '@vantion/tokens/build/src/color.js'`. A local run cannot catch either one,
 because a working tree has the build output a fresh checkout does not.
 
-Nothing in `pnpm check`, `pnpm lint` or the test suite builds an image, which is the gap
+Nothing in `bun run check`, `bun run lint` or the test suite builds an image, which is the gap
 `.github/workflows/nightly.yml` covers: the mobile bundle and all six images, nightly, because
 together they take longer than the rest of CI and a break in them does not block a merge.
 
@@ -1577,7 +1651,7 @@ Migrations are applied by a script, never at boot — two instances starting tog
 migrate. `packages/database` owns them:
 
 ```
-DATABASE_URL=postgresql://... pnpm --filter @vantion/database migrate
+DATABASE_URL=postgresql://... bun run --filter @vantion/database migrate
 ```
 
 Every migration is idempotent and there is no ledger, so applying the whole set to any database

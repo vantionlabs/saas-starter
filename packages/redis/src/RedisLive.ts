@@ -7,10 +7,11 @@ import IORedis from "ioredis";
  *
  * `Redis.make` wants one function — `send(command, ...args)` — and builds the
  * script caching and `EVALSHA` handling on top of it. That is what makes this
- * small: `@effect/platform-node` ships a `NodeRedis` layer over *node-redis*,
+ * small: `@effect/platform-bun` ships a `BunRedis` layer over Bun's own client,
  * and taking it would mean two Redis client libraries in one process, because
  * BullMQ needs **ioredis** and is not negotiable about it. One client, one
- * connection pool, one thing to configure.
+ * connection pool, one thing to configure — and the same client in the worker,
+ * which is where the queue actually runs.
  *
  * It lives beside `packages/database` rather than in `packages/modules/*` for
  * the reason `RULES.md` gives: a vendor needed by more than one module becomes

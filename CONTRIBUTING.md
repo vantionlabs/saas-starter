@@ -31,8 +31,8 @@ new deployment target.
 2. Read `repos/effect` before writing Effect code. Effect v4 is a release
    candidate whose APIs moved recently, so recall — yours or an agent's — is not
    reliable here.
-3. `pnpm check && pnpm lint && pnpm format:check && pnpm test` must pass.
-   `pnpm e2e` too, if you touched a route, a handler or anything under `apps/`.
+3. `bun run check && bun run lint && bun run format:check && bun run test` must pass.
+   `bun run e2e` too, if you touched a route, a handler or anything under `apps/`.
 4. New tenant-owned tables need a row-level security policy in the style of
    `0002_rls.sql`, and their queries need `withOrgScope`. Both, not either.
 5. Keep test coverage at or above 80%, and treat that as a floor rather than a

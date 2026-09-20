@@ -34,7 +34,7 @@ afterEach(() => {
 });
 
 const run = (...args: ReadonlyArray<string>) =>
-  execFileSync("pnpm", ["exec", "tsx", SCRIPT, ...args, "--root", root], {
+  execFileSync("bun", [SCRIPT, ...args, "--root", root], {
     cwd: path.join(import.meta.dirname, "..", ".."),
     encoding: "utf8",
   });
@@ -48,7 +48,7 @@ const run = (...args: ReadonlyArray<string>) =>
  */
 const refusal = (...args: ReadonlyArray<string>) => {
   try {
-    execFileSync("pnpm", ["exec", "tsx", SCRIPT, ...args, "--root", root], {
+    execFileSync("bun", [SCRIPT, ...args, "--root", root], {
       cwd: path.join(import.meta.dirname, "..", ".."),
       stdio: "pipe",
     });

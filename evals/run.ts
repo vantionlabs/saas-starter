@@ -1,16 +1,16 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env bun
 /**
  * Runs the test set and applies the gate.
  *
- *   pnpm evals                    run and report
- *   pnpm evals --update-baseline  record what this run scored
+ *   bun run evals                    run and report
+ *   bun run evals --update-baseline  record what this run scored
  *
  * The baseline it writes names the model that produced it, because a score
  * without that is a number nobody can act on. Updating it is a deliberate act
  * with a diff somebody reviews — which is the whole point of keeping it in the
  * repository rather than in a dashboard.
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect } from "effect";
 import { Argument, Command } from "effect/unstable/cli";
 import { execFileSync } from "node:child_process";
@@ -35,7 +35,7 @@ const command = Command.make(
     Effect.sync(() => {
       /**
        * Run from the repository root so `.env` and the database are the ones
-       * `pnpm dev` uses, but load `tsx` from this package's own
+       * `bun run dev` uses, but load `tsx` from this package's own
        * `node_modules` — Node resolves a bare `--import` specifier against the
        * working directory, and this package is where tsx is installed.
        */
@@ -56,6 +56,6 @@ const command = Command.make(
     }),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );

@@ -7,15 +7,15 @@
  * base one. Written by hand, the fifth module is where one of them gets
  * forgotten and the failure reads as a resolution error three files away.
  *
- *   pnpm new:module billing
- *   pnpm new:module audit-log --dry-run
+ *   bun run new:module billing
+ *   bun run new:module audit-log --dry-run
  *
  * It writes a worked `List…` operation so the shape `RULES.md` describes is in
  * the tree rather than only in prose: one file per operation built with
  * `toLayerHandler`, an `*RpcLive` that only merges them, and a `Module.ts` root
  * layer for an application to register.
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Data, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import * as fs from "node:fs";
@@ -270,13 +270,13 @@ describe("${name}", () => {
 
 Next, in order:
 
-  1. pnpm install                      link the workspace package
+  1. bun install                      link the workspace package
   2. add "${pkg}": "workspace:*" to the dependencies of whatever
      imports it — packages/domain to put its procedures in AppRpcs, and each
      app that registers it
   3. add ${pascal}Rpcs to packages/domain/src/AppRpcs.ts
   4. register ${pascal}Module in apps/server/src/Main.ts
-  5. pnpm check && pnpm lint && pnpm test
+  5. bun run check && bun run lint && bun run test
 
 Steps 3 and 4 are deliberately yours: what an application serves is a decision,
 not a side effect of creating a directory.`;
@@ -316,6 +316,6 @@ const command = Command.make(
   }),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );

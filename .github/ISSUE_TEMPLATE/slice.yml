@@ -29,5 +29,5 @@ body:
       label: Gate
       description: The slice is not done until all of these pass.
       options:
-        - label: "`pnpm check && pnpm lint && pnpm test`"
-        - label: "`pnpm e2e`"
+        - label: "`bun run check && bun run lint && bun run test`"
+        - label: "`bun run e2e`"

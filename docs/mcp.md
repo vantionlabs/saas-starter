@@ -35,8 +35,8 @@ Create a key at `/settings/api-keys`, then:
 }
 ```
 
-`pnpm --filter @vantion/mcp build` produces that bundle. For development,
-`pnpm --filter @vantion/mcp dev` runs it from source against the repo-root
+`bun run --filter @vantion/mcp build` produces that bundle. For development,
+`bun run --filter @vantion/mcp dev` runs it from source against the repo-root
 `.env`.
 
 ## The key is the blast radius

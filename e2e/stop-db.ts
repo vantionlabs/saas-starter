@@ -1,6 +1,6 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env bun
 /** Removes the container `prepare-db.ts` started, if it started one. */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect } from "effect";
 import { Command } from "effect/unstable/cli";
 import { execFileSync } from "node:child_process";
@@ -25,6 +25,6 @@ const command = Command.make(
     }),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );

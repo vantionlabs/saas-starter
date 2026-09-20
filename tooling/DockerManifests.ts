@@ -14,7 +14,7 @@
  * rather than as a missing `COPY` line three files away.
  *
  * So the list is computed here and asserted by `tooling/test/docker.test.ts`,
- * which runs in `pnpm test`. The nightly image build would have caught it too,
+ * which runs in `bun run test`. The nightly image build would have caught it too,
  * a day later and only if somebody read the run.
  */
 import * as fs from "node:fs";
@@ -38,7 +38,7 @@ export interface WorkspacePackage {
 }
 
 /**
- * Where `pnpm-workspace.yaml` says packages live. Kept as literal directories
+ * Where `package.json` says packages live. Kept as literal directories
  * rather than read from that file: the globs are `apps/*`, `packages/*`,
  * `packages/modules/*` and `scripts`, and a glob matcher to re-derive four
  * known paths would be the more fragile of the two.
@@ -106,7 +106,7 @@ export const workspacePackages = (repo: string): Map<string, WorkspacePackage> =
 
 /**
  * The root manifest's own workspace dependencies — `@vantion/scripts`, which
- * carries the oxlint plugin. `pnpm install` installs these whatever is
+ * carries the oxlint plugin. `bun install` installs these whatever is
  * filtered, so they belong in every image's closure.
  */
 const rootWorkspaceDeps = (repo: string): Array<string> => {
@@ -145,13 +145,22 @@ const closure = (
 
 interface BuildFilter {
   readonly name: string;
-  /** `--filter "@vantion/web..."` — pnpm for "and its dependencies". */
+  /**
+   * Whether the closure comes with it.
+   *
+   * pnpm spelled this `--filter "@vantion/web..."`. bun has no such suffix, and
+   * it does not need one: each image runs **one** `tsc -b` over the app's own
+   * tsconfig, and `tsc -b` follows project references — so naming a package
+   * always builds everything it references. The flag survives as a `true` that
+   * is never false, because the closure is still what the manifest list has to
+   * cover and this is where that is said.
+   */
   readonly withDeps: boolean;
 }
 
 export interface DockerfileFacts {
   readonly app: string;
-  /** Every `--filter` in a `RUN pnpm … build`, as written. */
+  /** Every `--filter` in the image's `RUN bun run … bundle`, as written. */
   readonly filters: Array<BuildFilter>;
   /** Just their names, which is what the manifest closure is rooted at. */
   readonly built: Array<string>;
@@ -174,22 +183,23 @@ const captures = (source: string, pattern: RegExp): Array<string> =>
 export const readDockerfile = (repo: string, app: string): DockerfileFacts => {
   const source = fs.readFileSync(path.join(repo, "apps", app, "Dockerfile"), "utf8");
 
-  const filters = [...source.matchAll(/^RUN pnpm .*--filter.*\bbuild\b.*$/gm)]
+  /**
+   * The `bundle` line, not the `tsc -b` one above it.
+   *
+   * Those two are separate on purpose — see the Dockerfiles — and the filters
+   * are the same set in both, so reading either would do. The bundle line is
+   * the one that says what this image ships.
+   */
+  const filters = [...source.matchAll(/^RUN bun run .*--filter.*\bbundle\b.*$/gm)]
     .flatMap(([line]) => captures(line, /--filter (\S+)/g))
-    .map((raw) => {
-      // The quotes are for the reader; the shell would eat nothing here either
-      // way. `...` is pnpm for "and its dependencies".
-      const unquoted = raw.replace(/^["']|["']$/g, "");
-      const withDeps = unquoted.endsWith("...");
-      return { name: withDeps ? unquoted.slice(0, -3) : unquoted, withDeps };
-    });
+    .map((raw) => ({ name: raw.replace(/^["']|["']$/g, ""), withDeps: true }));
 
   const copied = new Set(captures(source, /^COPY (\S+)\/package\.json/gm));
 
   return { app, filters, built: filters.map(({ name }) => name), copied };
 };
 
-/** What `RUN pnpm … build` actually builds, with `...` expanded. */
+/** What the image actually builds: each filter, and everything it references. */
 export const builtPackages = (repo: string, app: string): Set<string> => {
   const packages = workspacePackages(repo);
   const { filters } = readDockerfile(repo, app);

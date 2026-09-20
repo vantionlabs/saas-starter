@@ -7,7 +7,7 @@
  * cannot start without a prior step. `test/tokens.test.ts` fails when the two
  * drift, which is what keeps "committed" and "generated" from disagreeing.
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Data, Effect } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import * as fs from "node:fs";
@@ -18,7 +18,7 @@ const target = path.join(import.meta.dirname, "src", "tokens.css");
 
 class OutOfDate extends Data.TaggedError("OutOfDate")<{}> {
   get message() {
-    return "src/tokens.css is out of date. Run `pnpm --filter @vantion/tokens build:css`.";
+    return "src/tokens.css is out of date. Run `bun run --filter @vantion/tokens build:css`.";
   }
 }
 
@@ -46,6 +46,6 @@ const command = Command.make(
   }),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );

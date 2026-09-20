@@ -1,5 +1,5 @@
 # Shared by both images. The build context is the repository root for either
-# one, because pnpm needs the whole workspace to resolve a single package.
+# one, because resolving a single workspace package needs the whole workspace.
 #
 # `repos/` matters most: two vendored monorepos are the bulk of this checkout
 # and no image needs a byte of them.

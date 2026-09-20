@@ -14,20 +14,19 @@
     }
   },
   "scripts": {
-    "build:css": "tsx build.ts",
-    "check:css": "tsx build.ts --check",
+    "build:css": "bun build.ts",
+    "check:css": "bun build.ts --check",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "build": "tsc -b tsconfig.json",
-    "figma:script": "tsx figma.ts",
-    "figma:json": "tsx figma.ts --json"
+    "figma:script": "bun figma.ts",
+    "figma:json": "bun figma.ts --json"
   },
   "devDependencies": {
-    "tsx": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@effect/platform-node": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "effect": "catalog:"
   }
 }

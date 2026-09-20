@@ -100,8 +100,8 @@ export interface MakeAuthOptions {
  * What is _not_ available is better-auth's own inferred session,
  * `typeof auth.$Infer.Session`. With this plugin set it fails to cross a
  * `declaration: true` boundary — **TS2883**, "cannot be named without a
- * reference to `$strip` from `.pnpm/zod@4.6.5/.../zod/v4/core`": the inferred
- * type reaches into zod's internals, and their path inside pnpm's store is not
+ * reference to `$strip` from `.bun/zod@4.6.5/.../zod/v4/core`": the inferred
+ * type reaches into zod's internals, and their path inside the package store is not
  * nameable from an emitted `.d.ts`. Its non-inferred `User` and `Session`
  * exports have no such problem, which is why the user half can be derived and
  * `authOptions` still stays unexported.

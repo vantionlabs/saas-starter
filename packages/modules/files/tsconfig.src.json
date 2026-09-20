@@ -16,6 +16,7 @@
   ],
   "compilerOptions": {
     "types": [
+      "bun",
       "node"
     ],
     "outDir": "build/src",

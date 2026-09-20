@@ -6,7 +6,7 @@
  * It is a package rather than a stylesheet because three consumers need the same
  * values and only one of them speaks CSS: this app, the Expo app through
  * NativeWind, and Figma through the library generator. Edit
- * `packages/tokens/src/tokens.ts` and run `pnpm --filter @vantion/tokens
+ * `packages/tokens/src/tokens.ts` and run `bun run --filter @vantion/tokens
  * build:css`; a test fails if the two drift.
  *
  * Data dense, low chrome. Colour carries status and action only — never

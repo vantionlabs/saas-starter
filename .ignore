@@ -7,4 +7,4 @@
 #
 # `rg --no-ignore` still reaches it, which is what a deliberate read looks like.
 repos/
-pnpm-lock.yaml
+bun.lock

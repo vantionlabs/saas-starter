@@ -46,4 +46,4 @@ them:
 
 `format-and-check.mjs` is the slow one, and it is scoped for that reason:
 `tsc -b` on the owning package rather than the whole reference graph, which is
-about a second on a warm build. `pnpm check` still runs the lot at commit time.
+about a second on a warm build. `bun run check` still runs the lot at commit time.

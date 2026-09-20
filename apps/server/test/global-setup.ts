@@ -6,7 +6,7 @@ import * as Pg from "pg";
 let container: StartedPostgreSqlContainer | undefined;
 
 /**
- * Testcontainers needs a running daemon. Probing keeps `pnpm test` green on
+ * Testcontainers needs a running daemon. Probing keeps `bun run test` green on
  * machines without Docker — tests that need `TEST_DB_URL` skip instead.
  */
 const hasDocker = () => {

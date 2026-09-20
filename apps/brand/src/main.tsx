@@ -3,7 +3,7 @@ import { Brand } from "@/brand.js";
 import * as React from "react";
 import { hydrateRoot } from "react-dom/client";
 
-/** The markup is already there — `pnpm build` wrote it. See `prerender.mjs`. */
+/** The markup is already there — `bun run build` wrote it. See `prerender.mjs`. */
 const root = document.getElementById("root") as HTMLElement;
 
 hydrateRoot(

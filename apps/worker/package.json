@@ -9,14 +9,15 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "dev": "tsx watch --conditions=development --env-file-if-exists=../../.env src/Main.ts",
-    "build": "tsc -b tsconfig.json && vite build",
-    "start": "node build/bundle/main.js",
+    "dev": "bun --watch --conditions=development --env-file=../../.env src/Main.ts",
+    "build": "tsc -b tsconfig.json && bun run bundle",
+    "start": "bun build/bundle/main.js",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bundle": "vite build"
   },
   "dependencies": {
-    "@effect/platform-node": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@vantion/database": "workspace:*",
     "@vantion/module-contact": "workspace:*",
     "@vantion/module-iam": "workspace:*",
@@ -28,7 +29,6 @@
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "tsx": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   }

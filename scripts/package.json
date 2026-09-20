@@ -7,10 +7,8 @@
     "./oxlint-rules": "./oxlint-rules/index.mjs"
   },
   "dependencies": {
-    "@effect/platform-node": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "effect": "catalog:"
   },
-  "devDependencies": {
-    "tsx": "catalog:"
-  }
+  "devDependencies": {}
 }

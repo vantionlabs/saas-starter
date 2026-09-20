@@ -2,7 +2,7 @@
 // Formats the file that just changed, lints it, and type-checks the one package
 // it belongs to.
 //
-// Scoped on purpose. `pnpm check` builds every project reference and takes long
+// Scoped on purpose. `bun run check` builds every project reference and takes long
 // enough that running it after each edit would make the editing unbearable;
 // `tsc -b` on the owning package costs a second or two and catches the Effect v4
 // drift this repository exists to guard against, at the moment it happens rather

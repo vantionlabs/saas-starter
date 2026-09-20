@@ -10,7 +10,7 @@
  * source uses this project's `@` alias and Vite is what knows about it. Running
  * it through tsx alone resolved `@/Site.js` as a package and failed.
  */
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Data, Effect } from "effect";
 import { Command } from "effect/unstable/cli";
 import * as fs from "node:fs";
@@ -52,6 +52,6 @@ const command = Command.make(
   }),
 );
 
-NodeRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(NodeServices.layer)),
+BunRuntime.runMain(
+  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
 );
