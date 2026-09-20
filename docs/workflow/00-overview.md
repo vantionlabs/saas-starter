@@ -17,6 +17,48 @@ somebody writes it down.
 | [Build](03-build.md)         | `/product-build`     | Vertical slices, each one green before the next    |
 | [Ship](04-ship.md)           | `/product-ship`      | Deployed, with the isolation tests still passing   |
 
+## What to run once, and when
+
+The four `/product-*` commands drive the phases. The skills vendored beside them
+bring commands of their own, and two of those are **setup**: they write files
+this repository deliberately does not ship, because they are answers about _your_
+product rather than about the starter.
+
+| Command                                 | When                                         | Writes                             | Required                                                      |
+| --------------------------------------- | -------------------------------------------- | ---------------------------------- | ------------------------------------------------------------- |
+| `/grill-me`                             | Discover, **first**                          | nothing — it interrogates the plan | No, and skipping it is the usual reason a build goes sideways |
+| `/product-discover`                     | Discover                                     | `SPEC.md`                          | Yes                                                           |
+| `impeccable init`                       | Prototype, **before the first screen**       | `PRODUCT.md`                       | Yes, for any design work                                      |
+| `impeccable document`                   | Prototype, **after the first screens exist** | `DESIGN.md`                        | Recommended                                                   |
+| `/product-prototype`                    | Prototype                                    | screens, no migrations             | Yes                                                           |
+| `/product-build`                        | Build, per slice                             | the slice                          | Yes                                                           |
+| `impeccable extract`                    | Build, when a pattern repeats                | components and tokens              | Optional                                                      |
+| `impeccable audit`, `impeccable polish` | Ship, before deploying                       | fixes                              | Recommended                                                   |
+| `/product-ship`                         | Ship                                         | a deployment                       | Yes                                                           |
+
+**`impeccable init` is how you get `PRODUCT.md` and `DESIGN.md`.** They are absent
+from this repository on purpose — they are one product's answers to questions only
+its own team can answer, and shipping a filled-in pair would hand every generated
+repository somebody else's. `init` runs the interview that produces them, and
+every other impeccable command reads them before doing work. Run it once, in the
+prototype phase, before the first screen.
+
+Order matters between the two: `init` writes `PRODUCT.md` from a conversation and
+needs no code, so it goes first. `document` derives `DESIGN.md` from what the
+codebase actually looks like, so it wants screens to exist — run it once the
+prototype has some, not on a fresh clone where it would describe the starter's
+defaults rather than your product.
+
+**The first impeccable command downloads a binary.** The launcher ships next to
+the skill and fetches a self-contained binary on first run, which is why
+`.agents/skills/*/scripts/bin/` is gitignored rather than committed. The first
+invocation therefore needs network and is not instant; every one after it is.
+
+**The marketing skills need no setup.** `/brand-review`, `/campaign-plan`,
+`/competitive-brief`, `/content-creation`, `/draft-content`, `/email-sequence`,
+`/performance-report` and `/seo-audit` read what you give them. They belong to
+discover and ship — positioning before you build, and the go-to-market after.
+
 ## How to run it
 
 The four slash commands drive the phases. Each reads its file here and does the

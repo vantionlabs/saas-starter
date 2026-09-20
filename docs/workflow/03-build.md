@@ -52,6 +52,15 @@ writes `packages/modules/<name>` and registers it. Then, per `RULES.md`:
 - for anything tenant-owned: a row-level security policy in the style of
   `0002_rls.sql` **and** `withOrgScope` around the queries — both, never either
 
+## When a pattern starts repeating
+
+`impeccable extract` pulls a repeated pattern into the design system — a
+component, a token, a spacing rule — rather than leaving the third copy to be
+found later. Run it when you notice the repetition, not on a schedule.
+
+It reads `DESIGN.md`, so it wants the prototype phase to have run `document`
+first. The overview's table says what to run once and when.
+
 ## When the slice does not look like this repository
 
 `knowledge/rules/effect-reach-for.md`, before writing it rather than after.

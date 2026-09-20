@@ -509,6 +509,17 @@ generated — a brand document maintained by hand is out of date the first time
 somebody changes a colour, and then it is worse than nothing because people still
 believe it.
 
+**Two commands to run once, when you start designing your own product.**
+`impeccable init` interviews you and writes `PRODUCT.md`; once you have a few
+screens, `impeccable document` derives `DESIGN.md` from what the code actually
+looks like. Every other design command reads those two before doing work.
+
+Neither file ships here, and that is deliberate — they are one product's answers
+to questions only its own team can answer, so a filled-in pair would hand every
+generated repository somebody else's. `docs/workflow/00-overview.md` has the full
+table of what to run once and at which phase, including the marketing skills,
+which need no setup at all.
+
 `docs/figma.md` covers the round trip. It needs a Figma seat that can write, and
 says so rather than letting you find out.
 
@@ -567,6 +578,12 @@ the hooks already refuse what the repository forbids. `docs/workflow/` is the fo
 phases — discover, prototype, build, ship — and `/product-build` takes the topmost
 slice of `SPEC.md` that is not landed, rather than whatever the conversation
 suggests.
+
+Start a product with **`/grill-me`**, before `/product-discover` writes anything.
+Discovery's failure mode is not missing information, it is two people agreeing on
+a sentence that means different things to each — and finding out in the build
+phase. `docs/workflow/00-overview.md` lists every command the vendored skills
+bring and the phase each belongs to.
 
 ### 6 · Shipping
 

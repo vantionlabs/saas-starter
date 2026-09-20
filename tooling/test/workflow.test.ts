@@ -105,6 +105,59 @@ describe("the workflow's artefacts", () => {
   });
 
   /**
+   * The overview's "what to run once, and when" table is the single place that
+   * says which commands the vendored skills bring and at which phase. A table
+   * naming a command that does not exist is worse than no table: somebody types
+   * it, nothing happens, and they stop trusting the rest of the file.
+   *
+   * `/product-*` commands are files in `.claude/commands`; everything else in
+   * that table is a skill, either a directory under `.agents/skills` or a verb
+   * the impeccable launcher knows.
+   */
+  it("names only commands that exist, in the run-once table", () => {
+    const overview = fs.readFileSync(path.join(WORKFLOW, "00-overview.md"), "utf8");
+    const table = overview.slice(
+      overview.indexOf("## What to run once, and when"),
+      overview.indexOf("## How to run it"),
+    );
+
+    expect(table.length, "the run-once table is gone").toBeGreaterThan(200);
+
+    const slash = [...table.matchAll(/`\/([a-z][a-z-]*)`/g)].flatMap((m) => m[1] ?? []);
+    const impeccable = [...table.matchAll(/`impeccable ([a-z]+)`/g)].flatMap((m) => m[1] ?? []);
+
+    const commands = new Set(
+      fs.readdirSync(path.join(ROOT, ".claude", "commands")).map((f) => f.replace(/\.md$/, "")),
+    );
+    const skills = new Set(fs.readdirSync(path.join(ROOT, ".agents", "skills")));
+    const verbs = new Set(
+      Object.keys(
+        JSON.parse(
+          fs.readFileSync(
+            path.join(ROOT, ".agents", "skills", "impeccable", "scripts", "command-metadata.json"),
+            "utf8",
+          ),
+        ) as Record<string, unknown>,
+      ),
+    );
+
+    for (const name of slash) {
+      expect(
+        commands.has(name) || skills.has(name),
+        `${name} is neither a command nor a skill`,
+      ).toBe(true);
+    }
+
+    for (const verb of impeccable) {
+      expect(verbs.has(verb), `impeccable has no \`${verb}\` verb`).toBe(true);
+    }
+
+    // The two that write the files this repository deliberately does not ship.
+    expect(impeccable).toContain("init");
+    expect(impeccable).toContain("document");
+  });
+
+  /**
    * A phase document that links to a file which has been renamed reads exactly
    * like one that does not — `01-discovery.md` survived a rename this way and
    * was cited in three places for several slices.

@@ -24,9 +24,26 @@ did not write.
 
 ## Design
 
+**Run `impeccable init` before the first screen.** It interviews you and writes
+`PRODUCT.md` — who this is for, the brand, the principles — and every other
+impeccable command reads that file before doing work. The repository does not
+ship one, deliberately: it is your product's answers to questions only your team
+can answer. Without it, design commands work brand-agnostically, which is a
+slower way to arrive at something that does not sound like you.
+
+The first invocation downloads the launcher's binary, so it needs network and is
+not instant. Every one after it is.
+
+**Then `impeccable document`, once there are screens.** It derives `DESIGN.md` —
+colours, type, spacing, components — from what the code actually looks like, so
+running it on a fresh clone would describe the starter's defaults rather than
+your product. Once the prototype has a few screens, it is the file that keeps
+every later change on-brand.
+
 Use the `impeccable` skill for the design work itself. It is the phase's real
 dependency, and the `PostToolUse` hook fires it on changes under `apps/web/src`
-when it is installed.
+when it is installed. `docs/workflow/00-overview.md` has the full table of what
+to run once and when.
 
 **Mobbin** is useful for references and is deliberately absent from `.mcp.json`.
 The servers for it are third-party and unofficial, there are two competing ones,

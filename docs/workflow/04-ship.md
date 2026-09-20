@@ -15,6 +15,16 @@ Do not deploy while any of these is untrue. Say which one, and fix it.
 The isolation test is the one that matters. Every other failure is a bug; that
 one is a breach.
 
+**Before the checklist, a design pass.** `impeccable audit` runs the technical
+checks — accessibility, theming, responsive behaviour, performance — and
+`impeccable polish` does the final alignment and spacing pass. Both read the
+`PRODUCT.md` and `DESIGN.md` that `init` and `document` wrote in the prototype
+phase, so neither is useful until those exist. `docs/workflow/00-overview.md` has
+the table of what to run once and when.
+
+Neither is in the checklist above, because a design finding is a judgement and
+the checklist is things that are simply true or false.
+
 ## Deploying
 
 ```
