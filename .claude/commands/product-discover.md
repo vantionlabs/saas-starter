@@ -5,7 +5,16 @@ argument-hint: "[the problem, in a sentence]"
 
 Run the discovery phase for: **$ARGUMENTS**
 
-Read `docs/workflow/01-discover.md` and follow it. In short:
+Read `docs/workflow/01-discover.md` and follow it.
+
+**Start by invoking the `grilling` skill on what the user just told you**, unless
+they have already been grilled in this session or explicitly decline. Do not
+write any of the documents below until they confirm the understanding is shared —
+discovery's failure mode is misalignment, and a spec written from the first
+plausible reading of a sentence is how a team builds the wrong thing exactly on
+schedule.
+
+Then, in short:
 
 1. **Write down who this is for and what they do instead today.** Not a persona —
    a description specific enough that someone could be shown it and say "no, that

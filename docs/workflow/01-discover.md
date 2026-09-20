@@ -2,6 +2,25 @@
 
 The output is two documents and one decision. Not a research report.
 
+## Before anything: get grilled
+
+**`/grill-me`**, before you write a word of the spec.
+
+Discovery's failure mode is not missing information, it is **misalignment** — two
+people agreeing on a sentence that means different things to each of them, and
+finding out in the build phase. The skill works your plan as a design tree: it
+asks every question whose prerequisites are already settled, all at once, with a
+recommended answer for each; your answers push the frontier outward and unblock
+the next round. It is finished when nothing is left silently assumed.
+
+Two properties make it worth the twenty minutes. It **finds facts itself** rather
+than asking you for anything it could look up, so the questions you get are the
+ones only you can answer. And it **will not act** until you say the understanding
+is shared, which is the opposite of the usual failure where an agent starts
+building from the first plausible reading.
+
+Everything below is what to write down once that has happened.
+
 ## 1. Who this is for
 
 Specific enough that you could show it to someone and they could say "no, that is

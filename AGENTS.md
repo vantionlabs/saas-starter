@@ -913,6 +913,28 @@ behind by a deleted skill, which Cursor would otherwise keep loading.
 It replaces a claim in `NOTICE` that was simply false: that the skills were "pinned in
 package.json", where no such pin existed.
 
+**Discovery starts with a grilling.** `grilling` and its `/grill-me` entry point are
+vendored from `mattpocock/skills` (MIT), pinned to a commit in the lock, and
+`/product-discover` invokes the first before writing anything. Discovery's failure mode is
+not missing information, it is **misalignment** — two people agreeing on a sentence that
+means different things to each, and finding out in the build phase. The skill works a plan
+as a design tree, asks the whole settled frontier in one round with a recommended answer
+for each, and will not act until the user says the understanding is shared.
+
+Its sibling `to-spec` was considered and **not** vendored, which is worth recording because
+the documentation made it look like a fit. Reading the source: it publishes to an issue
+tracker, expects a triage vocabulary from `/setup-matt-pocock-skills`, and applies a
+`ready-for-agent` label. This repository's discover phase writes a **committed `SPEC.md`**
+instead, deliberately — a change to the scope deserves a diff and somebody's name on it.
+Vendoring it would have shipped a skill telling people to run a command that does not exist
+here.
+
+The rest of that set — `tdd`, `code-review`, `diagnosing-bugs`, `implement`, `prototype` —
+was declined for the reason the UI rule files were deleted: a second set of engineering
+opinions beside `RULES.md`, the `/product-*` commands and the review subagents is the
+precedence conflict this file exists to prevent, and the loser is the agent trying to work
+out which one governs.
+
 **Subagents live beside the skills**, in `.agents/agents`, with `.claude/agents` symlinked
 to it and the same lock covering both. A skill is prose an agent reads; a subagent is worth
 its own context window only when the work is **large, read-heavy and produces a short

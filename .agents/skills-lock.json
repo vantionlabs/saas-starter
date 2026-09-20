@@ -1,13 +1,9 @@
 {
   "$comment": "Every skill and agent under .agents, where it came from, and its licence. `bun run agents --check` and `tooling/test/skills.test.ts` fail when this file and the tree disagree. Written rather than generated so a reviewer sees the provenance in the diff.",
   "skills": {
-    "impeccable": {
-      "origin": "vendored",
-      "url": "https://github.com/pbakaus/impeccable",
-      "version": "4.3.1",
-      "license": "Apache-2.0",
-      "licenseFile": ".agents/skills/impeccable/LICENSE",
-      "why": "The design method the prototype phase drives. Vendored rather than installed so a fresh clone has it offline, which is the whole argument of shipping the method with the code."
+    "better-auth": {
+      "origin": "first-party",
+      "why": "Which checks belong to better-auth and which to our policies. The traps here are the most expensive in the repository."
     },
     "brand-review": {
       "origin": "vendored",
@@ -44,6 +40,14 @@
       "licenseFile": ".agents/marketing/LICENSE",
       "why": "marketing-skills."
     },
+    "effect-form-e2e": {
+      "origin": "first-party",
+      "why": "Forms bound to contract field schemas, and the browser harness's rules."
+    },
+    "effect-sql-rls": {
+      "origin": "first-party",
+      "why": "withOrgScope, the two database roles, and the shape a policy has to take. Tenancy is the one guarantee a wrong edit breaks silently."
+    },
     "email-sequence": {
       "origin": "vendored",
       "url": "https://github.com/anthropics/marketing-skills",
@@ -51,14 +55,33 @@
       "licenseFile": ".agents/marketing/LICENSE",
       "why": "marketing-skills."
     },
-    "performance-report": {
+    "grill-me": {
       "origin": "vendored",
-      "url": "https://github.com/anthropics/marketing-skills",
-      "license": "Apache-2.0",
-      "licenseFile": ".agents/marketing/LICENSE",
-      "why": "marketing-skills."
+      "url": "https://github.com/mattpocock/skills",
+      "ref": "c55ee46073ed923f86ce59a5eb3b6d895095d1b7",
+      "path": "skills/productivity/grill-me",
+      "license": "MIT",
+      "licenseFile": ".agents/skills/grill-me/LICENSE",
+      "why": "The user-invoked entry point to `grilling`, which is where the substance is. Seven lines, and vendored with it because the pair is how it is meant to be used \u2014 `disable-model-invocation` means somebody asks for it rather than an agent deciding to."
     },
-    "seo-audit": {
+    "grilling": {
+      "origin": "vendored",
+      "url": "https://github.com/mattpocock/skills",
+      "ref": "c55ee46073ed923f86ce59a5eb3b6d895095d1b7",
+      "path": "skills/productivity/grilling",
+      "license": "MIT",
+      "licenseFile": ".agents/skills/grilling/LICENSE",
+      "why": "A relentless pre-implementation interview, worked as a design tree in rounds: ask the whole frontier at once, each answer pushes it outward, done when nothing is silently assumed. Discovery's failure mode is misalignment, and this is the only thing here that attacks it directly \u2014 `/product-discover` writes the spec, this is what makes the spec right."
+    },
+    "impeccable": {
+      "origin": "vendored",
+      "url": "https://github.com/pbakaus/impeccable",
+      "version": "4.3.1",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/skills/impeccable/LICENSE",
+      "why": "The design method the prototype phase drives. Vendored rather than installed so a fresh clone has it offline, which is the whole argument of shipping the method with the code."
+    },
+    "performance-report": {
       "origin": "vendored",
       "url": "https://github.com/anthropics/marketing-skills",
       "license": "Apache-2.0",
@@ -69,21 +92,16 @@
       "origin": "first-party",
       "why": "The four-phase method as a skill: discover, prototype, build, ship."
     },
-    "better-auth": {
-      "origin": "first-party",
-      "why": "Which checks belong to better-auth and which to our policies. The traps here are the most expensive in the repository."
-    },
-    "effect-sql-rls": {
-      "origin": "first-party",
-      "why": "withOrgScope, the two database roles, and the shape a policy has to take. Tenancy is the one guarantee a wrong edit breaks silently."
+    "seo-audit": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
     },
     "tanstack-start-ssr": {
       "origin": "first-party",
       "why": "The SSR boundary and the three hydration traps that each shipped once."
-    },
-    "effect-form-e2e": {
-      "origin": "first-party",
-      "why": "Forms bound to contract field schemas, and the browser harness's rules."
     }
   },
   "agents": {
