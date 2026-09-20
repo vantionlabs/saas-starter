@@ -32,7 +32,7 @@ jobs:
   mobile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: .bun-version
@@ -43,7 +43,7 @@ jobs:
       # the pool, on this many projects. Vite, Playwright and Metro are Node
       # programs too; bun invokes them, Node executes them. Pinned rather than
       # taken from the runner, so a test failure is never the runner's version.
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
 
@@ -70,7 +70,7 @@ jobs:
       matrix:
         app: [server, web, admin, worker, marketing, brand]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # Built from the repository root, because a workspace package resolves
       # package against the root lockfile and every sibling manifest.
