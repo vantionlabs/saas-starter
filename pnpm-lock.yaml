@@ -433,6 +433,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../../packages/modules/iam
+      '@vantion/module-webhooks':
+        specifier: workspace:*
+        version: link:../../packages/modules/webhooks
       '@vantion/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
@@ -719,6 +722,9 @@ importers:
       '@vantion/module-notifications':
         specifier: workspace:*
         version: link:../../packages/modules/notifications
+      '@vantion/module-webhooks':
+        specifier: workspace:*
+        version: link:../../packages/modules/webhooks
       '@vantion/redis':
         specifier: workspace:*
         version: link:../../packages/redis
@@ -795,6 +801,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../../packages/modules/iam
+      '@vantion/module-webhooks':
+        specifier: workspace:*
+        version: link:../../packages/modules/webhooks
       '@vantion/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
@@ -988,6 +997,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../modules/iam
+      '@vantion/module-webhooks':
+        specifier: workspace:*
+        version: link:../modules/webhooks
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
@@ -1050,6 +1062,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../modules/iam
+      '@vantion/module-webhooks':
+        specifier: workspace:*
+        version: link:../modules/webhooks
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
@@ -1172,6 +1187,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../iam
+      '@vantion/module-webhooks':
+        specifier: workspace:*
+        version: link:../webhooks
       effect:
         specifier: 'catalog:'
         version: 4.0.0-rc.109
@@ -1447,6 +1465,9 @@ importers:
       '@vantion/module-iam':
         specifier: workspace:*
         version: link:../modules/iam
+      '@vantion/module-webhooks':
+        specifier: workspace:*
+        version: link:../modules/webhooks
       '@vantion/tokens':
         specifier: workspace:*
         version: link:../tokens

@@ -20,20 +20,23 @@
       "@vantion/domain/*": [
         "../domain/src/*.js"
       ],
-      "@vantion/module-iam/*": [
-        "../modules/iam/src/*.js"
-      ],
-      "@vantion/module-contact/*": [
-        "../modules/contact/src/*.js"
+      "@vantion/module-assistant/*": [
+        "../modules/assistant/src/*.js"
       ],
       "@vantion/module-billing/*": [
         "../modules/billing/src/*.js"
       ],
+      "@vantion/module-contact/*": [
+        "../modules/contact/src/*.js"
+      ],
       "@vantion/module-files/*": [
         "../modules/files/src/*.js"
       ],
-      "@vantion/module-assistant/*": [
-        "../modules/assistant/src/*.js"
+      "@vantion/module-iam/*": [
+        "../modules/iam/src/*.js"
+      ],
+      "@vantion/module-webhooks/*": [
+        "../../packages/modules/webhooks/src/*.js"
       ]
     }
   },
@@ -55,6 +58,9 @@
     },
     {
       "path": "../modules/assistant"
+    },
+    {
+      "path": "../modules/webhooks"
     }
   ]
 }

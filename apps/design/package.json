@@ -18,6 +18,7 @@
     "@vantion/module-billing": "workspace:*",
     "@vantion/module-contact": "workspace:*",
     "@vantion/module-iam": "workspace:*",
+    "@vantion/module-webhooks": "workspace:*",
     "@vantion/tokens": "workspace:*",
     "@vantion/ui": "workspace:*",
     "effect": "catalog:",

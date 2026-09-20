@@ -24,7 +24,6 @@
   "dependencies": {
     "@effect/platform-node": "catalog:",
     "@vantion/database": "workspace:*",
-    "@vantion/redis": "workspace:*",
     "@vantion/domain": "workspace:*",
     "@vantion/module-agent": "workspace:*",
     "@vantion/module-assistant": "workspace:*",
@@ -34,6 +33,8 @@
     "@vantion/module-health": "workspace:*",
     "@vantion/module-iam": "workspace:*",
     "@vantion/module-notifications": "workspace:*",
+    "@vantion/module-webhooks": "workspace:*",
+    "@vantion/redis": "workspace:*",
     "@vantion/telemetry": "workspace:*",
     "effect": "catalog:",
     "pg": "catalog:"

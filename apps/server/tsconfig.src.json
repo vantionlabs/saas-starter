@@ -42,6 +42,9 @@
     },
     {
       "path": "../../packages/modules/agent"
+    },
+    {
+      "path": "../../packages/modules/webhooks"
     }
   ],
   "compilerOptions": {
@@ -52,29 +55,26 @@
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
     "paths": {
-      "@/*": [
+      "#src/*": [
         "${configDir}/src/*"
       ],
-      "#src/*": [
+      "@/*": [
         "${configDir}/src/*"
       ],
       "@vantion/database/*": [
         "../../packages/database/src/*.js"
       ],
-      "@vantion/redis/*": [
-        "../../packages/redis/src/*.js"
-      ],
-      "@vantion/telemetry/*": [
-        "../../packages/telemetry/src/*.js"
-      ],
       "@vantion/domain/*": [
         "../../packages/domain/src/*.js"
       ],
-      "@vantion/module-iam/*": [
-        "../../packages/modules/iam/src/*.js"
+      "@vantion/module-agent/*": [
+        "../../packages/modules/agent/src/*.js"
       ],
-      "@vantion/module-notifications/*": [
-        "../../packages/modules/notifications/src/*.js"
+      "@vantion/module-assistant/*": [
+        "../../packages/modules/assistant/src/*.js"
+      ],
+      "@vantion/module-billing/*": [
+        "../../packages/modules/billing/src/*.js"
       ],
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"
@@ -82,14 +82,20 @@
       "@vantion/module-health/*": [
         "../../packages/modules/health/src/*.js"
       ],
-      "@vantion/module-billing/*": [
-        "../../packages/modules/billing/src/*.js"
+      "@vantion/module-iam/*": [
+        "../../packages/modules/iam/src/*.js"
       ],
-      "@vantion/module-assistant/*": [
-        "../../packages/modules/assistant/src/*.js"
+      "@vantion/module-notifications/*": [
+        "../../packages/modules/notifications/src/*.js"
       ],
-      "@vantion/module-agent/*": [
-        "../../packages/modules/agent/src/*.js"
+      "@vantion/module-webhooks/*": [
+        "../../packages/modules/webhooks/src/*.js"
+      ],
+      "@vantion/redis/*": [
+        "../../packages/redis/src/*.js"
+      ],
+      "@vantion/telemetry/*": [
+        "../../packages/telemetry/src/*.js"
       ]
     }
   }

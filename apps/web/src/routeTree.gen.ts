@@ -38,6 +38,7 @@ import { Route as ProtectedSettingsGeneralRouteImport } from './routes/_protecte
 import { Route as ProtectedSettingsMembersRouteImport } from './routes/_protected/settings/members'
 import { Route as ProtectedSettingsRolesRouteImport } from './routes/_protected/settings/roles'
 import { Route as ProtectedSettingsSsoRouteImport } from './routes/_protected/settings/sso'
+import { Route as ProtectedSettingsWebhooksRouteImport } from './routes/_protected/settings/webhooks'
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from './routes/auth/accept-invitation/$invitationId'
 
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -190,6 +191,12 @@ const ProtectedSettingsSsoRoute = ProtectedSettingsSsoRouteImport.update({
   path: '/sso',
   getParentRoute: () => ProtectedSettingsRouteRoute,
 } as any)
+const ProtectedSettingsWebhooksRoute =
+  ProtectedSettingsWebhooksRouteImport.update({
+    id: '/webhooks',
+    path: '/webhooks',
+    getParentRoute: () => ProtectedSettingsRouteRoute,
+  } as any)
 const AuthAcceptInvitationInvitationIdRoute =
   AuthAcceptInvitationInvitationIdRouteImport.update({
     id: '/accept-invitation/$invitationId',
@@ -224,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
+  '/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/account/': typeof ProtectedAccountIndexRoute
   '/settings/': typeof ProtectedSettingsIndexRoute
@@ -253,6 +261,7 @@ export interface FileRoutesByTo {
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
+  '/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/account': typeof ProtectedAccountIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
@@ -286,6 +295,7 @@ export interface FileRoutesById {
   '/_protected/settings/members': typeof ProtectedSettingsMembersRoute
   '/_protected/settings/roles': typeof ProtectedSettingsRolesRoute
   '/_protected/settings/sso': typeof ProtectedSettingsSsoRoute
+  '/_protected/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/_protected/account/': typeof ProtectedAccountIndexRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
@@ -319,6 +329,7 @@ export interface FileRouteTypes {
     | '/settings/members'
     | '/settings/roles'
     | '/settings/sso'
+    | '/settings/webhooks'
     | '/auth/accept-invitation/$invitationId'
     | '/account/'
     | '/settings/'
@@ -348,6 +359,7 @@ export interface FileRouteTypes {
     | '/settings/members'
     | '/settings/roles'
     | '/settings/sso'
+    | '/settings/webhooks'
     | '/auth/accept-invitation/$invitationId'
     | '/account'
     | '/settings'
@@ -380,6 +392,7 @@ export interface FileRouteTypes {
     | '/_protected/settings/members'
     | '/_protected/settings/roles'
     | '/_protected/settings/sso'
+    | '/_protected/settings/webhooks'
     | '/auth/accept-invitation/$invitationId'
     | '/_protected/account/'
     | '/_protected/settings/'
@@ -596,6 +609,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsSsoRouteImport
       parentRoute: typeof ProtectedSettingsRouteRoute
     }
+    '/_protected/settings/webhooks': {
+      id: '/_protected/settings/webhooks'
+      path: '/webhooks'
+      fullPath: '/settings/webhooks'
+      preLoaderRoute: typeof ProtectedSettingsWebhooksRouteImport
+      parentRoute: typeof ProtectedSettingsRouteRoute
+    }
     '/auth/accept-invitation/$invitationId': {
       id: '/auth/accept-invitation/$invitationId'
       path: '/accept-invitation/$invitationId'
@@ -661,6 +681,7 @@ interface ProtectedSettingsRouteRouteChildren {
   ProtectedSettingsMembersRoute: typeof ProtectedSettingsMembersRoute
   ProtectedSettingsRolesRoute: typeof ProtectedSettingsRolesRoute
   ProtectedSettingsSsoRoute: typeof ProtectedSettingsSsoRoute
+  ProtectedSettingsWebhooksRoute: typeof ProtectedSettingsWebhooksRoute
   ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
 }
 
@@ -673,6 +694,7 @@ const ProtectedSettingsRouteRouteChildren: ProtectedSettingsRouteRouteChildren =
     ProtectedSettingsMembersRoute: ProtectedSettingsMembersRoute,
     ProtectedSettingsRolesRoute: ProtectedSettingsRolesRoute,
     ProtectedSettingsSsoRoute: ProtectedSettingsSsoRoute,
+    ProtectedSettingsWebhooksRoute: ProtectedSettingsWebhooksRoute,
     ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
   }
 

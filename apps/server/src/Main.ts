@@ -11,6 +11,7 @@ import { FilesHttp, FilesModule } from "@vantion/module-files/Module";
 import { HealthHttpRoutes, HealthModule } from "@vantion/module-health/Module";
 import { IamHttp, IamModule } from "@vantion/module-iam/Module";
 import { NotificationsModule } from "@vantion/module-notifications/Module";
+import { WebhooksApi } from "@vantion/module-webhooks/Module";
 import { layerPersistence } from "@vantion/redis/PersistenceLive";
 import { layerRateLimitStore } from "@vantion/redis/RateLimitStore";
 import { ErrorTracker, layerReporting } from "@vantion/telemetry/ErrorTracker";
@@ -44,6 +45,7 @@ const RpcLive = RpcServer.layer(AppRpcs).pipe(
   Layer.provide(ContactModule),
   Layer.provide(BillingModule),
   Layer.provide(FilesModule),
+  Layer.provide(WebhooksApi),
   Layer.provide(RpcServer.layerProtocolHttp({ path: "/rpc" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );
@@ -68,6 +70,7 @@ const RpcWebsocketLive = RpcServer.layer(AppRpcs).pipe(
   Layer.provide(ContactModule),
   Layer.provide(BillingModule),
   Layer.provide(FilesModule),
+  Layer.provide(WebhooksApi),
   Layer.provide(RpcServer.layerProtocolWebsocket({ path: "/rpc/ws" })),
   Layer.provide(RpcSerialization.layerNdjson),
 );

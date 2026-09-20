@@ -37,6 +37,14 @@ export const statements = {
    * the seat limit taught. Tightening means changing both, together.
    */
   sso: ["read", "manage"],
+  /**
+   * Outbound delivery. Split `read`/`manage` like `sso` and for a related
+   * reason: the row carries a **signing secret**, so even looking at the list
+   * is closer to reading a credential than to reading a setting. Owner and
+   * admin only — a member who could rotate a secret could silently stop every
+   * integration the organization has.
+   */
+  webhook: ["read", "manage"],
   file: ["read", "create", "delete"],
 } as const satisfies Record<string, ReadonlyArray<string>>;
 
@@ -83,6 +91,7 @@ export const grantsFor: Record<Role, Grants> = {
     contact: ["read", "create", "update", "delete"],
     billing: ["read", "manage"],
     sso: ["read", "manage"],
+    webhook: ["read", "manage"],
     file: ["read", "create", "delete"],
   },
   admin: {
@@ -94,6 +103,7 @@ export const grantsFor: Record<Role, Grants> = {
     contact: ["read", "create", "update", "delete"],
     billing: ["read"],
     sso: ["read", "manage"],
+    webhook: ["read", "manage"],
     file: ["read", "create", "delete"],
   },
   member: {

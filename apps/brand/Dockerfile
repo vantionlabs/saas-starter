@@ -25,6 +25,7 @@ COPY packages/modules/health/package.json packages/modules/health/
 COPY packages/modules/iam/package.json packages/modules/iam/
 COPY packages/modules/jobs/package.json packages/modules/jobs/
 COPY packages/modules/notifications/package.json packages/modules/notifications/
+COPY packages/modules/webhooks/package.json packages/modules/webhooks/
 COPY packages/telemetry/package.json packages/telemetry/
 COPY packages/tokens/package.json packages/tokens/
 COPY packages/ui/package.json packages/ui/

@@ -182,7 +182,29 @@ export const seedTenant = Effect.fnUntraced(function*(tenant: Tenant) {
             ("id", "organizationId", "url", "secret", "active", "consecutiveFailures", "createdAt")
           values (
             ${`w_${tenant.slug}_${index}`}, ${orgId}, ${endpoint.url},
-            ${`seed_secret_${tenant.slug}_${index}`}, ${endpoint.active}, ${endpoint.failures}, now()
+            ${`whsec_seed_${tenant.slug}_${index}`}, ${endpoint.active}, ${endpoint.failures}, now()
+          )
+          on conflict ("id") do nothing
+        `;
+
+        /**
+         * An attempt against each, because the endpoint list alone renders a
+         * screen that says everything is configured and nothing about whether
+         * it works — and "did you send it?" is the question that screen exists
+         * to answer. A dead endpoint gets the failure that killed it.
+         */
+        yield* sql`
+          insert into "webhookDelivery"
+            ("id", "organizationId", "endpointId", "eventId", "kind", "status", "attempts",
+             "responseStatus", "lastError", "at")
+          values (
+            ${`wd_${tenant.slug}_${index}`}, ${orgId}, ${`w_${tenant.slug}_${index}`},
+            ${`evt_seed_${tenant.slug}_${index}`}, 'contact.created',
+            ${endpoint.active ? "delivered" : "failed"},
+            ${endpoint.active ? 1 : 10},
+            ${endpoint.active ? 200 : null},
+            ${endpoint.active ? null : "connect ECONNREFUSED"},
+            now() - interval '2 hours'
           )
           on conflict ("id") do nothing
         `;

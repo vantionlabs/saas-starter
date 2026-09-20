@@ -12,6 +12,7 @@ import { Members } from "@/screens/members.js";
 import { Onboarding } from "@/screens/onboarding.js";
 import { SignIn } from "@/screens/sign-in.js";
 import { Sso } from "@/screens/sso.js";
+import { Webhooks } from "@/screens/webhooks.js";
 import {
   createRootRoute,
   createRoute,
@@ -37,6 +38,7 @@ import {
   Users,
   UserSearch,
   UserSquare,
+  Webhook,
 } from "lucide-react";
 
 /**
@@ -56,6 +58,7 @@ const nav = [
   { to: "/api-keys", label: "API keys", icon: KeyRound },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/sso", label: "Single sign-on", icon: Fingerprint },
+  { to: "/webhooks", label: "Webhooks", icon: Webhook },
   { to: "/sign-in", label: "Sign in", icon: LogIn },
   { to: "/onboarding", label: "Onboarding", icon: Rocket },
   /**
@@ -158,6 +161,7 @@ export const routeTree = rootRoute.addChildren([
   screen("/api-keys", ApiKeys),
   screen("/billing", Billing),
   screen("/sso", Sso),
+  screen("/webhooks", Webhooks),
   screen("/sign-in", SignIn),
   screen("/onboarding", Onboarding),
   screen("/marketing", Marketing),

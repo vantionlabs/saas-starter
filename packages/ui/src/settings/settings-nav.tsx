@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   UserRound,
   Users,
+  Webhook,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,6 +39,7 @@ export const settingsGroups: ReadonlyArray<{
     label: "Developer",
     items: [
       { to: "/settings/api-keys", label: "API keys", icon: KeyRound },
+      { to: "/settings/webhooks", label: "Webhooks", icon: Webhook },
     ],
   },
   {

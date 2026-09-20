@@ -24,6 +24,7 @@
     "@vantion/module-files": "workspace:*",
     "@vantion/module-health": "workspace:*",
     "@vantion/module-iam": "workspace:*",
+    "@vantion/module-webhooks": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {

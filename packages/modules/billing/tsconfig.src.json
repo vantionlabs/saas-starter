@@ -15,6 +15,9 @@
     },
     {
       "path": "../files"
+    },
+    {
+      "path": "../webhooks"
     }
   ],
   "compilerOptions": {
@@ -36,6 +39,9 @@
       ],
       "@vantion/module-iam/*": [
         "../../../packages/modules/iam/src/*.js"
+      ],
+      "@vantion/module-webhooks/*": [
+        "../../../packages/modules/webhooks/src/*.js"
       ]
     }
   }

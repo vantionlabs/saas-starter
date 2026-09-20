@@ -239,11 +239,10 @@ a fact about the tenant handed to a caller who may not act on it.
 can act on, and `/settings/api-keys` says "this plan includes two API keys" rather
 than "could not create that key" — the same rule `submitMessage` follows for forms.
 
-**`webhookEndpoints` is deliberately not on the screen**, though the limit exists
-and the whole delivery pipeline is built and tested: nothing in the product can
-register an endpoint yet, so the row could only ever read zero, and a metric that
-cannot move is not a measurement. It arrives with the screen that lets somebody add
-one.
+`webhookEndpoints` was deliberately absent while nothing in the product could
+register one — a row that could only ever read zero is not a measurement. It
+arrived with `/settings/webhooks`, which is the rule this panel follows: a meter
+appears when the thing it counts can move.
 
 The design app's personas **derive** their usage from their own members and keys
 rather than stating it, so a fixture cannot show two seats beside a members table
@@ -1148,6 +1147,48 @@ stub: the thing worth proving is that somebody else's server accepts what we sen
 `Webhook-Id` carries the outbox row's id, stable across retries, which is what lets a receiver
 deduplicate an at-least-once delivery. An endpoint that fails ten times consecutively is
 switched off, so a receiver that has been gone for a week stops costing an attempt a minute.
+
+**All of that shipped a year before anything could reach it.** `Endpoints.register` had no
+caller outside the tests, so a tenant had no way to say where to deliver — a whole module,
+proven end to end, that only the test suite used. `/settings/webhooks` is the half that was
+missing: the list, the attempts, and a form to add one. `docs/webhooks.md` is the longer
+version of everything below.
+
+**The URL check is the sharp edge, not the form.** A webhook endpoint is a URL a _customer_
+chooses and a _server of ours_ then fetches, which is the definition of server-side request
+forgery: unchecked, `http://169.254.169.254/latest/meta-data/iam/` is a valid endpoint and the
+worker will fetch the instance's own cloud credentials and post them to whatever is registered
+next. `DeliverableUrl.ts` refuses plain HTTP — a signature stops a body being changed, not
+read — and refuses private, loopback and link-local hosts. `http://localhost` is the one
+exception, off under `NODE_ENV=production`, because the first thing anybody does with this is
+point it at a receiver on their own machine.
+
+Its limit is stated as a test rather than left to be inferred: **the check runs on the string,
+before DNS**, so a hostname resolving into private space passes and is fetched anyway. Closing
+that means refusing the connection rather than the string — egress rules on the worker — and
+this is the cheap half.
+
+The rule lives in `EndpointFields` in the contract, which is what `RegisterEndpoint`'s payload
+is built from _and_ what the form validates with, so the screen and the procedure cannot
+disagree about it.
+
+**The secret never reaches a page.** `ListEndpoints` names its columns instead of taking
+`select *`, and that is the whole of it: hydration serialises what a screen reads into the
+document, so a wildcard would put every tenant's signing key into the HTML on every visit. A
+test asserts the list carries no `whsec_`. It is returned exactly twice — created, and rotated
+— and shown once each time. Rotating keeps the endpoint because the attempts recorded against
+it are what somebody is looking at when they decide to rotate, and there is **no overlap
+window**: the next delivery is signed with the new secret.
+
+**Reading is never gated on the plan; only registering is.** An organization that downgraded
+still needs to know why deliveries stopped and still needs to rotate a secret it believes has
+leaked — taking that away would make a lapsed plan a security problem, the same reasoning that
+leaves a `canceled` subscription on the free plan rather than on nothing.
+
+`WebhooksApi` is exported separately from `WebhooksModule`, and the compiler is what says so:
+these handlers require `AuthMiddleware`, which exists only where there is a caller, and
+`apps/worker` has none. Folding them together would make the module unregisterable in the one
+process that does the delivering — the same split `IamModule`/`IamHttp` makes.
 
 Uploads never pass through this application. `RequestUpload` signs a URL, the browser PUTs the
 bytes at it, and `CompleteUpload` asks storage how big the object actually is — because a client

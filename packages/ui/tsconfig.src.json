@@ -28,6 +28,9 @@
     },
     {
       "path": "../emails"
+    },
+    {
+      "path": "../modules/webhooks"
     }
   ],
   "compilerOptions": {
@@ -42,11 +45,14 @@
       "@/*": [
         "${configDir}/src/*"
       ],
-      "@vantion/module-billing/*": [
-        "../../packages/modules/billing/src/*.js"
+      "@vantion/emails/*": [
+        "../../packages/emails/src/*.tsx"
       ],
       "@vantion/module-assistant/*": [
         "../../packages/modules/assistant/src/*.js"
+      ],
+      "@vantion/module-billing/*": [
+        "../../packages/modules/billing/src/*.js"
       ],
       "@vantion/module-contact/*": [
         "../../packages/modules/contact/src/*.js"
@@ -57,11 +63,11 @@
       "@vantion/module-iam/*": [
         "../../packages/modules/iam/src/*.js"
       ],
+      "@vantion/module-webhooks/*": [
+        "../../packages/modules/webhooks/src/*.js"
+      ],
       "@vantion/tokens/*": [
         "../../packages/tokens/src/*.js"
-      ],
-      "@vantion/emails/*": [
-        "../../packages/emails/src/*.tsx"
       ]
     }
   }

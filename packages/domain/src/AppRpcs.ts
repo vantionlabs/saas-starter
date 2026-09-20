@@ -7,6 +7,7 @@ import { AccessRpcs } from "@vantion/module-iam/access/AccessRpc";
 import { OnboardingRpcs } from "@vantion/module-iam/onboarding/OnboardingRpc";
 import { OrganizationRpcs } from "@vantion/module-iam/organization/OrganizationRpc";
 import { IamRpcs } from "@vantion/module-iam/session/IamRpc";
+import { WebhooksRpcs } from "@vantion/module-webhooks/WebhooksRpc";
 
 /**
  * Every RPC the application serves, as one group.
@@ -28,4 +29,5 @@ export const AppRpcs = HealthRpcs
   .merge(ContactRpcs)
   .merge(BillingRpcs)
   .merge(FilesRpcs)
-  .merge(AssistantRpcs);
+  .merge(AssistantRpcs)
+  .merge(WebhooksRpcs);

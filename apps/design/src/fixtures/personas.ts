@@ -5,6 +5,7 @@ import { Contact } from "@vantion/module-contact/ContactRpc";
 import { CustomRole, OrganizationMember } from "@vantion/module-iam/access/AccessRpc";
 import { ApiKey } from "@vantion/module-iam/apikey/ApiKey";
 import { limits } from "@vantion/module-iam/identity/Entitlement";
+import { EndpointId, WebhookDelivery, WebhookEndpoint } from "@vantion/module-webhooks/WebhooksRpc";
 import type { PersonView } from "@vantion/ui/admin/person-card";
 import type { StaffTrailRow } from "@vantion/ui/admin/staff-trail-table";
 import type { SsoProviderRow } from "@vantion/ui/settings/sso-panel";
@@ -43,6 +44,16 @@ export type Persona = {
   readonly staffTrail: ReadonlyArray<StaffTrailRow>;
   /** The result of a staff lookup, for the admin panel's person screen. */
   readonly person: PersonView;
+  /**
+   * Outbound endpoints and what happened when we tried them.
+   *
+   * These are the states that need a receiver — and a broken one — to reach in
+   * the real product: an endpoint switched off after ten failures, a run of
+   * 500s, a delivery still pending. Nobody is going to arrange that by hand to
+   * look at the screen, which is exactly what a persona is for.
+   */
+  readonly webhooks: ReadonlyArray<WebhookEndpoint>;
+  readonly deliveries: ReadonlyArray<WebhookDelivery>;
   /**
    * Where this tenant stands against its plan.
    *
@@ -90,6 +101,37 @@ const at = (iso: string) => DateTime.makeUnsafe(new Date(iso));
 
 const contact = (id: string, fullName: string, email: string) =>
   new Contact({ id: ContactId.make(id), fullName, email });
+
+const endpoint = (id: string, url: string, active: boolean, failures: number) =>
+  new WebhookEndpoint({
+    id: EndpointId.make(id),
+    url,
+    active,
+    consecutiveFailures: failures,
+    createdAt: "2026-06-02T09:14:00.000Z",
+  });
+
+const delivery = (
+  id: string,
+  endpointId: string,
+  status: "pending" | "delivered" | "failed",
+  detail: {
+    readonly attempts: number;
+    readonly code: number | null;
+    readonly error: string | null;
+  },
+) =>
+  new WebhookDelivery({
+    id,
+    endpointId: EndpointId.make(endpointId),
+    eventId: `evt_${id}`,
+    kind: "contact.created",
+    status,
+    attempts: detail.attempts,
+    responseStatus: detail.code,
+    lastError: detail.error,
+    at: "2026-09-18T14:02:11.000Z",
+  });
 
 /** Day one. Every list is empty, which is the state most designs forget. */
 const firstDay: Fixture = {
@@ -140,6 +182,8 @@ const firstDay: Fixture = {
     }),
   ],
   sso: [],
+  webhooks: [],
+  deliveries: [],
   staffTrail: [],
   person: {
     id: "usr_first",
@@ -224,6 +268,11 @@ const settled: Fixture = {
       issuer: "https://acme.okta.com",
       domainVerified: true,
     },
+  ],
+  webhooks: [endpoint("we1", "https://hooks.northwind.test/vantion", true, 0)],
+  deliveries: [
+    delivery("d1", "we1", "delivered", { attempts: 1, code: 200, error: null }),
+    delivery("d2", "we1", "pending", { attempts: 0, code: null, error: null }),
   ],
   staffTrail: [
     {
@@ -358,6 +407,30 @@ const crowded: Fixture = {
       issuer: "https://northwind.okta.com",
       domainVerified: false,
     },
+  ],
+  /**
+   * The states that only a broken receiver produces: one endpoint switched off
+   * after ten consecutive failures, one limping with three, and a URL long
+   * enough to decide whether the column truncates. Nobody is going to arrange
+   * this by hand in order to look at the screen.
+   */
+  webhooks: [
+    endpoint(
+      "we1",
+      "https://events.northwind-industries.example/integrations/vantion/inbound",
+      true,
+      3,
+    ),
+    endpoint("we2", "https://hooks.legacy.northwind.example/v1/receive", false, 10),
+  ],
+  deliveries: [
+    delivery("d1", "we2", "failed", {
+      attempts: 10,
+      code: null,
+      error: "connect ECONNREFUSED 203.0.113.9:443",
+    }),
+    delivery("d2", "we1", "failed", { attempts: 3, code: 500, error: null }),
+    delivery("d3", "we1", "delivered", { attempts: 1, code: 200, error: null }),
   ],
   /**
    * The case that decides the column widths: a reason somebody actually typed

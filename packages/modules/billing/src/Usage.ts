@@ -2,6 +2,7 @@ import { bytesUsed } from "@vantion/module-files/FileStore";
 import { CurrentEntitlement } from "@vantion/module-iam/identity/Entitlement";
 import { permission, withPolicy } from "@vantion/module-iam/identity/Policy";
 import { apiKeysUsed, seatsUsed } from "@vantion/module-iam/identity/Usage";
+import { countForCaller } from "@vantion/module-webhooks/Endpoints";
 import { Effect } from "effect";
 import { BillingRpcs, UsageRow } from "./BillingRpc.js";
 
@@ -20,11 +21,10 @@ import { BillingRpcs, UsageRow } from "./BillingRpc.js";
  * that, and the direction is legal: files already depends on iam, billing
  * depends on both, and nothing points back.
  *
- * **`webhookEndpoints` is deliberately absent**, though the limit exists and the
- * whole delivery pipeline is built: nothing in the product can register an
- * endpoint yet, so the row could only ever read zero. A metric that cannot move
- * is not a measurement, and it arrives with the screen that lets somebody add
- * one.
+ * `webhookEndpoints` was deliberately absent while nothing in the product could
+ * register one — a row that could only ever read zero is not a measurement. It
+ * arrived with the screen that adds them, which is the rule this file follows:
+ * a meter appears when the thing it counts can move.
  */
 const megabytes = (mb: number) => mb * 1024 * 1024;
 
@@ -33,18 +33,24 @@ export const usage = Effect.fnUntraced(function*() {
   const { limits } = entitlement;
 
   /**
-   * Three counts, concurrently. They touch different tables and none depends on
+   * Four counts, concurrently. They touch different tables and none depends on
    * another, so running them in sequence would make the screen wait for the sum
-   * of three round trips to answer one question.
+   * of four round trips to answer one question.
    */
-  const [seats, apiKeys, bytes] = yield* Effect.all(
-    [seatsUsed(), apiKeysUsed(), bytesUsed],
-    { concurrency: 3 },
+  const [seats, apiKeys, endpoints, bytes] = yield* Effect.all(
+    [seatsUsed(), apiKeysUsed(), countForCaller(), bytesUsed],
+    { concurrency: 4 },
   );
 
   return [
     new UsageRow({ metric: "seats", unit: "count", used: seats, allowed: limits.seats }),
     new UsageRow({ metric: "apiKeys", unit: "count", used: apiKeys, allowed: limits.apiKeys }),
+    new UsageRow({
+      metric: "webhookEndpoints",
+      unit: "count",
+      used: endpoints,
+      allowed: limits.webhookEndpoints,
+    }),
     new UsageRow({
       metric: "storage",
       unit: "bytes",

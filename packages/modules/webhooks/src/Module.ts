@@ -2,6 +2,7 @@ import { Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 import type { HttpClient } from "effect/unstable/http";
 import { Outbound } from "./Outbound.js";
+import { WebhooksRpcLive } from "./WebhooksRpcLive.js";
 
 /**
  * Everything this module implements, as one layer to register.
@@ -23,3 +24,18 @@ export const WebhooksModule: Layer.Layer<HttpClient.HttpClient | Outbound> = Lay
   FetchHttpClient.layer,
   Outbound.layer,
 );
+
+/**
+ * The settings screen's procedures, exported **separately** from the delivery
+ * machinery above.
+ *
+ * Two exports rather than one, and the compiler is what says so — the same
+ * split `IamModule`/`IamHttp` makes. These handlers require `AuthMiddleware`,
+ * which only exists where there is a caller; `apps/worker` has none, and
+ * folding them into `WebhooksModule` would make the module unregisterable in
+ * the one process that does the actual delivering.
+ *
+ * It is also the honest description: managing endpoints and delivering to them
+ * are two jobs that happen in two processes.
+ */
+export const WebhooksApi = WebhooksRpcLive;

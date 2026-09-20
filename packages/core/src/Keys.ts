@@ -27,4 +27,6 @@ export const Keys = {
   overrides: "overrides",
   /** Where setting up a workspace got to. Each step of the wizard advances it. */
   onboarding: "onboarding",
+  /** Outbound endpoints. Deliveries share it — the screen shows them together. */
+  webhooks: "webhooks",
 } as const;

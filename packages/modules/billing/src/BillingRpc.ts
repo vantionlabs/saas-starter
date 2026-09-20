@@ -66,7 +66,7 @@ export class NotSubscribed extends Schema.TaggedError<NotSubscribed>()("NotSubsc
  * the number worth showing — a client computing its own from a plan table would
  * be free to disagree with the thing actually refusing the request.
  */
-export const Metric = Schema.Literals(["seats", "apiKeys", "storage"]);
+export const Metric = Schema.Literals(["seats", "apiKeys", "webhookEndpoints", "storage"]);
 export type Metric = typeof Metric.Type;
 
 export class UsageRow extends Schema.Class<UsageRow>("UsageRow")({

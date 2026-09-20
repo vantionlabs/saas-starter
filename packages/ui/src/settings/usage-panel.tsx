@@ -3,6 +3,7 @@ import type { Metric, UsageRow } from "@vantion/module-billing/BillingRpc";
 const labels: Record<Metric, string> = {
   seats: "Members",
   apiKeys: "API keys",
+  webhookEndpoints: "Webhook endpoints",
   storage: "Storage",
 };
 

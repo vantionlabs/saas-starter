@@ -1,4 +1,5 @@
 import { withWorkerScope } from "@vantion/database/OrgScope";
+import { CurrentUser } from "@vantion/module-iam/identity/Identity";
 import { withOrgScope } from "@vantion/module-iam/identity/OrgScope";
 import { webhookEndpointsDisabled } from "@vantion/telemetry/Metrics";
 import { Effect, Metric } from "effect";
@@ -36,6 +37,96 @@ export const register = Effect.fnUntraced(function*(url: string) {
   `).pipe(Effect.orDie);
 
   return { id, url, secret };
+});
+
+/** A row as a screen sees it: no secret, ever. */
+export type EndpointRow = {
+  readonly id: string;
+  readonly url: string;
+  readonly active: boolean;
+  readonly consecutiveFailures: number;
+  readonly createdAt: Date;
+};
+
+/**
+ * The caller's own endpoints, for the settings screen.
+ *
+ * The select names its columns rather than taking `*`, which is the whole of
+ * keeping the secret out: a screen reads this, hydration serialises what a
+ * screen reads into the page, and `select *` would put every tenant's signing
+ * key into the HTML on every visit. Narrowing here rather than in the handler
+ * means there is one place to get it wrong.
+ */
+export const listForCaller = Effect.fnUntraced(function*() {
+  const sql = yield* SqlClient.SqlClient;
+  const { orgId } = yield* CurrentUser;
+
+  return yield* withOrgScope(sql<EndpointRow>`
+    select "id", "url", "active", "consecutiveFailures", "createdAt"
+    from "webhookEndpoint"
+    where "organizationId" = ${orgId}
+    order by "createdAt" desc
+  `).pipe(Effect.orDie);
+});
+
+/** How many this organization has, for the limit and for the usage screen. */
+export const countForCaller = Effect.fnUntraced(function*() {
+  const sql = yield* SqlClient.SqlClient;
+  const { orgId } = yield* CurrentUser;
+
+  const rows = yield* withOrgScope(sql<{ count: string; }>`
+    select count(*)::text as "count" from "webhookEndpoint"
+    where "organizationId" = ${orgId}
+  `).pipe(Effect.orDie);
+
+  return Number(rows[0]?.count ?? 0);
+});
+
+/**
+ * A new secret on an endpoint that stays where it is.
+ *
+ * `returning "id"` is how "was there such a row" is answered, rather than a
+ * select first: the update is scoped, so a row belonging to another tenant
+ * matches nothing and comes back empty — indistinguishable, deliberately, from
+ * an id that never existed. Asking first would be two statements and a window
+ * between them.
+ *
+ * There is no overlap window: the next delivery is signed with the new secret.
+ * Two live secrets would be kinder and is a second column, which `WebhooksRpc`
+ * says plainly rather than this pretending otherwise.
+ */
+export const rotate = Effect.fnUntraced(function*(id: string) {
+  const sql = yield* SqlClient.SqlClient;
+  const { orgId } = yield* CurrentUser;
+  const secret = `${SECRET_PREFIX}${randomBytes(32).toString("hex")}`;
+
+  const rows = yield* withOrgScope(sql<{ id: string; }>`
+    update "webhookEndpoint" set "secret" = ${secret}
+    where "id" = ${id} and "organizationId" = ${orgId}
+    returning "id"
+  `).pipe(Effect.orDie);
+
+  return rows.length === 0 ? undefined : secret;
+});
+
+/**
+ * Deleting takes the delivery history with it, by the foreign key's cascade.
+ *
+ * Worth knowing rather than discovering: the reason to keep an endpoint and
+ * rotate its secret is exactly that the attempts recorded against it are what
+ * somebody is looking at when they decide to rotate.
+ */
+export const remove = Effect.fnUntraced(function*(id: string) {
+  const sql = yield* SqlClient.SqlClient;
+  const { orgId } = yield* CurrentUser;
+
+  const rows = yield* withOrgScope(sql<{ id: string; }>`
+    delete from "webhookEndpoint"
+    where "id" = ${id} and "organizationId" = ${orgId}
+    returning "id"
+  `).pipe(Effect.orDie);
+
+  return rows.length > 0;
 });
 
 /**
