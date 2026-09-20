@@ -843,6 +843,15 @@ independent. Each deployable therefore has a `bundle` script that is the Vite ha
 `build`. The race is gone by construction rather than serialised around, which is the
 better answer pnpm's flag was hiding.
 
+**`apps/mobile` declares two packages Expo's own preset forgot.** `babel-preset-expo`
+names `@babel/plugin-transform-react-jsx` and `react-native-reanimated/plugin` as strings
+and does not list either as a dependency of its own. Under a hoisted install nobody
+notices; under bun's isolated linker Babel resolves them from the app's `node_modules` and
+they are not there, so `expo export` dies on `Cannot find module` — which is the linker
+being right about a dependency nothing declared. Babel's own error message says to add
+them to the manifest, and that is the fix: two entries, rather than hoisting the whole
+workspace and losing the strictness that catches this everywhere else.
+
 **Object storage is Bun's own client.** `S3Store.ts` was `@aws-sdk/client-s3` plus
 `@aws-sdk/s3-request-presigner`, loaded through a dynamic `import` so a deployment without
 credentials never paid for them; `Bun.S3Client` is in the runtime, so there is nothing to

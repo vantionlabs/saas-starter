@@ -190,11 +190,13 @@
         "react-dom": "catalog:",
         "react-native": "0.86.3",
         "react-native-css-interop": "^0.2.7",
+        "react-native-reanimated": "~4.7.0",
         "react-native-safe-area-context": "~5.7.0",
         "react-native-screens": "~4.26.0",
         "react-native-web": "~0.21.0",
       },
       "devDependencies": {
+        "@babel/plugin-transform-react-jsx": "^7.29.4",
         "@effect/vitest": "catalog:",
         "@types/react": "catalog:",
         "babel-preset-expo": "^57.0.0",

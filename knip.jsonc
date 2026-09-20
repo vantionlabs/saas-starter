@@ -41,6 +41,19 @@
     "@vantion/module-contact",
     // Metro resolves these from the app root rather than through an import.
     "react-native-css-interop",
+    /**
+     * Declared by `apps/mobile` because **Expo's Babel preset does not declare
+     * it**, and bun's linker is isolated: Babel resolves the plugin from the
+     * app's own `node_modules`, and an undeclared transitive is not there.
+     * Nothing imports it — the preset names it by string — so knip is right
+     * about the import graph and wrong about whether the entry may go.
+     *
+     * Babel's own error says to do this: "you can workaround this problem by
+     * explicitly adding the missing package to your top-level package.json".
+     * `react-native-reanimated` is the same case and is a real dependency
+     * besides, so it needs no entry here.
+     */
+    "@babel/plugin-transform-react-jsx",
     // Used by `@vantion/ui` components this app renders, and declared here so
     // Tailwind's `@source` scan resolves them from the scanning project.
     "lucide-react"
