@@ -27,15 +27,27 @@ import { withOrgScope } from "./OrgScope.js";
  * transaction. The predicate is the organization the caller is in, which is
  * what keeps this honest.
  */
-export const seatsUsed = Effect.fnUntraced(function*() {
+export const seatsUsedFor = Effect.fnUntraced(function*(orgId: string) {
   const sql = yield* SqlClient.SqlClient;
-  const { orgId } = yield* CurrentUser;
 
   const rows = yield* sql<{ count: string; }>`
     select count(*)::text as "count" from "member" where "organizationId" = ${orgId}
   `.pipe(Effect.orDie);
 
   return Number(rows[0]?.count ?? 0);
+});
+
+/**
+ * The caller's own, which is what a screen asks for. Split from the one above
+ * because the **seat check on SCIM provisioning** has no caller at all — an
+ * identity provider pushing users arrives with a token and an organization and
+ * nothing else — and a count that could only be taken from a session would
+ * have meant a second copy of this query.
+ */
+export const seatsUsed = Effect.fnUntraced(function*() {
+  const { orgId } = yield* CurrentUser;
+
+  return yield* seatsUsedFor(orgId);
 });
 
 /** Keys that still exist. Revoking one deletes the row, so this is what is live. */

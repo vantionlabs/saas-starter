@@ -17,7 +17,7 @@ export const Plan = Schema.Literals(["free", "pro", "scale"]);
 export type Plan = typeof Plan.Type;
 
 /** A capability a plan switches on. Booleans only — quantities are `limits`. */
-export const Feature = Schema.Literals(["api_keys", "custom_roles", "webhooks", "sso"]);
+export const Feature = Schema.Literals(["api_keys", "custom_roles", "webhooks", "sso", "scim"]);
 export type Feature = typeof Feature.Type;
 
 /**
@@ -36,7 +36,12 @@ export type Feature = typeof Feature.Type;
 export const features: Record<Plan, ReadonlySet<Feature>> = {
   free: new Set<Feature>(["api_keys"]),
   pro: new Set<Feature>(["api_keys", "custom_roles"]),
-  scale: new Set<Feature>(["api_keys", "custom_roles", "webhooks", "sso"]),
+  /**
+   * `scim` sits beside `sso` rather than below it: directory provisioning is
+   * what an organization buys *with* single sign-on, and a plan carrying one
+   * and not the other describes a deployment nobody runs.
+   */
+  scale: new Set<Feature>(["api_keys", "custom_roles", "webhooks", "sso", "scim"]),
 };
 
 export type Limits = {

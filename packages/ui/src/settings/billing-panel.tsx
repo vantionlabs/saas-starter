@@ -13,6 +13,7 @@ const featureLabels: Record<Feature, string> = {
   custom_roles: "Custom roles",
   webhooks: "Outbound webhooks",
   sso: "Single sign-on",
+  scim: "Directory sync (SCIM)",
 };
 
 const planLabels: Record<Plan, string> = { free: "Free", pro: "Pro", scale: "Scale" };

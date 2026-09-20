@@ -55,6 +55,12 @@ export type Persona = {
   readonly webhooks: ReadonlyArray<WebhookEndpoint>;
   readonly deliveries: ReadonlyArray<WebhookDelivery>;
   /**
+   * Directory provisioning connections. An opaque handle and nothing else —
+   * there is no token here to show, because there is none to show anywhere
+   * after the moment it is issued.
+   */
+  readonly scimConnections: ReadonlyArray<{ readonly id: string; readonly providerId: string; }>;
+  /**
    * Where this tenant stands against its plan.
    *
    * **Derived, not written.** Counted off the persona's own members and keys
@@ -184,6 +190,7 @@ const firstDay: Fixture = {
   sso: [],
   webhooks: [],
   deliveries: [],
+  scimConnections: [],
   staffTrail: [],
   person: {
     id: "usr_first",
@@ -269,6 +276,7 @@ const settled: Fixture = {
       domainVerified: true,
     },
   ],
+  scimConnections: [],
   webhooks: [endpoint("we1", "https://hooks.northwind.test/vantion", true, 0)],
   deliveries: [
     delivery("d1", "we1", "delivered", { attempts: 1, code: 200, error: null }),
@@ -414,6 +422,8 @@ const crowded: Fixture = {
    * enough to decide whether the column truncates. Nobody is going to arrange
    * this by hand in order to look at the screen.
    */
+  /** The live case: one connection, a handle nobody types and nobody reads. */
+  scimConnections: [{ id: "sc1", providerId: "scim-9f2a41c7" }],
   webhooks: [
     endpoint(
       "we1",

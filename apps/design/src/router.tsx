@@ -10,6 +10,7 @@ import { Dashboard } from "@/screens/dashboard.js";
 import { Marketing } from "@/screens/marketing.js";
 import { Members } from "@/screens/members.js";
 import { Onboarding } from "@/screens/onboarding.js";
+import { Scim } from "@/screens/scim.js";
 import { SignIn } from "@/screens/sign-in.js";
 import { Sso } from "@/screens/sso.js";
 import { Webhooks } from "@/screens/webhooks.js";
@@ -36,6 +37,7 @@ import {
   ShieldAlert,
   Sparkles,
   Users,
+  Users2,
   UserSearch,
   UserSquare,
   Webhook,
@@ -58,6 +60,7 @@ const nav = [
   { to: "/api-keys", label: "API keys", icon: KeyRound },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/sso", label: "Single sign-on", icon: Fingerprint },
+  { to: "/scim", label: "Directory sync", icon: Users2 },
   { to: "/webhooks", label: "Webhooks", icon: Webhook },
   { to: "/sign-in", label: "Sign in", icon: LogIn },
   { to: "/onboarding", label: "Onboarding", icon: Rocket },
@@ -161,6 +164,7 @@ export const routeTree = rootRoute.addChildren([
   screen("/api-keys", ApiKeys),
   screen("/billing", Billing),
   screen("/sso", Sso),
+  screen("/scim", Scim),
   screen("/webhooks", Webhooks),
   screen("/sign-in", SignIn),
   screen("/onboarding", Onboarding),

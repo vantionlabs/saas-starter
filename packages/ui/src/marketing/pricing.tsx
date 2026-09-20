@@ -27,6 +27,7 @@ export const featureLabels: Record<Feature, string> = {
   custom_roles: "Custom roles and per-member overrides",
   webhooks: "Outbound webhooks",
   sso: "Single sign-on — SAML and OIDC",
+  scim: "Directory sync (SCIM)",
 };
 
 const order: ReadonlyArray<Plan> = ["free", "pro", "scale"];

@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   UserRound,
   Users,
+  Users2,
   Webhook,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -52,6 +53,11 @@ export const settingsGroups: ReadonlyArray<{
        * to sit here and now lives under `/account`.
        */
       { to: "/settings/sso", label: "Single sign-on", icon: Fingerprint },
+      /**
+       * Beside single sign-on, because they are one purchase: SSO decides who
+       * may sign in and this decides who exists.
+       */
+      { to: "/settings/scim", label: "Directory sync", icon: Users2 },
       { to: "/settings/audit", label: "Audit log", icon: ScrollText },
     ],
   },

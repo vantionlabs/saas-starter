@@ -1,3 +1,4 @@
+import { scimClient } from "@better-auth/scim/client";
 import { ssoClient } from "@better-auth/sso/client";
 import {
   emailOTPClient,
@@ -56,6 +57,16 @@ export const authClient = createAuthClient({
      * back.
      */
     ssoClient({ domainVerification: { enabled: true } }),
+
+    /**
+     * Directory provisioning, which is what an organization buys alongside
+     * single sign-on: SSO decides who may sign in, SCIM decides who exists.
+     *
+     * Only the *management* endpoints are reached from a browser — list a
+     * connection, issue a token, delete one. `/scim/v2/*` is spoken by an
+     * identity provider with a bearer token and never by this client.
+     */
+    scimClient(),
 
     /**
      * Second factor, and the reason sign-in has a second page now.

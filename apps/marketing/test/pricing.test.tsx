@@ -46,7 +46,14 @@ describe("the pricing table", () => {
         const label = featureLabels[feature];
 
         expect(label, `${feature} has no label`).not.toBe("");
-        expect(screen.getAllByText(new RegExp(label)).length, label).toBeGreaterThan(0);
+        /*
+          `exact: false` rather than `new RegExp(label)`, which this used to be.
+          A label is prose, and prose contains regex metacharacters: "Directory
+          sync (SCIM)" compiled to a pattern searching for "Directory sync SCIM"
+          and matched nothing, failing a test about a page over a label that was
+          on it. Substring matching has no such trapdoor.
+        */
+        expect(screen.getAllByText(label, { exact: false }).length, label).toBeGreaterThan(0);
       }
     }
   });

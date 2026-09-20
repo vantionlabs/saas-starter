@@ -1,4 +1,5 @@
 import { expo } from "@better-auth/expo";
+import { scim } from "@better-auth/scim";
 import { sso } from "@better-auth/sso";
 import { renderEmail } from "@vantion/emails/Render";
 import { EmailOtp } from "@vantion/emails/templates/EmailOtp";
@@ -9,6 +10,7 @@ import { VerifyEmail } from "@vantion/emails/templates/VerifyEmail";
 import type { EmailMessage } from "@vantion/module-notifications/Mailer";
 import type { Session, User } from "better-auth";
 import { betterAuth } from "better-auth";
+import type { BetterAuthPlugin, GenericEndpointContext } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getMigrations } from "better-auth/db/migration";
 import { admin, emailOTP, magicLink, organization, twoFactor } from "better-auth/plugins";
@@ -17,6 +19,7 @@ import { Effect } from "effect";
 import { randomUUID } from "node:crypto";
 import type * as Pg from "pg";
 import { grantsFor, statements } from "../identity/Permission.js";
+import { authenticatedScimOrganization } from "./ScimSeats.js";
 
 /**
  * Everything better-auth needs, resolved before it is constructed.
@@ -47,6 +50,24 @@ export interface MakeAuthOptions {
    * than a value, so an upgrade takes effect on the next request.
    */
   readonly ssoEntitled: (organizationId: string) => Promise<boolean>;
+  /**
+   * Whether the organization's plan carries directory provisioning, asked
+   * before a SCIM token may be issued. Separate from `ssoEntitled` because the
+   * two are separate features on the plan even though they are bought together.
+   */
+  readonly scimEntitled: (organizationId: string) => Promise<boolean>;
+  /**
+   * Whether one more member would fit inside the plan's seats.
+   *
+   * A single question rather than a limit and a count, because the caller that
+   * asks it has neither: an identity provider pushing users arrives with a
+   * token and an organization and nothing else. **This is the gap it closes.**
+   * `membershipLimit` guards better-auth's *invitation* endpoints, and SCIM
+   * provisioning does not go through them — it inserts a `member` row through
+   * the adapter directly, so a directory of five hundred people would fill an
+   * organization sold three seats and nothing would have said no.
+   */
+  readonly seatAvailableFor: (organizationId: string) => Promise<boolean>;
   readonly baseURL: string;
   readonly secret: string;
   readonly trustedOrigins: ReadonlyArray<string>;
@@ -178,6 +199,41 @@ const authOptions = (options: MakeAuthOptions) => ({
   databaseHooks: {
     user: {
       create: {
+        /**
+         * The seat limit, on the one path that would otherwise walk past it.
+         *
+         * `membershipLimit` guards better-auth's *invitation* endpoints, and
+         * SCIM provisioning does not go through them — it inserts a `member`
+         * row through the adapter directly. Without this, a directory of five
+         * hundred people fills an organization sold three seats and nothing
+         * says no: revenue, and the easiest way to grow this database from
+         * outside.
+         *
+         * Here rather than in a `before` hook on the route, because a route
+         * hook runs **ahead of the plugin's own middleware** — the first
+         * version did, and it answered a forged token with "no seats left"
+         * instead of "unauthorized". This runs inside the handler, after the
+         * token has been verified, and `authenticatedScimOrganization` reads
+         * what the plugin resolved rather than what the caller sent.
+         *
+         * Blocking the *user* is sufficient because `linkExistingUsers` is
+         * off: a SCIM request that would add somebody to an organization is
+         * always one that creates them, and a matching address is refused as a
+         * conflict instead.
+         */
+        before: async (_user: unknown, context: GenericEndpointContext | null) => {
+          const organizationId = authenticatedScimOrganization(context);
+
+          // Not a SCIM request. Ordinary sign-up is not seat-limited: the
+          // personal organization every account gets has one member, itself.
+          if (organizationId === undefined) return;
+
+          if (!await options.seatAvailableFor(organizationId)) {
+            throw new APIError("FORBIDDEN", {
+              message: "This organization has no seats left on its plan.",
+            });
+          }
+        },
         // Every user gets a personal organization immediately, so there is no
         // orgless state for the rest of the system to represent or handle.
         after: async (user: { id: string; name: string; email: string; }) => {
@@ -329,6 +385,72 @@ const authOptions = (options: MakeAuthOptions) => ({
        */
       organizationProvisioning: { defaultRole: "member" },
     }),
+
+    /**
+     * Directory provisioning: an identity provider pushing users in, and
+     * switching them off when somebody leaves.
+     *
+     * SCIM 2.0 is a specification with a body of expected behaviour — filters,
+     * `PATCH` operations, `ListResponse` envelopes, its own error shape — and
+     * this is `@better-auth/scim` rather than a hand-written router for the
+     * same reason `/sso/register` is the plugin's endpoint: reimplementing
+     * somebody else's protocol beside the library that already speaks it is
+     * how the two come to disagree.
+     *
+     * Three of its defaults are changed, and every one of them is a security
+     * decision rather than a preference.
+     */
+    scim({
+      /**
+       * **The default is `plain`.** That would put a credential able to create
+       * and disable users across an organization into the database in readable
+       * form — the same mistake `apiKey` avoids by storing only a hash, and
+       * worse, because this one is long-lived and belongs to a machine that
+       * never notices it has leaked.
+       *
+       * The cost is honest and small: a token cannot be shown again, so
+       * "rotate" is delete-and-generate. The screen says so.
+       */
+      storeSCIMToken: "hashed",
+
+      /**
+       * **Personal tokens are refused outright.**
+       *
+       * The plugin's own documentation says non-organization token creation is
+       * "otherwise available to any authenticated user", and a SCIM token can
+       * provision and manage users. In a B2B product there is no such thing as
+       * a personal directory, so the answer is not a narrower rule — it is that
+       * this shape does not exist here.
+       *
+       * Runs after the built-in checks, so it can only tighten them.
+       */
+      canGenerateToken: ({ organizationId }) =>
+        typeof organizationId === "string" && organizationId !== "",
+
+      /**
+       * **Left off, which is the plugin's default and the right one.**
+       *
+       * Enabling it would let a SCIM token claim an existing account whose
+       * email happens to match — an account it never provisioned, possibly in
+       * another organization entirely. A directory that pushes
+       * `ada@example.com` would be handed whoever already signed up with that
+       * address. Named here rather than omitted, because a future reader
+       * looking for the switch should find the reason beside it.
+       */
+      linkExistingUsers: false,
+      /**
+       * Widened to the plugin interface, and only because of
+       * `exactOptionalPropertyTypes`.
+       *
+       * The plugin builds its table declaration by spreading a conditional —
+       * `...providerOwnership ? { userId: … } : {}` — which TypeScript widens
+       * to `userId?: … | undefined`, and better-auth's own schema type does not
+       * accept an explicitly-undefined field under that flag. Nothing here is
+       * being hidden: the SCIM endpoints are called by an identity provider
+       * over HTTP and by `authClient.scim.*` on the client, neither of which
+       * reads this inference, so what is lost is a shape nothing consumes.
+       */
+    }) as BetterAuthPlugin,
   ],
 
   /**
@@ -347,6 +469,23 @@ const authOptions = (options: MakeAuthOptions) => ({
    */
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/scim/generate-token") {
+        const organizationId = (ctx.body as { organizationId?: unknown; } | undefined)
+          ?.organizationId;
+
+        // `canGenerateToken` already refuses a personal token; this is the
+        // plan question, which the plugin cannot answer for itself.
+        if (typeof organizationId !== "string" || organizationId === "") return;
+
+        if (!await options.scimEntitled(organizationId)) {
+          throw new APIError("FORBIDDEN", {
+            message: "This organization's plan does not include directory provisioning.",
+          });
+        }
+
+        return;
+      }
+
       if (ctx.path !== "/sso/register") return;
 
       const organizationId = (ctx.body as { organizationId?: unknown; } | undefined)

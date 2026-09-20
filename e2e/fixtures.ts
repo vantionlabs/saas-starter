@@ -155,7 +155,19 @@ export const completeOnboarding = async (page: Page) => {
 
   if (!page.url().includes("/onboarding")) return;
 
-  await page.getByRole("button", { name: "Skip for now" }).click();
+  /**
+   * A longer wait than anything else here, and for a reason worth stating: the
+   * wizard is `ssr: "data-only"`, so it is the one page in the protected app
+   * that renders entirely in the browser — nothing exists until its chunk has
+   * loaded and React has run. Every test in this suite passes through it, which
+   * makes it both the slowest step under parallel load and the worst place for
+   * a flake. One run in sixty-seven found the default fifteen seconds too
+   * short, on a page that was simply still arriving.
+   */
+  const skip = page.getByRole("button", { name: "Skip for now" });
+
+  await expectBase(skip).toBeVisible({ timeout: 45_000 });
+  await skip.click();
   await expectBase(page).toHaveURL(`${WEB_URL}/`);
 };
 

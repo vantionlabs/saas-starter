@@ -37,6 +37,7 @@ import { Route as ProtectedSettingsBillingRouteImport } from './routes/_protecte
 import { Route as ProtectedSettingsGeneralRouteImport } from './routes/_protected/settings/general'
 import { Route as ProtectedSettingsMembersRouteImport } from './routes/_protected/settings/members'
 import { Route as ProtectedSettingsRolesRouteImport } from './routes/_protected/settings/roles'
+import { Route as ProtectedSettingsScimRouteImport } from './routes/_protected/settings/scim'
 import { Route as ProtectedSettingsSsoRouteImport } from './routes/_protected/settings/sso'
 import { Route as ProtectedSettingsWebhooksRouteImport } from './routes/_protected/settings/webhooks'
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from './routes/auth/accept-invitation/$invitationId'
@@ -186,6 +187,11 @@ const ProtectedSettingsRolesRoute = ProtectedSettingsRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => ProtectedSettingsRouteRoute,
 } as any)
+const ProtectedSettingsScimRoute = ProtectedSettingsScimRouteImport.update({
+  id: '/scim',
+  path: '/scim',
+  getParentRoute: () => ProtectedSettingsRouteRoute,
+} as any)
 const ProtectedSettingsSsoRoute = ProtectedSettingsSsoRouteImport.update({
   id: '/sso',
   path: '/sso',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
+  '/settings/scim': typeof ProtectedSettingsScimRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
   '/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/settings/general': typeof ProtectedSettingsGeneralRoute
   '/settings/members': typeof ProtectedSettingsMembersRoute
   '/settings/roles': typeof ProtectedSettingsRolesRoute
+  '/settings/scim': typeof ProtectedSettingsScimRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
   '/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/_protected/settings/general': typeof ProtectedSettingsGeneralRoute
   '/_protected/settings/members': typeof ProtectedSettingsMembersRoute
   '/_protected/settings/roles': typeof ProtectedSettingsRolesRoute
+  '/_protected/settings/scim': typeof ProtectedSettingsScimRoute
   '/_protected/settings/sso': typeof ProtectedSettingsSsoRoute
   '/_protected/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
@@ -328,6 +337,7 @@ export interface FileRouteTypes {
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
+    | '/settings/scim'
     | '/settings/sso'
     | '/settings/webhooks'
     | '/auth/accept-invitation/$invitationId'
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | '/settings/general'
     | '/settings/members'
     | '/settings/roles'
+    | '/settings/scim'
     | '/settings/sso'
     | '/settings/webhooks'
     | '/auth/accept-invitation/$invitationId'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/_protected/settings/general'
     | '/_protected/settings/members'
     | '/_protected/settings/roles'
+    | '/_protected/settings/scim'
     | '/_protected/settings/sso'
     | '/_protected/settings/webhooks'
     | '/auth/accept-invitation/$invitationId'
@@ -602,6 +614,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsRolesRouteImport
       parentRoute: typeof ProtectedSettingsRouteRoute
     }
+    '/_protected/settings/scim': {
+      id: '/_protected/settings/scim'
+      path: '/scim'
+      fullPath: '/settings/scim'
+      preLoaderRoute: typeof ProtectedSettingsScimRouteImport
+      parentRoute: typeof ProtectedSettingsRouteRoute
+    }
     '/_protected/settings/sso': {
       id: '/_protected/settings/sso'
       path: '/sso'
@@ -680,6 +699,7 @@ interface ProtectedSettingsRouteRouteChildren {
   ProtectedSettingsGeneralRoute: typeof ProtectedSettingsGeneralRoute
   ProtectedSettingsMembersRoute: typeof ProtectedSettingsMembersRoute
   ProtectedSettingsRolesRoute: typeof ProtectedSettingsRolesRoute
+  ProtectedSettingsScimRoute: typeof ProtectedSettingsScimRoute
   ProtectedSettingsSsoRoute: typeof ProtectedSettingsSsoRoute
   ProtectedSettingsWebhooksRoute: typeof ProtectedSettingsWebhooksRoute
   ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
@@ -693,6 +713,7 @@ const ProtectedSettingsRouteRouteChildren: ProtectedSettingsRouteRouteChildren =
     ProtectedSettingsGeneralRoute: ProtectedSettingsGeneralRoute,
     ProtectedSettingsMembersRoute: ProtectedSettingsMembersRoute,
     ProtectedSettingsRolesRoute: ProtectedSettingsRolesRoute,
+    ProtectedSettingsScimRoute: ProtectedSettingsScimRoute,
     ProtectedSettingsSsoRoute: ProtectedSettingsSsoRoute,
     ProtectedSettingsWebhooksRoute: ProtectedSettingsWebhooksRoute,
     ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,

@@ -57,6 +57,7 @@ catalog:
   # a subpath 1.6 does not export, and the failure is a bundle that will not build.
   "@better-auth/expo": ~1.6.33
   "@better-auth/sso": ~1.6.33
+  "@better-auth/scim": ~1.6.33
   "@lucas-barake/effect-form": 0.25.0-beta.6
   "@lucas-barake/effect-form-react": 0.26.0-beta.5
   nitro: ^3.0.260610-beta

@@ -1067,6 +1067,40 @@ room for a null `app.current_org` would permit every unscoped read while still r
 `docs/sso.md` is explicit that no sign-in has been performed against a real identity
 provider in this repository.
 
+**Directory provisioning is the other half of that purchase**, and `@better-auth/scim` is
+what serves it — pinned to better-auth's own minor, for the reason the SSO plugin is. Single
+sign-on decides _who may sign in_; SCIM decides _who exists_, so somebody removed from a
+customer's directory on a Friday loses access without anybody here being told. That is the
+half SSO cannot do and the half a security review asks about.
+
+Users only. Groups are not provisioned, so **roles stay ours to set** — an identity provider
+that could mint admins would make the organization's permission model a property of somebody
+else's directory, which is the same reason `organizationProvisioning.defaultRole` is `member`.
+
+Three of the plugin's defaults are changed and each is a security decision. `storeSCIMToken`
+is **`hashed`** rather than its default `plain`, because a credential able to create and
+disable users across an organization has no business being readable in the database — the
+honest cost is that "rotate" becomes remove-and-generate, which the screen says. Personal
+tokens are **refused** by `canGenerateToken`: the plugin allows an organization-less token to
+any authenticated user, and there is no personal directory in a B2B product for one to belong
+to. `linkExistingUsers` stays **off**, or a SCIM token could claim an account whose email
+happens to match — one it never provisioned, possibly in another tenant.
+
+**The seat limit had to be added, and where it sits is the lesson.** `membershipLimit` guards
+better-auth's _invitation_ endpoints; SCIM inserts a `member` row through the adapter
+directly, so a directory of five hundred people fills an organization sold three seats and
+nothing says no. The first version checked it in a `before` hook on `/scim/v2/Users`, reading
+the organization out of the bearer token — which works, and which answered a **forged** token
+with "no seats left" instead of "unauthorized". A test pinned that, and the check moved into
+`databaseHooks.user.create.before`, where `authenticatedScimOrganization` reads the provider
+the plugin has already verified. Blocking the user is sufficient because linking is off: a
+SCIM request that adds somebody to an organization is always one that creates them.
+
+A provisioned account also gets a **personal organization**, because every account here does
+and that hook is unconditional. Worth knowing before a directory of five hundred arrives.
+`docs/scim.md` has the rest, including that no real identity provider has been pointed at
+this repository either.
+
 The seat limit is enforced inside better-auth rather than by a policy of ours. It owns the
 invitation endpoints, so a check on our side is one an invitation created through its own API
 walks straight past — `membershipLimit` asks per invitation, which is also what makes an

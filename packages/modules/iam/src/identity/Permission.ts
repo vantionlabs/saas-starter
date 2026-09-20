@@ -38,6 +38,15 @@ export const statements = {
    */
   sso: ["read", "manage"],
   /**
+   * Directory provisioning. Owner and admin, matching `sso` — and matching it
+   * is not a coincidence: `@better-auth/scim` defaults its own `requiredRole`
+   * to admin-or-creator and checks that inside the endpoint that issues a
+   * token, so a tighter rule here would be one a request straight to
+   * `/api/auth/scim/generate-token` walks past. Our screens ask the question
+   * the plugin will ask again.
+   */
+  scim: ["read", "manage"],
+  /**
    * Outbound delivery. Split `read`/`manage` like `sso` and for a related
    * reason: the row carries a **signing secret**, so even looking at the list
    * is closer to reading a credential than to reading a setting. Owner and
@@ -91,6 +100,7 @@ export const grantsFor: Record<Role, Grants> = {
     contact: ["read", "create", "update", "delete"],
     billing: ["read", "manage"],
     sso: ["read", "manage"],
+    scim: ["read", "manage"],
     webhook: ["read", "manage"],
     file: ["read", "create", "delete"],
   },
@@ -103,6 +113,7 @@ export const grantsFor: Record<Role, Grants> = {
     contact: ["read", "create", "update", "delete"],
     billing: ["read"],
     sso: ["read", "manage"],
+    scim: ["read", "manage"],
     webhook: ["read", "manage"],
     file: ["read", "create", "delete"],
   },

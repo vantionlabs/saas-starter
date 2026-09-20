@@ -17,6 +17,7 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
+    "@better-auth/scim": "catalog:",
     "@better-auth/sso": "catalog:",
     "@effect/atom-react": "catalog:",
     "@lucas-barake/effect-form-react": "catalog:",

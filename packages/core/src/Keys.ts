@@ -29,4 +29,6 @@ export const Keys = {
   onboarding: "onboarding",
   /** Outbound endpoints. Deliveries share it — the screen shows them together. */
   webhooks: "webhooks",
+  /** Directory provisioning connections. */
+  scim: "scim",
 } as const;

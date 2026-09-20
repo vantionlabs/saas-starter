@@ -35,6 +35,8 @@ const authFor = (entitled: boolean) =>
     webUrl: ORIGIN,
     seatsFor: async () => 3,
     ssoEntitled: async () => entitled,
+    scimEntitled: async () => entitled,
+    seatAvailableFor: async () => true,
     baseURL: "http://localhost:3000",
     secret: "test-secret-that-is-long-enough-for-hmac",
     trustedOrigins: [ORIGIN],

@@ -18,12 +18,13 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@better-auth/scim": "catalog:",
+    "@better-auth/sso": "catalog:",
     "@vantion/database": "workspace:*",
-    "@vantion/telemetry": "workspace:*",
     "@vantion/emails": "workspace:*",
     "@vantion/module-notifications": "workspace:*",
-    "@better-auth/expo": "catalog:",
-    "@better-auth/sso": "catalog:",
+    "@vantion/telemetry": "workspace:*",
     "better-auth": "catalog:",
     "effect": "catalog:",
     "pg": "catalog:"

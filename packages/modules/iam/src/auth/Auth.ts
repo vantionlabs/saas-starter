@@ -2,8 +2,10 @@ import { PgPool } from "@vantion/database/PgPool";
 import type { EmailMessage } from "@vantion/module-notifications/Mailer";
 import { Mailer } from "@vantion/module-notifications/Mailer";
 import { Config, Context, Effect, Layer, Option, Redacted } from "effect";
+import { SqlClient } from "effect/unstable/sql";
 import { has } from "../identity/Entitlement.js";
 import { EntitlementResolver } from "../identity/EntitlementResolver.js";
+import { seatsUsedFor } from "../identity/Usage.js";
 import type { AuthInstance } from "./Options.js";
 import { makeAuth } from "./Options.js";
 
@@ -19,12 +21,23 @@ import { makeAuth } from "./Options.js";
  * behaviour we want when mail cannot be sent.
  */
 export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
-  static layer: Layer.Layer<Auth, never, PgPool | Mailer | EntitlementResolver> = Layer
+  static layer: Layer.Layer<
+    Auth,
+    never,
+    PgPool | Mailer | EntitlementResolver | SqlClient.SqlClient
+  > = Layer
     .effect(Auth)(
       Effect.gen(function*() {
         const pool = yield* PgPool;
         const mailer = yield* Mailer;
         const entitlements = yield* EntitlementResolver;
+        /**
+         * Resolved to a value here so the callbacks below can run a query from
+         * better-auth's own promise chain, where there is no context to thread
+         * through — the same reason `mailer` is taken here rather than inside
+         * `sendEmail`.
+         */
+        const sql = yield* SqlClient.SqlClient;
 
         const baseURL = yield* Config.nonEmptyString("AUTH_BASE_URL").pipe(
           Config.withDefault("http://localhost:3000"),
@@ -103,6 +116,27 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
             Effect.runPromise(
               Effect.map(entitlements.resolve({ organizationId }), (e) =>
                 has(e.effectivePlan, "sso")),
+            ),
+          scimEntitled: (organizationId) =>
+            Effect.runPromise(
+              Effect.map(entitlements.resolve({ organizationId }), (e) =>
+                has(e.effectivePlan, "scim")),
+            ),
+          /**
+           * The limit and the count together, because the caller that asks has
+           * neither — an identity provider arrives with a token and an
+           * organization. Both are read per request, so an upgrade lets the
+           * next push through rather than the next deploy.
+           */
+          seatAvailableFor: (organizationId) =>
+            Effect.runPromise(
+              Effect.map(
+                Effect.all([
+                  entitlements.resolve({ organizationId }),
+                  seatsUsedFor(organizationId),
+                ]),
+                ([entitlement, used]) => used < entitlement.limits.seats,
+              ).pipe(Effect.provideService(SqlClient.SqlClient, sql)),
             ),
           baseURL,
           secret: Redacted.value(secret),
