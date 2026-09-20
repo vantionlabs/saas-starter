@@ -2,12 +2,22 @@ import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { LOCK_FILE, readLock, readSkills, SKILLS_DIR } from "../Skills.js";
+import {
+  AGENTS_DIR,
+  LOCK_FILE,
+  readAgentLock,
+  readAgents,
+  readLock,
+  readSkills,
+  SKILLS_DIR,
+} from "../Skills.js";
 
 const ROOT = path.join(import.meta.dirname, "..", "..");
 
 const skills = readSkills(ROOT);
 const lock = readLock(ROOT);
+const agents = readAgents(ROOT);
+const agentLock = readAgentLock(ROOT);
 
 /**
  * The agent layer is three surfaces over one directory, and nothing but a test keeps
@@ -81,6 +91,52 @@ describe("the agent layer", () => {
       });
 
     expect(run, "run `bun run agents`").not.toThrow();
+  });
+
+  /**
+   * Agents get the same treatment as skills, because they carry the same obligation:
+   * four of them are impeccable's, Apache-2.0, and a vendored file nobody declared is a
+   * licence nobody reviewed.
+   */
+  it("locks every agent that is present", () => {
+    expect(agents.map((a) => a.name).filter((name) => agentLock[name] === undefined))
+      .toEqual([]);
+  });
+
+  it("has no agent lock entry without a file behind it", () => {
+    const present = new Set(agents.map((a) => a.name));
+
+    expect(Object.keys(agentLock).filter((name) => !present.has(name))).toEqual([]);
+  });
+
+  it("names a licence and its file for every vendored agent", () => {
+    for (const [name, entry] of Object.entries(agentLock)) {
+      if (entry.origin !== "vendored") continue;
+
+      expect(entry.license, `${name} has no licence`).toBeTruthy();
+      expect(
+        fs.existsSync(path.join(ROOT, entry.licenseFile ?? "")),
+        `${name}: ${entry.licenseFile} is not there`,
+      ).toBe(true);
+    }
+  });
+
+  /**
+   * An agent's description is what decides whether it is ever launched. A thin one is a
+   * subagent that sits there costing nothing and doing nothing.
+   */
+  it("gives every agent a description worth routing on", () => {
+    for (const agent of agents) {
+      expect(agent.description.length, `${agent.name} has no description`).toBeGreaterThan(60);
+    }
+  });
+
+  /** `.claude/agents` is the same symlink arrangement as the skills, for the same reason. */
+  it("points .claude/agents at the one directory", () => {
+    const link = path.join(ROOT, ".claude", "agents");
+
+    expect(fs.lstatSync(link).isSymbolicLink()).toBe(true);
+    expect(fs.realpathSync(link)).toBe(fs.realpathSync(path.join(ROOT, AGENTS_DIR)));
   });
 
   /** The lock is JSON somebody reads in a diff, so it has to parse and be sorted-ish. */

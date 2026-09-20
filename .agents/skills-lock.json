@@ -1,5 +1,5 @@
 {
-  "$comment": "Every skill under .agents/skills, where it came from, and what it hashed to when vendored. `bun run skills:check` fails when a vendored skill and this file disagree; `tooling/test/skills.test.ts` runs the same check in `bun run test`. Written rather than generated so a reviewer sees the provenance in the diff.",
+  "$comment": "Every skill and agent under .agents, where it came from, and its licence. `bun run agents --check` and `tooling/test/skills.test.ts` fail when this file and the tree disagree. Written rather than generated so a reviewer sees the provenance in the diff.",
   "skills": {
     "impeccable": {
       "origin": "vendored",
@@ -65,7 +65,6 @@
       "licenseFile": ".agents/marketing/LICENSE",
       "why": "marketing-skills."
     },
-
     "product-development": {
       "origin": "first-party",
       "why": "The four-phase method as a skill: discover, prototype, build, ship."
@@ -85,6 +84,56 @@
     "effect-form-e2e": {
       "origin": "first-party",
       "why": "Forms bound to contract field schemas, and the browser harness's rules."
+    }
+  },
+  "agents": {
+    "impeccable-finish-reviewer": {
+      "origin": "vendored",
+      "url": "https://github.com/pbakaus/impeccable",
+      "version": "4.3.1",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/skills/impeccable/LICENSE",
+      "why": "Judges a finished build against its direction contract. Part of the impeccable distribution vendored beside it."
+    },
+    "impeccable-documenter": {
+      "origin": "vendored",
+      "url": "https://github.com/pbakaus/impeccable",
+      "version": "4.3.1",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/skills/impeccable/LICENSE",
+      "why": "Writes DESIGN.md from what shipped rather than from intentions."
+    },
+    "impeccable-asset-producer": {
+      "origin": "vendored",
+      "url": "https://github.com/pbakaus/impeccable",
+      "version": "4.3.1",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/skills/impeccable/LICENSE",
+      "why": "Produces raster assets from an approved comp."
+    },
+    "impeccable-manual-edit-applier": {
+      "origin": "vendored",
+      "url": "https://github.com/pbakaus/impeccable",
+      "version": "4.3.1",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/skills/impeccable/LICENSE",
+      "why": "Applies live copy edits back to source."
+    },
+    "design-sync": {
+      "origin": "first-party",
+      "why": "apps/design and the shipped apps drift silently: a screen with no design screen, a prop the fixtures stopped passing, a persona describing a permission the product does not have. A sweep across three surfaces returning a short list."
+    },
+    "tenancy-review": {
+      "origin": "first-party",
+      "why": "New tables, policies and queries against the isolation rules. The one class of finding that is a breach rather than a bug, so it gets its own context window and reports the exploiting request."
+    },
+    "contract-drift": {
+      "origin": "first-party",
+      "why": "One handler is served four ways and read by two front ends. What the compiler cannot see \u2014 a hydration pair, a reactivity key, the frozen wire types \u2014 is what fails in production."
+    },
+    "slice-gate": {
+      "origin": "first-party",
+      "why": "Ranks a long gate failure by what it means rather than the order it printed, and carries the known readings for the environmental ones."
     }
   }
 }

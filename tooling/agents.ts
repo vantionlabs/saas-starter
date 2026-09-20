@@ -14,15 +14,23 @@ import { Effect } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { codexSkills, cursorRule, readSkills, SKILLS_DIR } from "./Skills.js";
+import {
+  AGENTS_DIR,
+  codexSkills,
+  cursorRule,
+  readAgents,
+  readSkills,
+  SKILLS_DIR,
+} from "./Skills.js";
 
 const ROOT = path.join(import.meta.dirname, "..");
 
 /** Every file this writes, as path → contents. */
 const generate = () => {
   const skills = readSkills(ROOT);
+  const agents = readAgents(ROOT);
   const files: Record<string, string> = {
-    [path.join(".codex", "SKILLS.md")]: codexSkills(skills),
+    [path.join(".codex", "SKILLS.md")]: codexSkills(skills, agents),
   };
 
   for (const skill of skills) {
@@ -92,7 +100,9 @@ const command = Command.make(
       }
     }
 
-    yield* Effect.log(`wrote ${Object.keys(files).length} files from ${SKILLS_DIR}`);
+    yield* Effect.log(
+      `wrote ${Object.keys(files).length} files from ${SKILLS_DIR} and ${AGENTS_DIR}`,
+    );
   }),
 );
 

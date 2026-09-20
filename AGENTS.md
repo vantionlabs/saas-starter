@@ -886,7 +886,7 @@ isolation here depends on `set_config('app.current_org', …)` holding for the q
 follow it on the same pooled connection. That is exactly where automatic statement caching
 goes subtly wrong, and the failure mode is one tenant reading another's rows.
 
-## One skills directory, three agents reading it
+## One directory of skills and agents, three tools reading it
 
 Skills live in **`.agents/skills`**. `.claude/skills` is a symlink to it, and
 `.cursor/rules/*.mdc` and `.codex/SKILLS.md` are **generated** from it by `bun run
@@ -912,6 +912,29 @@ behind by a deleted skill, which Cursor would otherwise keep loading.
 
 It replaces a claim in `NOTICE` that was simply false: that the skills were "pinned in
 package.json", where no such pin existed.
+
+**Subagents live beside the skills**, in `.agents/agents`, with `.claude/agents` symlinked
+to it and the same lock covering both. A skill is prose an agent reads; a subagent is worth
+its own context window only when the work is **large, read-heavy and produces a short
+answer**. That test is what keeps the list at eight rather than thirty.
+
+Four are this repository's own. `design-sync` sweeps `apps/design`, `@vantion/ui` and the
+shipped apps for the drift nothing else can see — a screen with no design screen, a prop the
+fixtures stopped passing, a persona describing a permission the product does not have, which
+has already happened once. `tenancy-review` checks new tables and queries against the
+isolation rules and is required to name **the request that would exploit** each finding,
+because a finding without that sentence is a guess. `contract-drift` follows a changed
+contract to all four transports and both front ends, looking for what the compiler cannot
+see — a hydration key, a reactivity key, the frozen wire types. `slice-gate` ranks a long
+gate failure by what it means rather than the order it printed.
+
+The other four are impeccable's, vendored and Apache-2.0 like the skill itself. They shipped
+with it and nothing here had ever wired them up.
+
+**Codex gets them as checklists, not as agents.** It has no subagent concept, so
+`.codex/SKILLS.md` lists each one as a property worth checking and the order to check it in —
+which is what they are anyway. Pretending the concept transfers would be worse than saying it
+does not.
 
 **`PRODUCT.md` and `DESIGN.md` are deliberately absent.** impeccable's `init` and
 `document` write them, from a conversation about a product this template does not have.
