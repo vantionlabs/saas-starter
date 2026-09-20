@@ -1510,6 +1510,20 @@ a browser POST from any other origin is refused outright. The web service's `AUT
 points at the API's _private_ domain, because both the SSR session lookup and the proxy above are
 server-to-server inside the project.
 
+**Preview environments per pull request** are a dashboard setting, not config — the IaC
+schema has no field for one — and nothing in `.railway/railway.ts` needs changing for them:
+the services are wired to each other with reference variables, so a PR environment's API
+trusts its own web app rather than production's. Turn **Focused PR Environments** on, since
+every service already has the `watchPatterns` it reads, and **Bot PR Environments** off, or
+each Dependabot bump raises a full stack.
+
+The part to know before switching it on is that **sign-in does not work in a preview**
+without a wildcard domain of your own. Each service gets its own generated host and
+`up.railway.app` is a public suffix, so the session cookie cannot be shared — the same
+constraint this file already documents for a split production deployment, made unavoidable.
+`apps/design` is the preview that is complete rather than half-working, because it has no
+session to fail. `docs/railway-previews.md` is the long version.
+
 Railway's IaC API is in beta and its own README says it will change. The stable alternative is a
 `railway.json` per app, which covers build and deploy settings but cannot create the database or
 the services.

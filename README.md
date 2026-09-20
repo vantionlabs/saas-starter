@@ -554,6 +554,14 @@ worker and the web app, their variables and health checks. `railway config plan`
 request is. Change `REPO`, the `environments` map and the project name; secrets
 stay in Railway's dashboard, held by `preserve()`.
 
+**Preview environments per pull request** are a dashboard toggle rather than
+config — the IaC schema has no field for them — and the variables here are
+already wired to follow whatever environment they land in. One thing does not
+work without a wildcard domain you own: a reviewer cannot _sign in_, because
+Railway gives each service its own generated host and `up.railway.app` is a
+public suffix, so no session cookie can be shared between them.
+`docs/railway-previews.md` has the three ways out and which settings to turn on.
+
 Branch and domain come from the environment being planned against, via
 `ctx.isEnvironment`, so production and staging can differ without the file
 depending on whoever runs it. `process.env` is readable in that runner, but
