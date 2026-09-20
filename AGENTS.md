@@ -919,6 +919,38 @@ Shipping a filled-in pair would hand every generated repository somebody else's 
 questions only its own team can answer — the same reason `SPEC.md` exists here only as
 `SPEC.md.example`.
 
+## MCP servers, and the two that were dead
+
+`.mcp.json` declares six: **vantion** (this repository's own toolkit, run from source),
+**stripe**, **railway**, **playwright**, **context7** and **sentry**. Only playwright needs
+no credential. `docs/mcp-servers.md` is the long version, including what is deliberately
+absent and why.
+
+Two things that file exists to prevent, both of which had already happened.
+
+**Check the package is alive.** Two of the three servers originally wired here were
+deprecated: `@railway/mcp-server` ("now bundled into the Railway CLI") and
+`@modelcontextprotocol/server-postgres` ("no longer supported"). Both sat in the config
+looking configured. Railway is `bunx railway mcp` now, against a CLI this repo already
+depends on.
+
+**Document the variable.** `RAILWAY_API_TOKEN` had never reached `.env.example`, so the one
+thing a reader needed in order to use it was the one thing not written down.
+`tooling/test/mcp.test.ts` fails when a server interpolates a variable `.env.example` does
+not declare, when a server is not named in the doc, when one is started with `npx` rather
+than bun, and when **vantion** points at `build/bundle` instead of source — an editor
+answering from the last build is answering from code you are in the middle of changing.
+
+**There is no better-auth MCP server.** `@better-auth/mcp` is a plugin for _building_ one
+whose OAuth is better-auth's; wiring it here would be a misunderstanding committed to a
+config file. What was actually wanted — version-correct docs for better-auth, TanStack
+Start and the rest — is Context7.
+
+**Postgres is deliberately absent.** Every live replacement is a third-party package that
+wants `DATABASE_URL`, and handing a database credential to an unvetted dependency is not a
+trade this repository makes. `psql` covers raw SQL, and the vantion server covers tenant
+data _through_ the policies rather than around them.
+
 ## Hygiene, and what each tool is actually for
 
 `bun run hygiene` is knip, syncpack and secretlint, and CI runs the same command rather than three

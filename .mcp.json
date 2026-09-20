@@ -1,21 +1,43 @@
 {
   "mcpServers": {
+    "vantion": {
+      "command": "bun",
+      "args": ["--conditions=development", "--env-file=.env", "apps/mcp/src/Main.ts"],
+      "env": {
+        "VANTION_API_KEY": "${VANTION_API_KEY}"
+      }
+    },
+    "stripe": {
+      "command": "bunx",
+      "args": ["-y", "@stripe/mcp", "--tools=all"],
+      "env": {
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
+      }
+    },
     "railway": {
-      "command": "npx",
-      "args": ["-y", "@railway/mcp-server"],
+      "command": "bunx",
+      "args": ["railway", "mcp"],
       "env": {
         "RAILWAY_API_TOKEN": "${RAILWAY_API_TOKEN}"
       }
     },
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"]
+    "playwright": {
+      "command": "bunx",
+      "args": ["-y", "@playwright/mcp@latest", "--browser=chromium"]
     },
-    "stripe": {
-      "command": "npx",
-      "args": ["-y", "@stripe/mcp", "--tools=all"],
+    "context7": {
+      "command": "bunx",
+      "args": ["-y", "@upstash/context7-mcp"],
       "env": {
-        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
+    "sentry": {
+      "command": "bunx",
+      "args": ["-y", "@sentry/mcp-server@latest"],
+      "env": {
+        "SENTRY_ACCESS_TOKEN": "${SENTRY_ACCESS_TOKEN}",
+        "SENTRY_HOST": "${SENTRY_HOST}"
       }
     }
   }
