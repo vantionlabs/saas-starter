@@ -5,7 +5,7 @@ import shared from "../../vitest.shared.ts";
 export default mergeConfig(shared, {
   test: {
     name: "brand",
-    environment: "jsdom",
+    environment: "happy-dom",
     // Testing Library queries one shared document, so renders must not interleave.
     sequence: { concurrent: false },
     setupFiles: [path.join(import.meta.dirname, "test", "setup.ts")],

@@ -17,7 +17,7 @@ import { describe, expect, it } from "vitest";
  *
  * The pages are imported dynamically and mounted for real. A module whose imports
  * do not line up with its uses throws on evaluation or on first render, and either
- * way this fails. Data is not stubbed: the atoms cannot reach `/rpc` under jsdom,
+ * way this fails. Data is not stubbed: the atoms cannot reach `/rpc` in the test DOM,
  * so each page renders its loading or failure branch — which is enough, because
  * what is under test is that the module and its bindings hold together.
  */
@@ -60,7 +60,7 @@ describe("page modules", () => {
         return { node: <Component /> };
       });
 
-      // The shell resolves no session under jsdom, so it renders its checking
+      // The shell resolves no session in the test DOM, so it renders its checking
       // state. Reaching that at all means every module in the chain evaluated.
       expect(container).not.toBeEmptyDOMElement();
     });

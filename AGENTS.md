@@ -805,21 +805,24 @@ through `@effect/platform-bun`; every `.ts` in `scripts/`, `tooling/`, `e2e/` an
 is executed directly with no transpile step in front of it. `.bun-version` pins the
 version, and it is the file CI reads.
 
-**Node is still installed, for exactly one reason: vitest is a Node program.** It does not
-survive the Bun runtime — `bun --bun vitest run` dies with `Worker exited unexpectedly`
-whatever the pool, on this many projects — and that is upstream's to fix rather than ours
-to work around. Vite, Playwright and Metro are Node programs too; bun invokes them and
-Node executes them. `.nvmrc` therefore stays, and CI installs both. Saying this plainly
-beats a README claiming a pure-bun repository that has a `setup-node` step in it.
+**The tests run in Bun too** — `bun --bun vitest run`, which is what every `test` script
+says. The first attempt at this concluded vitest could not: it died with
+`Worker exited unexpectedly` whatever the pool. That conclusion was wrong, and the way it
+was wrong is worth keeping. Bisecting by project put the crash in exactly one place —
+**jsdom**, whose `EventTarget` breaks under Bun inside vitest's `catchWindowErrors`.
+Switching the DOM environment to `happy-dom` fixes it, and all 502 tests run in the Bun
+runtime. A whole tool was blamed for one dependency's incompatibility because the failure
+was read at the top of the stack instead of bisected.
 
-That split has one consequence worth knowing before writing a test. **A test may not
-import `@effect/platform-bun`**: that package reaches for the `bun` built-in module, which
-only exists inside the Bun runtime, and under vitest the import fails with
-`Cannot find package 'bun'`. `apps/server/test/api/v1/Handlers.test.ts` hit it and the fix
-was not to reach for `@effect/platform-node` instead — that would have worked and would
-have been a lie about what runs in production. It provides `HttpPlatform.layer` over
-`FileSystem.layerNoop({})`, which is honest: nothing on `/api/v1` touches a file, so the
-runtime is not part of the question.
+**Node is still installed**, because Vite, Playwright and Metro are Node programs and bun
+invokes rather than replaces them. `.nvmrc` pins that side and CI installs both.
+
+One consequence is worth knowing before writing a test. `@effect/platform-bun` reaches for
+the `bun` built-in module, so it can only be imported where the Bun runtime is — which is
+now everywhere, but was not when `apps/server/test/api/v1/Handlers.test.ts` was written.
+It provides `HttpPlatform.layer` over `FileSystem.layerNoop({})` rather than reaching for
+a platform layer at all, and that is the better shape regardless: nothing on `/api/v1`
+touches a file, so the runtime is not part of the question.
 
 **The catalog moved into `package.json`.** bun keeps it at `workspaces.catalog`, so
 `pnpm-workspace.yaml` is gone and the two things that read a pin — `SessionStart` and

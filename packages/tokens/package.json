@@ -17,7 +17,7 @@
     "build:css": "bun build.ts",
     "check:css": "bun build.ts --check",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run",
+    "test": "bun --bun vitest run",
     "build": "tsc -b tsconfig.json",
     "figma:script": "bun figma.ts",
     "figma:json": "bun figma.ts --json"

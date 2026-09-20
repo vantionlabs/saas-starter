@@ -5,7 +5,7 @@ import shared from "../../vitest.shared.ts";
 export default mergeConfig(shared, {
   test: {
     name: "ui",
-    environment: "jsdom",
+    environment: "happy-dom",
     /**
      * Testing Library's `screen` queries the one shared document, so concurrent
      * tests would interleave their renders and query each other's markup. The

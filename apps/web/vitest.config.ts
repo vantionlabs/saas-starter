@@ -6,7 +6,7 @@ export default mergeConfig(shared, {
   test: {
     name: "web",
     // Component tests need a DOM; the setup file adds jest-dom matchers.
-    environment: "jsdom",
+    environment: "happy-dom",
     // Testing Library's `screen` queries the one shared document, so concurrent
     // tests would interleave their renders and query each other's markup. The
     // shared config turns concurrency on; component tests must opt out.

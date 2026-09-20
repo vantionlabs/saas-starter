@@ -7,7 +7,7 @@
   "scripts": {
     "evals": "bun run.ts",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run"
+    "test": "bun --bun vitest run"
   },
   "dependencies": {
     "@effect/platform-bun": "catalog:",

@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "start": "bun .output/server/index.mjs",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run",
+    "test": "bun --bun vitest run",
     "bundle": "vite build"
   },
   "dependencies": {
@@ -31,10 +31,10 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "jsdom": "catalog:",
+    "happy-dom": "catalog:",
+    "nitro": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "nitro": "catalog:"
+    "vitest": "catalog:"
   }
 }

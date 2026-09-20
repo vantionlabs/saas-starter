@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run"
+    "test": "bun --bun vitest run"
   },
   "dependencies": {
     "@tanstack/react-router": "catalog:",
@@ -27,16 +27,16 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
     "@tailwindcss/vite": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "happy-dom": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "@effect/vitest": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
-    "@testing-library/react": "catalog:",
-    "jsdom": "catalog:",
     "vitest": "catalog:"
   }
 }

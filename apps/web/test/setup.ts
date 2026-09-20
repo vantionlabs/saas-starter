@@ -6,7 +6,7 @@ import { afterEach } from "vitest";
 addEqualityTesters();
 
 /**
- * Two things jsdom does not implement that cmdk uses to keep its list sized and
+ * Two things happy-dom does not implement that cmdk uses to keep its list sized and
  * its selection visible. No-ops are enough — nothing here asserts on measured
  * layout or scroll position, and the alternative is not being able to test the
  * command palette at all.

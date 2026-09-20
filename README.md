@@ -606,11 +606,13 @@ read the real signature there instead of trusting recall, including your own.
 under Bun through `@effect/platform-bun`, and every script in `scripts/`, `tooling/`,
 `e2e/` and `evals/` is a `.ts` file Bun executes directly. `.bun-version` pins it.
 
-Node is still required, for one reason: **vitest is a Node program** and does not survive
-the Bun runtime. Vite, Playwright and Metro are Node programs too — Bun invokes them and
-Node runs them. `.nvmrc` pins that side. A repository claiming to be pure Bun while
-shipping a `setup-node` step in its CI would be telling you something untrue, so this says
-it instead.
+The tests run in Bun as well — `bun --bun vitest run`. That needed the DOM environment to
+be `happy-dom` rather than jsdom, whose `EventTarget` is what actually breaks under Bun.
+
+Node is still installed, because Vite, Playwright and Metro are Node programs that Bun
+invokes rather than replaces, and `.nvmrc` pins that side. A repository claiming to be pure
+Bun while shipping a `setup-node` step in its CI would be telling you something untrue, so
+this says it instead.
 
 ## Status
 

@@ -6,7 +6,7 @@ export default mergeConfig(shared, {
   test: {
     name: "mobile",
     /**
-     * Node, not jsdom: what is tested here is the logic a screen leans on —
+     * Node, not a DOM: what is tested here is the logic a screen leans on —
      * the theme conversion, the formatting — rather than the screens. Rendering
      * React Native needs a native runtime or a renderer that fakes one, and a
      * test against a fake renderer proves less than the type-checker already

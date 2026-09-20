@@ -10,7 +10,7 @@
     "android": "expo start --android",
     "build": "expo export --platform ios --output-dir build",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run"
+    "test": "bun --bun vitest run"
   },
   "dependencies": {
     "@better-auth/expo": "catalog:",

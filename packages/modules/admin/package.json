@@ -14,7 +14,7 @@
   },
   "scripts": {
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run",
+    "test": "bun --bun vitest run",
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {

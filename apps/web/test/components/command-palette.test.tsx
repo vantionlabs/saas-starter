@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 
 /**
  * A router is needed for `useNavigate`. The contacts group is absent here because
- * its atom cannot reach `/rpc` in jsdom, which is the point of the `isSuccess`
+ * its atom cannot reach `/rpc` in the test DOM, which is the point of the `isSuccess`
  * guard around it — what is asserted below is the part that must work with no
  * data at all: the keybinding, and every page the sidebar offers.
  */

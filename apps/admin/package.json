@@ -12,7 +12,7 @@
     "dev": "vite dev",
     "build": "tsc -b tsconfig.json && bun run bundle",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run",
+    "test": "bun --bun vitest run",
     "start": "bun .output/server/index.mjs",
     "bundle": "vite build"
   },

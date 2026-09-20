@@ -16,7 +16,7 @@
     "check": "tsc -b tsconfig.json",
     "build": "tsc -b tsconfig.json && bun run bundle",
     "migrate": "bun --conditions=development --env-file=../../.env src/bin/migrate.ts",
-    "test": "vitest run",
+    "test": "bun --bun vitest run",
     "bundle": "vite build && cp -R src/migrations build/bundle/migrations"
   },
   "dependencies": {

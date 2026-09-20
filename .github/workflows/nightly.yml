@@ -37,12 +37,10 @@ jobs:
         with:
           bun-version-file: .bun-version
 
-      # bun runs everything this repository wrote. Node is here for one reason:
-      # **vitest is a Node program**, and it does not survive the Bun runtime —
-      # `bun --bun vitest run` dies with "Worker exited unexpectedly" whatever
-      # the pool, on this many projects. Vite, Playwright and Metro are Node
-      # programs too; bun invokes them, Node executes them. Pinned rather than
-      # taken from the runner, so a test failure is never the runner's version.
+      # Node is still installed by the runner and Vite, Playwright and Metro
+      # are Node programs, but **the tests run in Bun** — `bun --bun vitest`.
+      # That needed one change: the DOM environment is `happy-dom`, because
+      # jsdom's `EventTarget` is what actually broke under Bun, not vitest.
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
