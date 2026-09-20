@@ -9,12 +9,12 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "dev": "vite dev",
+    "dev": "bun --bun vite dev",
     "build": "tsc -b tsconfig.json && bun run bundle",
     "check": "tsc -b tsconfig.json",
     "test": "bun --bun vitest run",
     "start": "bun .output/server/index.mjs",
-    "bundle": "vite build"
+    "bundle": "bun --bun vite build"
   },
   "dependencies": {
     "@effect/atom-react": "catalog:",

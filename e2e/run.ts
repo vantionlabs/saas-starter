@@ -37,7 +37,7 @@ const command = Command.make(
     let status = 1;
 
     try {
-      status = spawn("bunx", ["playwright", "test", ...playwright]);
+      status = spawn("bun", ["--bun", "x", "playwright", "test", ...playwright]);
     } finally {
       spawn("bun", ["stop-db.ts"]);
     }

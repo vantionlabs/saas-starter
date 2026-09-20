@@ -5,10 +5,10 @@
   "main": "expo-router/entry",
   "license": "MIT",
   "scripts": {
-    "dev": "expo start",
-    "ios": "expo start --ios",
-    "android": "expo start --android",
-    "build": "expo export --platform ios --output-dir build",
+    "dev": "bun --bun expo start",
+    "ios": "bun --bun expo start --ios",
+    "android": "bun --bun expo start --android",
+    "build": "bun --bun expo export --platform ios --output-dir build",
     "check": "tsc -b tsconfig.json",
     "test": "bun --bun vitest run"
   },

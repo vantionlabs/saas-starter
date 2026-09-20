@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "bun --conditions=development --env-file=../../.env src/Main.ts",
-    "build": "tsc -b tsconfig.json && vite build",
+    "build": "tsc -b tsconfig.json && bun --bun vite build",
     "start": "bun build/bundle/main.js",
     "check": "tsc -b tsconfig.json",
     "test": "bun --bun vitest run"

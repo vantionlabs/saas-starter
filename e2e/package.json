@@ -9,9 +9,9 @@
     "test:ui": "bun run.ts --ui",
     "test:headed": "bun run.ts --headed",
     "test:debug": "bun run.ts --debug",
-    "report": "playwright show-report",
-    "install-browsers": "playwright install chromium",
-    "install-browsers:ci": "playwright install --with-deps chromium"
+    "report": "bun --bun playwright show-report",
+    "install-browsers": "bun --bun playwright install chromium",
+    "install-browsers:ci": "bun --bun playwright install --with-deps chromium"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

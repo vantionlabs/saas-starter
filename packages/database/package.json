@@ -17,7 +17,7 @@
     "build": "tsc -b tsconfig.json && bun run bundle",
     "migrate": "bun --conditions=development --env-file=../../.env src/bin/migrate.ts",
     "test": "bun --bun vitest run",
-    "bundle": "vite build && cp -R src/migrations build/bundle/migrations"
+    "bundle": "bun --bun vite build && cp -R src/migrations build/bundle/migrations"
   },
   "dependencies": {
     "@effect/sql-pg": "catalog:",

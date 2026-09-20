@@ -37,14 +37,6 @@ jobs:
         with:
           bun-version-file: .bun-version
 
-      # Node is still installed by the runner and Vite, Playwright and Metro
-      # are Node programs, but **the tests run in Bun** — `bun --bun vitest`.
-      # That needed one change: the DOM environment is `happy-dom`, because
-      # jsdom's `EventTarget` is what actually broke under Bun, not vitest.
-      - uses: actions/setup-node@v5
-        with:
-          node-version-file: .nvmrc
-
 
       - run: bun install --frozen-lockfile
 

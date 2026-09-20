@@ -606,13 +606,14 @@ read the real signature there instead of trusting recall, including your own.
 under Bun through `@effect/platform-bun`, and every script in `scripts/`, `tooling/`,
 `e2e/` and `evals/` is a `.ts` file Bun executes directly. `.bun-version` pins it.
 
-The tests run in Bun as well — `bun --bun vitest run`. That needed the DOM environment to
-be `happy-dom` rather than jsdom, whose `EventTarget` is what actually breaks under Bun.
+Everything runs in Bun, including the tools. Every `vite`, `expo`, `playwright` and
+`vitest` invocation is prefixed `bun --bun`, which forces the Bun runtime rather than
+letting a `#!/usr/bin/env node` shebang hand the process to Node. There is no `.nvmrc` and
+CI installs no Node.
 
-Node is still installed, because Vite, Playwright and Metro are Node programs that Bun
-invokes rather than replaces, and `.nvmrc` pins that side. A repository claiming to be pure
-Bun while shipping a `setup-node` step in its CI would be telling you something untrue, so
-this says it instead.
+Two things had to change for that. The test DOM is `happy-dom` rather than jsdom, whose
+`EventTarget` is what actually breaks under Bun — not vitest, which was blamed first. And
+the tool invocations are explicit about the runtime, since a shebang otherwise wins.
 
 ## Status
 

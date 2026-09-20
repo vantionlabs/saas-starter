@@ -5,12 +5,12 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "bun --bun vite dev",
     "build": "tsc -b tsconfig.json && bun run bundle",
-    "preview": "vite preview",
+    "preview": "bun --bun vite preview",
     "check": "tsc -b tsconfig.json",
     "test": "bun --bun vitest run",
-    "bundle": "vite build && vite build --ssr src/render.tsx --outDir .ssr && bun prerender.ts"
+    "bundle": "bun --bun vite build && bun --bun vite build --ssr src/render.tsx --outDir .ssr && bun prerender.ts"
   },
   "dependencies": {
     "@effect/platform-bun": "catalog:",

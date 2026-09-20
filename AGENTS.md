@@ -805,17 +805,25 @@ through `@effect/platform-bun`; every `.ts` in `scripts/`, `tooling/`, `e2e/` an
 is executed directly with no transpile step in front of it. `.bun-version` pins the
 version, and it is the file CI reads.
 
-**The tests run in Bun too** — `bun --bun vitest run`, which is what every `test` script
-says. The first attempt at this concluded vitest could not: it died with
-`Worker exited unexpectedly` whatever the pool. That conclusion was wrong, and the way it
-was wrong is worth keeping. Bisecting by project put the crash in exactly one place —
-**jsdom**, whose `EventTarget` breaks under Bun inside vitest's `catchWindowErrors`.
-Switching the DOM environment to `happy-dom` fixes it, and all 502 tests run in the Bun
-runtime. A whole tool was blamed for one dependency's incompatibility because the failure
-was read at the top of the stack instead of bisected.
+**Everything runs in Bun, including the tools.** Every `vite`, `expo`, `playwright` and
+`vitest` invocation is prefixed `bun --bun`, which forces the Bun runtime rather than
+letting a `#!/usr/bin/env node` shebang hand the process to Node. `.nvmrc` is gone and CI
+installs no Node at all.
 
-**Node is still installed**, because Vite, Playwright and Metro are Node programs and bun
-invokes rather than replaces them. `.nvmrc` pins that side and CI installs both.
+Getting there took two corrections worth keeping, because both were the same mistake.
+
+The first attempt concluded **vitest could not run in Bun**: it died with
+`Worker exited unexpectedly` whatever the pool. Bisecting by project put the crash in
+exactly one place — **jsdom**, whose `EventTarget` breaks under Bun inside vitest's
+`catchWindowErrors`. The DOM environment is `happy-dom` now and all 502 tests run in Bun.
+
+The second was assuming **Playwright and Vite had to stay on Node** because they are Node
+programs. They are, and `bun --bun` runs them anyway: 67 browser tests, six image builds
+and the Expo bundle all pass under it.
+
+Both times a whole tool was written off for one dependency's incompatibility, because the
+failure was read at the top of the stack instead of bisected. That is the note, rather
+than a quiet correction.
 
 One consequence is worth knowing before writing a test. `@effect/platform-bun` reaches for
 the `bun` built-in module, so it can only be imported where the Bun runtime is — which is

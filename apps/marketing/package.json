@@ -5,13 +5,13 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "bun --bun vite dev",
     "build": "tsc -b tsconfig.json && bun run bundle",
-    "preview": "vite preview",
+    "preview": "bun --bun vite preview",
     "start": "bun .output/server/index.mjs",
     "check": "tsc -b tsconfig.json",
     "test": "bun --bun vitest run",
-    "bundle": "vite build"
+    "bundle": "bun --bun vite build"
   },
   "dependencies": {
     "@vantion/module-iam": "workspace:*",

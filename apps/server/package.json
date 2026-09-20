@@ -20,7 +20,7 @@
     "start": "bun build/bundle/main.js",
     "check": "tsc -b tsconfig.json",
     "test": "bun --bun vitest run",
-    "bundle": "vite build"
+    "bundle": "bun --bun vite build"
   },
   "dependencies": {
     "@effect/platform-bun": "catalog:",
