@@ -14,14 +14,13 @@
 <p align="center">
   <a href="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vantionlabs/saas-starter/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/licence-MIT-f4f4f6?style=flat-square" /></a>
-  <img alt="380 unit tests" src="https://img.shields.io/badge/tests-380-2EAD33?style=flat-square" />
-  <img alt="45 browser tests" src="https://img.shields.io/badge/browser-45-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+  <img alt="518 unit tests" src="https://img.shields.io/badge/tests-518-2EAD33?style=flat-square" />
+  <img alt="67 browser tests" src="https://img.shields.io/badge/browser-67-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
 </p>
 
 <p align="center">
   <img alt="Effect 4" src="https://img.shields.io/badge/Effect_4-2233f0?style=flat-square" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
-  <img alt="Node 22" src="https://img.shields.io/badge/Node_22-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
   <img alt="Bun" src="https://img.shields.io/badge/Bun-000000?style=flat-square&logo=bun&logoColor=white" />
   <img alt="Postgres" src="https://img.shields.io/badge/Postgres-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
   <img alt="Redis" src="https://img.shields.io/badge/Redis-FF4438?style=flat-square&logo=redis&logoColor=white" />
@@ -52,11 +51,38 @@ because on an AI-native team that is what decides how fast the codebase moves.
 
 The product half is a multi-tenant B2B SaaS that deploys today: sign-in,
 organizations, roles, tenant isolation proven twice, an audit trail, billing, a
-public API, background jobs, outbound webhooks. The method half sits beside it in
-`.claude/` and `docs/workflow/`: hooks that keep an agent honest, commands that
-drive each phase, and the process both exist for.
+public API, background jobs, outbound webhooks, SSO and directory provisioning.
+The method half sits beside it in `.agents/` and `docs/workflow/`: skills that
+carry the rules, subagents that review what a compiler cannot, hooks that keep an
+agent honest, and commands that drive each phase.
 
 Both are MIT. Nothing is held back for a paid tier.
+
+## Who this is for
+
+**Software engineers** who want the parts that are tedious and easy to get subtly
+wrong — tenancy, billing, auth, jobs, webhooks — already built, already tested,
+and explained well enough to change rather than work around.
+
+**Design engineers**, and this is the half most starters have nothing for.
+`apps/design` renders every screen, the marketing site and the brand kit from the
+same components the product ships, against three personas — a first day where
+every list is empty, an ordinary tenant, and a crowded one whose long names break
+layouts. No backend, no session, no network. Tokens are one TypeScript file that
+the stylesheet, the native app, the emails and Figma all read, so a colour changes
+in one place. You can work on the real thing without running the real thing.
+
+**Founders and solo builders** who need a product rather than a stack, and would
+rather spend the first month on what makes theirs different.
+
+**Anyone driving agents through a real codebase.** The rules an agent has to know
+are written down as skills rather than rediscovered each session, the hooks refuse
+what the repository forbids, and the vendored Effect source under `repos/` means
+an agent reads real signatures instead of inventing them.
+
+It assumes TypeScript. It does **not** assume you know Effect — `docs/` and the
+skills exist because most people arrive not knowing it, and the worked examples
+are there to be copied.
 
 ## What's in it
 
@@ -398,41 +424,177 @@ point per process catches what remains.
 
 ## Getting started
 
-**If you have an older clone**, `docker compose down -v` once before the step
-below. The Postgres container now bootstraps as `postgres` and provisions the
-application's role separately, and the script that does it only runs when the
-volume is first created.
+Six stages, in order. Each one ends somewhere you can stop, and nothing later
+depends on you having read the prose in between.
 
-You need Bun 1.4+ and Postgres. (`docker compose up -d` gives you the
-database if you would rather not run one.) A Nix flake is included but optional.
+Everything below works with **no accounts anywhere**. Stripe, Resend, S3, Sentry,
+Redis and a model provider are all optional, and each degrades to something
+honest rather than refusing to start — that is a rule the repository enforces on
+itself, not a demo mode.
+
+### 1 · Running
+
+You need **Bun 1.4+** and Postgres. `docker compose up -d` gives you Postgres,
+Redis and Jaeger if you would rather not run them yourself. A Nix flake is
+included and optional.
 
 ```bash
 bun install
 cp .env.example .env
 ```
 
-Fill in `AUTH_SECRET` — `openssl rand -base64 32` — and point `DATABASE_URL` at
-your database. Everything else has a working local default.
-
-Apply the schema — the migration runner reads the same `.env` — then start both
-servers:
+Fill in one value — `AUTH_SECRET`, from `openssl rand -base64 32` — and point
+`DATABASE_URL` at your database. Everything else has a working local default.
 
 ```bash
-bun run --filter @vantion/database migrate
+bun run services      # postgres, redis, jaeger
+bun run db:migrate
+bun run dev           # API :3000, web :5173, worker
 ```
+
+> **An older clone?** `docker compose down -v` once first. The Postgres container
+> now bootstraps as `postgres` and provisions the application's role separately,
+> and the script that does it only runs when the volume is first created.
+
+### 2 · Seeing the product
+
+Sign up at `http://localhost:5173` with any email and password. Nothing blocks
+sign-in on verification, so you land straight in your own organization and the
+setup wizard.
+
+Then fill it with something worth clicking through:
+
+```bash
+bun run seed
+```
+
+Three organizations mirroring the design personas, with contacts, members,
+custom roles, API keys, an audit trail, files, a subscription, webhook endpoints
+and a deliberately stuck outbox. Everyone's password is `seedpassword`, and
+`staff@vantion.co` is staff, so `bun run admin` opens the cross-tenant panel
+without a SQL prompt.
+
+An empty application proves nothing: every list is its empty state, no screen is
+seen under load, and the admin panel has no tenant to open. The seed is what
+found a real hydration bug that only appeared with data in it.
+
+**Mail needs no setup.** Without `RESEND_API_KEY` the mailer writes each message
+to the server log, so a magic link is a link you can follow out of your terminal
+and every auth flow works on a fresh clone.
+
+### 3 · The design surface
+
+```bash
+bun run design
+```
+
+Every product screen, the marketing site and the brand kit, rendered from the
+same `@vantion/ui` components the real apps use — with no backend, no session and
+no network. The persona travels in the query string, so you can link somebody to
+exactly the state you mean: `?persona=crowded` is the one with long names and two
+dozen rows, which is the state that actually breaks a layout.
+
+Design decisions live in three places, and which one a change belongs in is the
+whole discipline:
+
+| Change                         | Where                                                                                                      |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| A colour, a radius, a duration | `packages/tokens/src/tokens.ts` — one source; the stylesheet, NativeWind, the emails and Figma all read it |
+| How a component looks anywhere | `packages/ui/src/`                                                                                         |
+| What one screen shows          | the route in `apps/web`, or the screen in `apps/design`                                                    |
+
+A one-off colour hardcoded in a route is the failure this arrangement exists to
+prevent. `bun run brand` renders the brand kit, and every swatch on it is
+generated — a brand document maintained by hand is out of date the first time
+somebody changes a colour, and then it is worse than nothing because people still
+believe it.
+
+`docs/figma.md` covers the round trip. It needs a Figma seat that can write, and
+says so rather than letting you find out.
+
+### 4 · The backend
+
+`apps/server/src` is three files. That is the measure of whether this is working:
+an application composes modules and owns almost nothing itself.
+
+A feature is a **module** — `packages/modules/<name>` — that owns its whole
+vertical: the contract both ends compile against, the RPC handlers, the stores,
+and the services behind them. `contact` is the worked example and is meant to be
+read end to end, then deleted.
+
+Two properties hold everything else up, and both are worth ten minutes before you
+write a query:
+
+- **Tenant isolation is enforced twice** — a row-level security policy in
+  Postgres _and_ `withOrgScope` around the query. Neither is trusted alone. The
+  application connects as a role that cannot bypass row-level security, so a
+  handler that forgets the scope reads **nothing** rather than reading everybody.
+- **A GET renders on the server; a write happens on the client.** A read a route
+  can name is a route loader that hydrates the atom the screen already uses. No
+  skeletons, one query, and `apps/mobile` renders the same atom with no server at
+  all.
+
+`.agents/skills/effect-sql-rls/SKILL.md` and
+`.agents/skills/tanstack-start-ssr/SKILL.md` are those two written out for an
+agent, and they are the fastest way for a person to learn them too.
+
+### 5 · Your first feature
+
+```bash
+bun run new:module billing-reports
+```
+
+That writes the package, registers it where the compiler has to be told, and
+leaves you two deliberate steps it prints: adding the group to `AppRpcs` and
+registering the module in `Main.ts`. What an application serves is a decision,
+not a side effect of creating a directory.
+
+Then the loop:
 
 ```bash
 bun run dev
+bun run preflight     # format, check, lint, hygiene, test
+bun run gate          # preflight + the browser suite
 ```
 
-The API is on `http://localhost:3000` and the front end on
-`http://localhost:5173`. Sign up with an email and password — nothing blocks
-sign-in on verification, so you are straight in with your own organization.
+`gate` is the bar a slice passes before it is called done. `preflight` is the
+inner loop and deliberately does not start a Postgres container and two servers,
+because the command typed twenty times a day should not cost what the one typed
+twice a day does.
 
-Email needs no setup to try. Without `RESEND_API_KEY`, the mailer writes each
-message to the server log instead of sending it, so a magic link is a link you
-can follow out of your terminal, and every auth flow works on a fresh clone.
-Set the key when you want mail to actually leave.
+If you are driving an agent, the skills in `.agents/skills` are already loaded and
+the hooks already refuse what the repository forbids. `docs/workflow/` is the four
+phases — discover, prototype, build, ship — and `/product-build` takes the topmost
+slice of `SPEC.md` that is not landed, rather than whatever the conversation
+suggests.
+
+### 6 · Shipping
+
+```bash
+bun run build:images       # all six, ~30s each
+railway config plan        # the diff, before anything changes
+railway config apply
+```
+
+`.railway/railway.ts` describes the whole project — Postgres, Redis, three
+services, their variables and health checks — so a deployment is reviewable the
+way a pull request is. Two lines change on a fork.
+
+Two things to read before the first deploy rather than after:
+`docs/railway-previews.md` on per-PR environments and the one thing that does not
+work in them, and the **Deploying** section below on why `AUTH_COOKIE_DOMAIN`
+decides whether you can split the two services across subdomains at all.
+
+### Where to go next
+
+| You want                          | Read                                                            |
+| --------------------------------- | --------------------------------------------------------------- |
+| The whole architecture, in detail | `AGENTS.md` — long, and the most useful file here               |
+| The rules, hard                   | `RULES.md`                                                      |
+| Auth, SSO, directory sync         | `docs/sso.md`, `docs/scim.md`                                   |
+| The AI slice and its evals        | `docs/evals.md`, `docs/mcp.md`                                  |
+| The design round trip             | `docs/figma.md`                                                 |
+| Mobile                            | `docs/mobile.md` — it bundles, and has not run on a device here |
 
 ## Making it yours
 
@@ -647,9 +809,17 @@ says so rather than leaving you to find out.
 What is missing, in the order it is likely to land. All of it is tracked in the
 open, and none of it is waiting behind a paid tier.
 
-|          | What              | Why it is not here yet                                                                       |
-| -------- | ----------------- | -------------------------------------------------------------------------------------------- |
-| **Next** | SCIM provisioning | The enterprise ask after SSO: directory-driven joiners and leavers, rather than invitations. |
+|           | What                   | Why it is not here yet                                                                                                                   |
+| --------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Next**  | A design pass          | Every prerequisite is in — tokens, motion, the component library, three surfaces on one canvas. The design itself has not been done.     |
+| **Then**  | `apps/docs`            | A docs site built before the design is settled gets redesigned twice.                                                                    |
+| **Later** | Webhook secret overlap | Rotating invalidates the old secret at once. Two live secrets is a second column and a second `v1=`; `docs/webhooks.md` says so plainly. |
+| **Later** | i18n                   | Listed below as a deliberate absence, and it stays one until somebody needs it.                                                          |
+
+**Shipped since this table was last wrong:** SSO, SCIM provisioning, outbound
+webhook management, usage against plan limits, onboarding, and the move to Bun.
+A roadmap that still advertises what it ships is the commonest stale thing in a
+README, so this one is checked when a slice lands.
 
 ## What it deliberately does not do
 
