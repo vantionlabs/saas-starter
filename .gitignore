@@ -21,7 +21,7 @@ result-*
 .claude/settings.local.json
 .claude/worktrees/
 # Skill launchers fetch a platform binary on first use; it is not ours to commit.
-.claude/skills/*/scripts/bin/
+.agents/skills/*/scripts/bin/
 .context/
 .zed/
 .DS_Store

@@ -27,6 +27,9 @@
     "RULES.md",
     "**/dist",
     "**/routeTree.gen.ts",
+    ".codex",
+    ".cursor",
+    ".agents/skills/impeccable",
     "repos"
   ],
   "plugins": [

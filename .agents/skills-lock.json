@@ -1,0 +1,90 @@
+{
+  "$comment": "Every skill under .agents/skills, where it came from, and what it hashed to when vendored. `bun run skills:check` fails when a vendored skill and this file disagree; `tooling/test/skills.test.ts` runs the same check in `bun run test`. Written rather than generated so a reviewer sees the provenance in the diff.",
+  "skills": {
+    "impeccable": {
+      "origin": "vendored",
+      "url": "https://github.com/pbakaus/impeccable",
+      "version": "4.3.1",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/skills/impeccable/LICENSE",
+      "why": "The design method the prototype phase drives. Vendored rather than installed so a fresh clone has it offline, which is the whole argument of shipping the method with the code."
+    },
+    "brand-review": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills. Go-to-market work in the discover and ship phases."
+    },
+    "campaign-plan": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
+    },
+    "competitive-brief": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
+    },
+    "content-creation": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
+    },
+    "draft-content": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
+    },
+    "email-sequence": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
+    },
+    "performance-report": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
+    },
+    "seo-audit": {
+      "origin": "vendored",
+      "url": "https://github.com/anthropics/marketing-skills",
+      "license": "Apache-2.0",
+      "licenseFile": ".agents/marketing/LICENSE",
+      "why": "marketing-skills."
+    },
+
+    "product-development": {
+      "origin": "first-party",
+      "why": "The four-phase method as a skill: discover, prototype, build, ship."
+    },
+    "better-auth": {
+      "origin": "first-party",
+      "why": "Which checks belong to better-auth and which to our policies. The traps here are the most expensive in the repository."
+    },
+    "effect-sql-rls": {
+      "origin": "first-party",
+      "why": "withOrgScope, the two database roles, and the shape a policy has to take. Tenancy is the one guarantee a wrong edit breaks silently."
+    },
+    "tanstack-start-ssr": {
+      "origin": "first-party",
+      "why": "The SSR boundary and the three hydration traps that each shipped once."
+    },
+    "effect-form-e2e": {
+      "origin": "first-party",
+      "why": "Forms bound to contract field schemas, and the browser harness's rules."
+    }
+  }
+}

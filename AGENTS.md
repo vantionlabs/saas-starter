@@ -886,6 +886,39 @@ isolation here depends on `set_config('app.current_org', …)` holding for the q
 follow it on the same pooled connection. That is exactly where automatic statement caching
 goes subtly wrong, and the failure mode is one tenant reading another's rows.
 
+## One skills directory, three agents reading it
+
+Skills live in **`.agents/skills`**. `.claude/skills` is a symlink to it, and
+`.cursor/rules/*.mdc` and `.codex/SKILLS.md` are **generated** from it by `bun run
+agents`. A skill is prose about _this_ repository; which agent reads it is not the skill's
+business, and a per-tool copy is the failure this layout exists to avoid — two directories
+of prose about the same code, one of which is quietly older and says nothing about it.
+
+The generated views are **pointers, not copies**, for the same reason. A Cursor rule that
+inlined a skill would be a second copy that keeps being loaded after it goes stale.
+
+Nine skills are vendored — impeccable and the eight marketing ones, both Apache-2.0 — and
+five are this repository's own: `product-development` is the method, and `better-auth`,
+`effect-sql-rls`, `tanstack-start-ssr` and `effect-form-e2e` are the four areas where a
+wrong edit is expensive and the reason is not visible from the code.
+
+**`.agents/skills-lock.json` is the provenance**, written by hand rather than generated so
+a reviewer sees it in the diff: where each skill came from, its licence, and the file that
+licence lives in. `tooling/test/skills.test.ts` fails when a skill is present and unlocked,
+when a lock entry has no skill behind it, when a vendored entry names a licence file that
+is not there, when a description is too thin for an agent to route on, when `.claude/skills`
+stops being a symlink, and when the generated views drift — including an orphaned rule left
+behind by a deleted skill, which Cursor would otherwise keep loading.
+
+It replaces a claim in `NOTICE` that was simply false: that the skills were "pinned in
+package.json", where no such pin existed.
+
+**`PRODUCT.md` and `DESIGN.md` are deliberately absent.** impeccable's `init` and
+`document` write them, from a conversation about a product this template does not have.
+Shipping a filled-in pair would hand every generated repository somebody else's answers to
+questions only its own team can answer — the same reason `SPEC.md` exists here only as
+`SPEC.md.example`.
+
 ## Hygiene, and what each tool is actually for
 
 `bun run hygiene` is knip, syncpack and secretlint, and CI runs the same command rather than three
@@ -953,6 +986,7 @@ nightly matrix for the rest.
 | `bun run test`                                  | vitest across `apps/*` and `packages/*`                            |
 | `bun run e2e`                                   | Playwright, driving both servers in a browser                      |
 | `bun run new:module <name>`                     | scaffolds `packages/modules/<name>` and registers it               |
+| `bun run agents`                                | regenerates `.cursor/rules` and `.codex` from `.agents/skills`     |
 | `bun run design`                                | the product-design app, on persona fixtures                        |
 | `bun run --filter @vantion/tokens figma:script` | the Figma variable sync, printed                                   |
 | `bun run services`                              | Postgres, Redis and Jaeger, via `docker compose`                   |

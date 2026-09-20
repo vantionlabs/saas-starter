@@ -305,7 +305,7 @@ first hour, taking the working ones with it.
 
 ### Skills
 
-`.claude/skills/product-development` is the method as a skill: the four phases,
+`.agents/skills/product-development` is the method as a skill: the four phases,
 their gates, and what to cut first when the list will not fit.
 
 Two third-party skill sets are vendored beside it rather than named in a
@@ -319,7 +319,7 @@ halves of the work as well as the engineering one:
 
 Both are Apache-2.0 and unmodified except for one link path; [NOTICE](NOTICE)
 records them. `impeccable`'s launcher fetches its own binary on first use, which
-is why `.claude/skills/*/scripts/bin/` is gitignored rather than committed.
+is why `.agents/skills/*/scripts/bin/` is gitignored rather than committed.
 
 `.claude-plugin/` publishes the commands and the repo's own skill, so the
 workflow can be taken **without** taking the starter:
@@ -513,6 +513,7 @@ it.
 | `bun run brand`                   | the brand kit, generated from the tokens            |
 | `bun run mobile`                  | the Expo app, against the same API                  |
 | `bun run new:module <name>`       | scaffold a feature package and register it          |
+| `bun run agents`                  | regenerate `.cursor/rules` and `.codex` from skills |
 | `bun run build`                   | deployable artifacts for every package              |
 | `bun run check`                   | `tsc -b` across all project references              |
 | `bun run lint`                    | oxlint, including Effect type-aware and local rules |

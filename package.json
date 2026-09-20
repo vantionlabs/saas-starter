@@ -49,7 +49,9 @@
     "hygiene": "bun run knip && bun run deps:check && bun run secrets",
     "new:module": "bun tooling/new-module.ts",
     "vendor": "bun scripts/vendor.ts",
-    "sync:skills": "bun scripts/sync-effect-skills.ts"
+    "sync:skills": "bun scripts/sync-effect-skills.ts",
+    "agents": "bun tooling/agents.ts",
+    "skills:check": "bun tooling/agents.ts --check"
   },
   "devDependencies": {
     "@effect/tsgo": "0.36.5",

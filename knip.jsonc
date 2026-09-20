@@ -5,6 +5,14 @@
     // it is not ours to do.
     "repos/**",
     // A vendored third-party skill. Ours to install and read, not to audit.
+    ".agents/skills/impeccable/**",
+    /**
+     * The same directory again, by the name a symlink gives it.
+     *
+     * `.claude/skills` points at `.agents/skills`, and tools that walk the tree follow
+     * it — oxlint did, and started linting eleven thousand lines of somebody else's
+     * bundled browser script. Ignoring one spelling is ignoring half of it.
+     */
     ".claude/skills/impeccable/**",
   ],
   // Knip *executes* a config file to read its plugin options, and these two
