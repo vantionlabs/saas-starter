@@ -13,6 +13,9 @@ absent, and one of them is a security property rather than a performance one.
 The outbox is transactional either way — that lives in Postgres and is not
 Redis's business. What Redis adds is delivery and shared counting.
 
+Which queue library does the delivering is the replaceable half, and
+[`docs/jobs.md`](./jobs.md) records why it is still BullMQ.
+
 ## The rate limit is the one that matters
 
 `AuthHttp.ts` says it plainly: throttling _is_ the security boundary on the OTP
