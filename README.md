@@ -7,8 +7,8 @@
 <h1 align="center">SaaS starter</h1>
 
 <p align="center">
-  <b>The agentic engineering workflow, with the product already built.</b><br />
-  A multi-tenant B2B SaaS you can deploy today — and the skills, hooks, commands and workflow that take a team from a written idea to a product in production.
+  <b>For AI-forward software and design engineers who ship in days and still have to pass a security review.</b><br />
+  A multi-tenant B2B SaaS that deploys today, and the skills, subagents, hooks and workflow that drive an agent through it safely.
 </p>
 
 <p align="center">
@@ -46,39 +46,58 @@
 
 ---
 
-Most starters give you a codebase. This one also gives you the way of working,
-because on an AI-native team that is what decides how fast the codebase moves.
+An agent can write a tenant-scoped query in seconds. It can also write one that
+misses `withOrgScope`, and that one reads every customer's rows — compiles,
+passes review, and is a breach.
 
-The product half is a multi-tenant B2B SaaS that deploys today: sign-in,
-organizations, roles, tenant isolation proven twice, an audit trail, billing, a
-public API, background jobs, outbound webhooks, SSO and directory provisioning.
-The method half sits beside it in `.agents/` and `docs/workflow/`: skills that
-carry the rules, subagents that review what a compiler cannot, hooks that keep an
-agent honest, and commands that drive each phase.
+**That gap is what this repository is about.** Generating code quickly is the
+part that already works. Handing the result to a security review is not, and
+being careful is not what fixes it: what fixes it is making the dangerous thing
+hard to do and the safe thing the path of least resistance.
+
+Here that means the application connects as a Postgres role that **cannot**
+bypass row-level security, so a forgotten scope reads nothing rather than
+everything. A `tenancy-review` subagent has to name the request that would
+exploit each finding it reports. Hooks refuse a commit that breaks the rules,
+the gate a slice passes includes browser tests, and the Effect source is
+vendored under `repos/` so an agent reads real signatures instead of inventing
+them.
+
+The product half deploys today: sign-in, organizations, roles, tenant isolation
+proven twice, an audit trail, billing, a public API, background jobs, outbound
+webhooks, SSO and directory provisioning. The method half sits beside it in
+`.agents/` and `docs/workflow/` — skills carrying the rules, subagents reviewing
+what a compiler cannot, and commands driving each phase.
+
+**Scalable here is structural, not a benchmark.** One handler is served four
+ways — RPC, a versioned public API, an agent toolkit and an MCP server — and
+never written twice. Background work goes through a transactional outbox, so a
+job cannot fire for a write that rolled back. A feature is a module you can
+delete in one commit.
 
 Both are MIT. Nothing is held back for a paid tier.
 
 ## Who this is for
 
-**Software engineers** who want the parts that are tedious and easy to get subtly
-wrong — tenancy, billing, auth, jobs, webhooks — already built, already tested,
-and explained well enough to change rather than work around.
+**AI-forward software engineers.** You are already driving agents through real
+code. What slows you down is not generation, it is the review — and the parts
+where a plausible-looking change is expensive: tenancy, billing, auth, jobs,
+webhooks. Those are built, tested, and explained well enough to change rather
+than work around. The rules an agent needs are written as skills instead of
+rediscovered every session.
 
 **Design engineers**, and this is the half most starters have nothing for.
-`apps/design` renders every screen, the marketing site and the brand kit from the
-same components the product ships, against three personas — a first day where
-every list is empty, an ordinary tenant, and a crowded one whose long names break
-layouts. No backend, no session, no network. Tokens are one TypeScript file that
-the stylesheet, the native app, the emails and Figma all read, so a colour changes
-in one place. You can work on the real thing without running the real thing.
+`apps/design` renders every product screen, the marketing site and the brand kit
+from the same components the real apps ship — with no backend, no session and no
+network. Three personas: a first day where every list is empty, an ordinary
+tenant, and a crowded one whose long names break layouts. Tokens are one
+TypeScript file the stylesheet, the native app, the emails and Figma all read, so
+a colour changes in one place. You work on the real thing without running the
+real thing, and `impeccable` — the design skill this repository vendors — is
+wired in along with its four review subagents.
 
 **Founders and solo builders** who need a product rather than a stack, and would
 rather spend the first month on what makes theirs different.
-
-**Anyone driving agents through a real codebase.** The rules an agent has to know
-are written down as skills rather than rediscovered each session, the hooks refuse
-what the repository forbids, and the vendored Effect source under `repos/` means
-an agent reads real signatures instead of inventing them.
 
 It assumes TypeScript. It does **not** assume you know Effect — `docs/` and the
 skills exist because most people arrive not knowing it, and the worked examples
@@ -141,8 +160,8 @@ are there to be copied.
 
 ## Why Effect
 
-Because it is the most agent-legible way to write TypeScript, and on an AI-native
-team that is a throughput argument rather than a taste one.
+Because it is the most agent-legible way to write TypeScript, and on an
+AI-forward team that is a throughput argument rather than a taste one.
 
 **Failures are in the signature.** `Effect<Contact, Forbidden, CurrentUser>` says
 what it returns, how it can fail, and what it needs. An agent cannot quietly
