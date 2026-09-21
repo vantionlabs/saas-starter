@@ -1,0 +1,34 @@
+# Who has to review what.
+#
+# A public template is forked, generated from, and contributed to by people who
+# have never read `RULES.md`. This file is the backstop for the parts where a
+# well-meaning change is expensive: an unreviewed edit to a policy, a hook or a
+# workflow is the one that reaches every repository generated from this one.
+#
+# GitHub only enforces it when the branch rule requires review from code owners.
+# Without that rule it is a suggestion; `docs/contributing-security.md` says how
+# to turn it on.
+
+# Everything, by default.
+*                               @ishakdeveloper
+
+# Tenant isolation. A wrong edit here is a breach rather than a bug, and the
+# failure is silent — see `.agents/agents/tenancy-review.md`.
+/packages/database/src/migrations/  @ishakdeveloper
+/packages/database/src/roles/       @ishakdeveloper
+/packages/database/src/OrgScope.ts  @ishakdeveloper
+/packages/modules/iam/              @ishakdeveloper
+/packages/modules/admin/            @ishakdeveloper
+
+# What runs in CI, with a token, on somebody else's pull request.
+/.github/                       @ishakdeveloper
+
+# What an agent is told, and what the hooks refuse. Changing these changes how
+# every generated repository behaves.
+/.agents/                       @ishakdeveloper
+/.claude/                       @ishakdeveloper
+/AGENTS.md                      @ishakdeveloper
+/RULES.md                       @ishakdeveloper
+
+# Vendored third-party source. Re-vendored with `bun run vendor`, never edited.
+/repos/                         @ishakdeveloper

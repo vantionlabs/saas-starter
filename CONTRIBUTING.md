@@ -39,6 +39,48 @@ new deployment target.
    target — a redundant test bought to move the number is a cost, not a
    contribution.
 
+## How review works
+
+`main` is protected. Everything lands through a pull request that CI has passed,
+and nothing force-pushes.
+
+**CI runs on your fork's pull request with a read-only token and no secrets.**
+That is deliberate and it is what makes a public template safe to accept
+contributions to: every workflow here is triggered by `pull_request`, never
+`pull_request_target`, so nothing you push can read a credential or write to this
+repository. Third-party actions are pinned to commit SHAs rather than tags, for
+the same reason — a tag can be moved, a SHA cannot.
+
+The consequence for you: **CI cannot do anything that needs a key.** If a change
+needs Stripe, Resend, S3 or a model provider to prove itself, say so in the pull
+request and describe what you ran locally, because the green tick will not have
+covered it.
+
+A first-time contributor's workflow run needs a maintainer to approve it. That is
+one click and not a judgement on the change.
+
+## Where a review will be slow
+
+Some paths carry a `CODEOWNERS` entry, and it is not gatekeeping — it is where a
+well-meaning change is expensive in a way the diff does not show:
+
+- **`packages/database/src/migrations/`, `roles/`, `OrgScope.ts`, `modules/iam`,
+  `modules/admin`** — tenant isolation. A wrong edit is a breach, not a bug, and
+  the failure is silent. Expect questions about the policy's `using` _and_
+  `with check`, and about the case in `e2e/tests/tenancy.spec.ts`.
+- **`.github/`** — what runs in CI, with a token, on somebody else's pull
+  request.
+- **`.agents/`, `.claude/`, `AGENTS.md`, `RULES.md`** — what every agent is told
+  and what the hooks refuse. A change here reaches every repository generated
+  from this one.
+- **`repos/`** — vendored upstream source. Never edited by hand; re-vendored with
+  `bun run vendor`.
+
+## Reporting something security-related
+
+Do not open an issue. [SECURITY.md](SECURITY.md) has the address. Anything that
+lets one tenant reach another's data goes there first, always.
+
 ## Commits
 
 Lowercase, concise, no conventional prefixes, no AI attribution. Say what the

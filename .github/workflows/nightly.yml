@@ -24,6 +24,15 @@ on:
   # So it can be proved to work without waiting a day.
   workflow_dispatch:
 
+# The token every job here gets, and nothing more.
+#
+# A public repository runs workflows from forks, and an action is somebody
+# else's code running in this one. With the repository default the token may be
+# writable, and a compromised action could push to `main` or open a release.
+# Nothing in this file writes anything, so it reads.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
@@ -32,8 +41,8 @@ jobs:
   mobile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: .bun-version
 
@@ -60,7 +69,7 @@ jobs:
       matrix:
         app: [server, web, admin, worker, marketing, brand]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       # Built from the repository root, because a workspace package resolves
       # package against the root lockfile and every sibling manifest.
