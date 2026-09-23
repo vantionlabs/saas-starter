@@ -39,13 +39,20 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
          */
         const sql = yield* SqlClient.SqlClient;
 
-        const baseURL = yield* Config.NonEmptyString("AUTH_BASE_URL").pipe(
-          Config.withDefault("http://localhost:3000"),
-        );
-        const secret = yield* Config.Redacted("AUTH_SECRET");
         const webUrl = yield* Config.NonEmptyString("WEB_URL").pipe(
           Config.withDefault("http://localhost:5173"),
         );
+        /**
+         * The origin better-auth is reached through, which builds every link it
+         * sends — magic links, OAuth callbacks, invitations. That is the web
+         * app's origin, not this server's: `apps/web` forwards `/api/auth/*`
+         * here so the session cookie is first-party on the page's own host.
+         * Set it only when the browser does reach this server directly.
+         */
+        const baseURL = yield* Config.NonEmptyString("AUTH_BASE_URL").pipe(
+          Config.withDefault(webUrl),
+        );
+        const secret = yield* Config.Redacted("AUTH_SECRET");
 
         /**
          * What the transactional emails call this product.

@@ -8,9 +8,11 @@ import { getBilling } from "@/server/reads/billing.js";
 import { listScimConnections } from "@/server/reads/scim.js";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { createFileRoute } from "@tanstack/react-router";
+import { apiUrl } from "@vantion/core/ApiUrl";
 import { billingAtom } from "@vantion/core/atoms/Billing";
 import { has } from "@vantion/module-iam/identity/Entitlement";
 import { QueryError } from "@vantion/ui/app/query-error";
+import { useHydrated } from "@vantion/ui/lib/use-hydrated";
 import { ScimPanel } from "@vantion/ui/settings/scim-panel";
 import { Button } from "@vantion/ui/ui/button";
 import {
@@ -28,10 +30,17 @@ import { Copy } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
-/** Where an identity provider posts. The API's public address, not the app's. */
-const apiBaseUrl = import.meta.env.VITE_AUTH_BASE_URL ?? "http://localhost:3000";
-
 const Scim = () => {
+  /**
+   * Where an identity provider posts: this origin, which forwards
+   * `/api/auth/scim/*` to the API like every other auth route.
+   *
+   * Filled in once React is listening, because the server rendering this page
+   * knows its private address and not the one a browser — or an identity
+   * provider — reaches it by; rendering either there would disagree with the
+   * client.
+   */
+  const apiBaseUrl = useHydrated() ? apiUrl() : "";
   const connections = useAtomValue(scimConnectionsAtom);
   const billing = useAtomValue(billingAtom);
   const session = useAtomValue(sessionAtom);

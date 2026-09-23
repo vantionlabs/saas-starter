@@ -369,7 +369,7 @@ behind it at all — the loader only arranges for it to arrive already full.
 
 Three pieces, and the middle one is where the mistake is easy to make.
 `apps/web/src/server/rpc.ts` is the RPC client as the server uses it: the
-browser's client sends `credentials: "include"` and lets the platform attach the
+browser's client posts to its own origin and lets the platform attach the
 session, and there is no platform here, so the cookie is forwarded — **read from
 the request inside `serverRpc`, not passed in**. It was a parameter at every
 call site once, which made the one thing that must never be forgotten into one
@@ -1217,18 +1217,37 @@ carries the migration runner, so a release applies migrations as its own step ra
 The web app builds through Nitro's Vite plugin, which turns Start's fetch handler into
 `.output/server/index.mjs` — a server `node` runs directly, with no host to write.
 
-The browser talks to the API directly. Every auth route and every RPC lives on `apps/server`, so
-`VITE_AUTH_BASE_URL` names it and the web server proxies nothing. That prefix is not decoration:
-Vite only exposes `VITE_` values to the client bundle, and it substitutes them at build time — so
-the variable is a build argument for the web image, not a runtime one, and it must be the API's
-_public_ address because a browser resolves it.
+**The browser talks to one origin: the web app's.** `apps/web` forwards `/api/auth/*`,
+`/api/files/*` and `/rpc` to `apps/server` over the private network (`src/server/proxy.ts`), so
+the session cookie is an ordinary first-party cookie on whatever host served the page. There is
+no cookie domain, no cross-origin request and no API address compiled into the bundle — which is
+what makes sign-in work on a generated `*.up.railway.app` host, in a Railway PR environment, on
+`localhost` and on a custom domain alike, and one web image serve all of them.
 
-The cost of that directness is cookies. Two origins means the session cookie is only sent if the
-browser considers them the same site, which needs both under one parent domain —
-`app.example.com` and `api.example.com`, with `AUTH_COOKIE_DOMAIN=.example.com`. It cannot be a
-public suffix, so two generated `*.up.railway.app` hosts can never share one: splitting the
-services on Railway needs a domain of your own. Sharing a host instead — one origin, a reverse
-proxy in front — works with `AUTH_COOKIE_DOMAIN` left empty.
+It replaced the opposite arrangement, and the reason is worth keeping. The browser used to call
+the API directly, which needed both hosts under one parent domain and `AUTH_COOKIE_DOMAIN` set to
+it — a setting that fails silently when wrong (sign-in succeeds, the cookie is dropped, the page
+bounces back) and that cannot be right at all on a public suffix, so no preview could sign in.
+The cost of the proxy is one private-network hop per request, which is cheaper than a domain per
+environment.
+
+Three details are load-bearing. The proxy passes `X-Forwarded-For` through **untouched**: Railway's
+edge wrote the caller's address as the rightmost entry and the rate limiter counts exactly that
+one, so appending this server's view would put every caller in one bucket — `rate-limit.spec.ts`
+proves the limit per caller through the web origin. The API's routes the browser reaches live
+under `/api`, because a splat at `/files/$` also matched the product's own `/files` page and
+forwarded it to the API. And in development Vite forwards the same prefixes itself, through a
+plugin listed first: Nitro's dev server relays request bodies through its own proxy, and a
+browser cancelling an in-flight RPC — which Effect does to a superseded call — surfaced there as a
+server error painted over the page. `test/server/proxy.test.ts` holds the build's proxy to the
+contract the dev one follows.
+
+`AUTH_BASE_URL` on the API is therefore the web origin, and defaults to `WEB_URL`: better-auth
+builds every link it sends from it, and every link must come back through the proxy. The public
+API (`/api/v1`) and Stripe's webhook stay on the API's own host — they authenticate by key and
+signature, and an integration should not depend on the web app being up.
+`VITE_AUTH_BASE_URL` and `AUTH_COOKIE_DOMAIN` remain as an explicit opt-out, for an admin panel on
+a sibling subdomain that needs the same session.
 
 Background work goes through an outbox rather than straight to a queue. `Outbox.enqueue`
 writes a row inside whatever transaction the caller is already in, so the job and the change
@@ -1472,7 +1491,7 @@ kept as display text only. The prefix means a bucket policy can be written again
 mistake is caught by storage as well as by row-level security.
 
 Without `S3_BUCKET` and `S3_ACCESS_KEY_ID`, uploads go to `FILES_DIR` and the API serves them
-from `/files/*` — signed, expiring, and authorised by the signature alone, since the point of
+from `/api/files/*` — signed, expiring, and authorised by the signature alone, since the point of
 such a URL is that it can be given to an `<img>` tag that will not send a cookie. Those routes
 exist only in that configuration; with a bucket they are absent, because the browser talks to
 storage directly and this process should never see a byte of anybody's file.
@@ -1572,9 +1591,9 @@ a change to a module never redeployed the API on its own.
 
 Writing it found three variables the old file had wrong. The API reads S3, OpenRouter and the
 assistant model and was given none of them; the worker, which registers only the jobs and
-webhooks modules, was given all three. And the web service's `AUTH_BASE_URL` — which this file
-said pointed at the API's private domain — was never set, so every server-rendered page called
-the API through the public edge. `api.<domain>` and `app.<domain>` are resources now, too:
+webhooks modules, was given all three. And the web service's private route to the API — which this
+file said existed — was never set, so every server-rendered page called the API through the
+public edge. It is `API_URL` now, the same address the web service's proxy forwards to. `api.<domain>` and `app.<domain>` are resources now, too:
 Railway's runner rejected a `domains` entry outright.
 
 The worker carries no domain and no health check because it serves nothing, and it does not
@@ -1583,10 +1602,9 @@ race that step exists to avoid. The API's `WEB_URL` must be the web service's pu
 because `Auth.ts` passes it to better-auth as a trusted origin and a browser POST from any other
 origin is refused outright.
 
-The part to know before choosing hostnames is that **sign-in does not work on generated hosts**.
-Each service gets its own and `up.railway.app` is a public suffix, so the session cookie cannot
-be shared. `apps/design` is the preview that is complete rather than half-working, because it
-has no session to fail.
+Hostnames are a choice rather than a constraint: because the browser only talks to the web
+service's origin, a stage signs in on its generated hosts exactly as it does on its own domain,
+and so does a Railway PR environment copied from staging.
 
 Alchemy is a beta, and its Railway provider was about a month old when this was written; the
 version is pinned exactly for that reason. Its `Railway` barrel is imported by file rather than
@@ -1646,7 +1664,7 @@ aggregated.
 effects run twice in development, and a second pair of listeners would report every error twice,
 which is indistinguishable from a bug happening twice.
 
-`VITE_` matters here for the same reason it does for `VITE_AUTH_BASE_URL`: Vite substitutes
+`VITE_` matters here because Vite substitutes
 these at build time, so the browser DSN is a build argument for the web image and not a runtime
 variable. The SDK is behind a dynamic import either way, so a build without a DSN never fetches
 the 447 kB chunk.

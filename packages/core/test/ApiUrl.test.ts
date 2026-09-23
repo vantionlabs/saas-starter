@@ -1,11 +1,12 @@
 import { apiUrl } from "@/ApiUrl.js";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const original = { ...process.env };
 
 afterEach(() => {
   process.env["EXPO_PUBLIC_API_URL"] = original["EXPO_PUBLIC_API_URL"];
   process.env["VITE_AUTH_BASE_URL"] = original["VITE_AUTH_BASE_URL"];
+  vi.unstubAllGlobals();
 });
 
 /**
@@ -31,9 +32,23 @@ describe("the API address", () => {
     expect(apiUrl()).toBe("https://web.example");
   });
 
-  it("runs on localhost when neither is set, so a fresh clone works", () => {
+  /**
+   * The web app's normal case: it serves the API's browser-facing routes from
+   * its own origin, so the page's origin is the answer and nothing had to be
+   * compiled into the bundle to say so.
+   */
+  it("uses the page's own origin in a browser when neither is set", () => {
     delete process.env["EXPO_PUBLIC_API_URL"];
     delete process.env["VITE_AUTH_BASE_URL"];
+    vi.stubGlobal("location", { origin: "https://app-pr-42.up.railway.app" });
+
+    expect(apiUrl()).toBe("https://app-pr-42.up.railway.app");
+  });
+
+  it("runs on localhost outside a browser when neither is set, so a fresh clone works", () => {
+    delete process.env["EXPO_PUBLIC_API_URL"];
+    delete process.env["VITE_AUTH_BASE_URL"];
+    vi.stubGlobal("location", undefined);
 
     expect(apiUrl()).toBe("http://localhost:3000");
   });

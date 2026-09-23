@@ -51,9 +51,23 @@ const serverEnv = {
   DATABASE_URL,
   DATABASE_SSL: "false",
   AUTH_SECRET: "e2e-secret-not-for-any-real-deployment-0000000000",
-  AUTH_BASE_URL: API_URL,
   WEB_URL,
-  VITE_AUTH_BASE_URL: API_URL,
+  /**
+   * Where the web server forwards `/api/auth`, `/api/files` and `/rpc`. The browser
+   * never talks to the API's origin, which is the configuration a deployment
+   * runs in — so it is the one these tests prove.
+   */
+  API_URL,
+  /**
+   * Both stated rather than left to their defaults, because neither server
+   * reads only this object: the web app's Vite config falls back to `.env`, and
+   * the API's dev script loads it with `--env-file`. A developer's `.env` from
+   * before the proxy still names the API for both — which would send these
+   * browsers straight to it, and sign upload links for a port nothing here
+   * listens on.
+   */
+  VITE_AUTH_BASE_URL: "",
+  AUTH_BASE_URL: WEB_URL,
   PORT: String(API_PORT),
   /**
    * Nothing stands in front of the API here, but the suite presents a distinct

@@ -49,11 +49,11 @@ const REPO = "vantionlabs/saas-starter";
 /**
  * The stages that exist, and what each deploys.
  *
- * `domain` is the parent of `app.` and `api.` once the stage has one, and
- * setting it creates both hostnames. Until then both services use their
- * generated `*.up.railway.app` hosts, which is enough to boot but not to sign
- * in: `up.railway.app` is a public suffix, so no cookie can span the two.
- * `docs/deploy.md` has the long version.
+ * `domain` is the parent of `app.` (the product) and `api.` (the public API)
+ * once the stage has one, and setting it creates both hostnames. Nothing else
+ * depends on it: browsers only ever talk to the web service's origin, which
+ * forwards the API's routes, so a stage on generated `*.up.railway.app` hosts
+ * signs in exactly as one on its own domain does. `docs/deploy.md` has more.
  */
 const targets = {
   prod: { branch: "main", domain: undefined },
@@ -148,7 +148,6 @@ export const deployment = Effect.gen(function*() {
     return yield* Effect.die(new UnknownStage({ stage, known: Object.keys(targets) }));
   }
 
-  const api = hostOf("api", "api", target.domain);
   const web = hostOf("web", "app", target.domain);
 
   /** Every service's source: this repository, at the stage's branch. */
@@ -202,13 +201,14 @@ export const deployment = Effect.gen(function*() {
       ...shared,
       ...database,
       ...telemetry,
-      AUTH_BASE_URL: `https://${api.own}`,
-      // better-auth trusts exactly this origin; a browser POST from any
-      // other is refused, so it must be the web service's public address.
+      /**
+       * The web app's public origin, and the only one: better-auth trusts it,
+       * builds every link from it (`AUTH_BASE_URL` defaults to it), and is
+       * reached through it — `apps/web` forwards `/api/auth` here. So the
+       * session cookie is first-party on the web host, and there is no cookie
+       * domain to set on any stage, generated host or not.
+       */
       WEB_URL: `https://${web.fromSibling}`,
-      // Only with a domain of our own. The generated hosts cannot share a
-      // cookie whatever this says.
-      AUTH_COOKIE_DOMAIN: target.domain === undefined ? undefined : `.${target.domain}`,
       AUTH_SECRET: yield* required("AUTH_SECRET"),
       RESEND_API_KEY: yield* required("RESEND_API_KEY"),
       GOOGLE_CLIENT_ID: yield* optional("GOOGLE_CLIENT_ID"),
@@ -256,23 +256,17 @@ export const deployment = Effect.gen(function*() {
     watchPatterns: watching("web"),
     ...restart,
     env: {
-      /**
-       * A build argument as much as a runtime variable: Vite substitutes
-       * `VITE_*` into the client bundle at build time, and Railway passes a
-       * service variable to a Dockerfile `ARG` of the same name. It must be
-       * the API's *public* address, because a browser resolves it.
-       */
-      VITE_AUTH_BASE_URL: `https://${api.fromSibling}`,
       WEB_URL: `https://${web.own}`,
       /**
-       * Where server rendering calls the API: its *private* address, so a
-       * request that never leaves the project does not go out to the edge
-       * and back for every page. Plain HTTP because the private network is
-       * already encrypted, and 3000 because that is the port the API's
-       * Dockerfile sets. `server/rpc.ts` falls back to the public address
-       * when this is unset, which works and costs the round trip.
+       * Where this service reaches the API: its *private* address. The
+       * browser never uses it — it talks to this service's own origin, which
+       * forwards `/api/auth`, `/api/files` and `/rpc` there (`server/proxy.ts`) —
+       * so no address is compiled into the image, and the same image serves a
+       * generated host, a PR environment or a custom domain. Plain HTTP
+       * because the private network is already encrypted, and 3000 because
+       * that is the port the API's Dockerfile sets.
        */
-      AUTH_BASE_URL: `http://${ref("api", "RAILWAY_PRIVATE_DOMAIN")}:3000`,
+      API_URL: `http://${ref("api", "RAILWAY_PRIVATE_DOMAIN")}:3000`,
     },
   });
 

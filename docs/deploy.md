@@ -116,19 +116,25 @@ CI and point each service at an image rather than the repository.
 
 ## Domains
 
-Until a stage has a domain, both public services use generated `*.up.railway.app` hosts.
-That boots, but **nobody can sign in**: the browser calls the API directly, so the session
-cookie crosses origins, which needs both under one parent with `AUTH_COOKIE_DOMAIN` scoped
-to it — and `up.railway.app` is a public suffix, so two generated hosts can never qualify.
+**A stage needs no domain to work.** The browser only ever talks to the web service's
+origin, which forwards `/api/auth`, `/api/files` and `/rpc` to the API over the private network
+(`apps/web/src/server/proxy.ts`). The session cookie is first-party on whatever host served the
+page, so a stage signs in on its generated `*.up.railway.app` host exactly as it would on its
+own domain — and no address is baked into the web image, so one image serves any of them.
 
-Set `domain` on the stage in `targets` and the stack creates `app.<domain>` and
-`api.<domain>`, sets `AUTH_COOKIE_DOMAIN`, and reports the DNS record Railway needs for
-each. The old Railway config could not create domains at all; that was a dashboard step.
+This replaced two origins sharing a cookie across a parent domain, which needed
+`AUTH_COOKIE_DOMAIN` set to that parent, failed silently when it was wrong, and could not work on
+`up.railway.app` at all because it is a public suffix.
+
+When a stage does get a domain, set `domain` on it in `targets`: the stack creates `app.<domain>`
+for the product and `api.<domain>` for the public API, and reports the verification record
+Railway needs for each. DNS itself is still yours to add; the old Railway config could not
+create the domains at all.
 
 ## Preview environments for a pull request
 
 Deliberately **not** Alchemy stages. A stage per pull request is a whole Project — Postgres,
-Redis, five services — per open PR, and it still could not sign in.
+Redis, five services — per open PR, recorded in state that has to be cleaned up when it closes.
 
 Railway's own PR environments still work, as a dashboard toggle on **`vantion-staging`**:
 **Project Settings → Environments → Enable PR Environments**. Because staging is its own
@@ -138,9 +144,8 @@ Dockerfile, which is what it reads — and **Bot PR Environments** off, or each 
 bump raises a full stack.
 
 Alchemy does not know about those environments, and does not need to: they are Railway's
-copies of a Project it manages. Sign-in there has the same public-suffix problem as above,
-so the preview that is complete rather than half-working is `apps/design`, which has no
-session to fail.
+copies of a Project it manages. **Reviewers can sign in to them**: the web service forwards the
+API's routes, so the preview's cookie is first-party on its own generated host.
 
 ## Before the first deploy
 
@@ -149,9 +154,10 @@ Things this configuration has not been exercised against, to check on staging fi
 - **`DATABASE_SSL=true` against Railway's Postgres.** Its image serves a self-signed
   certificate, and a client that verifies it will refuse the connection. If the API cannot
   reach the database, that is the first place to look.
-- **The web image's build argument.** `VITE_AUTH_BASE_URL` reaches the client bundle only if
-  Railway passes the service variable to the Dockerfile's `ARG`. Search the served JavaScript
-  for the API's host, not `localhost`.
+- **The proxy under Railway's edge.** Sign in on the generated web host, then check the API's
+  logs for the caller's real address on the auth requests. The rate limiter counts the
+  rightmost `X-Forwarded-For` entry; if every request shows the same address, the limit is
+  shared by everyone.
 - **Row-level security.** `DATABASE_URL` is Railway's bootstrap user, which is a superuser;
   under it every policy in this schema is inert. `packages/database/src/roles/init.sql`
   creates the `vantion` role the application is meant to connect as, and nothing runs it on

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as RpcRouteImport } from './routes/rpc'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ProtectedAccountRouteRouteImport } from './routes/_protected/account/route'
 import { Route as ProtectedAssistantRouteImport } from './routes/_protected/assistant'
@@ -40,6 +41,8 @@ import { Route as ProtectedSettingsRolesRouteImport } from './routes/_protected/
 import { Route as ProtectedSettingsScimRouteImport } from './routes/_protected/settings/scim'
 import { Route as ProtectedSettingsSsoRouteImport } from './routes/_protected/settings/sso'
 import { Route as ProtectedSettingsWebhooksRouteImport } from './routes/_protected/settings/webhooks'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiFilesSplatRouteImport } from './routes/api/files/$'
 import { Route as AuthAcceptInvitationInvitationIdRouteImport } from './routes/auth/accept-invitation/$invitationId'
 
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -54,6 +57,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RpcRoute = RpcRouteImport.update({
+  id: '/rpc',
+  path: '/rpc',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
@@ -203,6 +211,16 @@ const ProtectedSettingsWebhooksRoute =
     path: '/webhooks',
     getParentRoute: () => ProtectedSettingsRouteRoute,
   } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFilesSplatRoute = ApiFilesSplatRouteImport.update({
+  id: '/api/files/$',
+  path: '/api/files/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthAcceptInvitationInvitationIdRoute =
   AuthAcceptInvitationInvitationIdRouteImport.update({
     id: '/accept-invitation/$invitationId',
@@ -214,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/': typeof ProtectedIndexRoute
   '/onboarding': typeof OnboardingRoute
+  '/rpc': typeof RpcRoute
   '/account': typeof ProtectedAccountRouteRouteWithChildren
   '/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/assistant': typeof ProtectedAssistantRoute
@@ -239,6 +258,8 @@ export interface FileRoutesByFullPath {
   '/settings/scim': typeof ProtectedSettingsScimRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
   '/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/files/$': typeof ApiFilesSplatRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/account/': typeof ProtectedAccountIndexRoute
   '/settings/': typeof ProtectedSettingsIndexRoute
@@ -246,6 +267,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/rpc': typeof RpcRoute
   '/assistant': typeof ProtectedAssistantRoute
   '/contacts': typeof ProtectedContactsRoute
   '/files': typeof ProtectedFilesRoute
@@ -270,6 +292,8 @@ export interface FileRoutesByTo {
   '/settings/scim': typeof ProtectedSettingsScimRoute
   '/settings/sso': typeof ProtectedSettingsSsoRoute
   '/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/files/$': typeof ApiFilesSplatRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/account': typeof ProtectedAccountIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
@@ -279,6 +303,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/rpc': typeof RpcRoute
   '/_protected/account': typeof ProtectedAccountRouteRouteWithChildren
   '/_protected/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/_protected/assistant': typeof ProtectedAssistantRoute
@@ -305,6 +330,8 @@ export interface FileRoutesById {
   '/_protected/settings/scim': typeof ProtectedSettingsScimRoute
   '/_protected/settings/sso': typeof ProtectedSettingsSsoRoute
   '/_protected/settings/webhooks': typeof ProtectedSettingsWebhooksRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/files/$': typeof ApiFilesSplatRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdRoute
   '/_protected/account/': typeof ProtectedAccountIndexRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
@@ -315,6 +342,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/'
     | '/onboarding'
+    | '/rpc'
     | '/account'
     | '/settings'
     | '/assistant'
@@ -340,6 +368,8 @@ export interface FileRouteTypes {
     | '/settings/scim'
     | '/settings/sso'
     | '/settings/webhooks'
+    | '/api/auth/$'
+    | '/api/files/$'
     | '/auth/accept-invitation/$invitationId'
     | '/account/'
     | '/settings/'
@@ -347,6 +377,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/onboarding'
+    | '/rpc'
     | '/assistant'
     | '/contacts'
     | '/files'
@@ -371,6 +402,8 @@ export interface FileRouteTypes {
     | '/settings/scim'
     | '/settings/sso'
     | '/settings/webhooks'
+    | '/api/auth/$'
+    | '/api/files/$'
     | '/auth/accept-invitation/$invitationId'
     | '/account'
     | '/settings'
@@ -379,6 +412,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_protected'
     | '/onboarding'
+    | '/rpc'
     | '/_protected/account'
     | '/_protected/settings'
     | '/_protected/assistant'
@@ -405,6 +439,8 @@ export interface FileRouteTypes {
     | '/_protected/settings/scim'
     | '/_protected/settings/sso'
     | '/_protected/settings/webhooks'
+    | '/api/auth/$'
+    | '/api/files/$'
     | '/auth/accept-invitation/$invitationId'
     | '/_protected/account/'
     | '/_protected/settings/'
@@ -414,6 +450,9 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ProtectedRoute: typeof ProtectedRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
+  RpcRoute: typeof RpcRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiFilesSplatRoute: typeof ApiFilesSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -437,6 +476,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rpc': {
+      id: '/rpc'
+      path: '/rpc'
+      fullPath: '/rpc'
+      preLoaderRoute: typeof RpcRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/': {
@@ -635,6 +681,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsWebhooksRouteImport
       parentRoute: typeof ProtectedSettingsRouteRoute
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/files/$': {
+      id: '/api/files/$'
+      path: '/api/files/$'
+      fullPath: '/api/files/$'
+      preLoaderRoute: typeof ApiFilesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/accept-invitation/$invitationId': {
       id: '/auth/accept-invitation/$invitationId'
       path: '/accept-invitation/$invitationId'
@@ -750,6 +810,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ProtectedRoute: ProtectedRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
+  RpcRoute: RpcRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiFilesSplatRoute: ApiFilesSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

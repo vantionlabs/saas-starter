@@ -81,7 +81,20 @@ describe.each(["staging", "prod"])("a dry run of %s", (stage) => {
     expect(referenced.filter((service) => !names.has(service))).toEqual([]);
 
     expect(env(stage, "api")["DATABASE_URL"]).toBe("${{postgres.DATABASE_URL}}");
-    expect(env(stage, "web")["AUTH_BASE_URL"]).toBe("http://${{api.RAILWAY_PRIVATE_DOMAIN}}:3000");
+    expect(env(stage, "web")["API_URL"]).toBe("http://${{api.RAILWAY_PRIVATE_DOMAIN}}:3000");
+  });
+
+  /**
+   * One origin. The browser talks to the web service, which forwards the API's
+   * routes, so nothing may point a browser elsewhere or scope a cookie to a
+   * parent domain — either would reintroduce the cross-site cookie that cannot
+   * work on generated hosts and fails silently when it is wrong.
+   */
+  it("points browsers at the web service and nowhere else", () => {
+    expect(env(stage, "api")["WEB_URL"]).toBe("https://${{web.RAILWAY_PUBLIC_DOMAIN}}");
+    expect(env(stage, "api")).not.toHaveProperty("AUTH_BASE_URL");
+    expect(env(stage, "api")).not.toHaveProperty("AUTH_COOKIE_DOMAIN");
+    expect(env(stage, "web")).not.toHaveProperty("VITE_AUTH_BASE_URL");
   });
 
   it("gives a secret only to the process that reads it", () => {

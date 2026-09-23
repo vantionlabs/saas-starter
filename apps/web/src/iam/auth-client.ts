@@ -1,5 +1,7 @@
+import { apiOrigin } from "@/server/proxy.js";
 import { scimClient } from "@better-auth/scim/client";
 import { ssoClient } from "@better-auth/sso/client";
+import { apiUrl } from "@vantion/core/ApiUrl";
 import {
   emailOTPClient,
   magicLinkClient,
@@ -9,18 +11,18 @@ import {
 import { createAuthClient } from "better-auth/react";
 
 /**
- * Where better-auth answers: the API, always.
+ * Where better-auth answers.
  *
- * Every auth route lives on `apps/server`, so this is simply its address —
- * better-auth's own guidance is to set `baseURL` whenever the auth server is not
- * the app's own origin, and here it never is.
+ * In the browser, this origin: `/api/auth/*` is forwarded to the API by
+ * `server/proxy.ts`, so the session cookie is first-party on whatever host
+ * served the page and no address is compiled into the bundle. `apiUrl()` is the
+ * page's origin unless an address was configured on purpose.
  *
- * `VITE_`-prefixed because the browser needs it. That is the only way Vite puts
- * a value in the client bundle, and it is honest about what this is: a public
- * address, not a secret. The same constant serves SSR, which resolves the
- * session in the server bundle.
+ * On the server — the `/_protected` guard, resolving a session during SSR — the
+ * API directly, over the private network: the same address the proxy forwards
+ * to, so a server-rendered page does not go out to the edge and back.
  */
-const baseURL = import.meta.env.VITE_AUTH_BASE_URL ?? "http://localhost:3000";
+const baseURL = typeof window === "undefined" ? apiOrigin() : apiUrl();
 
 /**
  * better-auth's own typed client — one of them, used from both sides.

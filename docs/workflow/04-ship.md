@@ -40,11 +40,9 @@ CI passes. A deployment is reviewable the way a pull request is.
 Migrations run as their own step, never at boot: two instances starting together
 would both migrate.
 
-One thing to know before choosing hostnames. The browser talks to the API
-directly, so the session cookie only flows if both are _same-site_ — one parent
-domain, with `AUTH_COOKIE_DOMAIN=.example.com`. That parent cannot be a public
-suffix, and `up.railway.app` is on the list, so two generated Railway hosts can
-never share a session. Splitting the services there needs a domain of your own.
+Hostnames need no decision before the first deploy. The browser only talks to
+the web app's origin, which forwards the API's routes, so sign-in works on
+Railway's generated hosts, in PR environments and on a custom domain alike.
 
 ## Writing what shipped
 

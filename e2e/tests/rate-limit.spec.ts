@@ -12,8 +12,8 @@ import { API_URL, expect, PASSWORD, test, uniqueEmail, WEB_URL } from "../fixtur
  */
 const LIMIT = 10;
 
-const attemptSignIn = (request: APIRequestContext, address: string) =>
-  request.post(`${API_URL}/api/auth/sign-in/email`, {
+const attemptSignIn = (request: APIRequestContext, address: string, origin = API_URL) =>
+  request.post(`${origin}/api/auth/sign-in/email`, {
     headers: {
       "content-type": "application/json",
       origin: WEB_URL,
@@ -57,5 +57,26 @@ test.describe("auth rate limiting", () => {
     }
 
     expect(statuses).toContain(429);
+  });
+
+  /**
+   * Browsers reach these endpoints through the web app, which forwards them to
+   * the API — so the limit has to survive that hop. The proxy passes
+   * `X-Forwarded-For` through untouched; had it appended its own view, every
+   * caller would arrive from the web server and share one bucket. The second
+   * half is what catches that: one caller exhausting the allowance must not
+   * throttle another.
+   */
+  test("counts each caller separately through the web app's origin", async ({ request }) => {
+    const exhausted = "198.51.100.44";
+    const bystander = "198.51.100.45";
+
+    const statuses: Array<number> = [];
+    for (let attempt = 0; attempt < LIMIT + 2; attempt += 1) {
+      statuses.push((await attemptSignIn(request, exhausted, WEB_URL)).status());
+    }
+
+    expect(statuses).toContain(429);
+    expect((await attemptSignIn(request, bystander, WEB_URL)).status()).not.toBe(429);
   });
 });

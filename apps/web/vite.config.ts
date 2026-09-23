@@ -2,10 +2,66 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
+import * as http from "node:http";
 import * as path from "node:path";
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 
 const repoRoot = path.resolve(import.meta.dirname, "../..");
+
+/** The prefixes `src/routes` forwards to the API — `src/server/proxy.ts`. */
+const API_PREFIXES = ["/api/auth", "/api/files", "/rpc"];
+
+/**
+ * The same forwarding, done by the dev server before anything else sees the
+ * request — so in development the browser still talks to one origin and the
+ * session cookie is still first-party, as it is when deployed.
+ *
+ * Not the Start routes, which work and are what a build runs, because in
+ * development Nitro relays every request body through its own proxy to a
+ * worker, and a browser cancelling an in-flight POST — which Effect does to a
+ * superseded RPC call as a matter of course — surfaces there as a server error
+ * and paints Vite's overlay over the page. Not Vite's own `server.proxy`
+ * either: Nitro's middleware is registered ahead of it and answers first. This
+ * plugin is listed first, so its middleware is.
+ *
+ * Bytes are piped as they are, headers included — `X-Forwarded-For` above all,
+ * which the rate limiter counts from the right — and a cancelled request
+ * cancels the upstream one rather than being reported. `test/server/proxy.test.ts`
+ * holds `proxy.ts` to the same contract.
+ */
+const apiDevProxy = (target: string): Plugin => ({
+  name: "vantion:api-dev-proxy",
+  apply: "serve",
+  configureServer(server) {
+    server.middlewares.use((request, response, next) => {
+      const url = request.url ?? "";
+      const matches = API_PREFIXES.some((prefix) =>
+        url === prefix || url.startsWith(`${prefix}/`) || url.startsWith(`${prefix}?`)
+      );
+      if (!matches) return next();
+
+      const upstream = new URL(url, target);
+      const forwarded = http.request(upstream, {
+        method: request.method,
+        headers: { ...request.headers, host: upstream.host },
+      }, (answer) => {
+        response.writeHead(answer.statusCode ?? 502, answer.headers);
+        answer.pipe(response);
+      });
+
+      forwarded.on("error", () => {
+        if (!response.headersSent) response.statusCode = 502;
+        response.end();
+      });
+      // The response, not the request: a request's `close` fires as soon as
+      // its body has been read, and would cancel every call it forwarded.
+      response.on("close", () => {
+        if (!response.writableFinished) forwarded.destroy();
+      });
+      request.pipe(forwarded);
+    });
+  },
+});
 
 export default defineConfig(({ command, mode }) => {
   /**
@@ -46,6 +102,8 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     plugins: [
+      // First, so its middleware answers the API's prefixes before Nitro's.
+      apiDevProxy(process.env["API_URL"] ?? env["API_URL"] ?? "http://localhost:3000"),
       // Must come before react(). It owns the route tree generation that the
       // standalone router plugin used to do, so there is only one of them.
       tanstackStart(),
@@ -75,8 +133,9 @@ export default defineConfig(({ command, mode }) => {
      * `import.meta.env`. Vite exposes its values on `import.meta.env` only, so
      * the one name the shared package reads is defined here.
      *
-     * Substituted at build time like every other `VITE_` value, which is why
-     * it is a build argument for the image rather than a runtime variable.
+     * Normally empty: the browser uses its own origin, which forwards the API's
+     * routes (`src/server/proxy.ts`). Set, it points browsers at an API on
+     * another origin, substituted at build time like every other `VITE_` value.
      */
     define: {
       "process.env.VITE_AUTH_BASE_URL": JSON.stringify(

@@ -52,11 +52,11 @@ RUN bun install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
-# The API's address as the browser sees it, baked into the client bundle — Vite
-# substitutes `VITE_` values at build time, so this is a build argument and not
-# a runtime variable. It must be the API's *public* address: a browser resolves
-# it, not this container.
-ARG VITE_AUTH_BASE_URL=http://localhost:3000
+# Empty, and that is the normal case: the browser talks to this image's own
+# origin, which forwards the API's routes (`src/server/proxy.ts`), so no address
+# is baked into the bundle and one image serves any host. Set it only to point
+# browsers at an API on another origin — Vite substitutes it at build time.
+ARG VITE_AUTH_BASE_URL=
 ENV VITE_AUTH_BASE_URL=$VITE_AUTH_BASE_URL
 # Two steps, and the split is the point.
 #

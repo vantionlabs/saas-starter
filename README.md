@@ -617,8 +617,8 @@ Postgres, Redis, five services, their variables and health checks — and
 fork.
 
 Read `docs/deploy.md` before the first deploy rather than after: where the state
-lives, why secrets now come from the deploying environment, and why
-`AUTH_COOKIE_DOMAIN` decides whether anybody can sign in at all.
+lives, why secrets now come from the deploying environment, and why no stage
+needs a domain of its own to sign in.
 
 ### Where to go next
 
@@ -758,13 +758,11 @@ stage creates `app.` and `api.` under it. `docs/deploy.md` has all of it,
 including Railway's per-PR environments, which still work as a dashboard toggle
 on the staging Project.
 
-**One constraint to know before you pick hostnames.** The browser talks to the
-API directly, so the two are separate origins and the session cookie only flows
-between them if they are _same-site_: both under one parent domain, with
-`AUTH_COOKIE_DOMAIN=.example.com`. That parent cannot be a public suffix, and
-`up.railway.app` is on the list — so **two generated Railway hosts can never
-share a session**. Splitting these services there needs a domain of your own,
-`app.example.com` and `api.example.com`.
+**The browser talks to one origin.** The web app forwards `/api/auth`,
+`/api/files` and `/rpc` to the API over the private network, so the session
+cookie is first-party on whatever host served the page — a generated
+`*.up.railway.app`, a PR environment, `localhost` or your own domain — with no
+cookie domain to configure and no API address baked into the image.
 
 Tracing exports only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Leaving it unset
 installs no exporter at all, because one pointed at nothing retries on a

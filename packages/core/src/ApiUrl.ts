@@ -10,7 +10,12 @@
  * knows with a literal and the other stays undefined, so one expression serves
  * both without a shim, a global or a `define` that has to be kept in step.
  *
- * The fallback is localhost because a fresh clone should run.
+ * With neither set, a browser answers with its own origin. That is the web
+ * app's normal case rather than a fallback: `apps/web` serves the API's
+ * browser-facing routes from its own origin (`server/proxy.ts`), so the session
+ * cookie is first-party on whatever host served the page and there is no API
+ * address to compile into the bundle. Outside a browser — the server bundle, a
+ * test — the answer is localhost, because a fresh clone should run.
  */
 export const apiUrl = (): string => {
   /**
@@ -28,6 +33,10 @@ export const apiUrl = (): string => {
   const fromVite = process.env.VITE_AUTH_BASE_URL;
 
   if (typeof fromVite === "string" && fromVite !== "") return trim(fromVite);
+
+  const origin = globalThis.location?.origin;
+
+  if (typeof origin === "string" && origin !== "" && origin !== "null") return origin;
 
   return "http://localhost:3000";
 };
