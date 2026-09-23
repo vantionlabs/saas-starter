@@ -15,7 +15,9 @@ pre-commit:
     format:
       glob: "*.{ts,tsx,js,mjs,json,jsonc,md,css,yml,yaml}"
       exclude: "repos/**"
-      run: bunx dprint fmt {staged_files}
+      # `--allow-no-files` because the glob admits files dprint has no plugin
+      # for — a workflow's YAML — and a commit of only those is not an error.
+      run: bunx dprint fmt --allow-no-files {staged_files}
       stage_fixed: true
 
     # The one check that cannot be caught later: a secret in a commit is in the

@@ -23,6 +23,10 @@
 # What runs in CI, with a token, on somebody else's pull request.
 /.github/                       @ishakdeveloper
 
+# What production is. A pull request touching this runs its plan with staging's
+# Railway token, and a merge applies it — see `.github/workflows/deploy.yml`.
+/alchemy.run.ts                 @ishakdeveloper
+
 # What an agent is told, and what the hooks refuse. Changing these changes how
 # every generated repository behaves.
 /.agents/                       @ishakdeveloper
