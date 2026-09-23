@@ -24,6 +24,12 @@
   "playwright": false,
   "ignoreDependencies": [
     /**
+     * The Railway CLI, run by the MCP server in `.mcp.json` as `bunx railway
+     * mcp` and imported by nothing. The pin is what keeps that from being
+     * whatever npm serves the day an editor starts it.
+     */
+    "railway",
+    /**
      * Named in `lefthook.yml` and in `.secretlintrc.json`, neither of which
      * knip reads, and run as a command rather than imported.
      */
@@ -116,8 +122,10 @@
     ".": {
       "entry": [
         ".claude/hooks/*.mjs",
-        // Read by `railway config plan|apply`, never imported.
-        ".railway/railway.ts"
+        // Loaded by the `alchemy` CLI, never imported.
+        "alchemy.run.ts",
+        // `bun run deploy:dry-run`.
+        "alchemy.dry-run.ts"
       ]
     }
   }

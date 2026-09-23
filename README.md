@@ -307,8 +307,8 @@ registers it. Each slice is schema, handler, screen and tests, and does not star
 until the previous one passes `bun run check && bun run lint && bun run test`, plus
 `bun run e2e` when it touched a route.
 
-**5 · Shipped.** `railway config plan` shows the diff before `railway config
-apply` performs it, so a deployment is reviewable the way a pull request is.
+**5 · Shipped.** A pull request shows the deployment's plan, and a merge applies
+it once CI passes, so a deployment is reviewable the way a pull request is.
 
 ## The agent layer
 
@@ -342,7 +342,7 @@ first hour, taking the working ones with it.
 | `/product-discover`  | the assumption, the evidence, the cut list                   |
 | `/product-prototype` | real screens, no migrations                                  |
 | `/product-build`     | vertical slices against the repo's own conventions           |
-| `/product-ship`      | the checklist, the Railway plan, the changelog               |
+| `/product-ship`      | the checklist, the deploy plan, the changelog                |
 | `/figma-tokens`      | sync the design system's variables into a Figma file         |
 | `/figma-screen`      | push a screen from `apps/design`, built from those variables |
 | `/figma-journey`     | draw a user journey into FigJam                              |
@@ -607,19 +607,18 @@ bring and the phase each belongs to.
 ### 6 · Shipping
 
 ```bash
-bun run build:images       # all six, ~30s each
-railway config plan        # the diff, before anything changes
-railway config apply
+bun run build:images                  # all six, ~30s each
+bun run deploy:plan --stage staging   # the diff, before anything changes
 ```
 
-`.railway/railway.ts` describes the whole project — Postgres, Redis, three
-services, their variables and health checks — so a deployment is reviewable the
-way a pull request is. Two lines change on a fork.
+`alchemy.run.ts` describes the whole deployment — a Railway Project per stage,
+Postgres, Redis, five services, their variables and health checks — and
+`.github/workflows/deploy.yml` applies it once CI passes. Two lines change on a
+fork.
 
-Two things to read before the first deploy rather than after:
-`docs/railway-previews.md` on per-PR environments and the one thing that does not
-work in them, and the **Deploying** section below on why `AUTH_COOKIE_DOMAIN`
-decides whether you can split the two services across subdomains at all.
+Read `docs/deploy.md` before the first deploy rather than after: where the state
+lives, why secrets now come from the deploying environment, and why no stage
+needs a domain of its own to sign in.
 
 ### Where to go next
 
@@ -643,7 +642,7 @@ grep -rl '@vantion/' --exclude-dir=node_modules --exclude-dir=.git --exclude-dir
 
 Then the loose ends: `name` in each `package.json`, the database name in
 `docker-compose.yml` and `.env`, `OTEL_SERVICE_NAME`, `EMAIL_FROM`, and the repo
-and project name in `.railway/railway.ts`.
+and `REPO` in `alchemy.run.ts`.
 
 **Delete the example.** `Contact` is a worked example of a tenant-owned entity
 and nothing else depends on it being contacts specifically. It is these files,
@@ -746,38 +745,24 @@ docker build -f apps/server/Dockerfile -t acme-api .
 Migrations are applied by a script, never at boot, because two instances starting
 together would both migrate. On Railway that is the `preDeployCommand`.
 
-`.railway/railway.ts` describes the whole project: Postgres, Redis, the API, the
-worker and the web app, their variables and health checks. `railway config plan` shows the diff and
-`railway config apply` performs it, so a deployment is reviewable the way a pull
-request is. Change `REPO`, the `environments` map and the project name; secrets
-stay in Railway's dashboard, held by `preserve()`.
+`alchemy.run.ts` describes the whole deployment as an Alchemy stack: a Railway
+Project per stage, Postgres, Redis, and all five services with their variables and
+health checks. A pull request gets the plan; a push to `staging` or `main` applies
+it once CI passes, and production waits for a reviewer. Change `REPO` on a fork,
+and put the secrets in the two GitHub environments — the deploying environment is
+the source of truth for them, not Railway's dashboard.
 
-**Preview environments per pull request** are a dashboard toggle rather than
-config — the IaC schema has no field for them — and the variables here are
-already wired to follow whatever environment they land in. One thing does not
-work without a wildcard domain you own: a reviewer cannot _sign in_, because
-Railway gives each service its own generated host and `up.railway.app` is a
-public suffix, so no session cookie can be shared between them.
-`docs/railway-previews.md` has the three ways out and which settings to turn on.
+A stage is a Project, so staging and production share nothing, and Alchemy's own
+record of what it deployed lives in a Postgres outside both. Setting `domain` on a
+stage creates `app.` and `api.` under it. `docs/deploy.md` has all of it,
+including Railway's per-PR environments, which still work as a dashboard toggle
+on the staging Project.
 
-Branch and domain come from the environment being planned against, via
-`ctx.isEnvironment`, so production and staging can differ without the file
-depending on whoever runs it. `process.env` is readable in that runner, but
-reaching for it would cost the property that makes a plan worth reviewing: two
-people planning the same environment get the same plan.
-
-It cannot create the domains, though — the runner rejects a `domains` entry
-outright, so the two public services need theirs added in the dashboard. Setting `DOMAIN`
-is what makes every address in the file name them ahead of time rather than
-falling back to a `RAILWAY_PUBLIC_DOMAIN` that does not resolve yet.
-
-**One constraint to know before you pick hostnames.** The browser talks to the
-API directly, so the two are separate origins and the session cookie only flows
-between them if they are _same-site_: both under one parent domain, with
-`AUTH_COOKIE_DOMAIN=.example.com`. That parent cannot be a public suffix, and
-`up.railway.app` is on the list — so **two generated Railway hosts can never
-share a session**. Splitting these services there needs a domain of your own,
-`app.example.com` and `api.example.com`.
+**The browser talks to one origin.** The web app forwards `/api/auth`,
+`/api/files` and `/rpc` to the API over the private network, so the session
+cookie is first-party on whatever host served the page — a generated
+`*.up.railway.app`, a PR environment, `localhost` or your own domain — with no
+cookie domain to configure and no API address baked into the image.
 
 Tracing exports only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Leaving it unset
 installs no exporter at all, because one pointed at nothing retries on a

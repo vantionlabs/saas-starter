@@ -28,22 +28,21 @@ the checklist is things that are simply true or false.
 ## Deploying
 
 ```
-railway config plan     # read the diff
-railway config apply
+bun run deploy:plan --stage staging     # read the diff
 ```
 
-`.railway/railway.ts` describes the whole project — database, services,
-variables, health checks — so a deployment is reviewable the way a pull request
-is. Two lines change on a fork: the repository and the project name.
+`alchemy.run.ts` describes the whole deployment — a Project per stage, database,
+services, variables, health checks — and `.github/workflows/deploy.yml` applies
+it: a pull request gets the plan, a push to `staging` or `main` is applied once
+CI passes. A deployment is reviewable the way a pull request is.
+`docs/deploy.md` is the long version.
 
 Migrations run as their own step, never at boot: two instances starting together
 would both migrate.
 
-One thing to know before choosing hostnames. The browser talks to the API
-directly, so the session cookie only flows if both are _same-site_ — one parent
-domain, with `AUTH_COOKIE_DOMAIN=.example.com`. That parent cannot be a public
-suffix, and `up.railway.app` is on the list, so two generated Railway hosts can
-never share a session. Splitting the services there needs a domain of your own.
+Hostnames need no decision before the first deploy. The browser only talks to
+the web app's origin, which forwards the API's routes, so sign-in works on
+Railway's generated hosts, in PR environments and on a custom domain alike.
 
 ## Writing what shipped
 

@@ -1,5 +1,5 @@
 import { callerCookie } from "@/server/caller.js";
-import { apiUrl } from "@vantion/core/ApiUrl";
+import { apiOrigin } from "@/server/proxy.js";
 import { AppRpcs } from "@vantion/domain/AppRpcs";
 import { Effect, Layer } from "effect";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/unstable/http";
@@ -19,27 +19,12 @@ import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
  */
 
 /**
- * Server-to-server, so the **private** address when there is one.
- *
- * `AGENTS.md` is explicit that the web service's `AUTH_BASE_URL` points at the
- * API's private domain: this call never leaves the project, and routing it
- * through the public hostname would send it out to the load balancer and back
- * for every server-rendered page.
- *
- * `apiUrl()` is the fallback and the local answer — it resolves the public
- * `VITE_AUTH_BASE_URL`, which is what a fresh clone has and what the browser
- * uses. Read through `process.env` at run time rather than substituted at build
- * time, because a private hostname is a deployment's fact and not the image's.
+ * Server-to-server, so the API's **private** address: the one `server/proxy.ts`
+ * forwards the browser's requests to. This call never leaves the project, and
+ * routing it through a public hostname would send every server-rendered page
+ * out to the load balancer and back.
  */
-const rpcUrl = () => {
-  const internal = process.env["AUTH_BASE_URL"];
-
-  return `${
-    typeof internal === "string" && internal !== ""
-      ? internal.replace(/\/$/, "")
-      : apiUrl()
-  }/rpc`;
-};
+const rpcUrl = () => `${apiOrigin()}/rpc`;
 
 /**
  * One layer per request, because the caller is per request.

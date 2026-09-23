@@ -85,8 +85,11 @@ const within = (directory: string, key: string) => {
 export const layerLocal: Layer.Layer<ObjectStore> = Layer.effect(ObjectStore)(
   Effect.gen(function*() {
     const directory = yield* root;
+    // The origin a browser loads `/api/files/*` from — the web app's, which
+    // forwards it here — for the reason `Auth.ts` gives for better-auth.
     const baseUrl = yield* Config.NonEmptyString("AUTH_BASE_URL").pipe(
-      Config.withDefault("http://localhost:3000"),
+      Config.orElse(() => Config.NonEmptyString("WEB_URL")),
+      Config.withDefault("http://localhost:5173"),
     );
     const secret = yield* Config.NonEmptyString("AUTH_SECRET").pipe(
       Config.withDefault("local-development-only"),
@@ -99,7 +102,7 @@ export const layerLocal: Layer.Layer<ObjectStore> = Layer.effect(ObjectStore)(
 
       if (contentType !== undefined) query.set("type", contentType);
 
-      return `${baseUrl.replace(/\/$/, "")}/files/${encodeURI(key)}?${query.toString()}`;
+      return `${baseUrl.replace(/\/$/, "")}/api/files/${encodeURI(key)}?${query.toString()}`;
     };
 
     const fileFor = (key: string) => within(directory, key);

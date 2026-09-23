@@ -16,9 +16,9 @@ Read `docs/workflow/04-ship.md` and follow it.
 - no secret is committed, and `.env.example` documents every variable the app
   now reads
 
-Then: `railway config plan` and read the diff before `railway config apply` —
-that file describes the whole project, and a plan is reviewable the way a pull
-request is. Check `TRUST_PROXY` matches the number of proxies actually in front
+Then: `bun run deploy:plan --stage staging` and read the diff — `alchemy.run.ts`
+describes the whole deployment, the pull request shows the same plan, and a merge
+applies it once CI passes. Check `TRUST_PROXY` matches the number of proxies actually in front
 of the API; it defaults to 0 and Railway needs 1.
 
 Finally write what shipped: a changelog entry, the OpenAPI document published,

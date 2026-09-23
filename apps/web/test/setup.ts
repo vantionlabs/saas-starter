@@ -19,7 +19,9 @@ if (!("ResizeObserver" in globalThis)) {
   };
 }
 
-if (typeof Element.prototype.scrollIntoView !== "function") {
+// Guarded because a server-side test opts into `@vitest-environment node`,
+// where there is no DOM to patch — and no DOM `fetch` in place of the real one.
+if (typeof Element !== "undefined" && typeof Element.prototype.scrollIntoView !== "function") {
   Element.prototype.scrollIntoView = () => {};
 }
 

@@ -31,10 +31,12 @@ export const FilesHttp = Layer.unwrap(
 
     return HttpRouter.add(
       "*",
-      "/files/*",
+      // Under `/api`, beside `/api/auth`: the web app forwards this prefix to
+      // here, and a bare `/files` is the product's own Files page.
+      "/api/files/*",
       Effect.fnUntraced(function*(request: HttpServerRequest.HttpServerRequest) {
         const url = new URL(request.url, "http://files.invalid");
-        const key = decodeURIComponent(url.pathname.replace(/^\/files\//, ""));
+        const key = decodeURIComponent(url.pathname.replace(/^\/api\/files\//, ""));
         const expires = Number(url.searchParams.get("expires"));
         const signature = url.searchParams.get("signature") ?? "";
         const contentType = url.searchParams.get("type") ?? undefined;

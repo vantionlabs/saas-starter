@@ -28,7 +28,8 @@ import { Effect } from "effect";
  * than implying otherwise.
  */
 const auth = createAuthClient({
-  baseURL: process.env["AUTH_BASE_URL"] ?? "http://localhost:3000",
+  // The API itself, server to server — the address `apps/web` forwards to.
+  baseURL: process.env["API_URL"] ?? "http://localhost:3000",
 });
 
 /**

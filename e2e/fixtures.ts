@@ -58,11 +58,12 @@ export const uniqueEmail = (prefix = "user") => {
  * itself is exercised directly in `auth.spec.ts`, which is where a regression in
  * it should be reported.
  *
- * `page.request` shares the context's cookie jar, and cookies ignore port, so a
- * session set by the API on `localhost` is sent to the web server too.
+ * Through the web app's origin, as a browser would: `/api/auth/*` is forwarded
+ * to the API from there, and the session cookie it sets belongs to that origin.
+ * `page.request` shares the context's cookie jar, so the page has it too.
  */
 export const signUpViaApi = async (page: Page, email: string) => {
-  const response = await page.request.post(`${API_URL}/api/auth/sign-up/email`, {
+  const response = await page.request.post(`${WEB_URL}/api/auth/sign-up/email`, {
     headers: authRequestHeaders,
     data: { email, password: PASSWORD, name: email.split("@")[0] ?? "Test User" },
   });
@@ -82,7 +83,7 @@ export const signUpViaApi = async (page: Page, email: string) => {
  * a body to describe.
  */
 export const signOutViaApi = async (page: Page) => {
-  const response = await page.request.post(`${API_URL}/api/auth/sign-out`, {
+  const response = await page.request.post(`${WEB_URL}/api/auth/sign-out`, {
     headers: authRequestHeaders,
     data: {},
   });
