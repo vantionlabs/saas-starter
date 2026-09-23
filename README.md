@@ -825,7 +825,7 @@ the tool invocations are explicit about the runtime, since a shebang otherwise w
 ## Status
 
 **Effect v4 is a release candidate.** This repo pins one exact version
-(`4.0.0-rc.109`, in `package.json`) and vendors its source under `repos/`
+(`4.0.0-rc.117`, in `package.json`) and vendors its source under `repos/`
 so the APIs you read are the APIs you have. That is a stronger position than
 most, but it is still an RC: `effect/unstable/*` means unstable, and a bump is a
 deliberate step rather than a background one.

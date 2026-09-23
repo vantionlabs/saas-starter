@@ -13,7 +13,7 @@ import { ObjectStore, StorageUnavailable } from "./ObjectStore.js";
  * without an AWS account, which is the same bargain the mailer makes without a
  * Resend key.
  */
-const root = Config.nonEmptyString("FILES_DIR").pipe(Config.withDefault(".data/uploads"));
+const root = Config.NonEmptyString("FILES_DIR").pipe(Config.withDefault(".data/uploads"));
 
 /**
  * The equivalent of a presigned URL, on our own API.
@@ -85,10 +85,10 @@ const within = (directory: string, key: string) => {
 export const layerLocal: Layer.Layer<ObjectStore> = Layer.effect(ObjectStore)(
   Effect.gen(function*() {
     const directory = yield* root;
-    const baseUrl = yield* Config.nonEmptyString("AUTH_BASE_URL").pipe(
+    const baseUrl = yield* Config.NonEmptyString("AUTH_BASE_URL").pipe(
       Config.withDefault("http://localhost:3000"),
     );
-    const secret = yield* Config.nonEmptyString("AUTH_SECRET").pipe(
+    const secret = yield* Config.NonEmptyString("AUTH_SECRET").pipe(
       Config.withDefault("local-development-only"),
     );
 

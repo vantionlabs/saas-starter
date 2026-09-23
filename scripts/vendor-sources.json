@@ -2,7 +2,7 @@
   "effect": {
     "prefix": "repos/effect",
     "url": "https://github.com/Effect-TS/effect.git",
-    "ref": "effect@4.0.0-rc.109",
+    "ref": "effect@4.0.0-rc.117",
     "catalogPin": "effect",
     "why": "The whole Effect monorepo, including @effect/atom-react, @effect/vitest, @effect/sql-pg, @effect/platform-bun and the AI packages. The ref is the release tag, never `main`: between releases the package version still reads as the last one while the source has moved on, so a `main` copy claims to be the installed version and is not. That is the one failure this whole arrangement cannot survive, because AGENTS.md tells every reader the vendored source outranks their own recall."
   },

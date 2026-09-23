@@ -67,8 +67,8 @@ export class ObjectStore extends Context.Service<ObjectStore, ObjectStoreService
    */
   static layer: Layer.Layer<ObjectStore> = Layer.unwrap(
     Effect.gen(function*() {
-      const bucket = yield* Config.option(Config.nonEmptyString("S3_BUCKET"));
-      const accessKeyId = yield* Config.option(Config.redacted("S3_ACCESS_KEY_ID"));
+      const bucket = yield* Config.option(Config.NonEmptyString("S3_BUCKET"));
+      const accessKeyId = yield* Config.option(Config.Redacted("S3_ACCESS_KEY_ID"));
 
       if (Option.isNone(bucket) || Option.isNone(accessKeyId)) {
         const { layerLocal } = yield* Effect.promise(() => import("./LocalStore.js"));
@@ -80,14 +80,14 @@ export class ObjectStore extends Context.Service<ObjectStore, ObjectStoreService
 
       return layerS3({
         bucket: bucket.value,
-        region: yield* Config.nonEmptyString("S3_REGION").pipe(Config.withDefault("auto")),
+        region: yield* Config.NonEmptyString("S3_REGION").pipe(Config.withDefault("auto")),
         // Set for R2, MinIO, Tigris and everything else that speaks S3 without
         // being S3. Left unset for AWS itself, whose endpoint the SDK derives.
         endpoint: Option.getOrUndefined(
-          yield* Config.option(Config.nonEmptyString("S3_ENDPOINT")),
+          yield* Config.option(Config.NonEmptyString("S3_ENDPOINT")),
         ),
         accessKeyId: Redacted.value(accessKeyId.value),
-        secretAccessKey: Redacted.value(yield* Config.redacted("S3_SECRET_ACCESS_KEY")),
+        secretAccessKey: Redacted.value(yield* Config.Redacted("S3_SECRET_ACCESS_KEY")),
       });
     }).pipe(Effect.orDie),
   );

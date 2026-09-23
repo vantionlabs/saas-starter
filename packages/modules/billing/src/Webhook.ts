@@ -44,7 +44,7 @@ export const apply = Effect.fnUntraced(function*(event: SubscriptionEvent) {
 
       if (ledger.length === 0) return "duplicate" as const;
 
-      const existing = yield* sql<{ organizationId: string; lastEventCreated: string | null; }>`
+      const existing = yield* sql<{ organizationId: string; lastEventCreated: bigint | null; }>`
         select "organizationId", "lastEventCreated" from "subscription"
         where "stripeCustomerId" = ${event.customerId}
       `;

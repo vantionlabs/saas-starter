@@ -152,20 +152,20 @@ const layerUnconfigured: Layer.Layer<LanguageModel.LanguageModel | ModelStatus> 
  */
 export const layerModel: Layer.Layer<LanguageModel.LanguageModel | ModelStatus> = Layer.unwrap(
   Effect.gen(function*() {
-    const model = yield* Config.nonEmptyString("ASSISTANT_MODEL").pipe(
+    const model = yield* Config.NonEmptyString("ASSISTANT_MODEL").pipe(
       Config.withDefault("openrouter"),
     );
 
     if (model === "scripted") return layerScripted;
 
-    const key = yield* Config.option(Config.redacted("OPENROUTER_API_KEY"));
+    const key = yield* Config.option(Config.Redacted("OPENROUTER_API_KEY"));
 
     if (Option.isNone(key)) return layerUnconfigured;
 
     const { layerOpenRouter } = yield* Effect.promise(() => import("./OpenRouter.js"));
 
     return layerOpenRouter({
-      modelId: yield* Config.nonEmptyString("ASSISTANT_MODEL_ID").pipe(
+      modelId: yield* Config.NonEmptyString("ASSISTANT_MODEL_ID").pipe(
         Config.withDefault("anthropic/claude-haiku-4.5"),
       ),
     });

@@ -46,7 +46,7 @@ export class AdminSql extends Context.Service<AdminSql, SqlClient.SqlClient>()("
  */
 export const layerAdminSql = Layer.effect(AdminSql)(
   Effect.gen(function*() {
-    const url = yield* Config.redacted("ADMIN_DATABASE_URL");
+    const url = yield* Config.Redacted("ADMIN_DATABASE_URL");
 
     return yield* PgClient.make({ url, ...pgClientConfig });
   }),

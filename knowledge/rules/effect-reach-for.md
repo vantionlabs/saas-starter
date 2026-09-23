@@ -8,7 +8,7 @@ This file is keyed on **what you are about to do**, not on module names, because
 the failure it exists to prevent is writing four hundred lines of something that
 is one import. Read it when a task does not look like the code already here.
 
-Everything below is at `4.0.0-rc.109`, and `repos/effect` is the authority —
+Everything below is at `4.0.0-rc.117`, and `repos/effect` is the authority —
 open the real signature before using anything named here.
 
 ---
@@ -95,12 +95,13 @@ rather than a process that resumes. Reach for it when a sequence spans systems
 and partial completion is expensive: charge the card, provision the tenant, send
 the welcome, and on failure at step three do not charge twice.
 
-**Check before adopting.** At rc.109 there are two engines: `layerMemory`, which
-is not durable, and `ClusterWorkflowEngine`, which needs the cluster runtime —
-and the cluster's `MessageStorage` ships only `layerNoop` and `layerMemory`.
-Durable workflows therefore mean adopting the cluster *and* writing a Postgres
-`MessageStorage` yourself. Re-check whether a persistent storage layer has
-landed; this is a release candidate and it is the obvious gap.
+**Check before adopting.** There are two engines: `layerMemory`, which is not
+durable, and `ClusterWorkflowEngine`, which needs the cluster runtime. The
+cluster's storage is not the gap it looks like from `MessageStorage.ts` alone —
+`SqlMessageStorage` and `SqlRunnerStorage` persist to Postgres through the same
+`SqlClient` — so durable workflows mean adopting the cluster, not writing its
+storage. That is still a runtime to operate, and the reason to reach for it has
+to be bigger than one sequence.
 
 ## Atomic coordination inside one process
 

@@ -251,7 +251,7 @@ const chat = yield * Chat.fromExport(data);
 const chat = yield * Chat.fromJson(jsonString);
 ```
 
-### Chat.Service
+### Chat.Chat
 
 ```ts
 interface Service {
@@ -286,7 +286,7 @@ const chat = yield* persistence.get("conversation-1")
 //=> Effect<Chat.Persisted, ChatNotFoundError | PersistenceError>
 ```
 
-`Chat.Persisted` extends `Chat.Service` with `id` and `save`.
+`Chat.Persisted` extends `Chat.Chat` with `id` and `save`.
 
 ## Prompt
 
@@ -707,7 +707,7 @@ Core `Tokenizer` exists in `effect/unstable/ai`, but this checkout does not expo
 | `Tool<Name, Config, Requirements>`               | Single tool definition                                      |
 | `Toolkit<Tools>`                                 | Group of tools (Effect.Yieldable)                           |
 | `Toolkit.WithHandler<Tools>`                     | Resolved toolkit with `.handle(name, params)`               |
-| `Chat.Service`                                   | Stateful conversation with history                          |
+| `Chat.Chat`                                   | Stateful conversation with history                          |
 | `Chat.Persistence`                               | Persistent chat storage (Context.Service)                |
 | `Chat.Persisted`                                 | Chat with `id` and `save`                                   |
 | `Chat.ChatNotFoundError`                         | Error for missing chats                                     |

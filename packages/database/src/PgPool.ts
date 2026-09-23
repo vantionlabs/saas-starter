@@ -2,17 +2,20 @@ import { Config, Context, Effect, Layer, Redacted } from "effect";
 import * as Pg from "pg";
 
 /**
- * The one `pg` pool for the process.
+ * The `pg` pool for the process, and the one place its database is named.
  *
- * Both the Effect `SqlClient` (via `PgLive`) and better-auth are built on this
- * single pool. Two pools would double the connection count per worker and stop
- * auth writes from joining application transactions.
+ * better-auth, `PermissionResolver` and `StaffResolver` query through it
+ * directly. The Effect `SqlClient` does not: `@effect/sql-pg` has its own
+ * driver since rc.113, so `PgLive` opens its own connections to the address
+ * configured here. A process therefore holds two pools, each of up to ten
+ * connections, which is worth knowing when sizing a database's
+ * `max_connections` against the number of replicas.
  */
 export class PgPool extends Context.Service<PgPool, Pg.Pool>()("PgPool") {
   static layer: Layer.Layer<PgPool> = Layer.effect(PgPool)(
     Effect.gen(function*() {
-      const url = yield* Config.redacted("DATABASE_URL");
-      const ssl = yield* Config.boolean("DATABASE_SSL").pipe(Config.withDefault(false));
+      const url = yield* Config.Redacted("DATABASE_URL");
+      const ssl = yield* Config.Boolean("DATABASE_SSL").pipe(Config.withDefault(false));
 
       const pool = new Pg.Pool({
         connectionString: Redacted.value(url),

@@ -17,15 +17,15 @@ import { readLocal, verifyPath, writeLocal } from "./LocalStore.js";
  */
 export const FilesHttp = Layer.unwrap(
   Effect.gen(function*() {
-    const bucket = yield* Config.option(Config.nonEmptyString("S3_BUCKET"));
-    const accessKeyId = yield* Config.option(Config.redacted("S3_ACCESS_KEY_ID"));
+    const bucket = yield* Config.option(Config.NonEmptyString("S3_BUCKET"));
+    const accessKeyId = yield* Config.option(Config.Redacted("S3_ACCESS_KEY_ID"));
 
     if (Option.isSome(bucket) && Option.isSome(accessKeyId)) return Layer.empty;
 
-    const directory = yield* Config.nonEmptyString("FILES_DIR").pipe(
+    const directory = yield* Config.NonEmptyString("FILES_DIR").pipe(
       Config.withDefault(".data/uploads"),
     );
-    const secret = yield* Config.nonEmptyString("AUTH_SECRET").pipe(
+    const secret = yield* Config.NonEmptyString("AUTH_SECRET").pipe(
       Config.withDefault("local-development-only"),
     );
 

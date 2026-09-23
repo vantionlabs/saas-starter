@@ -76,7 +76,7 @@ export class JobQueue extends Context.Service<JobQueue, JobQueueService>()("JobQ
    */
   static layer: Layer.Layer<JobQueue> = Layer.unwrap(
     Effect.gen(function*() {
-      const url = yield* Config.option(Config.redacted("REDIS_URL"));
+      const url = yield* Config.option(Config.Redacted("REDIS_URL"));
 
       if (Option.isNone(url) || Redacted.value(url.value).trim() === "") {
         return JobQueue.layerMemory;

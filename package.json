@@ -87,12 +87,12 @@
       "@better-auth/expo": "~1.6.33",
       "@better-auth/scim": "~1.6.33",
       "@better-auth/sso": "~1.6.33",
-      "@effect/ai-openrouter": "4.0.0-rc.109",
-      "@effect/atom-react": "4.0.0-rc.109",
-      "@effect/opentelemetry": "4.0.0-rc.109",
-      "@effect/platform-bun": "4.0.0-rc.109",
-      "@effect/sql-pg": "4.0.0-rc.109",
-      "@effect/vitest": "4.0.0-rc.109",
+      "@effect/ai-openrouter": "4.0.0-rc.117",
+      "@effect/atom-react": "4.0.0-rc.117",
+      "@effect/opentelemetry": "4.0.0-rc.117",
+      "@effect/platform-bun": "4.0.0-rc.117",
+      "@effect/sql-pg": "4.0.0-rc.117",
+      "@effect/vitest": "4.0.0-rc.117",
       "@lucas-barake/effect-form": "0.25.0-beta.6",
       "@lucas-barake/effect-form-react": "0.26.0-beta.5",
       "@opentelemetry/api": "^1.9.1",
@@ -126,7 +126,7 @@
       "class-variance-authority": "^0.7.1",
       "clsx": "^2.1.1",
       "cmdk": "^1.1.1",
-      "effect": "4.0.0-rc.109",
+      "effect": "4.0.0-rc.117",
       "happy-dom": "^20.0.0",
       "ioredis": "^5.9.0",
       "knip": "^6.37.0",
@@ -157,6 +157,6 @@
   ],
   "overrides": {
     "@lucas-barake/effect-form": "0.25.0-beta.6",
-    "@effect/platform-node-shared": "4.0.0-rc.109"
+    "@effect/platform-node-shared": "4.0.0-rc.117"
   }
 }

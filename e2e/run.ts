@@ -24,7 +24,7 @@ const command = Command.make(
      * Whatever Playwright should get. Variadic rather than parsed, because
      * these are another tool's flags and this one has no business knowing them.
      */
-    playwright: Argument.string("playwright-arg").pipe(
+    playwright: Argument.String("playwright-arg").pipe(
       Argument.withDescription("Passed through to `playwright test`."),
       Argument.variadic(),
     ),
@@ -46,6 +46,15 @@ const command = Command.make(
   }),
 );
 
+/**
+ * Everything after the script name belongs to Playwright, so it is handed over
+ * behind `--`. The CLI refuses a flag it does not declare, and a `--` typed by
+ * hand does not survive: Bun strips one that directly follows the script.
+ */
+const forwarded = process.argv.slice(2);
+
 BunRuntime.runMain(
-  Command.run(command, { version: "0.0.0" }).pipe(Effect.provide(BunServices.layer)),
+  Command.runWith(command, { version: "0.0.0" })(
+    forwarded[0] === "--" ? forwarded : ["--", ...forwarded],
+  ).pipe(Effect.provide(BunServices.layer)),
 );

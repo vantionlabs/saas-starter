@@ -97,7 +97,7 @@ const ApiLive = Layer.mergeAll(
  */
 const CorsLive = Layer.unwrap(
   Effect.gen(function*() {
-    const webUrl = yield* Config.nonEmptyString("WEB_URL").pipe(
+    const webUrl = yield* Config.NonEmptyString("WEB_URL").pipe(
       Config.withDefault("http://localhost:5173"),
     );
 
@@ -118,7 +118,7 @@ const Routes = Layer.mergeAll(
 
 const HttpLive = Layer.unwrap(
   Effect.gen(function*() {
-    const port = yield* Config.port("PORT").pipe(Config.withDefault(3000));
+    const port = yield* Config.Port("PORT").pipe(Config.withDefault(3000));
 
     // `serve` materialises the requirements the route handlers declared, so the
     // application layers are provided here rather than to `Routes`. `PgPool` is

@@ -66,7 +66,7 @@ export const hydrated = (
   ...entries: ReadonlyArray<Dehydrated>
 ): Array<Hydration.DehydratedAtomValue> =>
   entries.map((entry) => ({
-    "~effect/reactivity/DehydratedAtom": true,
+    "~effect/reactivity/Hydration/DehydratedAtom": true,
     key: entry.key,
     value: JSON.parse(entry.value) as unknown,
     dehydratedAt: entry.dehydratedAt,

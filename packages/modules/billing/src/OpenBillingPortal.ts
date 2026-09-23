@@ -25,7 +25,7 @@ export const OpenBillingPortal = BillingRpcs.toLayerHandler(
 
       if (Option.isNone(row)) return yield* new NotSubscribed();
 
-      const webUrl = yield* Config.nonEmptyString("WEB_URL").pipe(Effect.orDie);
+      const webUrl = yield* Config.NonEmptyString("WEB_URL").pipe(Effect.orDie);
 
       const session = yield* stripe.portal({
         customerId: row.value.stripeCustomerId,

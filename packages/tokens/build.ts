@@ -25,8 +25,9 @@ class OutOfDate extends Data.TaggedError("OutOfDate")<{}> {
 const command = Command.make(
   "tokens",
   {
-    check: Flag.boolean("check").pipe(
+    check: Flag.Boolean("check").pipe(
       Flag.withDescription("Fail if the committed stylesheet is not what the tokens render."),
+      Flag.withDefault(false),
     ),
   },
   Effect.fnUntraced(function*({ check }) {

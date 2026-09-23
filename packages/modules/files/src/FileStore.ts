@@ -9,15 +9,15 @@ type Row = {
   readonly key: string;
   readonly name: string;
   readonly contentType: string;
-  readonly size: string;
+  readonly size: bigint;
   readonly status: "pending" | "ready";
   readonly createdAt: Date;
 };
 
 /**
- * `size` arrives as a string because the column is `bigint`, which node-postgres
- * will not narrow to a JavaScript number on its own — and it is right not to.
- * Files are well inside the safe range, so the conversion happens here, once.
+ * `size` arrives as a JavaScript `bigint` because the column is `bigint`, and
+ * the driver is right not to narrow it on its own. Files are well inside the
+ * safe range, so the conversion happens here, once.
  */
 const toFile = (row: Row) =>
   new StoredFile({

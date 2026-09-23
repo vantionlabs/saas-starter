@@ -68,8 +68,8 @@ export class Mailer extends Context.Service<Mailer, MailerService>()("Mailer") {
 
   static layerResend: Layer.Layer<Mailer> = Layer.effect(Mailer)(
     Effect.gen(function*() {
-      const apiKey = yield* Config.redacted("RESEND_API_KEY");
-      const from = yield* Config.nonEmptyString("EMAIL_FROM");
+      const apiKey = yield* Config.Redacted("RESEND_API_KEY");
+      const from = yield* Config.NonEmptyString("EMAIL_FROM");
       const resend = new Resend(Redacted.value(apiKey));
 
       const send = Effect.fn("Mailer.send")(function*(message: EmailMessage) {
@@ -115,7 +115,7 @@ export class Mailer extends Context.Service<Mailer, MailerService>()("Mailer") {
        * empty value as a *failure* rather than as absence, and empty is exactly
        * what `.env.example` ships and what an unset platform variable becomes.
        */
-      const configured = yield* Config.option(Config.string("RESEND_API_KEY"));
+      const configured = yield* Config.option(Config.String("RESEND_API_KEY"));
 
       return Option.isSome(configured) && configured.value.trim() !== ""
         ? Mailer.layerResend

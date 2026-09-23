@@ -33,6 +33,7 @@ import * as HttpClientRequest from "./HttpClientRequest.ts"
 import * as HttpIncomingMessage from "./HttpIncomingMessage.ts"
 import { hasBody, type HttpMethod } from "./HttpMethod.ts"
 import { HttpServerError, type RequestError, RequestParseError } from "./HttpServerError.ts"
+import * as bodyInternal from "./internal/httpBody.ts"
 import * as Multipart from "./Multipart.ts"
 import * as UrlParams from "./UrlParams.ts"
 
@@ -244,7 +245,7 @@ export const schemaSearchParams = <
  */
 export const schemaBodyJson = <A, RD>(
   schema: Schema.ConstraintDecoder<A, RD>,
-  options?: ParseOptions | undefined
+  options?: (ParseOptions & HttpIncomingMessage.JsonOptions) | undefined
 ): Effect.Effect<A, HttpServerError | Schema.SchemaError, HttpServerRequest | RD> => {
   const parse = HttpIncomingMessage.schemaBodyJson(schema, options)
   return Effect.flatMap(HttpServerRequest, parse)
@@ -346,11 +347,11 @@ export const schemaBodyMultipart = <A, I extends Partial<Multipart.Persisted>, R
  */
 export const schemaBodyFormJson = <A, RD>(
   schema: Schema.ConstraintDecoder<A, RD>,
-  options?: ParseOptions | undefined
+  options?: (ParseOptions & HttpIncomingMessage.JsonOptions) | undefined
 ) => {
   const parseMultipart = Multipart.schemaJson(schema, options)
   return (field: string) => {
-    const parseUrlParams = UrlParams.schemaJsonField(field).pipe(
+    const parseUrlParams = Schema.JsonFromUrlParamsField(field, options).pipe(
       Schema.decodeTo(schema),
       Schema.decodeEffect
     )
@@ -423,18 +424,23 @@ export const fromWeb = (request: globalThis.Request): HttpServerRequest =>
  * @category converting
  * @since 4.0.0
  */
-export const toClientRequest = (request: HttpServerRequest): HttpClientRequest.HttpClientRequest =>
-  HttpClientRequest.setUrl(
+export const toClientRequest = (request: HttpServerRequest): HttpClientRequest.HttpClientRequest => {
+  const body = toClientBody(request)
+  const headers = body._tag !== "Empty" && body.contentLength === undefined
+    ? Headers.remove(request.headers, "content-length")
+    : request.headers
+  return HttpClientRequest.setUrl(
     HttpClientRequest.makeWith(
       request.method,
       "",
       UrlParams.empty,
       Option.none(),
-      request.headers,
-      toClientBody(request)
+      headers,
+      body
     ),
     Option.getOrElse(toURL(request), () => request.url)
   )
+}
 
 const toClientBody = (request: HttpServerRequest): HttpBody.HttpBody => {
   if (!hasBody(request.method)) {
@@ -445,17 +451,9 @@ const toClientBody = (request: HttpServerRequest): HttpBody.HttpBody => {
     ? HttpBody.stream(
       request.stream,
       request.headers["content-type"],
-      parseContentLength(request.headers["content-length"])
+      bodyInternal.parseContentLength(request.headers["content-length"])
     )
     : HttpBody.formData(formData)
-}
-
-const parseContentLength = (contentLength: string | undefined): number | undefined => {
-  if (contentLength === undefined) {
-    return undefined
-  }
-  const parsed = Number.parseInt(contentLength, 10)
-  return Number.isNaN(parsed) ? undefined : parsed
 }
 
 const removeHost = (url: string) => {
@@ -842,7 +840,11 @@ class ClientRequestImpl extends Inspectable.Class implements HttpServerRequest {
   }
 
   get arrayBuffer(): Effect.Effect<ArrayBuffer, HttpServerError> {
-    return Effect.map(this.bytes, (bytes) => bytes.slice().buffer)
+    return Effect.map(
+      this.bytes,
+      // Copy this view because Buffer views may share a larger ArrayBuffer.
+      (bytes) => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer
+    )
   }
 
   get upgrade(): Effect.Effect<Socket.Socket, HttpServerError> {

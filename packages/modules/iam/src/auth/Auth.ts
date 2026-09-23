@@ -39,11 +39,11 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
          */
         const sql = yield* SqlClient.SqlClient;
 
-        const baseURL = yield* Config.nonEmptyString("AUTH_BASE_URL").pipe(
+        const baseURL = yield* Config.NonEmptyString("AUTH_BASE_URL").pipe(
           Config.withDefault("http://localhost:3000"),
         );
-        const secret = yield* Config.redacted("AUTH_SECRET");
-        const webUrl = yield* Config.nonEmptyString("WEB_URL").pipe(
+        const secret = yield* Config.Redacted("AUTH_SECRET");
+        const webUrl = yield* Config.NonEmptyString("WEB_URL").pipe(
           Config.withDefault("http://localhost:5173"),
         );
 
@@ -53,7 +53,7 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
          * Configured rather than hard-coded: the subject line of a sign-in mail is the
          * first thing a customer of a renamed fork ever reads.
          */
-        const product = yield* Config.nonEmptyString("PRODUCT_NAME").pipe(
+        const product = yield* Config.NonEmptyString("PRODUCT_NAME").pipe(
           Config.withDefault("vantion"),
         );
 
@@ -62,7 +62,7 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
          * parent — `.example.com`. Left unset they share a host and better-auth's
          * default is correct.
          */
-        const cookieDomain = yield* Config.option(Config.nonEmptyString("AUTH_COOKIE_DOMAIN"));
+        const cookieDomain = yield* Config.option(Config.NonEmptyString("AUTH_COOKIE_DOMAIN"));
 
         /**
          * Identity-provider origins an OIDC registration may fetch discovery
@@ -80,13 +80,13 @@ export class Auth extends Context.Service<Auth, AuthInstance>()("Auth") {
          * variable is for the deployments that prefer discovery, and is empty
          * by default.
          */
-        const discoveryOrigins = yield* Config.nonEmptyString("SSO_DISCOVERY_ORIGINS").pipe(
+        const discoveryOrigins = yield* Config.NonEmptyString("SSO_DISCOVERY_ORIGINS").pipe(
           Config.withDefault(""),
         );
 
         const google = yield* Config.all({
-          clientId: Config.nonEmptyString("GOOGLE_CLIENT_ID"),
-          clientSecret: Config.nonEmptyString("GOOGLE_CLIENT_SECRET"),
+          clientId: Config.NonEmptyString("GOOGLE_CLIENT_ID"),
+          clientSecret: Config.NonEmptyString("GOOGLE_CLIENT_SECRET"),
         }).pipe(Config.option);
 
         const sendEmail = (message: EmailMessage): Promise<void> =>

@@ -12,7 +12,7 @@ import { StripeClient } from "./StripeClient.js";
  * — the most attractive possible place to be sent somewhere else.
  */
 const returnUrls = Effect.map(
-  Config.nonEmptyString("WEB_URL"),
+  Config.NonEmptyString("WEB_URL"),
   (webUrl) => ({
     successUrl: `${webUrl.replace(/\/$/, "")}/settings/billing?checkout=done`,
     cancelUrl: `${webUrl.replace(/\/$/, "")}/settings/billing?checkout=cancelled`,

@@ -31,11 +31,11 @@ import { seedTenant } from "./seed/Tenants.js";
 const command = Command.make(
   "seed",
   {
-    api: Flag.string("api").pipe(
+    api: Flag.String("api").pipe(
       Flag.withDescription("Where the API is listening."),
       Flag.withDefault("http://localhost:3000"),
     ),
-    web: Flag.string("web").pipe(
+    web: Flag.String("web").pipe(
       Flag.withDescription("The origin better-auth trusts; sign-up is refused without it."),
       Flag.withDefault("http://localhost:5173"),
     ),

@@ -1,6 +1,6 @@
 import { assert, describe, it } from "@effect/vitest"
 import { strictEqual } from "@effect/vitest/utils"
-import { Clock, Duration, Effect, Fiber, Layer, Ref, Stream } from "effect"
+import { Clock, Duration, Effect, Fiber, Layer, Ref, Schema, Stream } from "effect"
 import { TestClock } from "effect/testing"
 import * as Tracer from "effect/Tracer"
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
@@ -38,6 +38,97 @@ const makeRedirectClient = Effect.fnUntraced(function*(status: number, location:
 const RateLimiterTestLayer = RateLimiter.layer.pipe(Layer.provide(RateLimiter.layerStoreMemory))
 
 describe("HttpClient", () => {
+  it.effect("applies JSON revivers to response schema decoders", () =>
+    Effect.gen(function*() {
+      const makeResponse = () =>
+        HttpClientResponse.fromWeb(
+          HttpClientRequest.get("https://example.com"),
+          new Response("{\"value\":\"original\"}")
+        )
+      const options = {
+        reviver: (key: string, value: unknown) => key === "value" ? "revived" : value
+      }
+
+      assert.deepStrictEqual(
+        yield* HttpClientResponse.schemaBodyJson(Schema.Struct({ value: Schema.String }), options)(makeResponse()),
+        { value: "revived" }
+      )
+      assert.deepStrictEqual(
+        yield* HttpClientResponse.schemaJson(
+          Schema.Struct({ body: Schema.Struct({ value: Schema.String }) }),
+          options
+        )(makeResponse()),
+        { body: { value: "revived" } }
+      )
+    }))
+
+  it.effect("forwards parse options to response schema decoders", () =>
+    Effect.gen(function*() {
+      const response = HttpClientResponse.fromWeb(
+        HttpClientRequest.get("https://example.com"),
+        new Response("{}")
+      )
+      const error = yield* HttpClientResponse.schemaJson(
+        Schema.Struct({
+          body: Schema.Struct({
+            a: Schema.String,
+            b: Schema.String
+          })
+        }),
+        { errors: "all" }
+      )(response).pipe(Effect.flip)
+
+      assert.strictEqual(
+        error.message,
+        `Missing key
+  at ["body"]["a"]
+Missing key
+  at ["body"]["b"]`
+      )
+    }))
+
+  it.effect("forwards parse options to response schema decoders without a body", () =>
+    Effect.gen(function*() {
+      const response = HttpClientResponse.fromWeb(
+        HttpClientRequest.get("https://example.com"),
+        new Response(null)
+      )
+      const error = yield* HttpClientResponse.schemaNoBody(
+        Schema.Struct({
+          headers: Schema.Struct({
+            a: Schema.String,
+            b: Schema.String
+          })
+        }),
+        { errors: "all" }
+      )(response).pipe(Effect.flip)
+
+      assert.strictEqual(
+        error.message,
+        `Missing key
+  at ["headers"]["a"]
+Missing key
+  at ["headers"]["b"]`
+      )
+    }))
+
+  it.effect("preserves a raw large integer through schemaBodyJson reviver context", () =>
+    Effect.gen(function*() {
+      const response = HttpClientResponse.fromWeb(
+        HttpClientRequest.get("https://example.com"),
+        new Response("{\"value\":9223372036854775807}")
+      )
+      const reviver = ((key: string, value: unknown, context: { readonly source: string }) =>
+        key === "value" ? context.source : value) as Parameters<typeof JSON.parse>[1]
+
+      const decoded = yield* HttpClientResponse.schemaBodyJson(
+        Schema.Struct({ value: Schema.String }),
+        { reviver }
+      )(response)
+
+      assert.strictEqual(decoded.value, "9223372036854775807")
+    }))
+
   it.effect("preserves source bytes after reading response text", () =>
     Effect.gen(function*() {
       const response = HttpClientResponse.fromWeb(
@@ -153,6 +244,23 @@ describe("HttpClient", () => {
   })
 
   describe("followRedirects", () => {
+    it.effect("preserves preprocessing error recovery", () =>
+      Effect.gen(function*() {
+        const request = HttpClientRequest.get("https://origin.test/")
+        const recovered = HttpClientResponse.fromWeb(request, new Response(null, { status: 418 }))
+        const client = HttpClient.make((request) =>
+          Effect.succeed(HttpClientResponse.fromWeb(request, new Response(null, { status: 200 })))
+        ).pipe(
+          HttpClient.mapRequestEffect(() => Effect.fail("preprocessing failed")),
+          HttpClient.catch(() => Effect.succeed(recovered)),
+          HttpClient.followRedirects()
+        )
+
+        const response = yield* client.execute(request)
+
+        assert.strictEqual(response, recovered)
+      }))
+
     it.effect("preserves credential headers on same-origin redirects", () =>
       Effect.gen(function*() {
         const { client, requests } = yield* makeRedirectClient(302, "https://origin.test/destination")

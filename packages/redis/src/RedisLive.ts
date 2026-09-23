@@ -1,4 +1,4 @@
-import { Config, Effect, Layer, Option, Redacted } from "effect";
+import { Config, Deferred, Effect, Exit, Layer, Option, Redacted } from "effect";
 import { Redis } from "effect/unstable/persistence";
 import IORedis from "ioredis";
 
@@ -40,6 +40,42 @@ export const layerRedis = (url: string): Layer.Layer<Redis.Redis> =>
             try: () => client.call(command, ...args) as Promise<A>,
             catch: (cause) => new Redis.RedisError({ cause }),
           }),
+        /**
+         * A connection of its own per subscription, because a Redis
+         * connection that has issued `SUBSCRIBE` can do nothing else. ioredis
+         * reconnects and re-subscribes by itself, so what ends a subscription
+         * is the scope closing, or the connection giving up — which is the
+         * effect handed back, and what fails the caller's queue.
+         */
+        subscribe: (channel, onMessage) =>
+          Effect.gen(function*() {
+            const ended = yield* Deferred.make<void, Redis.RedisError>();
+            const subscriber = yield* Effect.acquireRelease(
+              Effect.tryPromise({
+                try: async () => {
+                  const subscriber = client.duplicate();
+                  subscriber.on("message", (from: string, message: string) => {
+                    onMessage({ channel: from, message });
+                  });
+                  subscriber.on("end", () => {
+                    Deferred.doneUnsafe(
+                      ended,
+                      Exit.fail(new Redis.RedisError({ cause: "subscriber connection ended" })),
+                    );
+                  });
+                  await subscriber.subscribe(channel);
+
+                  return subscriber;
+                },
+                catch: (cause) => new Redis.RedisError({ cause }),
+              }),
+              (subscriber) => Effect.promise(() => subscriber.quit()).pipe(Effect.ignore),
+            );
+
+            return Deferred.await(ended).pipe(
+              Effect.ensuring(Effect.sync(() => subscriber.removeAllListeners())),
+            );
+          }),
       });
     }),
   ).pipe(Layer.orDie);
@@ -52,7 +88,7 @@ export const layerRedis = (url: string): Layer.Layer<Redis.Redis> =>
  * means.
  */
 export const redisUrl: Effect.Effect<Option.Option<string>> = Config.option(
-  Config.redacted("REDIS_URL"),
+  Config.Redacted("REDIS_URL"),
 ).pipe(
   Effect.map(Option.flatMap((url) => {
     const value = Redacted.value(url).trim();

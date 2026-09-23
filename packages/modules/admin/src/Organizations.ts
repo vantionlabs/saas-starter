@@ -25,7 +25,7 @@ const summary = (row: {
   id: string;
   name: string;
   slug: string;
-  members: string;
+  members: bigint;
   plan: string | null;
   createdAt: Date;
 }) =>
@@ -55,7 +55,7 @@ export const listOrganizations = (reason: string) =>
         id: string;
         name: string;
         slug: string;
-        members: string;
+        members: bigint;
         plan: string | null;
         createdAt: Date;
       }>`
@@ -84,20 +84,20 @@ export const getOrganization = (organizationId: string, reason: string) =>
         id: string;
         name: string;
         slug: string;
-        members: string;
+        members: bigint;
         plan: string | null;
         createdAt: Date;
-        contacts: string;
-        files: string;
-        apiKeys: string;
-        webhookEndpoints: string;
+        contacts: bigint;
+        files: bigint;
+        apiKeys: bigint;
+        webhookEndpoints: bigint;
         subStatus: string | null;
         subSeats: number | null;
         subPeriodEnd: Date | null;
         subCancelAtPeriodEnd: boolean | null;
-        outboxPending: string;
-        failedDeliveries: string;
-        disabledEndpoints: string;
+        outboxPending: bigint;
+        failedDeliveries: bigint;
+        disabledEndpoints: bigint;
       }>`
         select
           o."id", o."name", o."slug", o."createdAt", s."plan",
