@@ -29,6 +29,7 @@ import * as Alchemy from "alchemy";
  * Website composites, which import an optional peer this repository has no use
  * for and bun's isolated linker rightly does not install.
  */
+import { CustomDomain } from "alchemy/Railway/CustomDomain";
 import { Postgres } from "alchemy/Railway/Postgres";
 import { Project } from "alchemy/Railway/Project";
 import { providers } from "alchemy/Railway/Providers";
@@ -48,10 +49,11 @@ const REPO = "vantionlabs/saas-starter";
 /**
  * The stages that exist, and what each deploys.
  *
- * `domain` is the parent of `app.` and `api.` once the stage has one. Until
- * then both services use their generated `*.up.railway.app` hosts, which is
- * enough to boot but not to sign in: `up.railway.app` is a public suffix, so
- * no cookie can span the two. `docs/deploy.md` has the long version.
+ * `domain` is the parent of `app.` and `api.` once the stage has one, and
+ * setting it creates both hostnames. Until then both services use their
+ * generated `*.up.railway.app` hosts, which is enough to boot but not to sign
+ * in: `up.railway.app` is a public suffix, so no cookie can span the two.
+ * `docs/deploy.md` has the long version.
  */
 const targets = {
   prod: { branch: "main", domain: undefined },
@@ -256,6 +258,15 @@ export default Alchemy.Stack(
          */
         VITE_AUTH_BASE_URL: `https://${api.fromSibling}`,
         WEB_URL: `https://${web.own}`,
+        /**
+         * Where server rendering calls the API: its *private* address, so a
+         * request that never leaves the project does not go out to the edge
+         * and back for every page. Plain HTTP because the private network is
+         * already encrypted, and 3000 because that is the port the API's
+         * Dockerfile sets. `server/rpc.ts` falls back to the public address
+         * when this is unset, which works and costs the round trip.
+         */
+        AUTH_BASE_URL: `http://${ref("api", "RAILWAY_PRIVATE_DOMAIN")}:3000`,
       },
     });
 
@@ -277,11 +288,36 @@ export default Alchemy.Stack(
       ...restart,
     });
 
+    /**
+     * The two hostnames a browser uses, once the stage has a domain. Railway's
+     * own config could not create these — its runner rejected a `domains`
+     * entry — so they were a dashboard step; here they are two resources, and
+     * what is left by hand is the DNS record each one reports.
+     */
+    const domains = target.domain === undefined ? [] : [
+      yield* CustomDomain("api-domain", {
+        service: apiService,
+        environment: project,
+        domain: `api.${target.domain}`,
+      }),
+      yield* CustomDomain("web-domain", {
+        service: webService,
+        environment: project,
+        domain: `app.${target.domain}`,
+      }),
+    ];
+
     return {
       project: project.name,
       services: [apiService, workerService, webService, marketing, brand].map((service) =>
         service.name
       ),
+      domains: domains.map((domain) => ({
+        domain: domain.domain,
+        verified: domain.verified,
+        txtHost: domain.verificationDnsHost,
+        txtValue: domain.verificationToken,
+      })),
     };
   }),
 );

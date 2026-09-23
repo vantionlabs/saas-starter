@@ -24,6 +24,12 @@
   "playwright": false,
   "ignoreDependencies": [
     /**
+     * The Railway CLI, run by the MCP server in `.mcp.json` as `bunx railway
+     * mcp` and imported by nothing. The pin is what keeps that from being
+     * whatever npm serves the day an editor starts it.
+     */
+    "railway",
+    /**
      * Named in `lefthook.yml` and in `.secretlintrc.json`, neither of which
      * knip reads, and run as a command rather than imported.
      */

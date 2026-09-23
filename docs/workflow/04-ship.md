@@ -28,13 +28,14 @@ the checklist is things that are simply true or false.
 ## Deploying
 
 ```
-railway config plan     # read the diff
-railway config apply
+bun run deploy:plan --stage staging     # read the diff
 ```
 
-`.railway/railway.ts` describes the whole project — database, services,
-variables, health checks — so a deployment is reviewable the way a pull request
-is. Two lines change on a fork: the repository and the project name.
+`alchemy.run.ts` describes the whole deployment — a Project per stage, database,
+services, variables, health checks — and `.github/workflows/deploy.yml` applies
+it: a pull request gets the plan, a push to `staging` or `main` is applied once
+CI passes. A deployment is reviewable the way a pull request is.
+`docs/deploy.md` is the long version.
 
 Migrations run as their own step, never at boot: two instances starting together
 would both migrate.

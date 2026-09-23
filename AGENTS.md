@@ -1099,7 +1099,7 @@ nightly matrix for the rest.
 
 The second half of `bun run check` is `tsconfig.tools.json`, which type-checks what
 project references cannot: the Vite and Vitest configs, `vitest.shared.ts`,
-`setupTests.ts`, and `.railway/railway.ts`. These are ordinary TypeScript that
+`setupTests.ts`, and `alchemy.run.ts`. These are ordinary TypeScript that
 nothing else compiles, so without it an error there surfaces only when the tool
 that loads the file runs.
 
@@ -1540,38 +1540,58 @@ the OTP path the limit is the security boundary rather than a politeness measure
 The API allows exactly one CORS origin, `WEB_URL`, which is already the origin better-auth
 trusts. Widening it would only let a request through that better-auth then refuses.
 
-`.railway/railway.ts` describes the whole Railway project: Postgres, Redis, all three
-services, their Dockerfiles, health check, watch patterns, and the variables wiring them
-together. The worker carries no domain and no health check because it serves nothing, and it
-does not run migrations — the API's `preDeployCommand` does, and two services migrating one
-database is the race that command exists to avoid. `railway
-config plan` shows the diff and `railway config apply` performs it. Two lines change on a fork —
-the repository and the project name.
+`alchemy.run.ts` describes the whole deployment as an [Alchemy](https://alchemy.run) stack: a
+Railway Project per stage, its Postgres and Redis, and all five services — their Dockerfiles,
+health check, watch patterns, and the variables wiring them together. It replaced a
+`railway/iac` file in the move to Effect rc.117, which Alchemy needs; `docs/deploy.md` is the
+long version.
 
-Secrets are `preserve()`, so the file plans no change to them; set `AUTH_SECRET` and the rest in
-Railway once. Two variables are load-bearing rather than cosmetic. The API's `WEB_URL` must be
-the web service's public URL, because `Auth.ts` passes it to better-auth as a trusted origin and
-a browser POST from any other origin is refused outright. The web service's `AUTH_BASE_URL`
-points at the API's _private_ domain, because both the SSR session lookup and the proxy above are
-server-to-server inside the project.
+**A stage is a Project, not an environment inside one.** `staging` and `prod` share nothing, so
+`destroy` on one cannot reach the other, and a Railway PR environment copied from staging holds
+staging's credentials. Any other stage is refused rather than created, because the CLI's
+default is `live_$USER` and a Project per person deploying `main` is a bill.
 
-**Preview environments per pull request** are a dashboard setting, not config — the IaC
-schema has no field for one — and nothing in `.railway/railway.ts` needs changing for them:
-the services are wired to each other with reference variables, so a PR environment's API
-trusts its own web app rather than production's. Turn **Focused PR Environments** on, since
-every service already has the `watchPatterns` it reads, and **Bot PR Environments** off, or
-each Dependabot bump raises a full stack.
+**State lives in a Postgres outside everything the stack creates** — `ALCHEMY_STATE_DATABASE_URL`
+— or `destroy` would delete its own record halfway. Its advisory lock per stage is what makes
+two applies unable to interleave.
 
-The part to know before switching it on is that **sign-in does not work in a preview**
-without a wildcard domain of your own. Each service gets its own generated host and
-`up.railway.app` is a public suffix, so the session cookie cannot be shared — the same
-constraint this file already documents for a split production deployment, made unavoidable.
-`apps/design` is the preview that is complete rather than half-working, because it has no
-session to fail. `docs/railway-previews.md` is the long version.
+**Secrets are the deploying environment's**, not the dashboard's: read at deploy time from the
+GitHub environment and written to Railway, so a value set by hand is overwritten by the next
+deploy. That is the opposite of the `preserve()` it replaced, and it is why a laptop deploy is
+the wrong one — the CLI layers the developer's `.env` under the environment.
 
-Railway's IaC API is in beta and its own README says it will change. The stable alternative is a
-`railway.json` per app, which covers build and deploy settings but cannot create the database or
-the services.
+`.github/workflows/deploy.yml` plans on a pull request and applies after `ci` passes on a push
+to `staging` or `main`, against the commit that passed; `production` has a required reviewer.
+The plan runs the pull request's `alchemy.run.ts` with staging's credentials, which is the
+price of a plan on every pull request and why production is never used for one.
+
+**Watch patterns are derived, not listed.** Each is every workspace package the image installs,
+from `tooling/DockerManifests.ts` — the function `docker.test.ts` holds the `COPY` lines to. The
+hand-written lists had drifted to three directories for an image that depends on eighteen, so
+a change to a module never redeployed the API on its own.
+
+Writing it found three variables the old file had wrong. The API reads S3, OpenRouter and the
+assistant model and was given none of them; the worker, which registers only the jobs and
+webhooks modules, was given all three. And the web service's `AUTH_BASE_URL` — which this file
+said pointed at the API's private domain — was never set, so every server-rendered page called
+the API through the public edge. `api.<domain>` and `app.<domain>` are resources now, too:
+Railway's runner rejected a `domains` entry outright.
+
+The worker carries no domain and no health check because it serves nothing, and it does not
+run migrations — the API's `preDeploy` does, and two services migrating one database is the
+race that step exists to avoid. The API's `WEB_URL` must be the web service's public URL,
+because `Auth.ts` passes it to better-auth as a trusted origin and a browser POST from any other
+origin is refused outright.
+
+The part to know before choosing hostnames is that **sign-in does not work on generated hosts**.
+Each service gets its own and `up.railway.app` is a public suffix, so the session cookie cannot
+be shared. `apps/design` is the preview that is complete rather than half-working, because it
+has no session to fail.
+
+Alchemy is a beta, and its Railway provider was about a month old when this was written; the
+version is pinned exactly for that reason. Its `Railway` barrel is imported by file rather than
+whole, because the barrel re-exports framework composites that import an optional peer bun's
+isolated linker rightly does not install.
 
 `packages/telemetry` owns both halves of observability, and both processes use it.
 

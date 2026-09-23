@@ -10,7 +10,7 @@
 # builds is for the reader; the context is for the package manager.
 #
 # On a platform that builds a Dockerfile for you, point it at this path —
-# Railway takes `RAILWAY_DOCKERFILE_PATH=apps/server/Dockerfile`.
+# `alchemy.run.ts` points its Railway service at this file.
 #
 # This image also carries the migration runner. Migrations are applied by a
 # script and never at boot — two instances starting together would both migrate —

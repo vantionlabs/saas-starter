@@ -9,7 +9,7 @@
 # whole repo whatever the Dockerfile's own location.
 #
 # On a platform that builds a Dockerfile for you, point it at this path —
-# Railway takes `RAILWAY_DOCKERFILE_PATH=apps/web/Dockerfile`.
+# `alchemy.run.ts` points its Railway service at this file.
 #
 # This serves SSR and its own static assets. Behind a CDN the asset requests
 # should never reach it, but a boilerplate that only works behind one is not
