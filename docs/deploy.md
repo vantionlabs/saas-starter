@@ -92,6 +92,9 @@ pass `--env-file` naming a file that holds that stage's values and nothing else.
    `RAILWAY_API_TOKEN`, `ALCHEMY_STATE_DATABASE_URL`, `AUTH_SECRET`, `RESEND_API_KEY` and
    whichever optional secrets that stage uses. Give `production` a required reviewer.
    Leave `staging`'s deployment branches unrestricted: pull requests plan against it.
+4. **Turn it on**: a repository variable `DEPLOY_ENABLED=true`. Until then the workflow's jobs
+   are skipped, because a repository generated from this template has none of the above, and
+   without the switch its first push to `main` would be a failed production deploy.
 
 ## What CI does
 

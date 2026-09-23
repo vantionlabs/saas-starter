@@ -29,6 +29,12 @@ on:
       - bun.lock
       - .github/workflows/deploy.yml
 
+# Off until a repository says otherwise. Both jobs require the repository
+# variable `DEPLOY_ENABLED` to be `true`, because this file is inherited by every
+# repository generated from the template, and a fresh one has no Railway token
+# and no environments — without the switch, its first push to `main` is a
+# failed production deploy, and so is every push after it.
+#
 # Read-only, the same as `ci.yml`. Nothing here writes to the repository; the
 # writes go to Railway, with a token that lives in a GitHub environment.
 permissions:
@@ -38,7 +44,10 @@ jobs:
   plan:
     # Skipped for a fork's pull request: it gets no secrets, and a plan it
     # cannot compute would read as a failing check rather than a missing one.
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    if: >-
+      vars.DEPLOY_ENABLED == 'true'
+      && github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     # The plan executes `alchemy.run.ts` from the pull request with staging's
     # credentials — anybody who can push a branch here can read them. That is
@@ -90,7 +99,8 @@ jobs:
     # Only a `ci` run that passed, and only one that ran on a push. A pull
     # request's run is a `workflow_run` too, from a branch that may be a fork's.
     if: >-
-      github.event_name == 'workflow_run'
+      vars.DEPLOY_ENABLED == 'true'
+      && github.event_name == 'workflow_run'
       && github.event.workflow_run.conclusion == 'success'
       && github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
