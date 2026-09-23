@@ -123,7 +123,9 @@
       "entry": [
         ".claude/hooks/*.mjs",
         // Loaded by the `alchemy` CLI, never imported.
-        "alchemy.run.ts"
+        "alchemy.run.ts",
+        // `bun run deploy:dry-run`.
+        "alchemy.dry-run.ts"
       ]
     }
   }

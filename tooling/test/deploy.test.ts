@@ -22,7 +22,10 @@ const firstGroups = (source: string, pattern: RegExp): ReadonlyArray<string> =>
  */
 const stackReads = [
   ...new Set(
-    firstGroups(stack, /(?:required|optional|Config\.(?:Redacted|String))\("([A-Z0-9_]+)"\)/g),
+    firstGroups(
+      stack,
+      /(?:required|optional|setting|Config\.(?:Redacted|String))\("([A-Z0-9_]+)"\)/g,
+    ),
   ),
 ].sort();
 

@@ -6,10 +6,35 @@ Redis, and the five services built from this repository's Dockerfiles. It is an
 applied by a CLI — and `.github/workflows/deploy.yml` is what applies it.
 
 ```
-bun run deploy:plan --stage staging     # what would change
+bun run deploy:dry-run                  # what each stage is made of — no token, no network
+bun run deploy:plan --stage staging     # what would change on Railway
 bun run deploy --stage staging          # change it
 bun run deploy:destroy --stage staging  # remove all of it, database included
 ```
+
+## A dry run without Railway
+
+`alchemy plan` is not offline. Before it plans a create, the engine asks each provider whether
+the resource already exists, so it can adopt rather than duplicate — and for Railway that is
+an API call with a token.
+
+`bun run deploy:dry-run` runs the same stack through Alchemy's real engine — plan and apply —
+against stand-in providers (`tooling/OfflineRailway.ts`) that report nothing as existing and
+record what they were asked to create. It needs no token, no state database and no network,
+and prints every resource each stage would be made of, with secrets masked and references left
+as the `${{…}}` templates Railway would receive. It runs from an empty directory with the
+declared variables cleared, because the engine reads `.env` beneath the environment and an
+empty variable does not mask it: without that, a developer's own S3 region would appear as if
+the stage had one.
+
+`tooling/test/deploy-offline.test.ts` runs it on every `bun run test` and holds the result to
+what must not drift: the resources, that Postgres and the worker are not public, that every
+`${{service.VAR}}` names a service that exists — Railway resolves a misspelt one to an empty
+string rather than failing — and that each secret reaches only the process that reads it.
+
+What it cannot tell you is whether Railway would accept the result: a name already taken, a
+token without the right scope, a repository the account is not connected to. That is
+`deploy:plan`, with a token.
 
 ## Stages
 
