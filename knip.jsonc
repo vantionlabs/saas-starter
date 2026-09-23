@@ -116,8 +116,8 @@
     ".": {
       "entry": [
         ".claude/hooks/*.mjs",
-        // Read by `railway config plan|apply`, never imported.
-        ".railway/railway.ts"
+        // Loaded by the `alchemy` CLI, never imported.
+        "alchemy.run.ts"
       ]
     }
   }

@@ -39,3 +39,5 @@ e2e/playwright-report/
 e2e/blob-report/
 docs/workflow/STATE.md
 docs/workflow/prototype/
+# Alchemy writes local credentials and a cache here. State is in Postgres.
+.alchemy/
