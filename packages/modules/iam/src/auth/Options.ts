@@ -155,8 +155,11 @@ const send = async <Props>(
 
 /** Single source of truth for the runtime instance and for schema generation. */
 const authOptions = (options: MakeAuthOptions) => ({
-  // The shared pool, so auth writes join application transactions and the
-  // process keeps one connection pool rather than two.
+  // `PgPool`, not a pool of its own: better-auth needs a `pg.Pool`, and taking
+  // the process's one means it connects wherever `DATABASE_URL` says. Its
+  // writes never joined an Effect transaction — a transaction reserves a
+  // connection this pool cannot see — and since `@effect/sql-pg` stopped
+  // wrapping `pg`, the two do not even share connections.
   database: options.pool,
   baseURL: options.baseURL,
   secret: options.secret,

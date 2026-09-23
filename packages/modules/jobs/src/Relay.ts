@@ -51,7 +51,7 @@ export const relayOnce = Effect.fnUntraced(function*(options?: { readonly batchS
        * depth that climbs and never comes back down is the clearest sign the
        * relay has stopped, and it was invisible until this existed.
        */
-      const [depth] = yield* sql<{ pending: string; }>`
+      const [depth] = yield* sql<{ pending: bigint; }>`
         select count(*) as "pending" from "outboxEvent" where "relayedAt" is null
       `;
 

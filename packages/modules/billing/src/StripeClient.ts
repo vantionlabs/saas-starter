@@ -98,13 +98,13 @@ export class StripeClient extends Context.Service<StripeClient, StripeClientServ
    */
   static layer: Layer.Layer<StripeClient> = Layer.unwrap(
     Effect.gen(function*() {
-      const key = yield* Config.option(Config.redacted("STRIPE_SECRET_KEY"));
+      const key = yield* Config.option(Config.Redacted("STRIPE_SECRET_KEY"));
 
       if (Option.isNone(key) || Redacted.value(key.value).trim() === "") {
         return StripeClient.layerUnconfigured;
       }
 
-      const secret = yield* Config.redacted("STRIPE_WEBHOOK_SECRET");
+      const secret = yield* Config.Redacted("STRIPE_WEBHOOK_SECRET");
       const { layerStripe } = yield* Effect.promise(() => import("./Stripe.js"));
 
       return layerStripe({

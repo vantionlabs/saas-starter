@@ -285,18 +285,19 @@ not a side effect of creating a directory.`;
 const command = Command.make(
   "new-module",
   {
-    name: Argument.string("name").pipe(
+    name: Argument.String("name").pipe(
       Argument.withDescription("The module's name: lowercase, hyphenated, e.g. audit-log."),
     ),
-    dryRun: Flag.boolean("dry-run").pipe(
+    dryRun: Flag.Boolean("dry-run").pipe(
       Flag.withDescription("List what would be written and registered, and write nothing."),
+      Flag.withDefault(false),
     ),
     /**
      * Only the tests pass this. The generator edits `tsconfig.base.json` and
      * `tsconfig.json` in place, and a test doing that to the real repository
      * would be mutating files the other Vitest projects read while they run.
      */
-    root: Flag.string("root").pipe(
+    root: Flag.String("root").pipe(
       Flag.withDescription("The repository to write into. Defaults to this one."),
       Flag.optional,
     ),

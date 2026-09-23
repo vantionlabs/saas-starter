@@ -145,12 +145,12 @@ const program = Database.pipe(
 \`Effect<T, ConfigError>\`:
 
 \`\`\`ts
-Config.port("PORT").asEffect().pipe(`,
+Config.Port("PORT").asEffect().pipe(`,
     replace: `\`Config<T>\` extends \`Effect<T, ConfigError>\`, so outside generators you pipe it
 directly:
 
 \`\`\`ts
-Config.port("PORT").pipe(`,
+Config.Port("PORT").pipe(`,
   },
   {
     file: "effect-config-v4.md",
@@ -377,8 +377,9 @@ const sync = Effect.fnUntraced(function*(dryRun: boolean) {
 const command = Command.make(
   "sync-skills",
   {
-    dryRun: Flag.boolean("dry-run").pipe(
+    dryRun: Flag.Boolean("dry-run").pipe(
       Flag.withDescription("Fetch and correct, report what would change, and write nothing."),
+      Flag.withDefault(false),
     ),
   },
   ({ dryRun }) => sync(dryRun),

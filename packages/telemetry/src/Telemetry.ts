@@ -37,7 +37,7 @@ import { Config, Effect, Option, Redacted } from "effect";
 export const layerTelemetry = (defaultServiceName: string) =>
   NodeSdk.layer(Effect.gen(function*() {
     const endpoint = yield* Config.option(
-      Config.nonEmptyString("OTEL_EXPORTER_OTLP_ENDPOINT"),
+      Config.NonEmptyString("OTEL_EXPORTER_OTLP_ENDPOINT"),
     );
 
     /**
@@ -46,7 +46,7 @@ export const layerTelemetry = (defaultServiceName: string) =>
      * The API and the worker fail in different ways for different reasons, and
      * two services reporting under one name is a trace nobody can read.
      */
-    const serviceName = yield* Config.nonEmptyString("OTEL_SERVICE_NAME").pipe(
+    const serviceName = yield* Config.NonEmptyString("OTEL_SERVICE_NAME").pipe(
       Config.withDefault(defaultServiceName),
     );
 
@@ -54,7 +54,7 @@ export const layerTelemetry = (defaultServiceName: string) =>
      * Sent as an `Authorization` header when present, which is what every
      * hosted collector wants. Redacted so a crash trace cannot carry the token.
      */
-    const headers = yield* Config.option(Config.redacted("OTEL_EXPORTER_OTLP_HEADERS"));
+    const headers = yield* Config.option(Config.Redacted("OTEL_EXPORTER_OTLP_HEADERS"));
 
     return {
       resource: { serviceName },

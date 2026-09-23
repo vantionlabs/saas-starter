@@ -79,7 +79,7 @@ const vendor = Effect.fnUntraced(function*(name: string) {
 const command = Command.make(
   "vendor",
   {
-    names: Argument.string("name").pipe(
+    names: Argument.String("name").pipe(
       Argument.withDescription("Which source to re-vendor. Omit for every one."),
       Argument.variadic(),
     ),

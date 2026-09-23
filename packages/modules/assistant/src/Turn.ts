@@ -44,7 +44,7 @@ will be asked to approve it.`;
  */
 export const runTurn = (options: {
   readonly conversationId: ConversationId;
-  readonly chat: Chat.Service;
+  readonly chat: Chat.Chat;
   readonly say: Prompt.RawInput;
 }) =>
   Stream.suspend(() => {
@@ -61,7 +61,7 @@ export const runTurn = (options: {
     const calls = new Map<string, { readonly name: string; readonly params: unknown; }>();
 
     const toChunk = (
-      part: Response.StreamPart<typeof AgentToolkit["tools"]>,
+      part: Response.StreamPart<typeof AgentToolkit["tools"], "opaque">,
     ): Chunk | undefined => {
       if (part.type === "text-delta") {
         text += part.delta;

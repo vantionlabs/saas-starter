@@ -56,10 +56,13 @@ const call = <Name extends keyof Tools>(
  * The tools return refusals rather than failing, so the assertions are about
  * values. These two narrow the union and say which outcome was expected.
  */
-const succeeded = <A>(result: A): Exclude<A, ToolRefused | AiError.AiError> => {
-  expect(result, "the tool refused").not.toBeInstanceOf(ToolRefused);
+type Failed = ToolRefused | AiError.AiError | typeof Tool.ExecutionFailure.Type;
 
-  return result as Exclude<A, ToolRefused | AiError.AiError>;
+const succeeded = <A>(result: A): Exclude<A, Failed> => {
+  expect(result, "the tool refused").not.toBeInstanceOf(ToolRefused);
+  expect(result, "the call was denied or interrupted").not.toHaveProperty("type");
+
+  return result as Exclude<A, Failed>;
 };
 
 const refused = (result: unknown, required: string) => {

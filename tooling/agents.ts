@@ -50,8 +50,9 @@ class Stale extends Error {
 const command = Command.make(
   "agents",
   {
-    check: Flag.boolean("check").pipe(
+    check: Flag.Boolean("check").pipe(
       Flag.withDescription("Fail instead of writing when the generated files are stale."),
+      Flag.withDefault(false),
     ),
   },
   Effect.fnUntraced(function*({ check }) {

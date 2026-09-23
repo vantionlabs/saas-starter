@@ -58,7 +58,7 @@ const stored = Effect.fnUntraced(function*() {
    * it any other way here would be reading it in a way nothing does.
    */
   const rows = yield* withWorkerScope(
-    sql<{ plan: string; status: string; seats: number; lastEventCreated: string; }>`
+    sql<{ plan: string; status: string; seats: number; lastEventCreated: bigint; }>`
       select "plan", "status", "seats", "lastEventCreated" from "subscription"
       where "organizationId" = ${ORG}
     `,

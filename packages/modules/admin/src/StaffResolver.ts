@@ -61,7 +61,7 @@ const ADMIN_ROLES: ReadonlySet<string> = new Set(["admin"]);
  * enrol at `/settings/security` before the panel opens at all, which is
  * friction a template should not impose on somebody trying it out.
  */
-const REQUIRE_TWO_FACTOR = Config.boolean("ADMIN_REQUIRE_2FA").pipe(
+const REQUIRE_TWO_FACTOR = Config.Boolean("ADMIN_REQUIRE_2FA").pipe(
   Config.withDefault(false),
 );
 

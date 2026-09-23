@@ -34,7 +34,7 @@ import { PermissionResolver } from "./PermissionResolver.js";
  * default is off and the suggested value is small.
  */
 
-const PERMISSION_CACHE_TTL = Config.int("PERMISSION_CACHE_TTL").pipe(
+const PERMISSION_CACHE_TTL = Config.Int("PERMISSION_CACHE_TTL").pipe(
   Config.withDefault(0),
 );
 

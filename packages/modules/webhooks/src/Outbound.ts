@@ -23,7 +23,7 @@ export class Outbound extends Context.Service<Outbound, {
 }>()("Outbound") {
   static layer: Layer.Layer<Outbound> = Layer.effect(Outbound)(
     Effect.gen(function*() {
-      const permits = yield* Config.int("WEBHOOK_CONCURRENCY").pipe(
+      const permits = yield* Config.Int("WEBHOOK_CONCURRENCY").pipe(
         Config.withDefault(20),
         Effect.orDie,
       );

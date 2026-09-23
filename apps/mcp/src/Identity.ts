@@ -23,7 +23,7 @@ export const IdentityLive: Layer.Layer<
   ApiKeyAuth | EntitlementResolver
 > = Layer.unwrap(
   Effect.gen(function*() {
-    const key = yield* Config.redacted("VANTION_API_KEY");
+    const key = yield* Config.Redacted("VANTION_API_KEY");
     const auth = yield* ApiKeyAuth;
     const resolver = yield* EntitlementResolver;
 

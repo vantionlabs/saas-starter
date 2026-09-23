@@ -73,7 +73,7 @@ describe.skipIf(testDbUrl() === undefined || adminDbUrl() === undefined)("staff 
       const admin = yield* AdminSql;
 
       const count = () =>
-        admin<{ n: string; }>`select count(*) as "n" from "adminAudit"`.pipe(
+        admin<{ n: bigint; }>`select count(*) as "n" from "adminAudit"`.pipe(
           Effect.map((rows) => Number(rows[0]?.n ?? 0)),
         );
 

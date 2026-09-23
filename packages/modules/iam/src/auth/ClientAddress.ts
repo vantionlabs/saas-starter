@@ -12,7 +12,7 @@ import type { HttpServerRequest } from "effect/unstable/http";
  *
  * On Railway, and behind most single load balancers, this is `1`.
  */
-export const TrustedProxyCount = Config.int("TRUST_PROXY").pipe(Config.withDefault(0));
+export const TrustedProxyCount = Config.Int("TRUST_PROXY").pipe(Config.withDefault(0));
 
 /**
  * The address to hold a caller responsible for.

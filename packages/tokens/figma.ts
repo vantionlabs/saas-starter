@@ -14,8 +14,9 @@ import { figmaVariables, figmaVariableScript } from "./src/figma.ts";
 const command = Command.make(
   "figma",
   {
-    json: Flag.boolean("json").pipe(
+    json: Flag.Boolean("json").pipe(
       Flag.withDescription("Print the variables as JSON instead of the plugin script."),
+      Flag.withDefault(false),
     ),
   },
   ({ json }) =>

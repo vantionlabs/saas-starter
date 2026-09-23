@@ -26,7 +26,7 @@ const command = Command.make(
      * Passed through. The suite's own flags are its business, and repeating
      * them here would be two places to keep in step.
      */
-    rest: Argument.string("arg").pipe(
+    rest: Argument.String("arg").pipe(
       Argument.withDescription("Passed through to the eval runner, e.g. --update-baseline."),
       Argument.variadic(),
     ),

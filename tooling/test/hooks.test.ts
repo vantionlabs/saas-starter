@@ -184,7 +184,7 @@ describe("session-context", () => {
     const { code, stdout } = fire("session-context.mjs", {});
 
     expect(code).toBe(0);
-    expect(stdout).toContain("4.0.0-rc.109");
+    expect(stdout).toContain("4.0.0-rc.117");
     expect(stdout).toContain("repos/effect");
   });
 });

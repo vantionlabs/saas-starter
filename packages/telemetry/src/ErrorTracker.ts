@@ -45,14 +45,14 @@ export class ErrorTracker extends Context.Service<ErrorTracker, ErrorTrackerServ
    */
   static layer: Layer.Layer<ErrorTracker> = Layer.unwrap(
     Effect.gen(function*() {
-      const dsn = yield* Config.option(Config.redacted("SENTRY_DSN"));
+      const dsn = yield* Config.option(Config.Redacted("SENTRY_DSN"));
 
       if (Option.isNone(dsn) || Redacted.value(dsn.value).trim() === "") {
         return ErrorTracker.layerNoop;
       }
 
-      const release = yield* Config.option(Config.nonEmptyString("RELEASE"));
-      const environment = yield* Config.nonEmptyString("SENTRY_ENVIRONMENT").pipe(
+      const release = yield* Config.option(Config.NonEmptyString("RELEASE"));
+      const environment = yield* Config.NonEmptyString("SENTRY_ENVIRONMENT").pipe(
         Config.withDefault("production"),
       );
 

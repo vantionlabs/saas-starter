@@ -24,7 +24,7 @@ const command = Command.make(
      * Whatever Playwright should get. Variadic rather than parsed, because
      * these are another tool's flags and this one has no business knowing them.
      */
-    playwright: Argument.string("playwright-arg").pipe(
+    playwright: Argument.String("playwright-arg").pipe(
       Argument.withDescription("Passed through to `playwright test`."),
       Argument.variadic(),
     ),
