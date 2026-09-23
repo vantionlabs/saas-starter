@@ -66,10 +66,22 @@ const vendor = Effect.fnUntraced(function*(name: string) {
 
   if (fs.existsSync(path.join(ROOT, source.prefix))) {
     yield* git("rm", "-r", "--quiet", source.prefix);
-    yield* git("commit", "--quiet", "-m", `drop the vendored ${name} copy`);
+    yield* git("commit", "--quiet", "-m", `chore(vendor): drop the vendored ${name} copy`);
   }
 
-  yield* git("subtree", "add", `--prefix=${source.prefix}`, source.url, source.ref, "--squash");
+  // Both subjects are conventional because `lefthook.yml`'s commit-msg hook
+  // refuses anything else, and a refused commit here stops the script with
+  // the old copy already staged for deletion.
+  yield* git(
+    "subtree",
+    "add",
+    `--prefix=${source.prefix}`,
+    "-m",
+    `chore(vendor): add ${name} at ${source.ref}`,
+    source.url,
+    source.ref,
+    "--squash",
+  );
 
   yield* Console.log(
     `    vendored. check it against the \`${source.catalogPin}\` pin in package.json.`,
