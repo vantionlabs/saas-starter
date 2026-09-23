@@ -132,11 +132,11 @@ import { Config, Effect, Layer, Redacted, String } from "effect";
 
 export const PgLive = Layer.unwrap(
   Effect.gen(function*() {
-    const env = yield* Config.literal("local")("ENV").pipe(
+    const env = yield* Config.Literal("local", "ENV").pipe(
       Config.orElse(() => Config.succeed("prod" as const)),
     );
     const ssl = env !== "local" ? { rejectUnauthorized: false } : false;
-    const databaseUrl = yield* Config.redacted("DATABASE_URL");
+    const databaseUrl = yield* Config.Redacted("DATABASE_URL");
 
     return PgClient.layer({
       url: databaseUrl,

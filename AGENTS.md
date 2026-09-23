@@ -692,7 +692,7 @@ reads exactly like one that is right.
 ## Read the vendored Effect source before writing Effect code
 
 `repos/effect` is the full Effect monorepo, vendored with `git subtree` at exactly the version
-this repo depends on (`effect` in `package.json`, currently `4.0.0-rc.109`).
+this repo depends on (`effect` in `package.json`, currently `4.0.0-rc.117`).
 
 That word _exactly_ is load-bearing, and it was briefly untrue. Both sources were vendored from
 `main`, where a package's version field still reads as the last release while the source has
@@ -732,7 +732,7 @@ _intent_ still stands — only the API spelling defers.
 
 ## Corrections already applied
 
-`RULES.md` and `knowledge/skills/` have been corrected against rc.109. Each was confirmed by
+`RULES.md` and `knowledge/skills/` have been corrected against rc.117. Each was confirmed by
 reading the vendored source or by a compiler error, not inferred:
 
 | Was                       | Now                                                                                                                           |
@@ -743,6 +743,10 @@ reading the vendored source or by a compiler error, not inferred:
 | `Effect.fromYieldable`    | does not exist                                                                                                                |
 | schema `makeUnsafe()`     | `.make()`, which validates                                                                                                    |
 | `@effect/platform`        | gone in v4 — `effect/unstable/http`, `.../socket`, or `@effect/platform-node` / `-browser`                                    |
+| `Config.string(…)` etc.   | `Config.String(…)` — every built-in `Config` constructor is PascalCase, and `Config.mapOrFail` is `Config.mapEffect`          |
+| `Flag.boolean(…)` etc.    | `Flag.Boolean(…)`, `Argument.String(…)` — and a boolean flag no longer defaults to `false`; omitted, it is a missing flag     |
+| `Chat.Service`            | `Chat.Chat`                                                                                                                   |
+| `PgClient.fromPool`       | gone — `@effect/sql-pg` is its own driver; see below                                                                          |
 
 `Latch.makeUnsafe`, `Ref.makeUnsafe`, and `Deferred.makeUnsafe` are **real** and were left alone —
 `makeUnsafe` is only wrong on schemas.
@@ -752,6 +756,25 @@ re-applies every correction above after fetching, and fails without writing if a
 survives — so a sync cannot silently reintroduce v4-invalid APIs.
 
 Assume more drift exists than is listed here. Check the source.
+
+**`@effect/sql-pg` stopped wrapping `pg` at rc.113**, and that is the one change in the move to
+rc.117 that is not a spelling. It speaks the wire protocol itself, so it cannot be handed the
+`pg.Pool` better-auth runs on: `PgLive` opens its own connections, to the address `PgPool` was
+configured with, and a process holds two pools where it used to hold one. The comment claiming
+auth writes joined application transactions through the shared pool was never true — a
+transaction reserves a connection `pool.query` cannot see — and is gone.
+
+What else it changed is invisible to the compiler, because a `sql<T>` row type is a claim rather
+than a check. `int8` now decodes to a JavaScript `bigint`, not a string: every `count(*)` read
+here either casts `::text` or goes through `Number(…)`, which accepts both, and the row types say
+`bigint` now. Timestamps still decode to `Date` — the changelog says epoch milliseconds; the
+codec in `repos/effect` says otherwise, and the codec is what runs. An object is no longer sent as
+JSON by itself, which nothing here relied on: every `jsonb` write is `JSON.stringify(…)::jsonb`.
+
+`multiplex` is set to `false` rather than left to its default. Tenant scope is
+`set_config('app.current_org', …, true)` inside a transaction, a transaction reserves its
+connection whatever the flag says, and a client pipelining other fibers' statements onto shared
+connections is exactly the arrangement this file refused Bun's Postgres client over.
 
 ## Do not touch `repos/`
 
@@ -841,8 +864,8 @@ to `0.25.0-beta.6`: the range its `-react` package asks for is `^0.25.0-beta.6`,
 semver says includes the _stable_ `0.25.0` — and that one still targets Effect v3, so bun
 resolving it (correctly) broke every form with `Cannot find module 'effect/dist/ParseResult.js'`.
 pnpm had been conservative about prereleases and hidden it. `@effect/platform-node-shared`
-is pinned to `4.0.0-rc.109` for the same class of reason: it drifted to rc.116 through a
-caret and expects an `effect` this repository does not have. Every `@effect/*` package
+is pinned to the same RC for the same class of reason: it once drifted four releases ahead
+through a caret and expected an `effect` this repository did not have. Every `@effect/*` package
 being on one RC is an invariant this repo has always depended on and had never written
 down.
 

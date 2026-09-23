@@ -60,19 +60,19 @@ segment. Omit it when the config is part of a larger schema.
 
 | Constructor                    | Schema used                      | Notes                                        |
 | ------------------------------ | -------------------------------- | -------------------------------------------- |
-| `Config.string(name?)`         | `Schema.String`                  |                                              |
-| `Config.nonEmptyString(name?)` | `Schema.NonEmptyString`          | Rejects `""`                                 |
-| `Config.number(name?)`         | `Schema.Number`                  | Allows NaN/Infinity                          |
-| `Config.finite(name?)`         | `Schema.Finite`                  | Rejects NaN/Infinity                         |
-| `Config.int(name?)`            | `Schema.Int`                     | Rejects floats                               |
-| `Config.boolean(name?)`        | `Config.Boolean`                 | `true/false/yes/no/on/off/1/0/y/n`           |
-| `Config.port(name?)`           | `Config.Port`                    | Integer 1-65535                              |
-| `Config.duration(name?)`       | `Config.Duration`                | `"10 seconds"`, `"500 millis"`               |
-| `Config.logLevel(name?)`       | `Config.LogLevel`                | `All/Fatal/Error/Warn/Info/Debug/Trace/None` |
-| `Config.redacted(name?)`       | `Schema.Redacted(Schema.String)` | Value hidden in logs/errors                  |
-| `Config.url(name?)`            | `Schema.URL`                     | Parsed `URL` object                          |
-| `Config.date(name?)`           | `Schema.DateValid`               | Parsed `Date`                                |
-| `Config.literal(value, name?)` | `Schema.Literal(value)`          | Exact match                                  |
+| `Config.String(name?)`         | `Schema.String`                  |                                              |
+| `Config.NonEmptyString(name?)` | `Schema.NonEmptyString`          | Rejects `""`                                 |
+| `Config.Number(name?)`         | `Schema.Number`                  | Allows NaN/Infinity                          |
+| `Config.Finite(name?)`         | `Schema.Finite`                  | Rejects NaN/Infinity                         |
+| `Config.Int(name?)`            | `Schema.Int`                     | Rejects floats                               |
+| `Config.Boolean(name?)`        | `Config.Boolean`                 | `true/false/yes/no/on/off/1/0/y/n`           |
+| `Config.Port(name?)`           | `Config.Port`                    | Integer 1-65535                              |
+| `Config.Duration(name?)`       | `Config.Duration`                | `"10 seconds"`, `"500 millis"`               |
+| `Config.LogLevel(name?)`       | `Config.LogLevel`                | `All/Fatal/Error/Warn/Info/Debug/Trace/None` |
+| `Config.Redacted(name?)`       | `Schema.Redacted(Schema.String)` | Value hidden in logs/errors                  |
+| `Config.URL(name?)`            | `Schema.URL`                     | Parsed `URL` object                          |
+| `Config.Date(name?)`           | `Schema.DateValid`               | Parsed `Date`                                |
+| `Config.Literal(value, name?)` | `Schema.Literal(value)`          | Exact match                                  |
 | `Config.succeed(value)`        | n/a                              | Always succeeds, ignores provider            |
 | `Config.fail(err)`             | n/a                              | Always fails with given error                |
 
@@ -109,8 +109,8 @@ parses:
 
 ```ts
 const program = Effect.gen(function*() {
-  const host = yield* Config.string("HOST");
-  const port = yield* Config.port("PORT");
+  const host = yield* Config.String("HOST");
+  const port = yield* Config.Port("PORT");
   return { host, port };
 });
 ```
@@ -119,7 +119,7 @@ const program = Effect.gen(function*() {
 directly:
 
 ```ts
-Config.port("PORT").pipe(
+Config.Port("PORT").pipe(
   Effect.flatMap((port) => startServer(port)),
 );
 ```
@@ -127,7 +127,7 @@ Config.port("PORT").pipe(
 To parse against a specific provider (bypassing the service map):
 
 ```ts
-const result = Effect.runSync(Config.port("PORT").parse(provider));
+const result = Effect.runSync(Config.Port("PORT").parse(provider));
 ```
 
 ## Combinators
@@ -137,18 +137,18 @@ const result = Effect.runSync(Config.port("PORT").parse(provider));
 Transform the parsed value with a pure function:
 
 ```ts
-Config.string("HOST").pipe(
+Config.String("HOST").pipe(
   Config.map((s) => s.toUpperCase()),
 );
 ```
 
-### `Config.mapOrFail`
+### `Config.mapEffect`
 
 Transform with a function that returns `Effect<B, ConfigError>`:
 
 ```ts
-Config.string("HOST").pipe(
-  Config.mapOrFail((s) => Effect.succeed(s.trim())),
+Config.String("HOST").pipe(
+  Config.mapEffect((s) => Effect.succeed(s.trim())),
 );
 ```
 
@@ -157,7 +157,7 @@ Config.string("HOST").pipe(
 Fall back to another config on ANY `ConfigError`:
 
 ```ts
-Config.string("HOST").pipe(
+Config.String("HOST").pipe(
   Config.orElse(() => Config.succeed("localhost")),
 );
 ```
@@ -168,10 +168,10 @@ Provide a fallback value on MISSING DATA ONLY. Validation errors
 (wrong type, out of range) still propagate:
 
 ```ts
-Config.port("PORT").pipe(Config.withDefault(3000));
+Config.Port("PORT").pipe(Config.withDefault(3000));
 ```
 
-This is critical: `Config.finite("a").pipe(Config.withDefault(0))` with
+This is critical: `Config.Finite("a").pipe(Config.withDefault(0))` with
 `{ a: "notanumber" }` still FAILS. The value is present but invalid.
 
 ### `Config.option`
@@ -180,7 +180,7 @@ Returns `Some(value)` on success, `None` on missing data. Like
 `withDefault`, validation errors propagate:
 
 ```ts
-const maybePort = Config.option(Config.port("PORT"));
+const maybePort = Config.option(Config.Port("PORT"));
 ```
 
 ### `Config.all`
@@ -189,8 +189,8 @@ Combine multiple configs. Accepts a tuple, iterable, or record:
 
 ```ts
 const dbConfig = Config.all({
-  host: Config.string("host"),
-  port: Config.port("port"),
+  host: Config.String("host"),
+  port: Config.Port("port"),
 });
 ```
 
@@ -202,8 +202,8 @@ Scope a config under a named prefix:
 
 ```ts
 const dbConfig = Config.all({
-  host: Config.string("host"),
-  port: Config.port("port"),
+  host: Config.String("host"),
+  port: Config.Port("port"),
 }).pipe(Config.nested("database"));
 ```
 
@@ -227,7 +227,7 @@ const makeLayer = (config: Config.Wrap<Options>) =>
     Effect.map((opts) => opts),
   );
 
-makeLayer({ host: Config.string("HOST"), port: Config.port("PORT") });
+makeLayer({ host: Config.String("HOST"), port: Config.Port("PORT") });
 makeLayer(Config.schema(Schema.Struct({ host: Schema.String, port: Schema.Int })));
 ```
 
@@ -388,7 +388,7 @@ const TestConfig = ConfigProvider.layer(
 );
 
 const program = Effect.gen(function*() {
-  const host = yield* Config.string("host");
+  const host = yield* Config.String("host");
   return host;
 }).pipe(Effect.provide(TestConfig));
 ```
@@ -480,7 +480,7 @@ const TestConfig = ConfigProvider.layer(
 
 it.effect("reads config", () =>
   Effect.gen(function*() {
-    const host = yield* Config.string("host").pipe(Config.nested("database"));
+    const host = yield* Config.String("host").pipe(Config.nested("database"));
     expect(host).toBe("localhost");
   }).pipe(Effect.provide(TestConfig)));
 ```
@@ -519,15 +519,15 @@ const result = Effect.runSync(
 | Per-type primitives only                 | `Config.schema(codec, path)` is universal          |
 | `Config.secret`                          | `Config.redacted`                                  |
 | `Config.integer`                         | `Config.int`                                       |
-| `Config.array(config)`                   | `Config.schema(Schema.Array(schema))`              |
+| `Config.Array(config)`                   | `Config.schema(Schema.Array(schema))`              |
 | `Config.hashSet` / `Config.hashMap`      | Removed                                            |
-| `Config.validate`                        | `Config.mapOrFail` or schema checks                |
+| `Config.validate`                        | `Config.mapEffect` or schema checks                |
 | `Config.repeat` / `Config.chunk`         | Removed                                            |
 | `Config.withDescription`                 | Removed                                            |
 | `Config.zip` / `Config.zipWith`          | `Config.all([a, b])`                               |
 | `Config.suspend` / `Config.sync`         | Removed                                            |
 | `Config.withDefault(value)`              | `Config.withDefault(value)`                        |
-| `Config.literal("a", "b", "c")`          | `Config.literal("a", name?)` (single literal)      |
+| v3 `Config.literal` with several values | `Config.Literals(["a", "b"], name?)`             |
 | `ConfigProvider.fromFlat`                | `ConfigProvider.make`                              |
 | `ConfigProvider.fromMap`                 | `ConfigProvider.fromEnv({ env })` or `fromUnknown` |
 | `ConfigProvider.fromJson`                | `ConfigProvider.fromUnknown`                       |
@@ -539,21 +539,21 @@ const result = Effect.runSync(
 
 | Task                      | Pattern                                                             |
 | ------------------------- | ------------------------------------------------------------------- |
-| Single string value       | `Config.string("HOST")`                                             |
+| Single string value       | `Config.String("HOST")`                                             |
 | Typed value from schema   | `Config.schema(Schema.Struct({...}), "prefix")`                     |
-| Boolean from env          | `Config.boolean("ENABLED")` (accepts yes/no/1/0 etc.)               |
-| Port number               | `Config.port("PORT")`                                               |
-| Secret value              | `Config.redacted("API_KEY")`                                        |
-| Duration                  | `Config.duration("TIMEOUT")`                                        |
-| URL                       | `Config.url("BASE_URL")`                                            |
-| Combine configs           | `Config.all({ a: Config.string("a"), b: Config.int("b") })`         |
+| Boolean from env          | `Config.Boolean("ENABLED")` (accepts yes/no/1/0 etc.)               |
+| Port number               | `Config.Port("PORT")`                                               |
+| Secret value              | `Config.Redacted("API_KEY")`                                        |
+| Duration                  | `Config.Duration("TIMEOUT")`                                        |
+| URL                       | `Config.URL("BASE_URL")`                                            |
+| Combine configs           | `Config.all({ a: Config.String("a"), b: Config.Int("b") })`         |
 | Default value             | `Config.withDefault(fallback)`                                      |
 | Optional                  | `Config.option(config)`                                             |
 | Nest under prefix         | `config.pipe(Config.nested("database"))`                            |
 | Transform value           | `config.pipe(Config.map(f))`                                        |
 | Fallback config           | `config.pipe(Config.orElse(() => Config.succeed(x)))`               |
 | Unwrap record of configs  | `Config.unwrap(wrapped)`                                            |
-| Yield in Effect.gen       | `const x = yield* Config.port("PORT")`                              |
+| Yield in Effect.gen       | `const x = yield* Config.Port("PORT")`                              |
 | Parse against provider    | `config.parse(provider)`                                            |
 | Provider from env vars    | `ConfigProvider.fromEnv({ env: {...} })`                            |
 | Provider from JS object   | `ConfigProvider.fromUnknown({...})`                                 |

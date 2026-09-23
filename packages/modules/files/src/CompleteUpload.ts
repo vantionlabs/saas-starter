@@ -37,6 +37,6 @@ export const CompleteUpload = FilesRpcs.toLayerHandler(
       where "id" = ${payload.id} and "organizationId" = ${orgId}
     `).pipe(Effect.orDie);
 
-      return toFile({ ...row.value, status: "ready", size: String(size.value) });
+      return toFile({ ...row.value, status: "ready", size: BigInt(size.value) });
     }).pipe(withPolicy(permission("file:create"))),
 );

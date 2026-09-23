@@ -145,12 +145,12 @@ const program = Database.pipe(
 \`Effect<T, ConfigError>\`:
 
 \`\`\`ts
-Config.Port("PORT").asEffect().pipe(`,
+Config.port("PORT").asEffect().pipe(`,
     replace: `\`Config<T>\` extends \`Effect<T, ConfigError>\`, so outside generators you pipe it
 directly:
 
 \`\`\`ts
-Config.Port("PORT").pipe(`,
+Config.port("PORT").pipe(`,
   },
   {
     file: "effect-config-v4.md",
@@ -196,6 +196,22 @@ const program = Database.pipe(`,
     replace: "`withConstructorDefault`: optional in `make` and class construction.",
   },
   {
+    file: "effect-sql-v4.md",
+    why: "Config.Literal takes the name as its second argument; there is no curried form",
+    find: `Config.literal("local")("ENV")`,
+    replace: `Config.literal("local", "ENV")`,
+  },
+  {
+    file: "effect-config-v4.md",
+    // Written without the call parenthesis so the constructor rename below
+    // leaves the v3 column describing v3.
+    why: "the v3 column of the migration table must keep the v3 name",
+    find:
+      "| `Config.literal(\"a\", \"b\", \"c\")`          | `Config.literal(\"a\", name?)` (single literal)      |",
+    replace:
+      "| v3 `Config.literal` with several values | `Config.Literals([\"a\", \"b\"], name?)`             |",
+  },
+  {
     file: "effect-rpc-testing-v4.md",
     why: "@effect/platform does not exist in v4",
     find: "import { HttpClient, HttpClientRequest, HttpRouter } from \"@effect/platform\";",
@@ -225,9 +241,37 @@ const program = Database.pipe(`,
 ];
 
 /** Applied to every file, after the structural corrections. */
-const RENAMES = [
-  { from: /ServiceMap/g, to: "Context", why: "no ServiceMap module in v4" },
-  { from: /TaggedErrorClass/g, to: "TaggedError", why: "Schema.TaggedError in v4" },
+const pascal = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
+
+/** The CLI constructors whose new name is not just the old one capitalised. */
+const CLI_NAMES = new Map([["integer", "Int"], ["float", "Finite"], ["choice", "Literals"]]);
+
+const RENAMES: ReadonlyArray<{
+  readonly from: RegExp;
+  readonly to: (match: string, ...groups: Array<string>) => string;
+  readonly why: string;
+}> = [
+  { from: /ServiceMap/g, to: () => "Context", why: "no ServiceMap module in v4" },
+  { from: /TaggedErrorClass/g, to: () => "TaggedError", why: "Schema.TaggedError in v4" },
+  {
+    from:
+      /\bConfig\.(string|nonEmptyString|number|finite|int|literals?|boolean|duration|port|logLevel|redacted|url|date|array|record|byteSize)\(/g,
+    to: (_: string, name: string) => `Config.${name === "url" ? "URL" : pascal(name)}(`,
+    why: "Config constructors are PascalCase",
+  },
+  {
+    from: /\bConfig\.mapOrFail\b/g,
+    to: () => "Config.mapEffect",
+    why: "renamed with the constructors",
+  },
+  {
+    from:
+      /\b(Flag|Argument)\.(string|boolean|integer|float|choice|file|directory|path|redacted)\(/g,
+    to: (_: string, kind: string, name: string) =>
+      `${kind}.${CLI_NAMES.get(name) ?? pascal(name)}(`,
+    why: "CLI constructors are PascalCase, and three were renamed outright",
+  },
+  { from: /\bChat\.Service\b/g, to: () => "Chat.Chat", why: "the Chat service is Chat.Chat" },
 ];
 
 // --------------------------------------------------------------------------
@@ -238,6 +282,11 @@ const GUARDS = [
   { re: /ServiceMap/, why: "renamed to Context in v4" },
   { re: /TaggedErrorClass/, why: "Schema.TaggedError in v4" },
   { re: /fromYieldable/, why: "does not exist in v4" },
+  {
+    re: /\bConfig\.(string|nonEmptyString|number|int|boolean|port|redacted|url|literal)\(/,
+    why: "Config constructors are PascalCase",
+  },
+  { re: /\bPgClient\.fromPool\b/, why: "removed with the native driver in rc.113" },
   {
     re: /from "@effect\/platform"/,
     why: "use effect/unstable/* in v4",

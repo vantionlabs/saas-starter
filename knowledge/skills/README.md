@@ -5,9 +5,10 @@
 > before using anything from these files. See `AGENTS.md` for the full precedence order.
 >
 > **These files diverge from upstream on purpose.** They are corrected against
-> `effect@4.0.0-rc.109`: `ServiceMap` → `Context`, `Schema.TaggedErrorClass` → `Schema.TaggedError`,
+> `effect@4.0.0-rc.117`: `ServiceMap` → `Context`, `Schema.TaggedErrorClass` → `Schema.TaggedError`,
 > the `.asEffect()` protocol (removed in v4 — yieldables that are Effects pipe directly), schema
-> `makeUnsafe` → `make`, and `@effect/platform` imports → `effect/unstable/*`.
+> `makeUnsafe` → `make`, `@effect/platform` imports → `effect/unstable/*`, the PascalCase
+> `Config`, `Flag` and `Argument` constructors, and `Chat.Service` → `Chat.Chat`.
 
 Synced from
 [`lucas-barake/dotfiles`](https://github.com/lucas-barake/dotfiles/tree/main/ai/canonical/project-skills)
