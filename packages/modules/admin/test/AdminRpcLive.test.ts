@@ -23,7 +23,7 @@ const adminSql = Layer.effect(AdminSql)(
 ).pipe(Layer.provide(Reactivity.layer), Layer.orDie);
 
 const staff = Layer.succeed(CurrentStaff)(
-  new Staff({ userId: "staff_rpc", email: "support@vantion.co" }),
+  new Staff({ userId: "staff_rpc", email: "support@example.com" }),
 );
 
 const live = AdminRpcLive.pipe(

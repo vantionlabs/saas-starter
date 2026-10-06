@@ -34,7 +34,7 @@ const adminSql = Layer.effect(AdminSql)(
 ).pipe(Layer.provide(Reactivity.layer), Layer.orDie);
 
 const staff = Layer.succeed(CurrentStaff)(
-  new Staff({ userId: "staff_1", email: "support@vantion.co" }),
+  new Staff({ userId: "staff_1", email: "support@example.com" }),
 );
 
 const live = Layer.mergeAll(adminSql, staff).pipe(
@@ -118,7 +118,7 @@ describe.skipIf(testDbUrl() === undefined || adminDbUrl() === undefined)("cross-
           where "reason" = 'SUP-2048'
         `;
 
-        expect(entry?.staffEmail).toBe("support@vantion.co");
+        expect(entry?.staffEmail).toBe("support@example.com");
         expect(entry?.action).toBe("GetOrganization");
         expect(entry?.organizationId).toBe(THEIRS);
       }));
@@ -150,7 +150,7 @@ describe.skipIf(testDbUrl() === undefined || adminDbUrl() === undefined)("cross-
           `,
         );
 
-        expect(entry?.actorEmail).toBe("support@vantion.co");
+        expect(entry?.actorEmail).toBe("support@example.com");
         expect(entry?.actorRole).toBe("staff");
         expect(entry?.action).toBe("GetOrganization");
       }));

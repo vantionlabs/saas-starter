@@ -22,7 +22,7 @@ const adminSql = Layer.effect(AdminSql)(
 ).pipe(Layer.provide(Reactivity.layer), Layer.orDie);
 
 const staff = Layer.succeed(CurrentStaff)(
-  new Staff({ userId: "staff_trail", email: "reviewer@vantion.co" }),
+  new Staff({ userId: "staff_trail", email: "reviewer@example.com" }),
 );
 
 const live = Layer.mergeAll(adminSql, staff).pipe(
@@ -43,7 +43,7 @@ describe.skipIf(testDbUrl() === undefined || adminDbUrl() === undefined)("staff 
       const trail = yield* listStaffTrail(200);
       const entry = trail.find((row) => row.reason === reason);
 
-      expect(entry?.staffEmail).toBe("reviewer@vantion.co");
+      expect(entry?.staffEmail).toBe("reviewer@example.com");
       expect(entry?.action).toBe("ListOrganizations");
       // A read with no single tenant names none, rather than guessing at one.
       expect(entry?.organizationId).toBeUndefined();

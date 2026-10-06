@@ -285,7 +285,7 @@ const settled: Fixture = {
   staffTrail: [
     {
       id: "t1",
-      staffEmail: "support@vantion.co",
+      staffEmail: "support@example.com",
       action: "GetOrganization",
       organizationId: "org_8fc2",
       reason: "SUP-4821",
@@ -293,7 +293,7 @@ const settled: Fixture = {
     },
     {
       id: "t2",
-      staffEmail: "support@vantion.co",
+      staffEmail: "support@example.com",
       // The widest thing anybody can do here, and the row that has to look it.
       action: "ListOrganizations",
       organizationId: undefined,
@@ -450,7 +450,7 @@ const crowded: Fixture = {
   staffTrail: [
     {
       id: "t1",
-      staffEmail: "priya.ramachandran@vantion.co",
+      staffEmail: "priya.ramachandran@example.com",
       action: "GetOrganization",
       organizationId: "org_3f9a71c4e88b",
       reason: "Customer reports their CSV import stalled at 900 of 2400 rows — ZD-118204",
@@ -458,7 +458,7 @@ const crowded: Fixture = {
     },
     {
       id: "t2",
-      staffEmail: "priya.ramachandran@vantion.co",
+      staffEmail: "priya.ramachandran@example.com",
       action: "ListOrganizations",
       organizationId: undefined,
       reason: "Finding the tenant for ZD-118204; customer gave a domain, not a slug",
@@ -466,7 +466,7 @@ const crowded: Fixture = {
     },
     {
       id: "t3",
-      staffEmail: "sam@vantion.co",
+      staffEmail: "sam@example.com",
       action: "GetOrganization",
       organizationId: "org_0011aa22bb33",
       reason: "ZD-118199",
@@ -474,7 +474,7 @@ const crowded: Fixture = {
     },
     {
       id: "t4",
-      staffEmail: "sam@vantion.co",
+      staffEmail: "sam@example.com",
       action: "GetOrganization",
       organizationId: "org_deleted_last_week",
       // A stale link, which is a real row and the kind worth reviewing.
