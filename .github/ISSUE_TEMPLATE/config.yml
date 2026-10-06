@@ -1,8 +1,8 @@
 blank_issues_enabled: true
 contact_links:
   - name: Security report
-    url: https://github.com/vantionlabs/saas-starter/blob/main/SECURITY.md
-    about: Please email hello@vantion.co rather than opening a public issue.
+    url: https://github.com/vantionlabs/saas-starter/security/advisories/new
+    about: Report it privately from the Security tab rather than opening a public issue.
   - name: Product engineering with Vantion Labs
     url: https://vantion.co
     about: The workflow this starter is built for, and help running it.

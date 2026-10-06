@@ -351,7 +351,7 @@ bun run dev               # the API must be up; users are created through it
 bun run seed
 ```
 
-Everybody's password is `seedpassword`, and `staff@vantion.co` is the account
+Everybody's password is `seedpassword`, and `staff@example.com` is the account
 made staff so `apps/admin` opens without a SQL statement — the one
 `0014_staff.sql` tells you to run, run for you.
 

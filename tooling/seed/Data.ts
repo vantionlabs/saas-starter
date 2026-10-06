@@ -3,7 +3,7 @@ import type { Tenant } from "./Tenants.js";
 /**
  * Who exists after a seed.
  *
- * `staff@vantion.co` is a member of nothing, deliberately: staff is a system
+ * `staff@example.com` is a member of nothing, deliberately: staff is a system
  * role and has nothing to do with belonging to an organization, and having one
  * account that proves it is worth more than a comment saying so.
  */
@@ -14,11 +14,11 @@ export const PEOPLE = [
   { email: "sam@firstday.test", name: "Sam" },
   { email: "priya@northwind.test", name: "Priya Ramachandran" },
   { email: "jean@northwind.test", name: "Jean-Baptiste Devereux-Whitmore" },
-  { email: "staff@vantion.co", name: "Support" },
+  { email: "staff@example.com", name: "Support" },
 ] as const;
 
 /** The account made staff, so `apps/admin` opens without a SQL statement. */
-export const STAFF = "staff@vantion.co";
+export const STAFF = "staff@example.com";
 
 const names = [
   "Katherine Johnson",

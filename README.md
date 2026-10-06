@@ -490,7 +490,7 @@ bun run seed
 Three organizations mirroring the design personas, with contacts, members,
 custom roles, API keys, an audit trail, files, a subscription, webhook endpoints
 and a deliberately stuck outbox. Everyone's password is `seedpassword`, and
-`staff@vantion.co` is staff, so `bun run admin` opens the cross-tenant panel
+`staff@example.com` is staff, so `bun run admin` opens the cross-tenant panel
 without a SQL prompt.
 
 An empty application proves nothing: every list is its empty state, no screen is
@@ -857,11 +857,10 @@ Distinct from the roadmap above: these are choices rather than gaps.
 
 Issues and pull requests are welcome, especially tests that catch a real
 failure. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md);
-security reports go to hello@vantion.co, see [SECURITY.md](SECURITY.md).
+security reports go through a private GitHub security advisory, see [SECURITY.md](SECURITY.md).
 
 ## Licence
 
 MIT. See [LICENSE](LICENSE). The vendored sources under `repos/` keep their own
 licences, and [NOTICE](NOTICE) records them. Built by
-[Vantion Labs](https://vantion.co); if you want help getting a B2B SaaS product
-into production, [talk to the founder](https://vantion.co/book-a-call).
+[Vantion Labs](https://vantion.co).

@@ -21,7 +21,7 @@ const adminSql = Layer.effect(AdminSql)(
 ).pipe(Layer.provide(Reactivity.layer), Layer.orDie);
 
 const staff = Layer.succeed(CurrentStaff)(
-  new Staff({ userId: "staff_people", email: "support@vantion.co" }),
+  new Staff({ userId: "staff_people", email: "support@example.com" }),
 );
 
 const live = Layer.mergeAll(adminSql, staff).pipe(
