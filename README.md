@@ -1,7 +1,5 @@
 <p align="center">
-  <a href="https://vantion.co">
     <img src="https://raw.githubusercontent.com/vantionlabs/.github/main/profile/banner.png" alt="Vantion Labs" width="100%" />
-  </a>
 </p>
 
 <h1 align="center">SaaS starter</h1>
@@ -863,4 +861,4 @@ security reports go through a private GitHub security advisory, see [SECURITY.md
 
 MIT. See [LICENSE](LICENSE). The vendored sources under `repos/` keep their own
 licences, and [NOTICE](NOTICE) records them. Built by
-[Vantion Labs](https://vantion.co).
+Vantion Labs.
